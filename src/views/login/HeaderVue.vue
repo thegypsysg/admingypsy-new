@@ -2,7 +2,7 @@
   <header class="d-flex" style="border-bottom: 1px solid #bababa; height: 15vh">
     <div class="d-flex align-center">
       <img
-        :src="require('../assets/logo-img.png')"
+        :src="require('@/assets/logo-img.png')"
         alt="logo"
         :class="{
           'logo-image-mobile': isSmall,

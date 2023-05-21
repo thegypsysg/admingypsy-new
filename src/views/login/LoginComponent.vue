@@ -10,10 +10,10 @@
             :class="{ 'py-4 px-12': !isSmall, 'py-10 px-2': isSmall }"
           >
             <h1 class="mb-4">Welcome</h1>
-            <v-form fast-fail @submit.prevent="login">
+            <v-form @submit.prevent="doLogin">
               <v-text-field
                 class="login-input mb-2"
-                v-model="email"
+                v-model="input.email"
                 label="Email"
                 type="email"
                 variant="outlined"
@@ -22,7 +22,7 @@
               ></v-text-field>
 
               <v-text-field
-                v-model="password"
+                v-model="input.password"
                 :append-inner-icon="showPassword ? 'mdi-eye' : 'mdi-eye-off'"
                 :type="showPassword ? 'text' : 'password'"
                 variant="outlined"
@@ -82,19 +82,19 @@
                 style="gap: 20px"
               >
                 <div class="login-footer-icon">
-                  <img :src="require('../assets/tiktok.png')" alt="logo" />
+                  <img :src="require('@/assets/tiktok.png')" alt="logo" />
                 </div>
                 <div class="login-footer-icon">
-                  <img :src="require('../assets/facebook.png')" alt="logo" />
+                  <img :src="require('@/assets/facebook.png')" alt="logo" />
                 </div>
                 <div class="login-footer-icon">
-                  <img :src="require('../assets/instagram.png')" alt="logo" />
+                  <img :src="require('@/assets/instagram.png')" alt="logo" />
                 </div>
                 <div class="login-footer-icon">
-                  <img :src="require('../assets/google.png')" alt="logo" />
+                  <img :src="require('@/assets/google.png')" alt="logo" />
                 </div>
                 <div class="login-footer-icon">
-                  <img :src="require('../assets/linkedin.png')" alt="logo" />
+                  <img :src="require('@/assets/linkedin.png')" alt="logo" />
                 </div>
               </div>
             </v-form>
@@ -106,14 +106,27 @@
 </template>
 
 <script>
+import axios from 'axios';
+// import { router } from '@/router';
+
+const baseUrl = `https://adminsymphinite.symphinite.tech/api/`;
+
 export default {
   data() {
     return {
       rememberMe: false,
-      password: '',
-      email: '',
       showPassword: false,
       screenWidth: window.innerWidth,
+      input: {
+        email: '',
+        password: '',
+      },
+
+      user: JSON.parse(localStorage.getItem('user')),
+      // returnUrl: null,
+
+      isLoggingIn: false,
+      errorMessage: '',
     };
   },
   computed: {
@@ -123,6 +136,9 @@ export default {
   },
   created() {
     window.addEventListener('resize', this.handleResize);
+    if (this.$route.query.error) {
+      this.$helper.toastError(this, 'Anda sudah login di device lain');
+    }
   },
   unmounted() {
     window.removeEventListener('resize', this.handleResize);
@@ -131,13 +147,70 @@ export default {
     handleResize() {
       this.screenWidth = window.innerWidth;
     },
+    doLogin() {
+      // let payload = new FormData();
+      // payload.append('email', this.input.email);
+      // payload.append('password', this.input.password);
+
+      const email = this.input.email;
+      const password = this.input.password;
+
+      this.isLoggingIn = true;
+      this.errorMessage = '';
+      axios
+        .post(`${baseUrl}auth/login`, {
+          email,
+          password,
+        })
+        // eslint-disable-next-line no-unused-vars
+        .then((data) => {
+          // let data = response.data.data;
+
+          this.user = data.data.user;
+          this.token = data.data.access_token;
+          // console.log(user);
+          // console.log(token);
+          localStorage.setItem('user', JSON.stringify(this.user));
+          this.$router.push('/');
+
+          // let currentVersion = localStorage.getItem("version")
+          // if(currentVersion === null || currentVersion !== data.version) {
+          //     localStorage.setItem("reload", 1)
+          //     localStorage.setItem("version", data.version)
+          // }
+
+          // localStorage.setItem('version', 'v0.1');
+          // localStorage.setItem('token', data.token);
+          // localStorage.setItem('username', data.username);
+          // localStorage.setItem('fullname', data.nama);
+          // localStorage.setItem('roleId', data.role_id);
+          // localStorage.setItem('userId', data.userId);
+          // localStorage.setItem(
+          //   'roleName',
+          //   data.role_id == 1 ? 'Superadmin' : 'Admin'
+          // );
+          // localStorage.setItem("loginTime", data.loginTime)
+
+          // this.$axios.defaults.headers.common['Authorization'] =
+          //   localStorage.getItem('token');
+          // this.$axios.defaults.headers.common['LoginTime'] = localStorage.getItem('loginTime')
+          // this.$router.push('/order');
+        })
+        .catch((error) => {
+          // this.$helper.toastError(this, error.response.data.error);
+          console.log(error);
+        })
+        .finally(() => {
+          this.isLoggingIn = false;
+        });
+    },
   },
 };
 </script>
 
 <style scoped>
 .login-container {
-  background-image: url('../assets/banner-img.png');
+  background-image: url('@/assets/banner-img.png');
   background-position: center;
   background-size: cover;
   background-color: #cccccc;
