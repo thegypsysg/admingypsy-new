@@ -1,11 +1,13 @@
 <template>
   <div>
-    <h1>Hello</h1>
+    <AdminDashboard />
   </div>
 </template>
 
 <script>
-export default {};
+import AdminDashboard from './dashboard/AdminDashboard.vue';
+
+export default { components: { AdminDashboard } };
 </script>
 
 <style lang="scss" scoped></style>
