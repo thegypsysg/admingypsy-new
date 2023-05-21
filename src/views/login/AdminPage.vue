@@ -1,14 +1,14 @@
 <template>
-  <HeaderVue />
+  <HeaderAdmin />
   <LoginComponent />
 </template>
 
 <script>
-import HeaderVue from './HeaderVue.vue';
+import HeaderAdmin from './HeaderAdmin.vue';
 import LoginComponent from './LoginComponent.vue';
 
 export default {
-  components: { HeaderVue, LoginComponent },
+  components: { HeaderAdmin, LoginComponent },
 };
 </script>
 
