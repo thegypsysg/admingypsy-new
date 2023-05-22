@@ -30,19 +30,20 @@ axiosAbsensi.interceptors.response.use(
 
     if (error.response && error.response.status == 401) {
       axiosAbsensi.defaults.headers.common['Authorization'] = '';
-      var version = localStorage.getItem('version');
+      // var version = localStorage.getItem('version');
       localStorage.clear();
-      localStorage.setItem('version', version);
+      // localStorage.setItem('version', version);
 
-      router.push('/login');
-    } else if (error.response && error.response.status == 402) {
-      axiosAbsensi.defaults.headers.common['Authorization'] = '';
-      version = localStorage.getItem('version');
-      localStorage.clear();
-      localStorage.setItem('version', version);
-
-      router.push('/login?error=true');
+      router.push('/auth/login');
     }
+    // else if (error.response && error.response.status == 402) {
+    //   axiosAbsensi.defaults.headers.common['Authorization'] = '';
+    //   // version = localStorage.getItem('version');
+    //   localStorage.clear();
+    //   // localStorage.setItem('version', version);
+
+    //   router.push('/login?error=true');
+    // }
 
     return Promise.reject(error);
   }

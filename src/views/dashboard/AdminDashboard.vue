@@ -158,12 +158,14 @@ export default {
 
     rail: false,
   }),
+  // created() {
+  //   if (localStorage.getItem('token') == null) {
+  //     this.$router.push('/auth/login');
+  //   }
+  // },
   methods: {
     logout() {
-      var version = localStorage.getItem('user');
       localStorage.clear();
-      sessionStorage.clear();
-      localStorage.setItem('version', version);
 
       this.$router.push('/auth/login');
     },

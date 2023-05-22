@@ -10,6 +10,7 @@
             :class="{ 'py-4 px-12': !isSmall, 'py-10 px-2': isSmall }"
           >
             <h1 class="mb-4">Welcome</h1>
+
             <v-form @submit.prevent="doLogin">
               <v-text-field
                 class="login-input mb-2"
@@ -60,8 +61,10 @@
                 variant="outlined"
                 block
                 class="login-btn mt-n5"
-                >Sign In</v-btn
               >
+                <span v-if="!isLoggingIn">Sign In</span>
+                <i v-if="isLoggingIn" class="fa fa-circle-o-notch fa-spin" />
+              </v-btn>
               <div class="login-footer mt-8">
                 <div class="d-flex justify-center" style="gap: 25px">
                   <div class="login-line"></div>
@@ -99,6 +102,21 @@
               </div>
             </v-form>
           </v-card>
+
+          <v-snackbar
+            location="top"
+            color="red"
+            v-model="isError"
+            :timeout="1000"
+          >
+            {{ errorMessage }}
+
+            <template v-slot:actions>
+              <v-btn color="white" variant="text" @click="isError = false">
+                <v-icon>mdi-close</v-icon>
+              </v-btn>
+            </template>
+          </v-snackbar>
         </v-col>
       </v-row>
     </v-container>
@@ -109,7 +127,7 @@
 import axios from 'axios';
 // import { router } from '@/router';
 
-const baseUrl = `https://adminsymphinite.symphinite.tech/api/`;
+const baseUrl = `https://admin.the-gypsy.sg/api/`;
 
 export default {
   data() {
@@ -122,9 +140,7 @@ export default {
         password: '',
       },
 
-      user: JSON.parse(localStorage.getItem('user')),
-      // returnUrl: null,
-
+      isError: false,
       isLoggingIn: false,
       errorMessage: '',
     };
@@ -148,57 +164,34 @@ export default {
       this.screenWidth = window.innerWidth;
     },
     doLogin() {
-      // let payload = new FormData();
-      // payload.append('email', this.input.email);
-      // payload.append('password', this.input.password);
-
-      const email = this.input.email;
-      const password = this.input.password;
-
       this.isLoggingIn = true;
       this.errorMessage = '';
       axios
         .post(`${baseUrl}auth/login`, {
-          email,
-          password,
+          email: this.input.email,
+          password: this.input.password,
         })
         // eslint-disable-next-line no-unused-vars
         .then((data) => {
-          // let data = response.data.data;
+          localStorage.setItem('token', JSON.stringify(data.data.access_token));
+          localStorage.setItem('user', JSON.stringify(data.data.user));
 
-          this.user = data.data.user;
-          this.token = data.data.access_token;
-          // console.log(user);
-          // console.log(token);
-          localStorage.setItem('user', JSON.stringify(this.user));
+          this.$axios.defaults.headers.common['Authorization'] =
+            localStorage.getItem('token');
           this.$router.push('/');
-
-          // let currentVersion = localStorage.getItem("version")
-          // if(currentVersion === null || currentVersion !== data.version) {
-          //     localStorage.setItem("reload", 1)
-          //     localStorage.setItem("version", data.version)
-          // }
-
-          // localStorage.setItem('version', 'v0.1');
-          // localStorage.setItem('token', data.token);
-          // localStorage.setItem('username', data.username);
-          // localStorage.setItem('fullname', data.nama);
-          // localStorage.setItem('roleId', data.role_id);
-          // localStorage.setItem('userId', data.userId);
-          // localStorage.setItem(
-          //   'roleName',
-          //   data.role_id == 1 ? 'Superadmin' : 'Admin'
-          // );
-          // localStorage.setItem("loginTime", data.loginTime)
-
-          // this.$axios.defaults.headers.common['Authorization'] =
-          //   localStorage.getItem('token');
-          // this.$axios.defaults.headers.common['LoginTime'] = localStorage.getItem('loginTime')
-          // this.$router.push('/order');
         })
         .catch((error) => {
-          // this.$helper.toastError(this, error.response.data.error);
-          console.log(error);
+          // if (error.response.status == 401) {
+          //   this.isError = true;
+          //   this.errorMessage = 'Error when login!';
+          // } else {
+          //   this.isError = true;
+          //   this.errorMessage = 'Email/Password is incorrect!';
+          // }
+          if (error) {
+            this.isError = true;
+            this.errorMessage = 'Email/Password is incorrect!';
+          }
         })
         .finally(() => {
           this.isLoggingIn = false;
