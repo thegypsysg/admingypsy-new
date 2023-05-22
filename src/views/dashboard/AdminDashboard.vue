@@ -32,6 +32,23 @@
         <p style="font-size: 13px">HOME</p>
       </div>
 
+      <ul id="navigation">
+        <li v-for="(item, index) in navigation" :key="'item' + index">
+          <i
+            v-if="item.subnav"
+            class="far"
+            :class="{
+              'fa fa-chevron-down': !item.open,
+              'fa fa-chevron-up': item.open,
+            }"
+          ></i>
+          <div class="title" @click="item.open = !item.open">
+            {{ item.title }}
+          </div>
+          <Dropdown v-if="item.subnav" :list="item" />
+        </li>
+      </ul>
+
       <!-- <v-divider></v-divider> -->
     </v-navigation-drawer>
     <v-app-bar absolute="" color="white" elevation="0">
@@ -104,6 +121,8 @@
 </template>
 
 <script>
+import Dropdown from '@/components/Dropdown.vue';
+
 export default {
   data: () => ({
     linksNavBar: ['Chat', 'Calendar', 'Notes'],
@@ -155,7 +174,6 @@ export default {
         title: 'Staycacy',
       },
     ],
-
     rail: false,
   }),
   // created() {
@@ -163,17 +181,22 @@ export default {
   //     this.$router.push('/auth/login');
   //   }
   // },
+  computed: {
+    navigation() {
+      return this.$store.getters.navigation;
+    },
+  },
   methods: {
     logout() {
       localStorage.clear();
-
       this.$router.push('/auth/login');
     },
   },
+  components: { Dropdown },
 };
 </script>
 
-<style scoped>
+<style lang="scss" scoped>
 .img-cont {
   width: 100%;
 }
@@ -199,5 +222,29 @@ export default {
   margin-top: 80px;
   font-size: 13px;
   font-weight: 600;
+}
+
+#navigation {
+  list-style: none;
+  border: none;
+
+  li {
+    position: relative;
+    color: #555;
+    font-size: 12px;
+    border: none;
+    cursor: pointer;
+
+    .title {
+      padding: 10px 0;
+      text-indent: 20px;
+    }
+
+    i {
+      position: absolute;
+      top: 12px;
+      right: 10px;
+    }
+  }
 }
 </style>
