@@ -25,7 +25,7 @@
       </v-list-item>
       <div class="login">
         <span class="mr-4">Last Login: </span>
-        <span>15th May 2023</span>
+        <span>{{ loginTime }}</span>
       </div>
 
       <div class="nav-link mt-8 mx-2">
@@ -175,6 +175,7 @@ export default {
     name: '',
     role: '',
     image: '',
+    loginTime: null,
   }),
   created() {
     if (localStorage.getItem('token') == null) {
@@ -187,6 +188,11 @@ export default {
       localStorage.getItem('image') == 'null'
         ? 'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png'
         : localStorage.getItem('image');
+
+    const storedLoginTime = localStorage.getItem('loginTime');
+    const time = new Date(parseInt(storedLoginTime));
+    const options = { day: 'numeric', month: 'long', year: 'numeric' };
+    this.loginTime = time.toLocaleDateString('en-GB', options);
   },
   computed: {
     navigation() {

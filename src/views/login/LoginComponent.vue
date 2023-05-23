@@ -219,6 +219,9 @@ export default {
         localStorage.setItem('role', JSON.stringify(response.data.user.role));
         localStorage.setItem('image', JSON.stringify(response.data.user.image));
 
+        const loginTime = new Date().getTime();
+        localStorage.setItem('loginTime', loginTime);
+
         // this.$axios.defaults.headers.common['Authorization'] =
         //   localStorage.getItem('token');
         this.$router.push('/');
