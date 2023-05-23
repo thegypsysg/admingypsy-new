@@ -173,10 +173,14 @@ export default {
     },
   },
   created() {
+    // if (localStorage.getItem('token')) {
+    //   this.$router.replace('/');
+    // } else {
     window.addEventListener('resize', this.handleResize);
     if (this.$route.query.error) {
-      this.$helper.toastError(this, 'Anda sudah login di device lain');
+      alert(this, 'You already login in another Device');
     }
+    // }
   },
   unmounted() {
     window.removeEventListener('resize', this.handleResize);

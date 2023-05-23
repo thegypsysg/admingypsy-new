@@ -101,7 +101,7 @@
           <v-card
             v-for="(item, index) in cardItem"
             :key="index"
-            width="15%"
+            :width="!isSmall ? '15%' : '100%'"
             height="150"
             :color="item.color"
             class="my-4 text-center mx-3 card-item"
@@ -176,14 +176,19 @@ export default {
     role: '',
     image: '',
     loginTime: null,
+    screenWidth: window.innerWidth,
   }),
   created() {
-    if (localStorage.getItem('token') == null) {
-      this.$router.push('/auth/login');
-    }
-
-    this.name = localStorage.getItem('name').slice(1, -1);
-    this.role = localStorage.getItem('role').slice(1, -1);
+    // if (localStorage.getItem('token') == null) {
+    //   this.$router.replace('/auth/login');
+    // } else {
+    window.addEventListener('resize', this.handleResize);
+    this.name = localStorage.getItem('name')
+      ? localStorage.getItem('name').slice(1, -1)
+      : '';
+    this.role = localStorage.getItem('role')
+      ? localStorage.getItem('role').slice(1, -1)
+      : '';
     this.image =
       localStorage.getItem('image') == 'null'
         ? 'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png'
@@ -193,16 +198,27 @@ export default {
     const time = new Date(parseInt(storedLoginTime));
     const options = { day: 'numeric', month: 'long', year: 'numeric' };
     this.loginTime = time.toLocaleDateString('en-GB', options);
+    // }
+  },
+
+  unmounted() {
+    window.removeEventListener('resize', this.handleResize);
   },
   computed: {
     navigation() {
       return this.$store.getters.navigation;
+    },
+    isSmall() {
+      return this.screenWidth < 640;
     },
   },
   methods: {
     logout() {
       localStorage.clear();
       this.$router.push('/auth/login');
+    },
+    handleResize() {
+      this.screenWidth = window.innerWidth;
     },
   },
   components: { Dropdown },
