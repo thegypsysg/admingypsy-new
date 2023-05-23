@@ -20,6 +20,7 @@
                 variant="outlined"
                 placeholder="John@example.com"
                 :persistent-hint="true"
+                :rules="emailRules"
               ></v-text-field>
 
               <v-text-field
@@ -27,6 +28,8 @@
                 :append-inner-icon="showPassword ? 'mdi-eye' : 'mdi-eye-off'"
                 :type="showPassword ? 'text' : 'password'"
                 variant="outlined"
+                class="my-2"
+                :rules="passwordRules"
                 label="Password"
                 @click:append-inner="showPassword = !showPassword"
               ></v-text-field>
@@ -60,6 +63,7 @@
                 type="submit"
                 variant="outlined"
                 block
+                :disabled="!isValid"
                 class="login-btn mt-n5"
               >
                 <span v-if="!isLoggingIn">Sign In</span>
@@ -127,7 +131,7 @@
 import axios from 'axios';
 // import { router } from '@/router';
 
-const baseUrl = `https://admin.the-gypsy.sg/api/`;
+// const baseUrl = `https://admin1.the-gypsy.sg/api/`;
 
 export default {
   data() {
@@ -149,6 +153,24 @@ export default {
     isSmall() {
       return this.screenWidth < 640;
     },
+    emailRules() {
+      return [
+        (v) => !!v || 'Email is required', // Aturan: Email wajib diisi
+        (v) => this.validateEmail(v) || 'Invalid email format', // Aturan: Format email harus valid
+      ];
+    },
+    passwordRules() {
+      return [
+        (v) => !!v || 'Password is required', // Aturan: Password wajib diisi
+        (v) =>
+          (v && v.length >= 6) || 'Password should be at least 6 characters', // Aturan: Password minimal 6 karakter
+      ];
+    },
+    isValid() {
+      return (
+        this.validateEmail(this.input.email) && this.input.password.length >= 6
+      );
+    },
   },
   created() {
     window.addEventListener('resize', this.handleResize);
@@ -160,42 +182,57 @@ export default {
     window.removeEventListener('resize', this.handleResize);
   },
   methods: {
+    validateEmail(email) {
+      // Fungsi untuk memvalidasi email menggunakan ekspresi reguler
+      // Anda dapat mengganti atau memperluas validasi ini sesuai dengan kebutuhan Anda
+      const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      return emailPattern.test(email);
+    },
     handleResize() {
       this.screenWidth = window.innerWidth;
     },
-    doLogin() {
+    async doLogin() {
       this.isLoggingIn = true;
       this.errorMessage = '';
-      axios
-        .post(`${baseUrl}auth/login`, {
-          email: this.input.email,
-          password: this.input.password,
-        })
-        // eslint-disable-next-line no-unused-vars
-        .then((data) => {
-          localStorage.setItem('token', JSON.stringify(data.data.access_token));
-          localStorage.setItem('user', JSON.stringify(data.data.user));
-
-          this.$axios.defaults.headers.common['Authorization'] =
-            localStorage.getItem('token');
-          this.$router.push('/');
-        })
-        .catch((error) => {
-          // if (error.response.status == 401) {
-          //   this.isError = true;
-          //   this.errorMessage = 'Error when login!';
-          // } else {
-          //   this.isError = true;
-          //   this.errorMessage = 'Email/Password is incorrect!';
-          // }
-          if (error) {
-            this.isError = true;
-            this.errorMessage = 'Email/Password is incorrect!';
+      try {
+        const response = await axios.post(
+          `https://admin1.the-gypsy.sg/api/login`,
+          {
+            email: this.input.email,
+            password: this.input.password,
+          },
+          {
+            headers: {
+              'Access-Control-Allow-Origin': 'http://localhost:8080',
+              'Content-Type': 'application/json',
+            },
           }
-        })
-        .finally(() => {
-          this.isLoggingIn = false;
-        });
+        );
+        // eslint-disable-next-line no-unused-vars
+
+        localStorage.setItem(
+          'token',
+          JSON.stringify(response.data.access_token)
+        );
+        // localStorage.setItem('user', JSON.stringify(response.data.user));
+        localStorage.setItem('name', JSON.stringify(response.data.user.name));
+        localStorage.setItem('role', JSON.stringify(response.data.user.role));
+        localStorage.setItem('image', JSON.stringify(response.data.user.image));
+
+        // this.$axios.defaults.headers.common['Authorization'] =
+        //   localStorage.getItem('token');
+        this.$router.push('/');
+      } catch (error) {
+        if (error.response.status == 401) {
+          this.isError = true;
+          this.errorMessage = 'Email/Password is incorrect!';
+        } else {
+          this.isError = true;
+          this.errorMessage = error.response.data.error;
+        }
+      } finally {
+        this.isLoggingIn = false;
+      }
     },
   },
 };

@@ -7,12 +7,12 @@
       <v-list-item
         class="mt-8"
         style="background-color: #e8f6ff"
-        prepend-avatar="https://randomuser.me/api/portraits/men/85.jpg"
+        :prepend-avatar="image"
         nav
       >
         <v-list-item-content>
-          <v-list-item-title>Mathew</v-list-item-title>
-          <v-list-item-subtitle>Designer</v-list-item-subtitle>
+          <v-list-item-title>{{ name }}</v-list-item-title>
+          <v-list-item-subtitle>{{ role }}</v-list-item-subtitle>
         </v-list-item-content>
         <template v-slot:append>
           <v-btn
@@ -90,10 +90,7 @@
       <v-spacer></v-spacer>
 
       <v-btn size="40" rounded icon @click="drawer = !drawer">
-        <img
-          class="img-app"
-          src="https://randomuser.me/api/portraits/men/85.jpg"
-        />
+        <img class="img-app" :src="image" />
       </v-btn>
     </v-app-bar>
 
@@ -175,12 +172,22 @@ export default {
       },
     ],
     rail: false,
+    name: '',
+    role: '',
+    image: '',
   }),
-  // created() {
-  //   if (localStorage.getItem('token') == null) {
-  //     this.$router.push('/auth/login');
-  //   }
-  // },
+  created() {
+    if (localStorage.getItem('token') == null) {
+      this.$router.push('/auth/login');
+    }
+
+    this.name = localStorage.getItem('name').slice(1, -1);
+    this.role = localStorage.getItem('role').slice(1, -1);
+    this.image =
+      localStorage.getItem('image') == 'null'
+        ? 'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png'
+        : localStorage.getItem('image');
+  },
   computed: {
     navigation() {
       return this.$store.getters.navigation;
