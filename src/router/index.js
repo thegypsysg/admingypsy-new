@@ -31,6 +31,19 @@ const routes = [
     },
   },
   {
+    name: 'user master',
+    path: '/users',
+    component: () => import('@/views/users/UsersContainer.vue'),
+    // beforeEnter: (to, from, next) => {
+    //   // Pengecekan status login sebelum masuk ke halaman login
+    //   if (localStorage.getItem('token') != null) {
+    //     next('/'); // Alihkan ke halaman beranda jika sudah masuk
+    //   } else {
+    //     next(); // Lanjutkan ke halaman login jika belum masuk
+    //   }
+    // },
+  },
+  {
     path: '/*', // Rute ini akan menangkap semua rute yang tidak cocok dengan rute lainnya
     redirect: '/', // Alihkan ke halaman dashboard
   },

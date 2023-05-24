@@ -6,7 +6,9 @@
     permanent
   >
     <div class="img-cont">
-      <v-img src="@/assets/logo-img.png" class="mx-auto" height="70"></v-img>
+      <router-link to="/">
+        <v-img src="@/assets/logo-img.png" class="mx-auto" height="70"></v-img>
+      </router-link>
     </div>
     <v-list-item
       class="mt-8"

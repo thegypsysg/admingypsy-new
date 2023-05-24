@@ -97,7 +97,7 @@ export default {
       return this.$store.getters.navigation;
     },
     isSmall() {
-      return this.screenWidth < 640;
+      return this.screenWidth < 840;
     },
   },
   methods: {
