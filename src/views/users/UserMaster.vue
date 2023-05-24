@@ -60,7 +60,7 @@
               style="text-transform: none"
               type="submit"
               variant="flat"
-              @click="save"
+              @click="saveData"
               :disabled="isSending"
               :loading="isSending"
             >
@@ -140,6 +140,8 @@
                     <v-btn
                       color="red"
                       variant="text"
+                      :disabled="isDeleteLoading"
+                      @click="openDeleteConfirm(item.id)"
                       icon="mdi-trash-can-outline"
                     ></v-btn>
                   </div>
@@ -172,6 +174,16 @@
         </v-btn>
       </template>
     </v-snackbar>
+    <v-dialog persistent width="500" v-model="isDelete">
+      <v-card>
+        <v-card-title>Confirmation</v-card-title>
+        <v-card-text> Are you sure want to delete this user? </v-card-text>
+        <v-card-actions>
+          <v-btn color="error" text @click="cancelDelete">No</v-btn>
+          <v-btn color="success" text @click="deleteUser">Yes</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
   </v-container>
 </template>
 
@@ -185,6 +197,9 @@ export default {
     isLoading: false,
     isSending: false,
     isSuccess: false,
+    isDelete: false,
+    isDeleteLoading: false,
+    userIdToDelete: null,
 
     successMessage: '',
 
@@ -281,7 +296,7 @@ export default {
     },
   },
   methods: {
-    save() {
+    saveData() {
       if (this.valid) {
         this.isSending = true;
         const payload = {
@@ -300,6 +315,13 @@ export default {
             this.successMessage = data.message;
             this.isSuccess = true;
             this.getUserData();
+            this.input = {
+              username: '',
+              email: '',
+              country: null,
+              role: null,
+              image: null,
+            };
           })
           .catch((error) => {
             // eslint-disable-next-line
@@ -309,6 +331,36 @@ export default {
             this.isSending = false;
           });
       }
+    },
+    openDeleteConfirm(itemId) {
+      this.userIdToDelete = itemId;
+      this.isDelete = true;
+    },
+    cancelConfirmation() {
+      this.userIdToDelete = null;
+      this.isDelete = false;
+    },
+    deleteUser() {
+      this.isDeleteLoading = true;
+      axios
+        .post(`/user/delete`, {
+          id: this.userIdToDelete,
+        })
+        .then((response) => {
+          const data = response.data;
+          this.successMessage = data.message;
+          this.isSuccess = true;
+          this.getUserData();
+        })
+        .catch((error) => {
+          // eslint-disable-next-line
+          console.log(error);
+        })
+        .finally(() => {
+          this.isDeleteLoading = false;
+          this.userIdToDelete = null;
+          this.isDelete = false;
+        });
     },
     getUserData() {
       this.isLoading = true;
