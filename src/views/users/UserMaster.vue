@@ -1,7 +1,7 @@
 <template>
   <v-container>
     <h1>Users Master</h1>
-    <v-form validate-on="submit lazy" @submit.prevent="save">
+    <v-form v-model="valid" @submit.prevent>
       <v-container>
         <v-row>
           <v-col cols="12" md="3">
@@ -60,7 +60,6 @@
               style="text-transform: none"
               type="submit"
               variant="flat"
-              :disabled="!valid"
               @click="save"
             >
               <template v-slot:prepend>
@@ -98,7 +97,7 @@
               </tr>
             </thead>
             <tbody>
-              <tr v-for="item in items" :key="item.id">
+              <tr v-for="item in filteredItems" :key="item.id">
                 <td>{{ item.id }}</td>
                 <td>
                   <v-list-item
@@ -124,13 +123,7 @@
                     label
                     style="background-color: #ecf0fc !important"
                   >
-                    {{
-                      item.role == 'S'
-                        ? 'Superadmin'
-                        : item.role == 'A'
-                        ? 'Admin'
-                        : ''
-                    }}
+                    {{ item.roleName }}
                   </v-chip>
                 </td>
                 <td>{{ item.country_name }}</td>
@@ -150,6 +143,14 @@
                   </div>
                 </td>
               </tr>
+              <tr v-if="isLoading">
+                <td :colspan="6" class="text-center">
+                  <v-progress-circular
+                    indeterminate
+                    color="indigo-accent-2"
+                  ></v-progress-circular>
+                </td>
+              </tr>
             </tbody>
           </v-table>
         </v-col>
@@ -164,8 +165,8 @@ import axios from 'axios';
 export default {
   name: 'UserMaster',
   data: () => ({
-    valid: true,
-    loading: false,
+    valid: false,
+    isLoading: false,
 
     resource: {
       country: [],
@@ -191,12 +192,12 @@ export default {
       (value) => {
         if (value?.length >= 4) return true;
 
-        return 'Name must be more than 4 characters.';
+        return 'Username must be more than 4 characters.';
       },
       (value) => {
         if (value?.length <= 20) return true;
 
-        return 'Name must be less than 20 characters.';
+        return 'Username must be less than 20 characters.';
       },
     ],
     email: '',
@@ -230,46 +231,78 @@ export default {
     ],
 
     search: '',
-    items: [
-      {
-        id: 1,
-        name: 'Beta',
-        email: 'beta@the-gypsy.in',
-        registered_on: '15/05/2023',
-        role: 'A',
-        image: null,
-        country_id: 1,
-        country_name: 'Singapore',
-      },
-      {
-        id: 2,
-        name: 'test',
-        email: 'test@mail.com',
-        registered_on: '22/05/2023',
-        role: 'S',
-        image: null,
-        country_id: 1,
-        country_name: 'Singapore',
-      },
-    ],
+    items: [],
   }),
   mounted() {
+    this.getUserData();
     this.getCountry();
+  },
+  computed: {
+    filteredItems() {
+      if (!this.search) {
+        return this.items;
+      }
+
+      const searchTextLower = this.search.toLowerCase();
+
+      return this.items.filter(
+        (item) =>
+          item.name.toLowerCase().includes(searchTextLower) ||
+          item.email.toLowerCase().includes(searchTextLower) ||
+          item.roleName.toLowerCase().includes(searchTextLower) ||
+          item.country_name.toLowerCase().includes(searchTextLower)
+      );
+    },
   },
   methods: {
     save() {
-      // this.loading = true;
-      console.log(this.username);
-      console.log(this.email);
-      console.log(this.role);
-      console.log(this.country);
+      if (this.valid) {
+        // this.loading = true;
+        console.log(this.username);
+        console.log(this.email);
+        console.log(this.role);
+        console.log(this.country);
+      }
+    },
+    getUserData() {
+      this.isLoading = true;
+      axios
+        .get(`/user`)
+        .then((response) => {
+          const data = response.data.data;
+          console.log(data);
+          this.items = data.map((item) => {
+            return {
+              id: item.id || 1,
+              name: item.name || '',
+              email: item.email || '',
+              registered_on: item.registered_on || '',
+              role: item.role || '',
+              roleName:
+                item.role == 'S'
+                  ? 'Superadmin'
+                  : item.role == 'A'
+                  ? 'Admin'
+                  : '',
+              image: item.image || null,
+              country_id: item.country_id || 1,
+              country_name: item.country_name || '',
+            };
+          });
+        })
+        .catch((error) => {
+          // eslint-disable-next-line
+          console.log(error);
+        })
+        .finally(() => {
+          this.isLoading = false;
+        });
     },
     getCountry() {
       axios
-        .get(`https://admin1.the-gypsy.sg/api/country`)
+        .get(`/country`)
         .then((response) => {
           const data = response.data.data;
-          console.log(response);
           this.resource.country = data.map((country) => {
             return {
               id: country.country_id,

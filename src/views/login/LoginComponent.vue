@@ -128,7 +128,8 @@
 </template>
 
 <script>
-import axios from 'axios';
+import axios from '@/util/axios';
+import { setAuthHeader } from '@/util/axios';
 // import { router } from '@/router';
 
 // const baseUrl = `https://admin1.the-gypsy.sg/api/`;
@@ -206,7 +207,7 @@ export default {
       this.errorMessage = '';
       try {
         const response = await axios.post(
-          `https://admin1.the-gypsy.sg/api/login`,
+          `/login`,
           {
             email: this.input.email,
             password: this.input.password,
@@ -224,6 +225,7 @@ export default {
           'token',
           JSON.stringify(response.data.access_token)
         );
+        setAuthHeader(response.data.access_token);
         // localStorage.setItem('user', JSON.stringify(response.data.user));
         localStorage.setItem('name', JSON.stringify(response.data.user.name));
         localStorage.setItem('role', JSON.stringify(response.data.user.role));
@@ -243,6 +245,7 @@ export default {
           this.isError = true;
           this.errorMessage = error.response.data.error;
         }
+        // console.log(error);
       } finally {
         this.isLoggingIn = false;
       }
