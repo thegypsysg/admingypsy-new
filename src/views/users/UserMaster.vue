@@ -53,14 +53,18 @@
           </v-col>
         </v-row>
         <v-row class="mt-n2">
-          <v-col cols="12" md="3">
+          <v-col cols="12" md="2">
             <v-btn
-              prepend-icon="mdi-account-multiple-plus"
+              :prepend-icon="
+                isEdit
+                  ? 'mdi-account-multiple-check'
+                  : 'mdi-account-multiple-plus'
+              "
               color="indigo-accent-2"
               style="text-transform: none"
               type="submit"
               variant="flat"
-              @click="saveData"
+              @click="isEdit ? saveEdit() : saveData()"
               :disabled="isSending"
               :loading="isSending"
             >
@@ -68,7 +72,23 @@
                 <v-icon color="white"></v-icon>
               </template>
 
-              Add Contact
+              {{ isEdit ? 'Save Contact' : 'Add Contact' }}
+            </v-btn>
+          </v-col>
+          <v-col v-if="isEdit" cols="12" md="2">
+            <v-btn
+              prepend-icon="mdi-account-multiple-remove"
+              color="red"
+              style="text-transform: none"
+              variant="flat"
+              @click="cancelEdit"
+              :disabled="isSending"
+            >
+              <template v-slot:prepend>
+                <v-icon color="white"></v-icon>
+              </template>
+
+              Cancel Edit
             </v-btn>
           </v-col>
         </v-row>
@@ -135,6 +155,7 @@
                     <v-btn
                       color="green"
                       variant="text"
+                      @click="editUser(item)"
                       icon="mdi-pencil-outline"
                     ></v-btn>
                     <v-btn
@@ -196,6 +217,7 @@ export default {
     valid: false,
     isLoading: false,
     isSending: false,
+    isEdit: false,
     isSuccess: false,
     isDelete: false,
     isDeleteLoading: false,
@@ -204,6 +226,7 @@ export default {
     successMessage: '',
 
     input: {
+      id: 1,
       username: '',
       email: '',
       country: null,
@@ -296,6 +319,66 @@ export default {
     },
   },
   methods: {
+    editUser(user) {
+      this.isEdit = true;
+      this.input = {
+        id: user.id,
+        username: user.name,
+        email: user.email,
+        country: user.country_id,
+        role: user.role,
+      };
+    },
+    cancelEdit() {
+      this.isEdit = false;
+      this.input = {
+        id: 0,
+        username: '',
+        email: '',
+        country: null,
+        role: null,
+        image: null,
+      };
+    },
+    saveEdit() {
+      if (this.valid) {
+        this.isSending = true;
+        const payload = {
+          id: this.input.id,
+          name: this.input.username,
+          email: this.input.email,
+          role: this.input.role,
+          country_id: this.input.country,
+        };
+        if (this.input.image !== null) {
+          payload['file'] = this.input.image;
+        }
+        axios
+          .post(`/user/update`, payload)
+          .then((response) => {
+            const data = response.data;
+            this.successMessage = data.message;
+            this.isSuccess = true;
+            this.getUserData();
+            this.input = {
+              id: 0,
+              username: '',
+              email: '',
+              country: null,
+              role: null,
+              image: null,
+            };
+          })
+          .catch((error) => {
+            // eslint-disable-next-line
+            console.log(error);
+          })
+          .finally(() => {
+            this.isEdit = false;
+            this.isSending = false;
+          });
+      }
+    },
     saveData() {
       if (this.valid) {
         this.isSending = true;
@@ -316,6 +399,7 @@ export default {
             this.isSuccess = true;
             this.getUserData();
             this.input = {
+              id: 0,
               username: '',
               email: '',
               country: null,
