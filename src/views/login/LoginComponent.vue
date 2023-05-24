@@ -173,14 +173,20 @@ export default {
     },
   },
   created() {
-    // if (localStorage.getItem('token')) {
-    //   this.$router.replace('/');
-    // } else {
-    window.addEventListener('resize', this.handleResize);
-    if (this.$route.query.error) {
-      alert(this, 'You already login in another Device');
+    // this.$router.onError((error) => {
+    //   if (error.message.includes('404')) {
+    //     this.$router.replace('/');
+    //   }
+    // });
+
+    if (localStorage.getItem('token') != null) {
+      this.$router.replace('/');
+    } else {
+      window.addEventListener('resize', this.handleResize);
+      if (this.$route.query.error) {
+        alert(this, 'You already login in another Device');
+      }
     }
-    // }
   },
   unmounted() {
     window.removeEventListener('resize', this.handleResize);

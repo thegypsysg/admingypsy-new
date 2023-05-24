@@ -13,6 +13,15 @@ export default {
   data: () => ({
     //
   }),
+  created() {
+    // Cek keberadaan data pengguna di localStorage
+    // const userData = localStorage.getItem('token') == null ? false : true;
+    if (localStorage.getItem('token') != null) {
+      this.$router.replace('/'); // Alihkan ke halaman dashboard jika pengguna sudah masuk dan terdapat data pengguna di localStorage
+    } else {
+      this.$router.replace('/auth/login');
+    }
+  },
 };
 </script>
 
