@@ -6,8 +6,8 @@
         <v-row>
           <v-col cols="12" md="3">
             <v-text-field
-              v-model="username"
-              :rules="nameRules"
+              v-model="input.username"
+              :rules="rules.nameRules"
               :counter="20"
               label="Enter Username"
               variant="outlined"
@@ -17,8 +17,8 @@
 
           <v-col cols="12" md="3">
             <v-text-field
-              v-model="email"
-              :rules="emailRules"
+              v-model="input.email"
+              :rules="rules.emailRules"
               label="Enter Email"
               type="email"
               variant="outlined"
@@ -29,12 +29,12 @@
           <v-col cols="12" md="3">
             <v-select
               clearable
-              :rules="countryRules"
+              :rules="rules.countryRules"
               label="Select Country"
               :items="resource.country"
               item-title="name"
               item-value="id"
-              v-model="country"
+              v-model="input.country"
               variant="outlined"
             ></v-select>
           </v-col>
@@ -42,12 +42,12 @@
           <v-col cols="12" md="3">
             <v-select
               clearable
-              :rules="roleRules"
+              :rules="rules.roleRules"
               :items="resource.role"
               item-title="name"
               item-value="value"
               label="Select Role"
-              v-model="role"
+              v-model="input.role"
               variant="outlined"
             ></v-select>
           </v-col>
@@ -61,6 +61,8 @@
               type="submit"
               variant="flat"
               @click="save"
+              :disabled="isSending"
+              :loading="isSending"
             >
               <template v-slot:prepend>
                 <v-icon color="white"></v-icon>
@@ -156,6 +158,20 @@
         </v-col>
       </v-row>
     </v-sheet>
+    <v-snackbar
+      location="top"
+      color="green"
+      v-model="isSuccess"
+      :timeout="3000"
+    >
+      {{ successMessage }}
+
+      <template v-slot:actions>
+        <v-btn color="white" variant="text" @click="isSuccess = false">
+          <v-icon>mdi-close</v-icon>
+        </v-btn>
+      </template>
+    </v-snackbar>
   </v-container>
 </template>
 
@@ -167,6 +183,18 @@ export default {
   data: () => ({
     valid: false,
     isLoading: false,
+    isSending: false,
+    isSuccess: false,
+
+    successMessage: '',
+
+    input: {
+      username: '',
+      email: '',
+      country: null,
+      role: null,
+      image: null,
+    },
 
     resource: {
       country: [],
@@ -182,53 +210,51 @@ export default {
       ],
     },
 
-    username: '',
-    nameRules: [
-      (value) => {
-        if (value) return true;
+    rules: {
+      nameRules: [
+        (value) => {
+          if (value) return true;
 
-        return 'Name is requred.';
-      },
-      (value) => {
-        if (value?.length >= 4) return true;
+          return 'Name is requred.';
+        },
+        (value) => {
+          if (value?.length >= 4) return true;
 
-        return 'Username must be more than 4 characters.';
-      },
-      (value) => {
-        if (value?.length <= 20) return true;
+          return 'Username must be more than 4 characters.';
+        },
+        (value) => {
+          if (value?.length <= 20) return true;
 
-        return 'Username must be less than 20 characters.';
-      },
-    ],
-    email: '',
-    emailRules: [
-      (value) => {
-        if (value) return true;
+          return 'Username must be less than 20 characters.';
+        },
+      ],
+      emailRules: [
+        (value) => {
+          if (value) return true;
 
-        return 'E-mail is requred.';
-      },
-      (value) => {
-        if (/.+@.+\..+/.test(value)) return true;
+          return 'E-mail is requred.';
+        },
+        (value) => {
+          if (/.+@.+\..+/.test(value)) return true;
 
-        return 'E-mail must be valid.';
-      },
-    ],
-    country: null,
-    countryRules: [
-      (value) => {
-        if (value) return true;
+          return 'E-mail must be valid.';
+        },
+      ],
+      countryRules: [
+        (value) => {
+          if (value) return true;
 
-        return 'Country is requred.';
-      },
-    ],
-    role: null,
-    roleRules: [
-      (value) => {
-        if (value) return true;
+          return 'Country is requred.';
+        },
+      ],
+      roleRules: [
+        (value) => {
+          if (value) return true;
 
-        return 'Role is requred.';
-      },
-    ],
+          return 'Role is requred.';
+        },
+      ],
+    },
 
     search: '',
     items: [],
@@ -257,11 +283,31 @@ export default {
   methods: {
     save() {
       if (this.valid) {
-        // this.loading = true;
-        console.log(this.username);
-        console.log(this.email);
-        console.log(this.role);
-        console.log(this.country);
+        this.isSending = true;
+        const payload = {
+          name: this.input.username,
+          email: this.input.email,
+          role: this.input.role,
+          country_id: this.input.country,
+        };
+        if (this.input.image !== null) {
+          payload['file'] = this.input.image;
+        }
+        axios
+          .post(`/register`, payload)
+          .then((response) => {
+            const data = response.data;
+            this.successMessage = data.message;
+            this.isSuccess = true;
+            this.getUserData();
+          })
+          .catch((error) => {
+            // eslint-disable-next-line
+            console.log(error);
+          })
+          .finally(() => {
+            this.isSending = false;
+          });
       }
     },
     getUserData() {
