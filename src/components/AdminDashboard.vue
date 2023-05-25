@@ -67,26 +67,22 @@ export default {
     screenWidth: window.innerWidth,
   }),
   created() {
-    if (localStorage.getItem('token') == null) {
-      this.$router.replace('/auth/login');
-    } else {
-      window.addEventListener('resize', this.handleResize);
-      this.name = localStorage.getItem('name')
-        ? localStorage.getItem('name').slice(1, -1)
-        : '';
-      this.role = localStorage.getItem('role')
-        ? localStorage.getItem('role').slice(1, -1)
-        : '';
-      this.image =
-        localStorage.getItem('image') == 'null'
-          ? 'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png'
-          : localStorage.getItem('image');
+    window.addEventListener('resize', this.handleResize);
+    this.name = localStorage.getItem('name')
+      ? localStorage.getItem('name').slice(1, -1)
+      : '';
+    this.role = localStorage.getItem('role')
+      ? localStorage.getItem('role').slice(1, -1)
+      : '';
+    this.image =
+      localStorage.getItem('image') == 'null'
+        ? 'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png'
+        : localStorage.getItem('image');
 
-      const storedLoginTime = localStorage.getItem('loginTime');
-      const time = new Date(parseInt(storedLoginTime));
-      const options = { day: 'numeric', month: 'long', year: 'numeric' };
-      this.loginTime = time.toLocaleDateString('en-GB', options);
-    }
+    const storedLoginTime = localStorage.getItem('loginTime');
+    const time = new Date(parseInt(storedLoginTime));
+    const options = { day: 'numeric', month: 'long', year: 'numeric' };
+    this.loginTime = time.toLocaleDateString('en-GB', options);
   },
 
   unmounted() {
@@ -108,6 +104,22 @@ export default {
     handleResize() {
       this.screenWidth = window.innerWidth;
     },
+    // checkTokenExpired() {
+    //   const token = localStorage.getItem('token');
+
+    //   if (token) {
+    //     const decodedToken = jwtDecode(token);
+    //     const currentTime = Date.now() / 1000;
+
+    //     if (decodedToken.exp < currentTime) {
+    //       localStorage.removeItem('token');
+    //       localStorage.clear();
+    //       console.log('TOKEN EXPIRED');
+    //     } else {
+    //       ('TOKEN TIDAK EXPIRED');
+    //     }
+    //   }
+    // },
   },
 };
 </script>

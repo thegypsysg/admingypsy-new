@@ -209,7 +209,8 @@
 </template>
 
 <script>
-import axios from 'axios';
+import axios from '@/util/axios';
+import { setAuthHeader } from '@/util/axios';
 
 export default {
   name: 'UserMaster',
@@ -297,6 +298,10 @@ export default {
     search: '',
     items: [],
   }),
+  created() {
+    const token = JSON.parse(localStorage.getItem('token'));
+    setAuthHeader(token);
+  },
   mounted() {
     this.getUserData();
     this.getCountry();
@@ -448,6 +453,7 @@ export default {
     },
     getUserData() {
       this.isLoading = true;
+
       axios
         .get(`/user`)
         .then((response) => {
