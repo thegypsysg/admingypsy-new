@@ -1,3 +1,4 @@
+<!-- eslint-disable vue/no-deprecated-v-bind-sync -->
 <template>
   <v-container>
     <h1>Users Master</h1>
@@ -123,6 +124,7 @@
                 <td>{{ item.id }}</td>
                 <td>
                   <v-list-item
+                    @click="openImage"
                     :prepend-avatar="
                       item.image != null
                         ? item.image
@@ -205,6 +207,30 @@
         </v-card-actions>
       </v-card>
     </v-dialog>
+    <v-dialog persistent width="auto" v-model="isOpenImage">
+      <v-card width="750">
+        <v-card-title class="upload-title px-6 py-4">
+          Upload Image - User</v-card-title
+        >
+        <v-card-text> </v-card-text>
+        <v-card-actions class="mt-16">
+          <v-spacer></v-spacer>
+          <v-btn
+            style="text-transform: none"
+            color="error"
+            text
+            @click="closeImage"
+            >Cancel</v-btn
+          >
+          <v-btn
+            style="background-color: #9ddcff; text-transform: none"
+            color="black"
+            @click="saveImage(imageFile)"
+            >Save</v-btn
+          >
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
   </v-container>
 </template>
 
@@ -219,10 +245,14 @@ export default {
     isLoading: false,
     isSending: false,
     isEdit: false,
+    isOpenImage: false,
     isSuccess: false,
     isDelete: false,
     isDeleteLoading: false,
     userIdToDelete: null,
+
+    tableHeaders: [{ text: 'Gambar', value: 'image' }],
+    imageFile: [],
 
     successMessage: '',
 
@@ -324,6 +354,16 @@ export default {
     },
   },
   methods: {
+    openImage() {
+      this.isOpenImage = true;
+    },
+    closeImage() {
+      this.isOpenImage = false;
+    },
+    saveImage(files) {
+      // Lakukan sesuatu dengan file yang diunggah
+      console.log(files);
+    },
     editUser(user) {
       this.isEdit = true;
       this.input = {
@@ -421,6 +461,10 @@ export default {
           });
       }
     },
+    cancelDelete() {
+      this.userIdToDelete = null;
+      this.isDelete = false;
+    },
     openDeleteConfirm(itemId) {
       this.userIdToDelete = itemId;
       this.isDelete = true;
@@ -511,5 +555,14 @@ export default {
 .user-table {
   font-size: 12px;
   color: black !important;
+}
+
+.upload-title {
+  background-color: #9ddcff;
+  color: white;
+}
+
+.v-simple-table {
+  background: red !important;
 }
 </style>
