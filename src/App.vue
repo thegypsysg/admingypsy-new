@@ -27,14 +27,15 @@ export default {
       if (decodedToken.exp < currentTime) {
         localStorage.removeItem('token');
         localStorage.clear();
-        console.log(decodedToken.exp, currentTime);
-        console.log(decodedToken.exp < currentTime);
-        console.log('TOKEN EXPIRED');
-      } else {
-        console.log(decodedToken.exp, currentTime);
-        console.log(decodedToken.exp < currentTime);
-        console.log('TOKEN TIDAK EXPIRED');
+        // console.log(decodedToken.exp, currentTime);
+        // console.log(decodedToken.exp < currentTime);
+        // console.log('TOKEN EXPIRED');
       }
+      // else {
+      // console.log(decodedToken.exp, currentTime);
+      // console.log(decodedToken.exp < currentTime);
+      // console.log('TOKEN TIDAK EXPIRED');
+      // }
     }
   },
 };

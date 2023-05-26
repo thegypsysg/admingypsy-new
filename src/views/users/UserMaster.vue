@@ -212,7 +212,9 @@
         <v-card-title class="upload-title px-6 py-4">
           Upload Image - User</v-card-title
         >
-        <v-card-text> </v-card-text>
+        <v-card-text>
+          <image-upload :image-file="imageFile" />
+        </v-card-text>
         <v-card-actions class="mt-16">
           <v-spacer></v-spacer>
           <v-btn
@@ -235,6 +237,7 @@
 </template>
 
 <script>
+import ImageUpload from '@/components/ImageUpload.vue';
 import axios from '@/util/axios';
 import { setAuthHeader } from '@/util/axios';
 
@@ -250,12 +253,9 @@ export default {
     isDelete: false,
     isDeleteLoading: false,
     userIdToDelete: null,
-
     tableHeaders: [{ text: 'Gambar', value: 'image' }],
     imageFile: [],
-
     successMessage: '',
-
     input: {
       id: 1,
       username: '',
@@ -264,7 +264,6 @@ export default {
       role: null,
       image: null,
     },
-
     resource: {
       country: [],
       role: [
@@ -278,53 +277,44 @@ export default {
         },
       ],
     },
-
     rules: {
       nameRules: [
         (value) => {
           if (value) return true;
-
           return 'Name is requred.';
         },
         (value) => {
           if (value?.length >= 4) return true;
-
           return 'Username must be more than 4 characters.';
         },
         (value) => {
           if (value?.length <= 20) return true;
-
           return 'Username must be less than 20 characters.';
         },
       ],
       emailRules: [
         (value) => {
           if (value) return true;
-
           return 'E-mail is requred.';
         },
         (value) => {
           if (/.+@.+\..+/.test(value)) return true;
-
           return 'E-mail must be valid.';
         },
       ],
       countryRules: [
         (value) => {
           if (value) return true;
-
           return 'Country is requred.';
         },
       ],
       roleRules: [
         (value) => {
           if (value) return true;
-
           return 'Role is requred.';
         },
       ],
     },
-
     search: '',
     items: [],
   }),
@@ -341,9 +331,7 @@ export default {
       if (!this.search) {
         return this.items;
       }
-
       const searchTextLower = this.search.toLowerCase();
-
       return this.items.filter(
         (item) =>
           item.name.toLowerCase().includes(searchTextLower) ||
@@ -497,12 +485,11 @@ export default {
     },
     getUserData() {
       this.isLoading = true;
-
       axios
         .get(`/user`)
         .then((response) => {
           const data = response.data.data;
-          console.log(data);
+          // console.log(data);
           this.items = data.map((item) => {
             return {
               id: item.id || 1,
@@ -548,6 +535,7 @@ export default {
         });
     },
   },
+  components: { ImageUpload },
 };
 </script>
 

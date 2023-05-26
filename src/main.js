@@ -26,7 +26,7 @@ axiosAbsensi.interceptors.response.use(
     return response;
   },
   function (error) {
-    console.log(error.response);
+    // console.log(error.response);
 
     if (error.response && error.response.status == 401) {
       axiosAbsensi.defaults.headers.common['Authorization'] = '';
