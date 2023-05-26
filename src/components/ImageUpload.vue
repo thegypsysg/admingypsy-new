@@ -3,7 +3,7 @@
     <v-row>
       <v-col cols="12" md="12" xs="12">
         <v-btn
-          v-if="imageFile.length === 0"
+          v-if="tempAttachment.length === 0"
           color="#2598F3"
           @click="openInputImage"
           class="mb-4"
@@ -22,7 +22,7 @@
               </thead>
               <tbody>
                 <tr
-                  v-for="(attachment, index) in imageFile"
+                  v-for="(attachment, index) in tempAttachment"
                   :key="`attachment-${index}`"
                 >
                   <td>
@@ -43,10 +43,9 @@
                       <v-img
                         style="margin: 10px"
                         :src="
-                          'data:' +
-                          attachment.file.format +
-                          ',' +
-                          attachment.file.base64
+                          image[0].image_path !== ''
+                            ? attachment.file.file
+                            : fileURL + attachment.file.name
                         "
                         height="50px"
                         width="50px"
@@ -289,28 +288,40 @@
             <v-icon @click="isInsertImage = false">mdi-close</v-icon>
           </v-card-title>
           <v-card-text class="BYekan">
-            <template v-if="tempAttachment.length === 0">
-              <v-file-input
-                multiple
-                v-model="tempAttachment"
-                label="Insert File"
-              ></v-file-input>
-            </template>
-            <template>
-              <v-card class="mx-auto" tile>
-                <v-list-item
-                  v-for="(attachment, index) in tempAttachmentChanged"
-                  :key="`attachment-${index}`"
-                  style="border-bottom: 1px solid #e0e0e0"
+            <v-file-input
+              color="#3098EB"
+              counter
+              label="Insert File"
+              prepend-icon="mdi-paperclip"
+              variant="outlined"
+              :show-size="1000"
+              ref="imageinput"
+              @change="onImageInput"
+            >
+              <template v-slot:selection="{ fileNames }">
+                <template
+                  v-for="(fileName, index) in fileNames"
+                  :key="fileName"
                 >
-                  <v-list-item-content>
-                    <v-list-item-title>
-                      {{ attachment.name }}.{{ attachment.format }}
-                    </v-list-item-title>
-                  </v-list-item-content>
-                </v-list-item>
-              </v-card>
-            </template>
+                  <v-chip
+                    v-if="index < 2"
+                    color="#3098EB"
+                    label
+                    size="small"
+                    class="me-2"
+                  >
+                    {{ fileName }}
+                  </v-chip>
+
+                  <!-- <span
+                    v-else-if="index === 2"
+                    class="text-overline text-grey-darken-3 mx-2"
+                  >
+                    +{{ tempAttachment.length - 2 }} File(s)
+                  </span> -->
+                </template>
+              </template>
+            </v-file-input>
           </v-card-text>
           <v-card-actions>
             <v-btn
@@ -318,7 +329,7 @@
               :disabled="tempAttachment == null || btnLoader"
               :loading="btnLoader"
               style="background-color: #329ef4 !important"
-              @click="uploadFieldChange"
+              @click="saveNewImage"
               ><span class="text-white">Add</span></v-btn
             >
           </v-card-actions>
@@ -409,7 +420,7 @@
 </template>
 
 <script>
-import { Buffer } from 'buffer';
+// import { Buffer } from 'buffer';
 
 export default {
   name: 'ImageUpload',
@@ -418,19 +429,27 @@ export default {
   },
   data() {
     return {
+      fileURL: 'https://admin1.the-gypsy.sg',
       isInsertImage: false,
       isDeleteImage: false,
       isEditImage: false,
 
+      image: [
+        {
+          image_path: '',
+          image: null,
+        },
+      ],
+
       tempAttachment: [],
       tempAttachmentChanged: [],
+      documentAttachmentAPI: {},
 
       fileUploaderSnackBarAlert: false,
       fileUploaderSnackText: '',
       fileUploaderSnackBarAlertColor: 'green',
-      readerFile: null,
-      registryDocFile: [],
-      documentAttachmentAPI: [],
+      // readerFile: null,
+      // registryDocFile: [],
       btnLoader: false,
       showDetail: false,
       showDetailState: [],
@@ -447,18 +466,18 @@ export default {
       attachmentIndex: '',
     };
   },
-  watch: {
-    tempAttachment: function (newValue) {
-      if (this.tempAttachment.length > 0) this.getAttachmentDetails(newValue);
-      else this.tempAttachmentChanged = [];
-    },
-  },
+  // watch: {
+  //   tempAttachment: function (newValue) {
+  //     if (this.tempAttachment.length > 0) this.getAttachmentDetails(newValue);
+  //     else this.tempAttachmentChanged = [];
+  //   },
+  // },
   mounted() {
-    this.registryDocFile = this.imageFile;
-    this.documentAttachment = this.imageFile;
+    this.tempAttachment = this.imageFile;
+    console.log(this.tempAttachment);
   },
   unmounted() {
-    this.registryDocFile = [];
+    this.tempAttachment = [];
   },
   methods: {
     openInputImage() {
@@ -473,8 +492,9 @@ export default {
       this.isDeleteImage = true;
     },
     deleteImage() {
-      this.registryDocFile.splice(this.selectedIndex, 1);
-      this.$emit('update:documentAttachment', this.registryDocFile);
+      this.tempAttachment.splice(this.selectedIndex, 1);
+      this.$emit('delete-image-file');
+      // this.$emit('update:documentAttachment', this.registryDocFile);
       this.isDeleteImage = false;
     },
     openEditDocumentDialog(item, index) {
@@ -491,20 +511,52 @@ export default {
       );
       this.isEditImage = false;
     },
-    getShowDetailState(index) {
-      this.showDetailState[index] = !this.showDetailState[index];
-      console.log('showDetailState' + JSON.stringify(this.showDetailState));
+
+    onImageInput(e) {
+      var files = e.target.files || e.dataTransfer.files;
+      // console.log(files);
+      if (!files.length) return;
+      else if (files[0].size > 5242880) {
+        this.fileUploaderSnackText = 'File size cannot more than 5 mb';
+        this.fileUploaderSnackBarAlert = true;
+        this.fileUploaderSnackBarAlertColor = 'red';
+        return;
+      }
+      this.image[0].image = files[0];
+      this.image[0].image_path = URL.createObjectURL(files[0]);
+      // console.log(this.image[0]);
     },
 
-    handleUpload(fileAttachment) {
-      let reader = new FileReader();
-      return new Promise(function (resolve) {
-        reader.onloadend = () => {
-          resolve(reader.result);
+    saveNewImage() {
+      this.tempAttachment = this.image.map((img) => {
+        return {
+          file: {
+            name: img.image.name,
+            size: img.image.size,
+            file: img.image_path,
+            format: img.image.type,
+          },
         };
-        reader.readAsDataURL(fileAttachment);
       });
+      this.documentAttachmentAPI = this.image[0].image;
+      this.$emit('update-image-file', this.documentAttachmentAPI);
+      this.isInsertImage = false;
     },
+
+    // getShowDetailState(index) {
+    //   this.showDetailState[index] = !this.showDetailState[index];
+    //   console.log('showDetailState' + JSON.stringify(this.showDetailState));
+    // },
+
+    // handleUpload(fileAttachment) {
+    //   let reader = new FileReader();
+    //   return new Promise(function (resolve) {
+    //     reader.onloadend = () => {
+    //       resolve(reader.result);
+    //     };
+    //     reader.readAsDataURL(fileAttachment);
+    //   });
+    // },
 
     /**
      * asynchronous method to insert selected file(s)
@@ -513,126 +565,126 @@ export default {
      * @returns {Array} selected file(s)
      */
 
-    async uploadFieldChange() {
-      this.btnLoader = true;
-      for (let [index, item] of this.tempAttachment.entries()) {
-        if (this.documentAttachment.length <= 1) {
-          if ((item.size / 1000).toFixed(1) > this.maxFileSize) {
-            this.fileUploaderSnackBarAlertColor = 'red';
-            this.fileUploaderSnackText = `Max file Size is 2 MB`;
-            this.fileUploaderSnackBarAlert = true;
-          } else {
-            let tempFile = {};
-            let file = {};
-            try {
-              // console.log(item);
-              this.readerFile = await this.handleUpload(item);
-            } catch (e) {
-              console.log(e);
-            }
-            let fullFileType = this.readerFile.split(';');
-            let fileType = fullFileType[0].split(':');
-            let sizeInKb = 0;
-            // let  status = true;
-            let imgFile = await this.compressImage(
-              this.readerFile,
-              fileType[1]
-            );
-            //tempFile.subject= this.tempAttachmentChanged[index].name + '.' + this.tempAttachmentChanged[index].format;
-            let strTemp = this.readerFile.split(',');
-            let imgTemp = imgFile.split(',');
-            tempFile.base64 = imgTemp[1];
-            sizeInKb = new Buffer(imgFile, 'base64').length;
-            tempFile.size = String(sizeInKb);
-            tempFile.name =
-              this.tempAttachmentChanged[index].name +
-              '.' +
-              this.tempAttachmentChanged[index].format;
-            // if (this.tempAttachmentChanged[index].tags === undefined)
-            //   tempFile.tags = [];
-            // else tempFile.tags = this.tempAttachmentChanged[index].tags;
-            // if (this.tempAttachmentChanged[index].description === undefined)
-            //   tempFile.description = "";
-            // else
-            //   tempFile.description = this.tempAttachmentChanged[
-            //     index
-            //   ].description;
-            tempFile.showDetailState = false;
+    // async uploadFieldChange() {
+    //   this.btnLoader = true;
+    //   for (let [index, item] of this.tempAttachment.entries()) {
+    //     if (this.documentAttachment.length <= 1) {
+    //       if ((item.size / 1000).toFixed(1) > this.maxFileSize) {
+    //         this.fileUploaderSnackBarAlertColor = 'red';
+    //         this.fileUploaderSnackText = `Max file Size is 2 MB`;
+    //         this.fileUploaderSnackBarAlert = true;
+    //       } else {
+    //         let tempFile = {};
+    //         let file = {};
+    //         try {
+    //           // console.log(item);
+    //           this.readerFile = await this.handleUpload(item);
+    //         } catch (e) {
+    //           console.log(e);
+    //         }
+    //         let fullFileType = this.readerFile.split(';');
+    //         let fileType = fullFileType[0].split(':');
+    //         let sizeInKb = 0;
+    //         // let  status = true;
+    //         let imgFile = await this.compressImage(
+    //           this.readerFile,
+    //           fileType[1]
+    //         );
+    //         //tempFile.subject= this.tempAttachmentChanged[index].name + '.' + this.tempAttachmentChanged[index].format;
+    //         let strTemp = this.readerFile.split(',');
+    //         let imgTemp = imgFile.split(',');
+    //         tempFile.base64 = imgTemp[1];
+    //         sizeInKb = new Buffer(imgFile, 'base64').length;
+    //         tempFile.size = String(sizeInKb);
+    //         tempFile.name =
+    //           this.tempAttachmentChanged[index].name +
+    //           '.' +
+    //           this.tempAttachmentChanged[index].format;
+    //         // if (this.tempAttachmentChanged[index].tags === undefined)
+    //         //   tempFile.tags = [];
+    //         // else tempFile.tags = this.tempAttachmentChanged[index].tags;
+    //         // if (this.tempAttachmentChanged[index].description === undefined)
+    //         //   tempFile.description = "";
+    //         // else
+    //         //   tempFile.description = this.tempAttachmentChanged[
+    //         //     index
+    //         //   ].description;
+    //         tempFile.showDetailState = false;
 
-            tempFile.format = strTemp[0].replace('data:', '');
-            file.file = tempFile;
-            /* const convertedToFile = this.convertBase64ToFile(
-              imgFile,
-              tempFile.name
-            ); */
-            // console.log(convertedToFile)
-            this.registryDocFile.push(file);
-            this.$emit('update:documentAttachment', this.registryDocFile);
-          }
-        } else {
-          this.fileUploaderSnackBarAlertColor = 'red';
-          this.fileUploaderSnackText = `Max file count is 1`;
-          this.fileUploaderSnackBarAlert = true;
-        }
-      }
-      this.documentAttachmentAPI = [];
-      this.tempAttachmentChanged = [];
-      this.isInsertImage = false;
-    },
+    //         tempFile.format = strTemp[0].replace('data:', '');
+    //         file.file = tempFile;
+    //         /* const convertedToFile = this.convertBase64ToFile(
+    //           imgFile,
+    //           tempFile.name
+    //         ); */
+    //         // console.log(convertedToFile)
+    //         this.registryDocFile.push(file);
+    //         this.$emit('update:documentAttachment', this.registryDocFile);
+    //       }
+    //     } else {
+    //       this.fileUploaderSnackBarAlertColor = 'red';
+    //       this.fileUploaderSnackText = `Max file count is 1`;
+    //       this.fileUploaderSnackBarAlert = true;
+    //     }
+    //   }
+    //   this.documentAttachmentAPI = [];
+    //   this.tempAttachmentChanged = [];
+    //   this.isInsertImage = false;
+    // },
 
-    compressImage(base64) {
-      const canvas = document.createElement('canvas');
-      const img = document.createElement('img');
+    // compressImage(base64) {
+    //   const canvas = document.createElement('canvas');
+    //   const img = document.createElement('img');
 
-      return new Promise((resolve, reject) => {
-        let imageCompressLevelTemp = 0.8;
-        img.onload = function () {
-          let width = img.width;
-          let height = img.height;
-          canvas.width = width;
-          canvas.height = height;
+    //   return new Promise((resolve, reject) => {
+    //     let imageCompressLevelTemp = 0.8;
+    //     img.onload = function () {
+    //       let width = img.width;
+    //       let height = img.height;
+    //       canvas.width = width;
+    //       canvas.height = height;
 
-          const ctx = canvas.getContext('2d');
-          ctx.drawImage(img, 0, 0, width, height);
+    //       const ctx = canvas.getContext('2d');
+    //       ctx.drawImage(img, 0, 0, width, height);
 
-          resolve(canvas.toDataURL('image/jpeg', imageCompressLevelTemp));
-        };
-        img.onerror = function (err) {
-          reject(err);
-        };
-        img.src = base64;
-      });
-    },
+    //       resolve(canvas.toDataURL('image/jpeg', imageCompressLevelTemp));
+    //     };
+    //     img.onerror = function (err) {
+    //       reject(err);
+    //     };
+    //     img.src = base64;
+    //   });
+    // },
 
-    convertBase64ToFile(base64, fileName) {
-      const byteString = atob(base64.split(',')[1]);
-      const ab = new ArrayBuffer(byteString.length);
-      const ia = new Uint8Array(ab);
-      for (let i = 0; i < byteString.length; i += 1) {
-        ia[i] = byteString.charCodeAt(i);
-      }
-      const newBlob = new Blob([ab], {
-        type: 'image/jpeg',
-      });
-      return new File([newBlob], fileName);
-    },
+    // convertBase64ToFile(base64, fileName) {
+    //   const byteString = atob(base64.split(',')[1]);
+    //   const ab = new ArrayBuffer(byteString.length);
+    //   const ia = new Uint8Array(ab);
+    //   for (let i = 0; i < byteString.length; i += 1) {
+    //     ia[i] = byteString.charCodeAt(i);
+    //   }
+    //   const newBlob = new Blob([ab], {
+    //     type: 'image/jpeg',
+    //   });
+    //   return new File([newBlob], fileName);
+    // },
 
-    async getAttachmentDetails(selectedAttachment) {
-      for (let item of selectedAttachment) {
-        try {
-          this.readerFile = await this.handleUpload(item);
-        } catch (e) {
-          console.log(e);
-        }
-        let obj = {};
-        let name = '';
-        name = item.name.split('.');
-        obj.format = item.name.substr(item.name.lastIndexOf('.') + 1);
-        obj.name = name[0];
-        obj.base64 = this.readerFile;
-        this.tempAttachmentChanged.push(obj);
-      }
-    },
+    // async getAttachmentDetails(selectedAttachment) {
+    //   for (let item of selectedAttachment) {
+    //     try {
+    //       this.readerFile = await this.handleUpload(item);
+    //     } catch (e) {
+    //       console.log(e);
+    //     }
+    //     let obj = {};
+    //     let name = '';
+    //     name = item.name.split('.');
+    //     obj.format = item.name.substr(item.name.lastIndexOf('.') + 1);
+    //     obj.name = name[0];
+    //     obj.base64 = this.readerFile;
+    //     this.tempAttachmentChanged.push(obj);
+    //   }
+    // },
   },
 };
 </script>

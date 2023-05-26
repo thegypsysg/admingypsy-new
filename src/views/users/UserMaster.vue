@@ -124,10 +124,10 @@
                 <td>{{ item.id }}</td>
                 <td>
                   <v-list-item
-                    @click="openImage"
+                    @click="openImage(item.image, item.id)"
                     :prepend-avatar="
                       item.image != null
-                        ? item.image
+                        ? fileURL + item.image
                         : 'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png'
                     "
                   >
@@ -213,7 +213,11 @@
           Upload Image - User</v-card-title
         >
         <v-card-text>
-          <image-upload :image-file="imageFile" />
+          <image-upload
+            :image-file="imageFile"
+            @update-image-file="updateImageFile"
+            @delete-image-file="deleteImageFile"
+          />
         </v-card-text>
         <v-card-actions class="mt-16">
           <v-spacer></v-spacer>
@@ -227,7 +231,7 @@
           <v-btn
             style="background-color: #9ddcff; text-transform: none"
             color="black"
-            @click="saveImage(imageFile)"
+            @click="saveImage()"
             >Save</v-btn
           >
         </v-card-actions>
@@ -239,22 +243,25 @@
 <script>
 import ImageUpload from '@/components/ImageUpload.vue';
 import axios from '@/util/axios';
+import http from 'axios';
 import { setAuthHeader } from '@/util/axios';
 
 export default {
   name: 'UserMaster',
   data: () => ({
+    fileURL: 'https://admin1.the-gypsy.sg',
     valid: false,
     isLoading: false,
     isSending: false,
     isEdit: false,
-    isOpenImage: false,
     isSuccess: false,
     isDelete: false,
     isDeleteLoading: false,
     userIdToDelete: null,
     tableHeaders: [{ text: 'Gambar', value: 'image' }],
     imageFile: [],
+    userIdToImage: null,
+    isOpenImage: false,
     successMessage: '',
     input: {
       id: 1,
@@ -342,15 +349,90 @@ export default {
     },
   },
   methods: {
-    openImage() {
+    updateImageFile(newImageFile) {
+      this.imageFile.push(newImageFile);
+    },
+    deleteImageFile() {
+      this.isSending = true;
+      const payload = {
+        id: this.userIdToImage,
+        file: '',
+      };
+      http
+        .post(`/user/update`, payload, {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+        })
+        .then((response) => {
+          const data = response.data;
+          this.successMessage = data.message;
+          this.isSuccess = true;
+          this.getUserData();
+        })
+        .catch((error) => {
+          // eslint-disable-next-line
+          console.log(error);
+        })
+        .finally(() => {
+          this.isEdit = false;
+          this.isSending = false;
+          this.userIdToImage = null;
+          this.isOpenImage = false;
+          this.imageFile = [];
+        });
+    },
+    openImage(image, id) {
       this.isOpenImage = true;
+      this.userIdToImage = id;
+      this.imageFile =
+        image != null
+          ? [
+              {
+                file: {
+                  name: image,
+                  size: '',
+                  base64: '',
+                  format: '',
+                },
+              },
+            ]
+          : [];
     },
     closeImage() {
       this.isOpenImage = false;
+      this.imageFile = [];
+      this.userIdToImage = null;
     },
-    saveImage(files) {
-      // Lakukan sesuatu dengan file yang diunggah
-      console.log(files);
+    saveImage() {
+      this.isSending = true;
+      const payload = {
+        id: this.userIdToImage,
+        file: this.imageFile[0],
+      };
+      http
+        .post(`/user/update`, payload, {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+        })
+        .then((response) => {
+          const data = response.data;
+          this.successMessage = data.message;
+          this.isSuccess = true;
+          this.getUserData();
+        })
+        .catch((error) => {
+          // eslint-disable-next-line
+          console.log(error);
+        })
+        .finally(() => {
+          this.isEdit = false;
+          this.isSending = false;
+          this.userIdToImage = null;
+          this.isOpenImage = false;
+          this.imageFile = [];
+        });
     },
     editUser(user) {
       this.isEdit = true;
