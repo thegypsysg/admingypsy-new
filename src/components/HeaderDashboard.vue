@@ -43,6 +43,7 @@
 export default {
   data() {
     return {
+      fileURL: 'https://admin1.the-gypsy.sg',
       linksNavBar: ['Chat', 'Calendar', 'Notes'],
       items: [
         { title: 'Home', path: '/home', icon: 'home' },
@@ -52,11 +53,12 @@ export default {
       image: '',
     };
   },
-  created() {
+  mounted() {
+    const getImg = localStorage.getItem('image');
     this.image =
-      localStorage.getItem('image') == 'null'
+      getImg == 'null'
         ? 'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png'
-        : localStorage.getItem('image');
+        : this.fileURL + getImg.split('"')[1];
   },
   methods: {
     toggleDrawer() {

@@ -253,20 +253,6 @@
                       </template>
                       <span>Delete</span>
                     </v-tooltip>
-
-                    <v-tooltip location="top">
-                      <template v-slot:activator="{ props }">
-                        <v-btn
-                          icon
-                          variant="text"
-                          @click="openEditDocumentDialog(attachment, index)"
-                          v-bind="props"
-                        >
-                          <v-icon color="green">mdi-pencil-outline</v-icon>
-                        </v-btn>
-                      </template>
-                      <span>Edit</span>
-                    </v-tooltip>
                   </td>
                 </tr>
               </tbody>
@@ -337,44 +323,6 @@
       </v-dialog>
     </v-row>
 
-    <v-row justify="center">
-      <v-dialog
-        v-model="isEditImage"
-        :scrollable="false"
-        persistent
-        width="50%"
-      >
-        <v-card>
-          <v-card-title>
-            <v-icon @click="isEditImage = false">mdi-close</v-icon>
-          </v-card-title>
-          <v-card-text
-            v-for="(attachment, index) in tempAttachmentChanged"
-            :key="`attachment-${index}`"
-            class="BYekan"
-          >
-            <v-row align="center" justify="center">
-              <v-col align="center" cols="12" lg="3" md="3" xs="12">
-                <template>
-                  <h1>EDIT ANJIIING</h1>
-                </template>
-              </v-col>
-            </v-row>
-          </v-card-text>
-          <v-card-actions>
-            <v-btn
-              class="BYekan text-white"
-              style="background-color: #2b81d6"
-              :disabled="tempAttachment === null || btnLoader"
-              :loading="btnLoader"
-              @click="editImage"
-              >Edit</v-btn
-            >
-          </v-card-actions>
-        </v-card>
-      </v-dialog>
-    </v-row>
-
     <v-snackbar
       class="BYekan"
       v-model="fileUploaderSnackBarAlert"
@@ -432,7 +380,6 @@ export default {
       fileURL: 'https://admin1.the-gypsy.sg',
       isInsertImage: false,
       isDeleteImage: false,
-      isEditImage: false,
 
       image: [
         {
@@ -496,20 +443,6 @@ export default {
       this.$emit('delete-image-file');
       // this.$emit('update:documentAttachment', this.registryDocFile);
       this.isDeleteImage = false;
-    },
-    openEditDocumentDialog(item, index) {
-      this.btnLoader = false;
-      this.attachmentIndex = index;
-      this.isEditImage = true;
-      this.tempAttachmentChanged = item;
-    },
-    editDocument() {
-      this.documentAttachment.splice(
-        this.attachmentIndex,
-        1,
-        this.tempAttachmentChanged
-      );
-      this.isEditImage = false;
     },
 
     onImageInput(e) {

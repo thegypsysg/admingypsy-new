@@ -66,8 +66,10 @@ export default {
   components: { Dropdown },
   data() {
     return {
+      fileURL: 'https://admin1.the-gypsy.sg',
       rail: false,
       image: '',
+      imagetoShow: '',
       name: '',
       role: '',
       loginTime: null,
@@ -85,22 +87,26 @@ export default {
       this.localDrawerOpen = newVal;
     },
   },
-  created() {
+  mounted() {
     this.name = localStorage.getItem('name')
       ? localStorage.getItem('name').slice(1, -1)
       : '';
     this.role = localStorage.getItem('role')
       ? localStorage.getItem('role').slice(1, -1)
       : '';
+    const getImg = localStorage.getItem('image');
     this.image =
-      localStorage.getItem('image') == 'null'
+      getImg == 'null'
         ? 'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png'
-        : localStorage.getItem('image');
+        : this.fileURL + getImg.split('"')[1];
     const storedLoginTime = localStorage.getItem('loginTime');
     const time = new Date(parseInt(storedLoginTime));
     const options = { day: 'numeric', month: 'long', year: 'numeric' };
     this.loginTime = time.toLocaleDateString('en-GB', options);
   },
+  // mounted() {
+  //   this.image = localStorage.getItem('image') == 'null'
+  // },
   computed: {
     navigation() {
       return this.$store.getters.navigation;

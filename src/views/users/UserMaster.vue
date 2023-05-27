@@ -356,14 +356,9 @@ export default {
       this.isSending = true;
       const payload = {
         id: this.userIdToImage,
-        file: '',
       };
-      http
-        .post(`/user/update`, payload, {
-          headers: {
-            'Content-Type': 'multipart/form-data',
-          },
-        })
+      axios
+        .post(`/user/deleteImage`, payload, {})
         .then((response) => {
           const data = response.data;
           this.successMessage = data.message;
@@ -378,7 +373,6 @@ export default {
           this.isEdit = false;
           this.isSending = false;
           this.userIdToImage = null;
-          this.isOpenImage = false;
           this.imageFile = [];
         });
     },
