@@ -12,9 +12,10 @@ export default createStore({
             title: 'App Master',
             open: false,
             subnav: [
-              { title: 'Transitions' },
-              { title: 'Components' },
-              { title: 'Slots' },
+              { title: 'App - New', path: '/app-new' },
+              { title: 'App - Country', path: '/app-country' },
+              { title: 'App - City', path: '/app-city' },
+              { title: 'App - Socials', path: '/app-socials' },
             ],
           },
           {

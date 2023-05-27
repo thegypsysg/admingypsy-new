@@ -1,0 +1,826 @@
+<!-- eslint-disable vue/valid-v-slot -->
+<!-- eslint-disable vue/no-deprecated-v-bind-sync -->
+<template>
+  <v-container>
+    <h1>App Master</h1>
+    <v-form class="mt-4 mb-n2" v-model="valid" @submit.prevent>
+      <v-container>
+        <v-row>
+          <v-col cols="12" md="4">
+            <div class="d-flex flex-column align-stretch">
+              <v-text-field
+                height="50"
+                v-model="input.name"
+                :rules="rules.nameRules"
+                :counter="20"
+                label="App Name"
+                variant="outlined"
+                required
+              ></v-text-field>
+              <v-text-field
+                height="30"
+                v-model="input.description"
+                :rules="rules.descriptionRules"
+                label="App Description (Short)"
+                variant="outlined"
+                required
+              ></v-text-field>
+            </div>
+          </v-col>
+          <v-col cols="12" md="4">
+            <v-textarea
+              v-model="input.details"
+              :rules="rules.detailsRules"
+              label="App Details"
+              variant="outlined"
+              required
+            ></v-textarea>
+          </v-col>
+          <v-col class="ml-8" cols="6" md="3">
+            <div class="d-flex justify-space-between">
+              <v-btn
+                :prepend-icon="
+                  isEdit
+                    ? 'mdi-account-multiple-check'
+                    : 'mdi-account-multiple-plus'
+                "
+                color="indigo-accent-2"
+                style="text-transform: none"
+                type="submit"
+                variant="flat"
+                @click="isEdit ? saveEdit() : saveData()"
+                :disabled="isSending"
+                :loading="isSending"
+              >
+                <template v-slot:prepend>
+                  <v-icon color="white"></v-icon>
+                </template>
+
+                {{ isEdit ? 'SAVE' : 'ADD' }}
+              </v-btn>
+              <v-btn
+                v-if="isEdit"
+                prepend-icon="mdi-account-multiple-remove"
+                color="red"
+                style="text-transform: none"
+                variant="flat"
+                @click="cancelEdit"
+                :disabled="isSending"
+              >
+                <template v-slot:prepend>
+                  <v-icon color="white"></v-icon>
+                </template>
+
+                CANCEL
+              </v-btn>
+            </div>
+          </v-col>
+        </v-row>
+      </v-container>
+    </v-form>
+    <v-sheet class="pa-8" border rounded width="100%">
+      <v-row>
+        <v-col cols="12" md="4">
+          <v-text-field
+            v-model="search"
+            label="Search Apps"
+            variant="outlined"
+            hide-details
+          ></v-text-field>
+        </v-col>
+      </v-row>
+      <v-row>
+        <v-col cols="12">
+          <v-table class="app-table">
+            <thead>
+              <tr>
+                <th style="width: 5%" class="text-left">Id</th>
+                <th style="width: 10%" class="text-left">App Logo</th>
+                <th style="width: 10%" class="text-left">Main Image</th>
+                <th style="width: 10%" class="text-left">App Name</th>
+                <th style="width: 25%" class="text-left">
+                  App Description (Short)
+                </th>
+                <th style="width: 35%" class="text-left">App Details</th>
+                <th style="width: 5%" class="text-left"></th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="item in filteredItems" :key="item.id">
+                <td>
+                  <div class="app-column">
+                    {{ item.id }}
+                  </div>
+                  <v-table class="app-column-table"></v-table>
+                </td>
+                <td>
+                  <div class="app-column app-img-cont-1">
+                    <v-img
+                      height="40"
+                      width="60"
+                      @click="openImage(item.image, item.id)"
+                      class="app-img"
+                      src="@/assets/logo-img.png"
+                    ></v-img>
+                  </div>
+                  <v-table class="app-column-table">
+                    <tr>
+                      <th>Active</th>
+                    </tr>
+                    <tr>
+                      <td>
+                        <v-btn-toggle v-model="item.isActive" rounded="5">
+                          <v-btn width="40" size="30" height="30" :value="true">
+                            Yes
+                          </v-btn>
+
+                          <v-btn
+                            width="40"
+                            size="30"
+                            height="30"
+                            :value="false"
+                          >
+                            No
+                          </v-btn>
+                        </v-btn-toggle>
+                      </td>
+                    </tr>
+                  </v-table>
+                </td>
+                <td>
+                  <div class="app-column app-img-cont-2">
+                    <v-img
+                      height="40"
+                      width="60"
+                      @click="openImage(item.image, item.id)"
+                      class="app-img-2"
+                      src="@/assets/other-voucher-img-5.png"
+                    ></v-img>
+                  </div>
+                  <v-table class="app-column-table">
+                    <tr>
+                      <th>Favorite</th>
+                    </tr>
+                    <tr>
+                      <td>
+                        <v-btn-toggle v-model="item.isFav" rounded="5">
+                          <v-btn size="30" height="30" width="50" :value="true">
+                            Yes
+                          </v-btn>
+
+                          <v-btn
+                            size="30"
+                            height="30"
+                            width="50"
+                            :value="false"
+                          >
+                            No
+                          </v-btn>
+                        </v-btn-toggle>
+                      </td>
+                    </tr>
+                  </v-table>
+                </td>
+
+                <td>
+                  <div class="app-column">
+                    {{ item.name }}
+                  </div>
+
+                  <v-table class="app-column-table">
+                    <tr>
+                      <th>App Group</th>
+                    </tr>
+                    <tr style="color: black; font-weight: 600">
+                      <td>
+                        {{ item.group }}
+                      </td>
+                    </tr>
+                  </v-table>
+                </td>
+                <td>
+                  <div class="app-column">
+                    {{ item.description }}
+                  </div>
+                  <v-table class="app-column-table">
+                    <tr>
+                      <th>User</th>
+                      <th>Created on</th>
+                    </tr>
+                    <tr style="color: black; font-weight: 600">
+                      <td>
+                        {{ item.user }}
+                      </td>
+                      <td>
+                        {{ item.created }}
+                      </td>
+                    </tr>
+                  </v-table>
+                </td>
+                <td>
+                  <div class="app-column">
+                    {{ item.details }}
+                  </div>
+                  <v-table class="app-column-table">
+                    <tr>
+                      <th>Views</th>
+                      <th>Likes</th>
+                      <th>Shares</th>
+                    </tr>
+                    <tr style="color: #2196f3; font-weight: 600">
+                      <td>
+                        {{ item.views }}
+                      </td>
+                      <td>
+                        {{ item.likes }}
+                      </td>
+                      <td>
+                        {{ item.shares }}
+                      </td>
+                    </tr>
+                  </v-table>
+                </td>
+                <td>
+                  <div class="d-flex app-column">
+                    <v-btn
+                      color="green"
+                      variant="text"
+                      @click="editUser(item)"
+                      icon="mdi-pencil-outline"
+                    ></v-btn>
+                    <v-btn
+                      color="red"
+                      variant="text"
+                      :disabled="isDeleteLoading"
+                      @click="openDeleteConfirm(item.id)"
+                      icon="mdi-trash-can-outline"
+                    ></v-btn>
+                  </div>
+                  <v-table class="app-column-table"></v-table>
+                </td>
+              </tr>
+              <tr v-if="isLoading">
+                <td :colspan="6" class="text-center">
+                  <v-progress-circular
+                    indeterminate
+                    color="indigo-accent-2"
+                  ></v-progress-circular>
+                </td>
+              </tr>
+            </tbody>
+          </v-table>
+        </v-col>
+      </v-row>
+    </v-sheet>
+    <v-snackbar
+      location="top"
+      color="green"
+      v-model="isSuccess"
+      :timeout="3000"
+    >
+      {{ successMessage }}
+
+      <template v-slot:actions>
+        <v-btn color="white" variant="text" @click="isSuccess = false">
+          <v-icon>mdi-close</v-icon>
+        </v-btn>
+      </template>
+    </v-snackbar>
+    <v-dialog persistent width="500" v-model="isDelete">
+      <v-card>
+        <v-card-title>Confirmation</v-card-title>
+        <v-card-text> Are you sure want to delete this user? </v-card-text>
+        <v-card-actions>
+          <v-btn color="error" text @click="cancelDelete">No</v-btn>
+          <v-btn color="success" text @click="deleteUser">Yes</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+    <v-dialog persistent width="auto" v-model="isOpenImage">
+      <v-card width="750">
+        <v-card-title class="upload-title px-6 py-4">
+          Upload Image - User</v-card-title
+        >
+        <v-card-text>
+          <image-upload
+            :image-file="imageFile"
+            @update-image-file="updateImageFile"
+            @delete-image-file="deleteImageFile"
+          />
+        </v-card-text>
+        <v-card-actions class="mt-16">
+          <v-spacer></v-spacer>
+          <v-btn
+            style="text-transform: none"
+            color="error"
+            text
+            @click="closeImage"
+            >Cancel</v-btn
+          >
+          <v-btn
+            style="background-color: #9ddcff; text-transform: none"
+            color="black"
+            @click="saveImage()"
+            >Save</v-btn
+          >
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+  </v-container>
+</template>
+
+<script>
+import ImageUpload from '@/components/ImageUpload.vue';
+import axios from '@/util/axios';
+import http from 'axios';
+import { setAuthHeader } from '@/util/axios';
+
+export default {
+  name: 'AppNew',
+  data: () => ({
+    fileURL: 'https://admin1.the-gypsy.sg',
+    valid: false,
+    isLoading: false,
+    isSending: false,
+    isEdit: false,
+    isSuccess: false,
+    isDelete: false,
+    isDeleteLoading: false,
+    userIdToDelete: null,
+    tableHeaders: [{ text: 'Gambar', value: 'image' }],
+    imageFile: [],
+    userIdToImage: null,
+    isOpenImage: false,
+    successMessage: '',
+    input: {
+      id: 1,
+      name: '',
+      description: '',
+      details: '',
+    },
+    resource: {
+      country: [],
+      role: [
+        {
+          name: 'Super Admin',
+          value: 'S',
+        },
+        {
+          name: 'Admin',
+          value: 'A',
+        },
+      ],
+    },
+    rules: {
+      nameRules: [
+        (value) => {
+          if (value) return true;
+          return 'App Name is requred.';
+        },
+        (value) => {
+          if (value?.length >= 4) return true;
+          return 'App Name must be more than 4 characters.';
+        },
+
+        (value) => {
+          if (value?.length <= 20) return true;
+          return 'App Name must be less than 20 characters.';
+        },
+      ],
+      descriptionRules: [
+        (value) => {
+          if (value) return true;
+          return 'App Description is requred.';
+        },
+        (value) => {
+          if (value?.length >= 4) return true;
+          return 'App Description must be more than 4 characters.';
+        },
+      ],
+      detailsRules: [
+        (value) => {
+          if (value) return true;
+          return 'App Details is requred.';
+        },
+        (value) => {
+          if (value?.length >= 4) return true;
+          return 'App Details must be more than 4 characters.';
+        },
+      ],
+    },
+    search: '',
+    items: [],
+
+    headers: [
+      { title: 'Id', align: 'start', key: 'id' },
+      {
+        title: 'App Logo',
+        align: 'start',
+        key: 'logo',
+      },
+      {
+        title: 'Main Image',
+        align: 'start',
+        key: 'image',
+      },
+      { title: 'App Name', align: 'start', key: 'name' },
+      { title: 'App Description (Short)', align: 'start', key: 'description' },
+      { title: 'App Details', align: 'start', key: 'details' },
+      { title: '', key: 'action' },
+    ],
+    itemsTry: [
+      {
+        id: 1,
+        logo: 'src/assets/logo-img.png',
+        image: '@/assets/logo-img.png',
+        name: 'The Gypsy',
+        description: 'Marketplace App for Everything',
+        details:
+          'Lorem ipsum dolor sit, amet consectetur adipisicing elit. Sed veritatis excepturi doloremque reprehenderit',
+        isActive: true,
+        isFav: true,
+        group: 'Super App',
+        user: 'Charlton',
+        created: '27/05/2023',
+        views: 184,
+        likes: 325,
+        shares: 122,
+      },
+      {
+        id: 1,
+        logo: 'src/assets/logo-img.png',
+        image: '@/assets/logo-img.png',
+        name: 'The Gypsy',
+        description: 'Marketplace App for Everything',
+        details:
+          'Lorem ipsum dolor sit, amet consectetur adipisicing elit. Sed veritatis excepturi doloremque reprehenderit',
+        isActive: true,
+        isFav: true,
+        group: 'Super App',
+        user: 'Charlton',
+        created: '27/05/2023',
+        views: 184,
+        likes: 325,
+        shares: 122,
+      },
+      {
+        id: 1,
+        logo: 'src/assets/logo-img.png',
+        image: '@/assets/logo-img.png',
+        name: 'The Gypsy',
+        description: 'Marketplace App for Everything',
+        details:
+          'Lorem ipsum dolor sit, amet consectetur adipisicing elit. Sed veritatis excepturi doloremque reprehenderit',
+        isActive: true,
+        isFav: true,
+        group: 'Super App',
+        user: 'Charlton',
+        created: '27/05/2023',
+        views: 184,
+        likes: 325,
+        shares: 122,
+      },
+    ],
+  }),
+  created() {
+    const token = JSON.parse(localStorage.getItem('token'));
+    setAuthHeader(token);
+  },
+  mounted() {
+    this.getUserData();
+    this.getCountry();
+  },
+  computed: {
+    filteredItems() {
+      if (!this.search) {
+        return this.itemsTry;
+      }
+      const searchTextLower = this.search.toLowerCase();
+      return this.itemsTry.filter(
+        (item) =>
+          item.name.toLowerCase().includes(searchTextLower) ||
+          item.description.toLowerCase().includes(searchTextLower) ||
+          item.group.toLowerCase().includes(searchTextLower) ||
+          item.user.toLowerCase().includes(searchTextLower)
+      );
+    },
+  },
+  methods: {
+    getButtonClasses(value) {
+      return {
+        primary: value === this.selectedItem,
+        'grey lighten-2': value !== this.selectedItem,
+      };
+    },
+    updateImageFile(newImageFile) {
+      this.imageFile.push(newImageFile);
+    },
+    deleteImageFile() {
+      this.isSending = true;
+      const payload = {
+        id: this.userIdToImage,
+      };
+      axios
+        .post(`/user/deleteImage`, payload, {})
+        .then((response) => {
+          const data = response.data;
+          this.successMessage = data.message;
+          this.isSuccess = true;
+          this.getUserData();
+        })
+        .catch((error) => {
+          // eslint-disable-next-line
+          console.log(error);
+        })
+        .finally(() => {
+          this.isEdit = false;
+          this.isSending = false;
+          this.userIdToImage = null;
+          this.imageFile = [];
+        });
+    },
+    openImage(image, id) {
+      this.isOpenImage = true;
+      this.userIdToImage = id;
+      this.imageFile =
+        image != null
+          ? [
+              {
+                file: {
+                  name: image,
+                  size: '',
+                  base64: '',
+                  format: '',
+                },
+              },
+            ]
+          : [];
+    },
+    closeImage() {
+      this.isOpenImage = false;
+      this.imageFile = [];
+      this.userIdToImage = null;
+    },
+    saveImage() {
+      this.isSending = true;
+      const payload = {
+        id: this.userIdToImage,
+        file: this.imageFile[0],
+      };
+      http
+        .post(`/user/update`, payload, {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+        })
+        .then((response) => {
+          const data = response.data;
+          this.successMessage = data.message;
+          this.isSuccess = true;
+          this.getUserData();
+        })
+        .catch((error) => {
+          // eslint-disable-next-line
+          console.log(error);
+        })
+        .finally(() => {
+          this.isEdit = false;
+          this.isSending = false;
+          this.userIdToImage = null;
+          this.isOpenImage = false;
+          this.imageFile = [];
+        });
+    },
+    editUser(user) {
+      this.isEdit = true;
+      this.input = {
+        id: user.id,
+        name: user.name,
+        description: user.description,
+        details: user.details,
+      };
+    },
+    cancelEdit() {
+      this.isEdit = false;
+      this.input = {
+        id: 0,
+        name: '',
+        description: '',
+        details: '',
+      };
+    },
+    saveEdit() {
+      if (this.valid) {
+        this.isSending = true;
+        const payload = {
+          id: this.input.id,
+          name: this.input.username,
+          email: this.input.email,
+          role: this.input.role,
+          country_id: this.input.country,
+        };
+        if (this.input.image !== null) {
+          payload['file'] = this.input.image;
+        }
+        axios
+          .post(`/user/update`, payload)
+          .then((response) => {
+            const data = response.data;
+            this.successMessage = data.message;
+            this.isSuccess = true;
+            this.getUserData();
+            this.input = {
+              id: 0,
+              username: '',
+              email: '',
+              country: null,
+              role: null,
+              image: null,
+            };
+          })
+          .catch((error) => {
+            // eslint-disable-next-line
+            console.log(error);
+          })
+          .finally(() => {
+            this.isEdit = false;
+            this.isSending = false;
+          });
+      }
+    },
+    saveData() {
+      if (this.valid) {
+        this.isSending = true;
+        const payload = {
+          name: this.input.username,
+          email: this.input.email,
+          role: this.input.role,
+          country_id: this.input.country,
+        };
+        if (this.input.image !== null) {
+          payload['file'] = this.input.image;
+        }
+        axios
+          .post(`/register`, payload)
+          .then((response) => {
+            const data = response.data;
+            this.successMessage = data.message;
+            this.isSuccess = true;
+            this.getUserData();
+            this.input = {
+              id: 0,
+              username: '',
+              email: '',
+              country: null,
+              role: null,
+              image: null,
+            };
+          })
+          .catch((error) => {
+            // eslint-disable-next-line
+            console.log(error);
+          })
+          .finally(() => {
+            this.isSending = false;
+          });
+      }
+    },
+    cancelDelete() {
+      this.userIdToDelete = null;
+      this.isDelete = false;
+    },
+    openDeleteConfirm(itemId) {
+      this.userIdToDelete = itemId;
+      this.isDelete = true;
+    },
+    cancelConfirmation() {
+      this.userIdToDelete = null;
+      this.isDelete = false;
+    },
+    deleteUser() {
+      this.isDeleteLoading = true;
+      axios
+        .post(`/user/delete`, {
+          id: this.userIdToDelete,
+        })
+        .then((response) => {
+          const data = response.data;
+          this.successMessage = data.message;
+          this.isSuccess = true;
+          this.getUserData();
+        })
+        .catch((error) => {
+          // eslint-disable-next-line
+          console.log(error);
+        })
+        .finally(() => {
+          this.isDeleteLoading = false;
+          this.userIdToDelete = null;
+          this.isDelete = false;
+        });
+    },
+    getUserData() {
+      this.isLoading = true;
+      axios
+        .get(`/user`)
+        .then((response) => {
+          const data = response.data.data;
+          // console.log(data);
+          this.items = data.map((item) => {
+            return {
+              id: item.id || 1,
+              name: item.name || '',
+              email: item.email || '',
+              registered_on: item.registered_on || '',
+              role: item.role || '',
+              roleName:
+                item.role == 'S'
+                  ? 'Superadmin'
+                  : item.role == 'A'
+                  ? 'Admin'
+                  : '',
+              image: item.image || null,
+              country_id: item.country_id || 1,
+              country_name: item.country_name || '',
+            };
+          });
+        })
+        .catch((error) => {
+          // eslint-disable-next-line
+          console.log(error);
+        })
+        .finally(() => {
+          this.isLoading = false;
+        });
+    },
+    getCountry() {
+      axios
+        .get(`/country`)
+        .then((response) => {
+          const data = response.data.data;
+          this.resource.country = data.map((country) => {
+            return {
+              id: country.country_id,
+              name: country.country_name,
+            };
+          });
+        })
+        .catch((error) => {
+          // eslint-disable-next-line
+          console.log(error);
+        });
+    },
+  },
+  components: { ImageUpload },
+};
+</script>
+
+<style lang="scss" scoped>
+.app-table {
+  font-size: 12px;
+  color: grey !important;
+}
+
+.app-column {
+  display: flex;
+  align-items: center;
+  min-height: 70px;
+  margin-bottom: 10px;
+}
+
+.app-img {
+  border: 1px solid grey !important;
+  cursor: pointer !important;
+}
+.app-img-2 {
+  border: 1px solid grey !important;
+  padding: 2px !important;
+  cursor: pointer !important;
+}
+.app-column-table {
+  min-height: 70px;
+  margin-bottom: 10px !important;
+}
+
+.app-column-table th {
+  color: grey;
+  text-align: left;
+  font-weight: 400;
+  padding-bottom: 5px !important;
+}
+
+.v-btn-toggle .v-btn:not(.v-btn--active) {
+  background-color: #e0e0e0 !important;
+}
+
+/* Latar belakang aktif */
+.v-btn-toggle .v-btn--active {
+  background-color: #2196f3 !important;
+  color: #fff !important;
+}
+
+.upload-title {
+  background-color: #9ddcff;
+  color: white;
+}
+</style>
