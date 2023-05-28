@@ -12,6 +12,7 @@
               :counter="20"
               label="Enter Username"
               variant="outlined"
+              density="compact"
               required
             ></v-text-field>
           </v-col>
@@ -22,6 +23,7 @@
               :rules="rules.emailRules"
               label="Enter Email"
               type="email"
+              density="compact"
               variant="outlined"
               required
             ></v-text-field>
@@ -30,6 +32,7 @@
           <v-col cols="12" md="3">
             <v-select
               clearable
+              density="compact"
               :rules="rules.countryRules"
               label="Select Country"
               :items="resource.country"
@@ -42,6 +45,7 @@
 
           <v-col cols="12" md="3">
             <v-select
+              density="compact"
               clearable
               :rules="rules.roleRules"
               :items="resource.role"
@@ -95,10 +99,11 @@
         </v-row>
       </v-container>
     </v-form>
-    <v-sheet class="pa-8 mt-6" border rounded width="100%">
+    <v-sheet class="py-6 px-4 mt-6" border rounded width="100%">
       <v-row>
         <v-col cols="12" md="4">
           <v-text-field
+            density="compact"
             v-model="search"
             label="Search Contacts"
             variant="outlined"

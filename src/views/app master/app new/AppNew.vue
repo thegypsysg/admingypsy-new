@@ -7,37 +7,50 @@
       <v-container>
         <v-row>
           <v-col cols="12" md="4">
-            <div class="d-flex flex-column align-stretch">
-              <v-text-field
-                height="50"
-                v-model="input.name"
-                :rules="rules.nameRules"
-                :counter="20"
-                label="App Name"
-                variant="outlined"
-                required
-              ></v-text-field>
-              <v-text-field
-                height="30"
-                v-model="input.description"
-                :rules="rules.descriptionRules"
-                label="App Description (Short)"
-                variant="outlined"
-                required
-              ></v-text-field>
-            </div>
+            <!-- <div class="d-flex h-100 flex-column"> -->
+            <v-text-field
+              v-model="input.name"
+              :rules="rules.nameRules"
+              :counter="20"
+              label="App Name"
+              variant="outlined"
+              density="compact"
+              required
+            ></v-text-field>
+            <v-text-field
+              class="mt-3"
+              v-model="input.description"
+              :rules="rules.descriptionRules"
+              label="App Description (Short)"
+              variant="outlined"
+              required
+              density="compact"
+            ></v-text-field>
+            <!-- </div> -->
           </v-col>
           <v-col cols="12" md="4">
             <v-textarea
               v-model="input.details"
               :rules="rules.detailsRules"
               label="App Details"
+              rows="3"
               variant="outlined"
               required
             ></v-textarea>
           </v-col>
           <v-col class="ml-8" cols="6" md="3">
-            <div class="d-flex justify-space-between">
+            <v-select
+              clearable
+              density="compact"
+              :rules="rules.groupRules"
+              label="App Group"
+              :items="resource.group"
+              item-title="name"
+              item-value="value"
+              v-model="input.group"
+              variant="outlined"
+            ></v-select>
+            <div class="d-flex justify-space-between mt-3">
               <v-btn
                 :prepend-icon="
                   isEdit
@@ -78,13 +91,14 @@
         </v-row>
       </v-container>
     </v-form>
-    <v-sheet class="pa-8" border rounded width="100%">
+    <v-sheet class="py-6 px-4" border rounded width="100%">
       <v-row>
         <v-col cols="12" md="4">
           <v-text-field
             v-model="search"
             label="Search Apps"
             variant="outlined"
+            density="compact"
             hide-details
           ></v-text-field>
         </v-col>
@@ -357,16 +371,16 @@ export default {
       name: '',
       description: '',
       details: '',
+      group: null,
     },
     resource: {
-      country: [],
-      role: [
+      group: [
         {
-          name: 'Super Admin',
+          name: 'Super App',
           value: 'S',
         },
         {
-          name: 'Admin',
+          name: 'App',
           value: 'A',
         },
       ],
@@ -405,6 +419,12 @@ export default {
         (value) => {
           if (value?.length >= 4) return true;
           return 'App Details must be more than 4 characters.';
+        },
+      ],
+      groupRules: [
+        (value) => {
+          if (value) return true;
+          return 'App Group is requred.';
         },
       ],
     },
@@ -598,6 +618,7 @@ export default {
         name: user.name,
         description: user.description,
         details: user.details,
+        group: user.group,
       };
     },
     cancelEdit() {
@@ -607,6 +628,7 @@ export default {
         name: '',
         description: '',
         details: '',
+        group: null,
       };
     },
     saveEdit() {
@@ -822,5 +844,9 @@ export default {
 .upload-title {
   background-color: #9ddcff;
   color: white;
+}
+
+.app-input .v-input__control {
+  height: 20px !important;
 }
 </style>
