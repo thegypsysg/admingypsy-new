@@ -13,7 +13,7 @@
 
             <v-form @submit.prevent="doLogin">
               <v-text-field
-                class="login-input mb-2"
+                class="login-input custom-input mb-2"
                 v-model="input.email"
                 label="Email"
                 type="email"
@@ -28,7 +28,7 @@
                 :append-inner-icon="showPassword ? 'mdi-eye' : 'mdi-eye-off'"
                 :type="showPassword ? 'text' : 'password'"
                 variant="outlined"
-                class="my-2"
+                class="my-2 custom-input"
                 :rules="passwordRules"
                 label="Password"
                 @click:append-inner="showPassword = !showPassword"
@@ -298,6 +298,17 @@ export default {
     },
   },
 };
+
+// .login-input .v-text-field input:-webkit-autofill {
+//   -webkit-box-shadow: 0 0 0 30px #f5f5f5 inset !important;
+//   -webkit-text-fill-color: #333 !important;
+// }
+
+// /* Firefox */
+// .login-input .v-text-field input:-moz-autofill {
+//   -moz-box-shadow: 0 0 0 30px #f5f5f5 inset !important;
+//   -moz-text-fill-color: #333 !important;
+// }
 </script>
 
 <style scoped>
@@ -309,15 +320,14 @@ export default {
   min-height: 85vh;
 }
 
-.login-input .v-text-field input:-webkit-autofill {
-  -webkit-box-shadow: 0 0 0 30px #f5f5f5 inset !important;
-  -webkit-text-fill-color: #333 !important;
+.custom-input ::v-deep input:-webkit-autofill {
+  -webkit-text-fill-color: #000 !important;
+  -webkit-box-shadow: 0 0 0 1000px #fff inset;
 }
 
-/* Firefox */
-.login-input .v-text-field input:-moz-autofill {
-  -moz-box-shadow: 0 0 0 30px #f5f5f5 inset !important;
-  -moz-text-fill-color: #333 !important;
+.custom-input ::v-deep input:-webkit-autofill:focus {
+  -webkit-text-fill-color: #000 !important;
+  -webkit-box-shadow: 0 0 0 1000px #fff inset;
 }
 
 .login-btn {
