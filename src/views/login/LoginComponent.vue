@@ -86,23 +86,68 @@
               </div>
               <div
                 class="login-footer-btn d-flex justify-center mt-5"
-                style="gap: 20px"
+                :class="{ 'login-footer-btn-mobile': isSmall }"
               >
-                <div class="login-footer-icon">
-                  <img :src="require('@/assets/tiktok.png')" alt="logo" />
-                </div>
-                <div class="login-footer-icon">
-                  <img :src="require('@/assets/facebook.png')" alt="logo" />
-                </div>
-                <div class="login-footer-icon">
-                  <img :src="require('@/assets/instagram.png')" alt="logo" />
-                </div>
-                <div class="login-footer-icon">
-                  <img :src="require('@/assets/google.png')" alt="logo" />
-                </div>
-                <div class="login-footer-icon">
-                  <img :src="require('@/assets/linkedin.png')" alt="logo" />
-                </div>
+                <v-btn
+                  v-if="!isSmall"
+                  :size="!isSmall ? '40' : '50'"
+                  variant="text"
+                  style="background: black"
+                  color="white"
+                  icon
+                >
+                  <v-icon :size="!isSmall ? '18' : '24'">
+                    <i class="fa-brands fa-tiktok" />
+                  </v-icon>
+                </v-btn>
+
+                <v-btn
+                  :size="!isSmall ? '40' : '50'"
+                  variant="text"
+                  style="background: #4267b2"
+                  color="white"
+                  icon
+                >
+                  <v-icon :size="!isSmall ? '18' : '24'">
+                    <i class="fa-brands fa-facebook-f" />
+                  </v-icon>
+                </v-btn>
+
+                <v-btn
+                  :size="!isSmall ? '40' : '50'"
+                  variant="text"
+                  style="background: #fc2145"
+                  color="white"
+                  icon
+                >
+                  <v-icon :size="!isSmall ? '18' : '24'">
+                    <i class="fa-brands fa-instagram" />
+                  </v-icon>
+                </v-btn>
+
+                <v-btn
+                  :size="!isSmall ? '40' : '50'"
+                  variant="text"
+                  color="white"
+                  style="background: #db4a39"
+                  icon
+                >
+                  <v-icon :size="!isSmall ? '18' : '24'">
+                    <i class="fa-brands fa-google-plus-g" />
+                  </v-icon>
+                </v-btn>
+
+                <v-btn
+                  :size="!isSmall ? '40' : '50'"
+                  variant="text"
+                  style="background: #0072b1"
+                  color="white"
+                  icon
+                >
+                  <v-icon :size="!isSmall ? '18' : '24'">
+                    <i class="fa-brands fa-linkedin-in" />
+                  </v-icon>
+                </v-btn>
               </div>
             </v-form>
           </v-card>
@@ -291,5 +336,9 @@ export default {
   width: 70px;
   height: 1px;
   background: #bababa;
+}
+
+.login-footer-btn {
+  gap: 20px;
 }
 </style>
