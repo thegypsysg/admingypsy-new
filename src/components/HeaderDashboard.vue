@@ -40,6 +40,8 @@
 </template>
 
 <script>
+import app from '@/util/eventBus';
+
 export default {
   data() {
     return {
@@ -53,6 +55,15 @@ export default {
       image: '',
     };
   },
+  created() {
+    app.config.globalProperties.$eventBus.$on('update-image', this.updateImage);
+  },
+  beforeUnmount() {
+    app.config.globalProperties.$eventBus.$off(
+      'update-image',
+      this.updateImage
+    );
+  },
   mounted() {
     const getImg = localStorage.getItem('image');
     this.image =
@@ -63,6 +74,20 @@ export default {
   methods: {
     toggleDrawer() {
       this.$emit('toggle-drawer');
+    },
+    updateImage(dataItems) {
+      const id = parseInt(localStorage.getItem('id'));
+      console.log(id);
+      const image = dataItems
+        .filter((data) => data.id === id)
+        .map((item) => item.image);
+      console.log(image);
+      localStorage.setItem('image', image[0]);
+      const getImg = localStorage.getItem('image');
+      this.image =
+        getImg == 'null'
+          ? 'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png'
+          : this.fileURL + getImg;
     },
   },
 };

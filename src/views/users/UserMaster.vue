@@ -250,6 +250,7 @@ import ImageUpload from '@/components/ImageUpload.vue';
 import axios from '@/util/axios';
 import http from 'axios';
 import { setAuthHeader } from '@/util/axios';
+import app from '@/util/eventBus';
 
 export default {
   name: 'UserMaster',
@@ -369,6 +370,7 @@ export default {
           this.successMessage = data.message;
           this.isSuccess = true;
           this.getUserData();
+          // app.config.globalProperties.$eventBus.$emit('update-image');
         })
         .catch((error) => {
           // eslint-disable-next-line
@@ -420,6 +422,7 @@ export default {
           this.successMessage = data.message;
           this.isSuccess = true;
           this.getUserData();
+          // app.config.globalProperties.$eventBus.$emit('update-image');
         })
         .catch((error) => {
           // eslint-disable-next-line
@@ -589,6 +592,11 @@ export default {
               country_name: item.country_name || '',
             };
           });
+
+          app.config.globalProperties.$eventBus.$emit(
+            'update-image',
+            this.items
+          );
         })
         .catch((error) => {
           // eslint-disable-next-line
