@@ -20,6 +20,7 @@ export default createStore({
           },
           {
             title: 'Manage Countries',
+            path: '/country-master',
             open: false,
             subnav: [{ title: 'Nesting' }, { title: 'Mixins' }],
           },
