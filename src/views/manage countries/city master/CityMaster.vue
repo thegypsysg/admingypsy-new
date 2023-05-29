@@ -42,6 +42,20 @@
             <v-combobox
               clearable
               density="compact"
+              :rules="rules.cityRules"
+              label="Select City"
+              placeholder="Type a City"
+              :items="resource.city"
+              item-title="name"
+              item-value="id"
+              v-model="input.city"
+              variant="outlined"
+            ></v-combobox>
+          </v-col>
+          <v-col cols="12" md="3">
+            <v-combobox
+              clearable
+              density="compact"
               :rules="rules.countryRules"
               label="Select Country"
               placeholder="Type a Country"
@@ -51,28 +65,6 @@
               v-model="input.country"
               variant="outlined"
             ></v-combobox>
-          </v-col>
-          <v-col cols="12" md="3">
-            <v-text-field
-              v-model="input.code"
-              :rules="rules.codeRules"
-              label="Enter Country Code"
-              variant="outlined"
-              density="compact"
-              required
-            ></v-text-field>
-          </v-col>
-
-          <v-col cols="12" md="3">
-            <v-text-field
-              v-model="input.national"
-              :rules="rules.nationalRules"
-              label="Enter Nationality"
-              type="email"
-              density="compact"
-              variant="outlined"
-              required
-            ></v-text-field>
           </v-col>
         </v-row>
         <v-row class="mt-n2">
@@ -125,7 +117,7 @@
           <v-text-field
             density="compact"
             v-model="search"
-            label="Search a Country"
+            label="Search a City"
             variant="outlined"
             hide-details
           ></v-text-field>
@@ -136,10 +128,8 @@
           <v-table class="country-table">
             <thead>
               <tr>
-                <th class="text-left">Image</th>
-                <th class="text-left">Country Name</th>
-                <th class="text-left">Code</th>
-                <th class="text-left">Nationality</th>
+                <th class="text-left">City Name</th>
+                <th class="text-left">Country</th>
                 <th class="text-left">Active</th>
                 <th class="text-left">Favorite</th>
                 <th class="text-left">Actions</th>
@@ -151,22 +141,12 @@
                 v-for="item in filteredItems"
                 :key="item.id"
               >
-                <td>
-                  <v-img
-                    height="55"
-                    width="80"
-                    @click="openImage(item.image, item.id)"
-                    style="cursor: pointer"
-                    src="@/assets/indonesia.jpg"
-                  ></v-img>
+                <td style="font-weight: 500 !important">
+                  {{ item.city }}
                 </td>
                 <td style="font-weight: 500 !important">
                   {{ item.country }}
                 </td>
-                <td style="font-weight: 500 !important">
-                  {{ item.code }}
-                </td>
-                <td style="font-weight: 500 !important">{{ item.national }}</td>
                 <td>
                   <v-btn-toggle
                     style="
@@ -315,46 +295,34 @@ export default {
     successMessage: '',
     input: {
       id: 0,
-      image: null,
       country: null,
-      code: '',
-      national: '',
+      city: null,
     },
     resource: {
       country: [],
-      role: [
+      city: [
         {
-          name: 'Super Admin',
-          value: 'S',
+          name: 'Jakarta',
+          id: 1,
         },
         {
-          name: 'Admin',
-          value: 'A',
+          name: 'Semarang',
+          id: 2,
+        },
+        {
+          name: 'Yogyakarta',
+          id: 3,
         },
       ],
     },
     rules: {
-      codeRules: [
-        (value) => {
-          if (value) return true;
-          return 'Country code is requred.';
-        },
-        // (value) => {
-        //   if (value?.length >= 4) return true;
-        //   return 'Username must be more than 4 characters.';
-        // },
-        // (value) => {
-        //   if (value?.length <= 20) return true;
-        //   return 'Username must be less than 20 characters.';
-        // },
-      ],
-      nationalRules: [
-        (value) => {
-          if (value) return true;
-          return 'Nationality is requred.';
-        },
-      ],
       countryRules: [
+        (value) => {
+          if (value) return true;
+          return 'Country is requred.';
+        },
+      ],
+      cityRules: [
         (value) => {
           if (value) return true;
           return 'Country is requred.';
@@ -366,28 +334,22 @@ export default {
     itemsTry: [
       {
         id: 1,
-        image: '@/assets/indonesia.jpeg',
+        city: 'Jakarta',
         country: 'Indonesia',
-        code: '+62',
-        national: 'Indonesian',
         isActive: true,
         isFav: true,
       },
       {
-        id: 1,
-        image: '@/assets/indonesia.jpeg',
+        id: 2,
+        city: 'Semarang',
         country: 'Indonesia',
-        code: '+62',
-        national: 'Indonesian',
         isActive: true,
         isFav: true,
       },
       {
-        id: 1,
-        image: '@/assets/indonesia.jpeg',
+        id: 3,
+        city: 'Yogyakarta',
         country: 'Indonesia',
-        code: '+62',
-        national: 'Indonesian',
         isActive: true,
         isFav: true,
       },
@@ -502,19 +464,16 @@ export default {
       this.isEdit = true;
       this.input = {
         id: user.id,
+        city: user.city,
         country: user.country,
-        code: user.code,
-        national: user.national,
       };
     },
     cancelEdit() {
       this.isEdit = false;
       this.input = {
-        id: 1,
-        image: null,
+        id: 0,
         country: null,
-        code: '',
-        national: '',
+        city: null,
       };
     },
     saveEdit() {
@@ -539,11 +498,8 @@ export default {
             this.getUserData();
             this.input = {
               id: 0,
-              username: '',
-              email: '',
               country: null,
-              role: null,
-              image: null,
+              city: null,
             };
           })
           .catch((error) => {
@@ -577,10 +533,8 @@ export default {
             this.getUserData();
             this.input = {
               id: 0,
-              image: null,
               country: null,
-              code: '',
-              national: '',
+              city: null,
             };
           })
           .catch((error) => {
