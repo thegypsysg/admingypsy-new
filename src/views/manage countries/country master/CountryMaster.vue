@@ -76,7 +76,7 @@
           </v-col>
         </v-row>
         <v-row class="mt-n2">
-          <v-col cols="12" md="2">
+          <v-col cols="12" md="3">
             <v-btn
               :prepend-icon="
                 isEdit
@@ -87,6 +87,7 @@
               style="text-transform: none"
               type="submit"
               variant="flat"
+              class="w-100"
               @click="isEdit ? saveEdit() : saveData()"
               :disabled="isSending"
               :loading="isSending"
@@ -98,12 +99,13 @@
               {{ isEdit ? 'SAVE' : 'ADD' }}
             </v-btn>
           </v-col>
-          <v-col v-if="isEdit" cols="12" md="2">
+          <v-col v-if="isEdit" cols="12" md="3">
             <v-btn
               prepend-icon="mdi-account-multiple-remove"
               color="red"
               style="text-transform: none"
               variant="flat"
+              class="w-100"
               @click="cancelEdit"
               :disabled="isSending"
             >
@@ -131,7 +133,7 @@
       </v-row>
       <v-row>
         <v-col cols="12">
-          <v-table class="user-table">
+          <v-table class="country-table">
             <thead>
               <tr>
                 <th class="text-left">Image</th>
@@ -144,38 +146,61 @@
               </tr>
             </thead>
             <tbody>
-              <tr v-for="item in filteredItems" :key="item.id">
-                <td>{{ item.id }}</td>
+              <tr
+                class="country-table-body"
+                v-for="item in filteredItems"
+                :key="item.id"
+              >
                 <td>
-                  <v-list-item
+                  <v-img
+                    height="55"
+                    width="80"
                     @click="openImage(item.image, item.id)"
-                    :prepend-avatar="
-                      item.image != null
-                        ? fileURL + item.image
-                        : 'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png'
+                    style="cursor: pointer"
+                    src="@/assets/indonesia.jpg"
+                  ></v-img>
+                </td>
+                <td style="font-weight: 500 !important">
+                  {{ item.country }}
+                </td>
+                <td style="font-weight: 500 !important">
+                  {{ item.code }}
+                </td>
+                <td style="font-weight: 500 !important">{{ item.national }}</td>
+                <td>
+                  <v-btn-toggle
+                    style="
+                      font-size: 10px !important;
+                      font-weight: 200 !important;
+                      height: 22px !important;
+                      width: 54px !important;
                     "
+                    class="d-flex align-center"
+                    v-model="item.isActive"
+                    rounded="5"
                   >
-                    <v-list-item-content>
-                      <v-list-item-title style="font-size: 14px">{{
-                        item.name
-                      }}</v-list-item-title>
-                      <v-list-item-subtitle style="font-size: 12px">{{
-                        item.email
-                      }}</v-list-item-subtitle>
-                    </v-list-item-content>
-                  </v-list-item>
+                    <v-btn size="27" :value="true"> Yes </v-btn>
+
+                    <v-btn size="27" :value="false"> No </v-btn>
+                  </v-btn-toggle>
                 </td>
                 <td>
-                  <v-chip
-                    color="blue-darken-4"
-                    label
-                    style="background-color: #ecf0fc !important"
+                  <v-btn-toggle
+                    style="
+                      font-size: 10px !important;
+                      font-weight: 200 !important;
+                      height: 22px !important;
+                      width: 54px !important;
+                    "
+                    class="d-flex align-center"
+                    v-model="item.isFav"
+                    rounded="5"
                   >
-                    {{ item.roleName }}
-                  </v-chip>
+                    <v-btn size="27" :value="true"> Yes </v-btn>
+
+                    <v-btn size="27" :value="false"> No </v-btn>
+                  </v-btn-toggle>
                 </td>
-                <td>{{ item.country_name }}</td>
-                <td>{{ item.registered_on }}</td>
                 <td>
                   <div class="d-flex">
                     <v-btn
@@ -289,7 +314,7 @@ export default {
     isOpenImage: false,
     successMessage: '',
     input: {
-      id: 1,
+      id: 0,
       image: null,
       country: null,
       code: '',
@@ -338,6 +363,35 @@ export default {
     },
     search: '',
     items: [],
+    itemsTry: [
+      {
+        id: 1,
+        image: '@/assets/indonesia.jpeg',
+        country: 'Indonesia',
+        code: '+62',
+        national: 'Indonesian',
+        isActive: true,
+        isFav: true,
+      },
+      {
+        id: 1,
+        image: '@/assets/indonesia.jpeg',
+        country: 'Indonesia',
+        code: '+62',
+        national: 'Indonesian',
+        isActive: true,
+        isFav: true,
+      },
+      {
+        id: 1,
+        image: '@/assets/indonesia.jpeg',
+        country: 'Indonesia',
+        code: '+62',
+        national: 'Indonesian',
+        isActive: true,
+        isFav: true,
+      },
+    ],
   }),
   created() {
     const token = JSON.parse(localStorage.getItem('token'));
@@ -350,10 +404,10 @@ export default {
   computed: {
     filteredItems() {
       if (!this.search) {
-        return this.items;
+        return this.itemsTry;
       }
       const searchTextLower = this.search.toLowerCase();
-      return this.items.filter(
+      return this.itemsTry.filter(
         (item) =>
           item.name.toLowerCase().includes(searchTextLower) ||
           item.email.toLowerCase().includes(searchTextLower) ||
@@ -448,21 +502,19 @@ export default {
       this.isEdit = true;
       this.input = {
         id: user.id,
-        username: user.name,
-        email: user.email,
-        country: user.country_id,
-        role: user.role,
+        country: user.country,
+        code: user.code,
+        national: user.national,
       };
     },
     cancelEdit() {
       this.isEdit = false;
       this.input = {
-        id: 0,
-        username: '',
-        email: '',
-        country: null,
-        role: null,
+        id: 1,
         image: null,
+        country: null,
+        code: '',
+        national: '',
       };
     },
     saveEdit() {
@@ -525,11 +577,10 @@ export default {
             this.getUserData();
             this.input = {
               id: 0,
-              username: '',
-              email: '',
-              country: null,
-              role: null,
               image: null,
+              country: null,
+              code: '',
+              national: '',
             };
           })
           .catch((error) => {
@@ -637,9 +688,14 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.user-table {
+.country-table {
   font-size: 12px;
   color: black !important;
+}
+
+.country-table-body {
+  margin-top: 50px !important;
+  margin-bottom: 50px !important;
 }
 
 .upload-title {
@@ -649,5 +705,15 @@ export default {
 
 .v-simple-table {
   background: red !important;
+}
+
+.v-btn-toggle .v-btn:not(.v-btn--active) {
+  background-color: #e0e0e0 !important;
+}
+
+/* Latar belakang aktif */
+.v-btn-toggle .v-btn--active {
+  background-color: #2196f3 !important;
+  color: #fff !important;
 }
 </style>
