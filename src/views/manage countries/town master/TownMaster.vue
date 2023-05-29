@@ -183,19 +183,31 @@
                 </td>
                 <td>
                   <div class="d-flex">
-                    <v-btn
-                      color="green"
-                      variant="text"
-                      @click="editUser(item)"
-                      icon="mdi-pencil-outline"
-                    ></v-btn>
-                    <v-btn
-                      color="red"
-                      variant="text"
-                      :disabled="isDeleteLoading"
-                      @click="openDeleteConfirm(item.id)"
-                      icon="mdi-trash-can-outline"
-                    ></v-btn>
+                    <v-tooltip location="top">
+                      <template v-slot:activator="{ props }">
+                        <v-btn
+                          color="green"
+                          variant="text"
+                          v-bind="props"
+                          @click="editUser(item)"
+                          icon="mdi-pencil-outline"
+                        ></v-btn>
+                      </template>
+                      <span>Edit</span>
+                    </v-tooltip>
+                    <v-tooltip location="top">
+                      <template v-slot:activator="{ props }">
+                        <v-btn
+                          color="red"
+                          variant="text"
+                          v-bind="props"
+                          :disabled="isDeleteLoading"
+                          @click="openDeleteConfirm(item.id)"
+                          icon="mdi-trash-can-outline"
+                        ></v-btn>
+                      </template>
+                      <span>Delete</span>
+                    </v-tooltip>
                   </div>
                 </td>
               </tr>

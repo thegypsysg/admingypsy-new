@@ -152,8 +152,8 @@
               >
                 <td>
                   <v-img
-                    height="55"
-                    width="80"
+                    height="40"
+                    width="65"
                     @click="openImage(item.image, item.id)"
                     style="cursor: pointer"
                     src="@/assets/indonesia.jpg"
@@ -202,19 +202,31 @@
                 </td>
                 <td>
                   <div class="d-flex">
-                    <v-btn
-                      color="green"
-                      variant="text"
-                      @click="editUser(item)"
-                      icon="mdi-pencil-outline"
-                    ></v-btn>
-                    <v-btn
-                      color="red"
-                      variant="text"
-                      :disabled="isDeleteLoading"
-                      @click="openDeleteConfirm(item.id)"
-                      icon="mdi-trash-can-outline"
-                    ></v-btn>
+                    <v-tooltip location="top">
+                      <template v-slot:activator="{ props }">
+                        <v-btn
+                          color="green"
+                          variant="text"
+                          v-bind="props"
+                          @click="editUser(item)"
+                          icon="mdi-pencil-outline"
+                        ></v-btn>
+                      </template>
+                      <span>Edit</span>
+                    </v-tooltip>
+                    <v-tooltip location="top">
+                      <template v-slot:activator="{ props }">
+                        <v-btn
+                          color="red"
+                          v-bind="props"
+                          variant="text"
+                          :disabled="isDeleteLoading"
+                          @click="openDeleteConfirm(item.id)"
+                          icon="mdi-trash-can-outline"
+                        ></v-btn>
+                      </template>
+                      <span>Delete</span>
+                    </v-tooltip>
                   </div>
                 </td>
               </tr>
