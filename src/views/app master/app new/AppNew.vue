@@ -143,19 +143,20 @@
                     </tr>
                     <tr>
                       <td>
-                        <v-btn-toggle v-model="item.isActive" rounded="5">
-                          <v-btn width="40" size="30" height="30" :value="true">
-                            Yes
-                          </v-btn>
+                        <v-btn-toggle
+                          style="
+                            font-size: 10px !important;
+                            font-weight: 200 !important;
+                            height: 22px !important;
+                            width: 54px !important;
+                          "
+                          class="d-flex align-center"
+                          v-model="item.isActive"
+                          rounded="5"
+                        >
+                          <v-btn size="27" :value="true"> Yes </v-btn>
 
-                          <v-btn
-                            width="40"
-                            size="30"
-                            height="30"
-                            :value="false"
-                          >
-                            No
-                          </v-btn>
+                          <v-btn size="27" :value="false"> No </v-btn>
                         </v-btn-toggle>
                       </td>
                     </tr>
@@ -177,19 +178,20 @@
                     </tr>
                     <tr>
                       <td>
-                        <v-btn-toggle v-model="item.isFav" rounded="5">
-                          <v-btn size="30" height="30" width="50" :value="true">
-                            Yes
-                          </v-btn>
+                        <v-btn-toggle
+                          style="
+                            font-size: 10px !important;
+                            font-weight: 200 !important;
+                            height: 22px !important;
+                            width: 54px !important;
+                          "
+                          class="d-flex align-center"
+                          v-model="item.isFav"
+                          rounded="5"
+                        >
+                          <v-btn size="27" :value="true"> Yes </v-btn>
 
-                          <v-btn
-                            size="30"
-                            height="30"
-                            width="50"
-                            :value="false"
-                          >
-                            No
-                          </v-btn>
+                          <v-btn size="27" :value="false"> No </v-btn>
                         </v-btn-toggle>
                       </td>
                     </tr>
