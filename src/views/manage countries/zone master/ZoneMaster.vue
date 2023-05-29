@@ -39,32 +39,14 @@
       <v-container>
         <v-row>
           <v-col cols="12" md="3">
-            <v-combobox
-              clearable
-              density="compact"
-              :rules="rules.townRules"
-              label="Select Town"
-              placeholder="Type a Town Name"
-              :items="resource.town"
-              item-title="name"
-              item-value="id"
-              v-model="input.town"
+            <v-text-field
+              v-model="input.zone"
+              :rules="rules.zoneRules"
+              label="Type a Zone Name"
               variant="outlined"
-            ></v-combobox>
-          </v-col>
-          <v-col cols="12" md="3">
-            <v-combobox
-              clearable
               density="compact"
-              :rules="rules.cityRules"
-              label="Select City"
-              placeholder="Type a City"
-              :items="resource.city"
-              item-title="name"
-              item-value="id"
-              v-model="input.city"
-              variant="outlined"
-            ></v-combobox>
+              required
+            ></v-text-field>
           </v-col>
         </v-row>
         <v-row class="mt-n2">
@@ -117,7 +99,7 @@
           <v-text-field
             density="compact"
             v-model="search"
-            label="Search a Town"
+            label="Search a Zone"
             variant="outlined"
             hide-details
           ></v-text-field>
@@ -128,10 +110,7 @@
           <v-table class="country-table">
             <thead>
               <tr>
-                <th class="text-left">City Name</th>
-                <th class="text-left">Country</th>
-                <th class="text-left">Active</th>
-                <th class="text-left">Favorite</th>
+                <th class="text-left">Zone Name</th>
                 <th class="text-left">Actions</th>
               </tr>
             </thead>
@@ -142,45 +121,9 @@
                 :key="item.id"
               >
                 <td style="font-weight: 500 !important">
-                  {{ item.town }}
+                  {{ item.zone }}
                 </td>
-                <td style="font-weight: 500 !important">
-                  {{ item.city }}
-                </td>
-                <td>
-                  <v-btn-toggle
-                    style="
-                      font-size: 10px !important;
-                      font-weight: 200 !important;
-                      height: 22px !important;
-                      width: 54px !important;
-                    "
-                    class="d-flex align-center"
-                    v-model="item.isActive"
-                    rounded="5"
-                  >
-                    <v-btn size="27" :value="true"> Yes </v-btn>
 
-                    <v-btn size="27" :value="false"> No </v-btn>
-                  </v-btn-toggle>
-                </td>
-                <td>
-                  <v-btn-toggle
-                    style="
-                      font-size: 10px !important;
-                      font-weight: 200 !important;
-                      height: 22px !important;
-                      width: 54px !important;
-                    "
-                    class="d-flex align-center"
-                    v-model="item.isFav"
-                    rounded="5"
-                  >
-                    <v-btn size="27" :value="true"> Yes </v-btn>
-
-                    <v-btn size="27" :value="false"> No </v-btn>
-                  </v-btn-toggle>
-                </td>
                 <td>
                   <div class="d-flex">
                     <v-btn
@@ -295,50 +238,13 @@ export default {
     successMessage: '',
     input: {
       id: 0,
-      town: null,
-      city: null,
-    },
-    resource: {
-      town: [
-        {
-          name: 'Kota Tua',
-          id: 1,
-        },
-        {
-          name: 'Kota Lama',
-          id: 2,
-        },
-        {
-          name: 'Malioboro',
-          id: 3,
-        },
-      ],
-      city: [
-        {
-          name: 'Jakarta',
-          id: 1,
-        },
-        {
-          name: 'Semarang',
-          id: 2,
-        },
-        {
-          name: 'Yogyakarta',
-          id: 3,
-        },
-      ],
+      zone: '',
     },
     rules: {
-      townRules: [
+      zoneRules: [
         (value) => {
           if (value) return true;
-          return 'Country is requred.';
-        },
-      ],
-      cityRules: [
-        (value) => {
-          if (value) return true;
-          return 'Country is requred.';
+          return 'Country code is requred.';
         },
       ],
     },
@@ -347,24 +253,7 @@ export default {
     itemsTry: [
       {
         id: 1,
-        town: 'Kota Tua',
-        city: 'Jakarta',
-        isActive: true,
-        isFav: true,
-      },
-      {
-        id: 2,
-        town: 'Kota Lama',
-        city: 'Semarang',
-        isActive: true,
-        isFav: true,
-      },
-      {
-        id: 3,
-        town: 'Malioboro',
-        city: 'Yogyakarta',
-        isActive: true,
-        isFav: true,
+        zone: 'North',
       },
     ],
   }),
@@ -477,16 +366,14 @@ export default {
       this.isEdit = true;
       this.input = {
         id: user.id,
-        town: user.town,
-        city: user.city,
+        town: user.zone,
       };
     },
     cancelEdit() {
       this.isEdit = false;
       this.input = {
         id: 0,
-        town: null,
-        city: null,
+        zone: '',
       };
     },
     saveEdit() {
@@ -511,8 +398,7 @@ export default {
             this.getUserData();
             this.input = {
               id: 0,
-              town: null,
-              city: null,
+              zone: '',
             };
           })
           .catch((error) => {
@@ -546,8 +432,7 @@ export default {
             this.getUserData();
             this.input = {
               id: 0,
-              town: null,
-              city: null,
+              zone: '',
             };
           })
           .catch((error) => {

@@ -30,7 +30,7 @@
         active-class="text-black"
         style="color: #3e4aaf"
         class="text-decoration-none"
-        to="/user-master"
+        to="/zone-master"
       >
         <h1>Zone Master</h1>
       </router-link>
@@ -88,7 +88,7 @@
                 <v-icon color="white"></v-icon>
               </template>
 
-              {{ isEdit ? 'SAVE' : 'ADD' }}
+              {{ isEdit ? 'Save' : 'Add' }}
             </v-btn>
           </v-col>
           <v-col v-if="isEdit" cols="12" md="3">
@@ -105,7 +105,7 @@
                 <v-icon color="white"></v-icon>
               </template>
 
-              CANCEL
+              Cancel
             </v-btn>
           </v-col>
         </v-row>
@@ -360,7 +360,7 @@ export default {
     setAuthHeader(token);
   },
   mounted() {
-    this.getUserData();
+    // this.getUserData();
     this.getCountry();
   },
   computed: {
