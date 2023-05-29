@@ -202,6 +202,15 @@
         </v-btn>
       </template>
     </v-snackbar>
+    <v-snackbar location="top" color="red" v-model="isError" :timeout="3000">
+      {{ errorMessage }}
+
+      <template v-slot:actions>
+        <v-btn color="white" variant="text" @click="isError = false">
+          <v-icon>mdi-close</v-icon>
+        </v-btn>
+      </template>
+    </v-snackbar>
     <v-dialog persistent width="500" v-model="isDelete">
       <v-card>
         <v-card-title>Confirmation</v-card-title>
@@ -261,6 +270,7 @@ export default {
     isSending: false,
     isEdit: false,
     isSuccess: false,
+    isError: false,
     isDelete: false,
     isDeleteLoading: false,
     userIdToDelete: null,
@@ -269,6 +279,7 @@ export default {
     userIdToImage: null,
     isOpenImage: false,
     successMessage: '',
+    errorMessage: '',
     input: {
       id: 1,
       username: '',
@@ -489,6 +500,13 @@ export default {
           .catch((error) => {
             // eslint-disable-next-line
             console.log(error);
+            if (error.response.status == 400) {
+              this.errorMessage = error.response.data.split('"')[3];
+              this.isError = true;
+            } else {
+              this.isError = true;
+              this.errorMessage = error.response.data.error;
+            }
           })
           .finally(() => {
             this.isEdit = false;
@@ -527,6 +545,13 @@ export default {
           .catch((error) => {
             // eslint-disable-next-line
             console.log(error);
+            if (error.response.status == 400) {
+              this.errorMessage = error.response.data.split('"')[3];
+              this.isError = true;
+            } else {
+              this.isError = true;
+              this.errorMessage = error.response.data.error;
+            }
           })
           .finally(() => {
             this.isSending = false;
