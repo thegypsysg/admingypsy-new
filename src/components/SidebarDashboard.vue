@@ -101,9 +101,10 @@ export default {
     this.name = localStorage.getItem('name')
       ? localStorage.getItem('name').slice(1, -1)
       : '';
-    this.role = localStorage.getItem('role')
+    const getRole = localStorage.getItem('role')
       ? localStorage.getItem('role').slice(1, -1)
       : '';
+    this.role = getRole == 'S' ? 'Superadmin' : getRole == 'A' ? 'Admin' : '';
     const getImg = localStorage.getItem('image');
     this.image =
       getImg == 'null'
