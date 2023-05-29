@@ -421,7 +421,7 @@ export default {
   // },
   mounted() {
     this.tempAttachment = this.imageFile;
-    console.log(this.tempAttachment);
+    // console.log(this.tempAttachment);
   },
   unmounted() {
     this.tempAttachment = [];

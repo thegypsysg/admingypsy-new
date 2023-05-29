@@ -77,11 +77,11 @@ export default {
     },
     updateImage(dataItems) {
       const id = parseInt(localStorage.getItem('id'));
-      console.log(id);
+      // console.log(id);
       const image = dataItems
         .filter((data) => data.id === id)
         .map((item) => item.image);
-      console.log(image);
+      // console.log(image);
       localStorage.setItem('image', image[0]);
       const getImg = localStorage.getItem('image');
       this.image =

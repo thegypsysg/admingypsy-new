@@ -42,13 +42,13 @@
             <v-combobox
               clearable
               density="compact"
-              :rules="rules.cityRules"
-              label="Select City"
-              placeholder="Type a City"
-              :items="resource.city"
+              :rules="rules.townRules"
+              label="Select Town"
+              placeholder="Type a Town Name"
+              :items="resource.town"
               item-title="name"
               item-value="id"
-              v-model="input.city"
+              v-model="input.town"
               variant="outlined"
             ></v-combobox>
           </v-col>
@@ -56,13 +56,13 @@
             <v-combobox
               clearable
               density="compact"
-              :rules="rules.countryRules"
-              label="Select Country"
-              placeholder="Type a Country"
-              :items="resource.country"
+              :rules="rules.cityRules"
+              label="Select City"
+              placeholder="Type a City"
+              :items="resource.city"
               item-title="name"
               item-value="id"
-              v-model="input.country"
+              v-model="input.city"
               variant="outlined"
             ></v-combobox>
           </v-col>
@@ -117,7 +117,7 @@
           <v-text-field
             density="compact"
             v-model="search"
-            label="Search a City"
+            label="Search a Town"
             variant="outlined"
             hide-details
           ></v-text-field>
@@ -142,10 +142,10 @@
                 :key="item.id"
               >
                 <td style="font-weight: 500 !important">
-                  {{ item.city }}
+                  {{ item.town }}
                 </td>
                 <td style="font-weight: 500 !important">
-                  {{ item.country }}
+                  {{ item.city }}
                 </td>
                 <td>
                   <v-btn-toggle
@@ -295,11 +295,24 @@ export default {
     successMessage: '',
     input: {
       id: 0,
-      country: null,
+      town: null,
       city: null,
     },
     resource: {
-      country: [],
+      town: [
+        {
+          name: 'Kota Tua',
+          id: 1,
+        },
+        {
+          name: 'Kota Lama',
+          id: 2,
+        },
+        {
+          name: 'Malioboro',
+          id: 3,
+        },
+      ],
       city: [
         {
           name: 'Jakarta',
@@ -316,7 +329,7 @@ export default {
       ],
     },
     rules: {
-      countryRules: [
+      townRules: [
         (value) => {
           if (value) return true;
           return 'Country is requred.';
@@ -334,22 +347,22 @@ export default {
     itemsTry: [
       {
         id: 1,
+        town: 'Kota Tua',
         city: 'Jakarta',
-        country: 'Indonesia',
         isActive: true,
         isFav: true,
       },
       {
         id: 2,
+        town: 'Kota Lama',
         city: 'Semarang',
-        country: 'Indonesia',
         isActive: true,
         isFav: true,
       },
       {
         id: 3,
+        town: 'Malioboro',
         city: 'Yogyakarta',
-        country: 'Indonesia',
         isActive: true,
         isFav: true,
       },
@@ -361,7 +374,7 @@ export default {
   },
   mounted() {
     this.getUserData();
-    this.getCountry();
+    // this.getCountry();
   },
   computed: {
     filteredItems() {
@@ -464,15 +477,15 @@ export default {
       this.isEdit = true;
       this.input = {
         id: user.id,
+        town: user.town,
         city: user.city,
-        country: user.country,
       };
     },
     cancelEdit() {
       this.isEdit = false;
       this.input = {
         id: 0,
-        country: null,
+        town: null,
         city: null,
       };
     },
@@ -498,7 +511,7 @@ export default {
             this.getUserData();
             this.input = {
               id: 0,
-              country: null,
+              town: null,
               city: null,
             };
           })
@@ -533,7 +546,7 @@ export default {
             this.getUserData();
             this.input = {
               id: 0,
-              country: null,
+              town: null,
               city: null,
             };
           })

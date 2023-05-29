@@ -22,7 +22,7 @@
         active-class="text-black"
         style="color: #3e4aaf"
         class="text-decoration-none"
-        to="/user-master"
+        to="/town-master"
       >
         <h1>Town Master</h1>
       </router-link>

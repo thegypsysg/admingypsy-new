@@ -71,6 +71,20 @@ const routes = [
     },
   },
   {
+    name: 'town master',
+    path: '/town-master',
+    component: () =>
+      import('@/views/manage countries/town master/TownMasterContainer.vue'),
+    beforeEnter: (to, from, next) => {
+      // Pengecekan status login sebelum masuk ke halaman beranda
+      if (localStorage.getItem('token') == null) {
+        next('/auth/login'); // Alihkan ke halaman login jika belum masuk
+      } else {
+        next(); // Lanjutkan ke halaman beranda jika sudah masuk
+      }
+    },
+  },
+  {
     name: 'country master',
     path: '/country-master',
     component: () =>
