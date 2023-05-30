@@ -274,7 +274,7 @@ export default {
         // localStorage.setItem('user', JSON.stringify(response.data.user));
         localStorage.setItem('name', JSON.stringify(response.data.user.name));
         localStorage.setItem('role', JSON.stringify(response.data.user.role));
-        localStorage.setItem('image', JSON.stringify(response.data.user.image));
+        localStorage.setItem('image', response.data.user.image);
         localStorage.setItem('id', JSON.stringify(response.data.user.id));
 
         const loginTime = new Date().getTime();

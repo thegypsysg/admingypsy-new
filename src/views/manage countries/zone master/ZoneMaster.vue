@@ -378,7 +378,7 @@ export default {
       this.isEdit = true;
       this.input = {
         id: user.id,
-        town: user.zone,
+        zone: user.zone,
       };
     },
     cancelEdit() {
