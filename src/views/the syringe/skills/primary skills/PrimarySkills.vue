@@ -44,32 +44,39 @@
       <v-container>
         <v-row>
           <v-col cols="12" md="3">
+            <v-text-field
+              v-model="input.primary"
+              :rules="rules.primaryRules"
+              label="Primary Skills"
+              variant="outlined"
+              density="compact"
+              required
+            ></v-text-field>
             <v-combobox
               density="compact"
-              :rules="rules.healthcareRules"
-              label="Select health care"
-              placeholder="Type health care"
-              :items="resource.healthcare"
+              :rules="rules.groupRules"
+              label="Select Skills Group"
+              placeholder="Type Skills Group"
+              :items="resource.group"
+              class="mt-1"
               item-title="name"
               item-value="id"
-              v-model="input.name"
+              v-model="input.group"
               variant="outlined"
             ></v-combobox>
           </v-col>
-          <v-col cols="12" md="6">
+          <v-col cols="12" md="4">
             <v-textarea
               density="compact"
               v-model="input.desc"
               :rules="rules.descriptionRules"
-              label="Type Description"
-              rows="1"
+              label="Description"
+              rows="3"
               variant="outlined"
               required
             ></v-textarea>
           </v-col>
-        </v-row>
-        <v-row class="mt-n2">
-          <v-col cols="12" md="3">
+          <v-col cols="12" md="2">
             <v-btn
               :prepend-icon="
                 isEdit
@@ -92,7 +99,7 @@
               {{ isEdit ? 'Save' : 'Add' }}
             </v-btn>
           </v-col>
-          <v-col v-if="isEdit" cols="12" md="3">
+          <v-col v-if="isEdit" cols="12" md="2">
             <v-btn
               prepend-icon="mdi-account-multiple-remove"
               color="red"
@@ -112,7 +119,7 @@
         </v-row>
       </v-container>
     </v-form>
-    <v-sheet class="py-6 px-4 mt-16" border rounded width="100%">
+    <v-sheet class="py-6 px-4 mt-4" border rounded width="100%">
       <v-row>
         <v-col cols="12" md="4">
           <v-text-field
@@ -131,8 +138,10 @@
               <tr>
                 <th class="text-left">Id</th>
                 <th class="text-left">Image</th>
-                <th class="text-left">Setting Name</th>
+                <th class="text-left">Primary Skills</th>
+                <th class="text-left">Skills Group</th>
                 <th class="text-left">Description</th>
+                <th class="text-left">Active</th>
                 <th class="text-left">Actions</th>
               </tr>
             </thead>
@@ -153,10 +162,30 @@
                   ></v-img>
                 </td>
                 <td style="font-weight: 500 !important">
-                  {{ item.name }}
+                  {{ item.primary }}
+                </td>
+                <td style="font-weight: 500 !important">
+                  {{ item.group }}
                 </td>
                 <td style="font-weight: 500 !important">
                   {{ item.desc }}
+                </td>
+                <td>
+                  <v-btn-toggle
+                    style="
+                      font-size: 10px !important;
+                      font-weight: 200 !important;
+                      height: 22px !important;
+                      width: 54px !important;
+                    "
+                    class="d-flex align-center"
+                    v-model="item.isActive"
+                    rounded="5"
+                  >
+                    <v-btn size="27" :value="true"> Yes </v-btn>
+
+                    <v-btn size="27" :value="false"> No </v-btn>
+                  </v-btn-toggle>
                 </td>
 
                 <td>
@@ -285,27 +314,34 @@ export default {
     successMessage: '',
     input: {
       id: 0,
-      name: null,
+      primary: '',
+      group: null,
       desc: '',
       image: null,
     },
     resource: {
-      healthcare: [
+      group: [
         {
-          name: 'Medical Center',
+          name: 'Nursing',
           id: 1,
         },
         {
-          name: 'National Hospital',
+          name: 'Operation',
           id: 2,
         },
       ],
     },
     rules: {
-      healthcareRules: [
+      primaryRules: [
         (value) => {
           if (value) return true;
           return 'Health care is required.';
+        },
+      ],
+      groupRules: [
+        (value) => {
+          if (value) return true;
+          return 'Description is required.';
         },
       ],
       descriptionRules: [
@@ -321,14 +357,18 @@ export default {
       {
         id: 1,
         image: '@/assets/other-voucher-5.jpeg',
-        name: 'Medical Center',
-        desc: 'Eye Center, Skin Center, Cancer Center',
+        primary: 'Icu Nurse',
+        group: 'Nursing',
+        desc: 'ICU, PICU, NICU, PACU',
+        isActive: true,
       },
       {
         id: 2,
         image: '@/assets/other-voucher-5.jpeg',
-        name: 'National Hospital',
-        desc: 'Eye Center, Skin Center, Cancer Center',
+        primary: 'Icu Doctor',
+        group: 'Operation',
+        desc: 'ICU, PICU, NICU, PACU',
+        isActive: true,
       },
     ],
   }),
@@ -348,10 +388,9 @@ export default {
       const searchTextLower = this.search.toLowerCase();
       return this.itemsTry.filter(
         (item) =>
-          item.name.toLowerCase().includes(searchTextLower) ||
-          item.email.toLowerCase().includes(searchTextLower) ||
-          item.roleName.toLowerCase().includes(searchTextLower) ||
-          item.country_name.toLowerCase().includes(searchTextLower)
+          item.primary.toLowerCase().includes(searchTextLower) ||
+          item.group.toLowerCase().includes(searchTextLower) ||
+          item.desc.toLowerCase().includes(searchTextLower)
       );
     },
   },
@@ -441,7 +480,8 @@ export default {
       this.isEdit = true;
       this.input = {
         id: user.id,
-        name: user.name,
+        primary: user.primary,
+        group: user.group,
         desc: user.desc,
       };
     },
@@ -449,7 +489,8 @@ export default {
       this.isEdit = false;
       this.input = {
         id: 0,
-        name: null,
+        primary: '',
+        group: null,
         desc: '',
         image: null,
       };
@@ -476,7 +517,8 @@ export default {
             this.getUserData();
             this.input = {
               id: 0,
-              name: null,
+              primary: '',
+              group: null,
               desc: '',
               image: null,
             };
@@ -512,7 +554,8 @@ export default {
             this.getUserData();
             this.input = {
               id: 0,
-              name: null,
+              primary: '',
+              group: null,
               desc: '',
               image: null,
             };
