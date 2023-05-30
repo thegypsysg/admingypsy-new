@@ -19,7 +19,7 @@
       <router-link
         style="color: #be6bbe; font-weight: 500"
         class="text-decoration-none"
-        to="/healthcare-settings"
+        to="/employers"
       >
         <p>Employers</p>
       </router-link>

@@ -1,3 +1,4 @@
+<!-- eslint-disable vue/multi-word-component-names -->
 <!-- eslint-disable vue/no-deprecated-v-bind-sync -->
 <template>
   <v-container>
@@ -24,58 +25,84 @@
         <p>Employers</p>
       </router-link>
     </div>
-    <div class="d-flex ml-4 mb-4" style="gap: 50px">
-      <router-link
-        style="color: black; font-weight: 500; font-size: 13px"
-        class="text-decoration-none"
-        to="/skills-group"
-      >
-        <p>Skills Group</p>
-      </router-link>
-      <router-link
-        style="color: black; font-weight: 500; font-size: 13px"
-        class="text-decoration-none"
-        to="/primary-skills"
-      >
-        <p>Primary Skills</p>
-      </router-link>
-    </div>
     <v-form v-model="valid" @submit.prevent>
       <v-container>
         <v-row>
           <v-col cols="12" md="3">
             <v-text-field
-              v-model="input.primary"
-              :rules="rules.primaryRules"
-              label="Primary Skills"
+              v-model="input.name"
+              :rules="rules.nameRules"
+              label="Employer Name"
               variant="outlined"
               density="compact"
               required
             ></v-text-field>
             <v-combobox
               density="compact"
-              :rules="rules.groupRules"
-              label="Select Skills Group"
-              placeholder="Type Skills Group"
-              :items="resource.group"
+              :rules="rules.typeRules"
+              label="Employer Type"
+              placeholder="Type Employer Type"
+              :items="resource.type"
               class="mt-1"
               item-title="name"
               item-value="id"
-              v-model="input.group"
+              v-model="input.type"
               variant="outlined"
             ></v-combobox>
           </v-col>
-          <v-col cols="12" md="4">
-            <v-textarea
+          <v-col cols="12" md="3">
+            <v-combobox
               density="compact"
-              v-model="input.desc"
-              :rules="rules.descriptionRules"
-              label="Description"
-              rows="3"
+              :rules="rules.countryRules"
+              label="Select Country"
+              placeholder="Type Country"
+              :items="resource.country"
+              item-title="name"
+              item-value="id"
+              v-model="input.country"
               variant="outlined"
-              required
-            ></v-textarea>
+            ></v-combobox>
+            <v-combobox
+              density="compact"
+              :rules="rules.cityRules"
+              label="Select City"
+              placeholder="Type City"
+              :items="resource.city"
+              class="mt-1"
+              item-title="name"
+              item-value="id"
+              v-model="input.city"
+              variant="outlined"
+            ></v-combobox>
           </v-col>
+          <v-col cols="12" md="3">
+            <v-combobox
+              density="compact"
+              :rules="rules.townRules"
+              label="Select Town"
+              placeholder="Type Town"
+              :items="resource.town"
+              item-title="name"
+              item-value="id"
+              v-model="input.town"
+              variant="outlined"
+            ></v-combobox>
+            <v-combobox
+              density="compact"
+              :rules="rules.zoneRules"
+              label="Select Zone"
+              placeholder="Type Zone"
+              :items="resource.zone"
+              class="mt-1"
+              item-title="name"
+              item-value="id"
+              v-model="input.zone"
+              variant="outlined"
+            ></v-combobox>
+          </v-col>
+        </v-row>
+
+        <v-row class="mt-n2">
           <v-col cols="12" md="2">
             <v-btn
               :prepend-icon="
@@ -119,7 +146,7 @@
         </v-row>
       </v-container>
     </v-form>
-    <v-sheet class="py-6 px-4 mt-4" border rounded width="100%">
+    <v-sheet class="py-6 px-4 mt-10" border rounded width="100%">
       <v-row>
         <v-col cols="12" md="4">
           <v-text-field
@@ -137,87 +164,153 @@
             <thead>
               <tr>
                 <th class="text-left">Id</th>
+                <th class="text-left">Logo</th>
                 <th class="text-left">Image</th>
-                <th class="text-left">Primary Skills</th>
-                <th class="text-left">Skills Group</th>
-                <th class="text-left">Description</th>
+                <th class="text-left">Employer Name</th>
+                <th class="text-left">Country</th>
+                <th class="text-left">City</th>
+                <th class="text-left">Town</th>
                 <th class="text-left">Active</th>
+                <th class="text-left">Favorite</th>
                 <th class="text-left">Actions</th>
               </tr>
             </thead>
             <tbody>
-              <tr
-                class="country-table-body"
-                v-for="item in filteredItems"
-                :key="item.id"
-              >
-                <td>{{ item.id }}</td>
-                <td>
-                  <v-img
-                    height="40"
-                    width="65"
-                    @click="openImage(item.image, item.id)"
-                    style="cursor: pointer"
-                    src="@/assets/other-voucher-img-5.png"
-                  ></v-img>
-                </td>
-                <td style="font-weight: 500 !important">
-                  {{ item.primary }}
-                </td>
-                <td style="font-weight: 500 !important">
-                  {{ item.group }}
-                </td>
-                <td style="font-weight: 500 !important">
-                  {{ item.desc }}
-                </td>
-                <td>
-                  <v-btn-toggle
-                    style="
-                      font-size: 10px !important;
-                      font-weight: 200 !important;
-                      height: 22px !important;
-                      width: 54px !important;
-                    "
-                    class="d-flex align-center"
-                    v-model="item.isActive"
-                    rounded="5"
-                  >
-                    <v-btn size="27" :value="true"> Yes </v-btn>
+              <template v-for="item in filteredItems" :key="item.id">
+                <tr class="country-table-body">
+                  <td>{{ item.id }}</td>
+                  <td>
+                    <v-img
+                      height="40"
+                      width="65"
+                      @click="openImage(item.logo, item.id)"
+                      style="cursor: pointer"
+                      src="@/assets/logo-img.png"
+                    ></v-img>
+                  </td>
+                  <td>
+                    <v-img
+                      height="40"
+                      width="65"
+                      @click="openImage(item.image, item.id)"
+                      style="cursor: pointer"
+                      src="@/assets/other-voucher-img-5.png"
+                    ></v-img>
+                  </td>
+                  <td>
+                    {{ item.name }}
+                  </td>
+                  <td>
+                    {{ item.country }}
+                  </td>
+                  <td>
+                    {{ item.city }}
+                  </td>
+                  <td>
+                    {{ item.town }}
+                  </td>
+                  <td>
+                    <v-btn-toggle
+                      style="
+                        font-size: 10px !important;
+                        font-weight: 200 !important;
+                        height: 22px !important;
+                        width: 54px !important;
+                      "
+                      class="d-flex align-center"
+                      v-model="item.isActive"
+                      rounded="5"
+                    >
+                      <v-btn size="27" :value="true"> Yes </v-btn>
 
-                    <v-btn size="27" :value="false"> No </v-btn>
-                  </v-btn-toggle>
-                </td>
+                      <v-btn size="27" :value="false"> No </v-btn>
+                    </v-btn-toggle>
+                  </td>
+                  <td>
+                    <v-btn-toggle
+                      style="
+                        font-size: 10px !important;
+                        font-weight: 200 !important;
+                        height: 22px !important;
+                        width: 54px !important;
+                      "
+                      class="d-flex align-center"
+                      v-model="item.isFav"
+                      rounded="5"
+                    >
+                      <v-btn size="27" :value="true"> Yes </v-btn>
 
-                <td>
-                  <div class="d-flex">
-                    <v-tooltip location="top">
-                      <template v-slot:activator="{ props }">
-                        <v-btn
-                          color="green"
-                          variant="text"
-                          v-bind="props"
-                          @click="editUser(item)"
-                          icon="mdi-pencil-outline"
-                        ></v-btn>
-                      </template>
-                      <span>Edit</span>
-                    </v-tooltip>
-                    <v-tooltip location="top">
-                      <template v-slot:activator="{ props }">
-                        <v-btn
-                          color="red"
-                          v-bind="props"
-                          variant="text"
-                          :disabled="isDeleteLoading"
-                          @click="openDeleteConfirm(item.id)"
-                          icon="mdi-trash-can-outline"
-                        ></v-btn>
-                      </template>
-                      <span>Delete</span>
-                    </v-tooltip>
-                  </div>
-                </td>
-              </tr>
+                      <v-btn size="27" :value="false"> No </v-btn>
+                    </v-btn-toggle>
+                  </td>
+                  <td>
+                    <div class="d-flex">
+                      <v-tooltip location="top">
+                        <template v-slot:activator="{ props }">
+                          <v-btn
+                            color="green"
+                            variant="text"
+                            v-bind="props"
+                            @click="editUser(item)"
+                            icon="mdi-pencil-outline"
+                          ></v-btn>
+                        </template>
+                        <span>Edit</span>
+                      </v-tooltip>
+                      <v-tooltip location="top">
+                        <template v-slot:activator="{ props }">
+                          <v-btn
+                            color="red"
+                            v-bind="props"
+                            variant="text"
+                            :disabled="isDeleteLoading"
+                            @click="openDeleteConfirm(item.id)"
+                            icon="mdi-trash-can-outline"
+                          ></v-btn>
+                        </template>
+                        <span>Delete</span>
+                      </v-tooltip>
+                    </div>
+                  </td>
+                </tr>
+
+                <tr>
+                  <td colspan="10">
+                    <div class="d-flex justify-center" style="gap: 20px">
+                      <router-link
+                        class="text-decoration-none"
+                        :to="`employers/main-info/${item.id}`"
+                      >
+                        <span>Main Info</span>
+                      </router-link>
+                      <router-link
+                        class="text-decoration-none"
+                        :to="`employers/contacts/${item.id}`"
+                      >
+                        <span>Contacts</span>
+                      </router-link>
+                      <router-link
+                        class="text-decoration-none"
+                        :to="`employers/images/${item.id}`"
+                      >
+                        <span>Images</span>
+                      </router-link>
+                      <router-link
+                        class="text-decoration-none"
+                        :to="`employers/socials/${item.id}`"
+                      >
+                        <span>Socials</span>
+                      </router-link>
+                      <router-link
+                        class="text-decoration-none"
+                        :to="`employers/job-locations/${item.id}`"
+                      >
+                        <span>Job Locations</span>
+                      </router-link>
+                    </div>
+                  </td>
+                </tr>
+              </template>
               <tr v-if="isLoading">
                 <td :colspan="6" class="text-center">
                   <v-progress-circular
@@ -296,7 +389,7 @@ import { setAuthHeader } from '@/util/axios';
 import app from '@/util/eventBus';
 
 export default {
-  name: 'UserMaster',
+  name: 'EmployersVue',
   data: () => ({
     fileURL: 'https://admin1.the-gypsy.sg',
     valid: false,
@@ -314,40 +407,112 @@ export default {
     successMessage: '',
     input: {
       id: 0,
-      primary: '',
-      group: null,
-      desc: '',
-      image: null,
+      name: '',
+      type: null,
+      country: null,
+      city: null,
+      town: null,
+      zone: null,
     },
     resource: {
-      group: [
+      type: [
         {
-          name: 'Nursing',
+          name: 'Super Admin',
           id: 1,
         },
         {
-          name: 'Operation',
+          name: 'Admin',
+          id: 2,
+        },
+      ],
+      country: [
+        {
+          name: 'Indonesia',
+          id: 1,
+        },
+        {
+          name: 'India',
+          id: 2,
+        },
+        {
+          name: 'Singapore',
+          id: 3,
+        },
+      ],
+      city: [
+        {
+          name: 'Jakarta',
+          id: 1,
+        },
+        {
+          name: 'Semarang',
+          id: 2,
+        },
+        {
+          name: 'Singapore',
+          id: 3,
+        },
+      ],
+      town: [
+        {
+          name: 'Kota Tua',
+          id: 1,
+        },
+        {
+          name: 'Kota Lama',
+          id: 2,
+        },
+        {
+          name: 'Woodlands',
+          id: 3,
+        },
+      ],
+      zone: [
+        {
+          name: 'North',
+          id: 1,
+        },
+        {
+          name: 'South',
           id: 2,
         },
       ],
     },
     rules: {
-      primaryRules: [
+      nameRules: [
         (value) => {
           if (value) return true;
-          return 'Health care is required.';
+          return 'Employer name is required.';
         },
       ],
-      groupRules: [
+      typeRules: [
         (value) => {
           if (value) return true;
-          return 'Description is required.';
+          return 'Employer type is required.';
         },
       ],
-      descriptionRules: [
+      countryRules: [
         (value) => {
           if (value) return true;
-          return 'Description is required.';
+          return 'Country is required.';
+        },
+      ],
+      cityRules: [
+        (value) => {
+          if (value) return true;
+          return 'City is required.';
+        },
+      ],
+      townRules: [
+        (value) => {
+          if (value) return true;
+          return 'Town is required.';
+        },
+      ],
+      zoneRules: [
+        (value) => {
+          if (value) return true;
+          return 'Zone is required.';
         },
       ],
     },
@@ -356,19 +521,29 @@ export default {
     itemsTry: [
       {
         id: 1,
+        logo: '@/assets/logo-img.jpeg',
         image: '@/assets/other-voucher-5.jpeg',
-        primary: 'Icu Nurse',
-        group: 'Nursing',
-        desc: 'ICU, PICU, NICU, PACU',
+        name: 'Changi General Hospital',
+        type: 'Admin',
+        country: 'Singapore',
+        city: 'Singapore',
+        town: 'Woodlands',
+        zone: 'North',
         isActive: true,
+        isFav: true,
       },
       {
         id: 2,
+        logo: '@/assets/logo-img.jpeg',
         image: '@/assets/other-voucher-5.jpeg',
-        primary: 'Icu Doctor',
-        group: 'Operation',
-        desc: 'ICU, PICU, NICU, PACU',
+        name: 'Changi General Hospital',
+        type: 'Admin',
+        country: 'Singapore',
+        city: 'Singapore',
+        town: 'Woodlands',
+        zone: 'North',
         isActive: true,
+        isFav: true,
       },
     ],
   }),
@@ -388,9 +563,10 @@ export default {
       const searchTextLower = this.search.toLowerCase();
       return this.itemsTry.filter(
         (item) =>
-          item.primary.toLowerCase().includes(searchTextLower) ||
-          item.group.toLowerCase().includes(searchTextLower) ||
-          item.desc.toLowerCase().includes(searchTextLower)
+          item.name.toLowerCase().includes(searchTextLower) ||
+          item.country.toLowerCase().includes(searchTextLower) ||
+          item.city.toLowerCase().includes(searchTextLower) ||
+          item.town.toLowerCase().includes(searchTextLower)
       );
     },
   },
@@ -480,19 +656,24 @@ export default {
       this.isEdit = true;
       this.input = {
         id: user.id,
-        primary: user.primary,
-        group: user.group,
-        desc: user.desc,
+        name: user.name,
+        type: user.type,
+        country: user.country,
+        city: user.city,
+        town: user.town,
+        zone: user.zone,
       };
     },
     cancelEdit() {
       this.isEdit = false;
       this.input = {
         id: 0,
-        primary: '',
-        group: null,
-        desc: '',
-        image: null,
+        name: '',
+        type: null,
+        country: null,
+        city: null,
+        town: null,
+        zone: null,
       };
     },
     saveEdit() {
@@ -517,10 +698,12 @@ export default {
             this.getUserData();
             this.input = {
               id: 0,
-              primary: '',
-              group: null,
-              desc: '',
-              image: null,
+              name: '',
+              type: null,
+              country: null,
+              city: null,
+              town: null,
+              zone: null,
             };
           })
           .catch((error) => {
@@ -554,10 +737,12 @@ export default {
             this.getUserData();
             this.input = {
               id: 0,
-              primary: '',
-              group: null,
-              desc: '',
-              image: null,
+              name: '',
+              type: null,
+              country: null,
+              city: null,
+              town: null,
+              zone: null,
             };
           })
           .catch((error) => {
@@ -667,7 +852,7 @@ export default {
 <style lang="scss" scoped>
 .country-table {
   font-size: 12px;
-  color: black !important;
+  color: rgb(100, 100, 100) !important;
 }
 
 .country-table-body {

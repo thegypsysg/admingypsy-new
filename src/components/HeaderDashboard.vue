@@ -41,7 +41,7 @@
 
     <v-spacer></v-spacer>
 
-    <v-btn size="40" rounded icon @click="toggleDrawer">
+    <v-btn class="img-app-cont" size="40" rounded icon @click="toggleDrawer">
       <v-img height="40" width="40" class="img-app" :src="image" />
     </v-btn>
   </v-app-bar>
@@ -107,9 +107,15 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+.img-app-cont {
+  overflow: hidden !important;
+}
+
 .img-app {
-  width: 100%;
-  height: 100%;
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover !important;
+  object-position: center !important;
   border-radius: 50%;
 }
 </style>
