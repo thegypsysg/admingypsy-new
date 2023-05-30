@@ -1,7 +1,7 @@
 <!-- eslint-disable vue/no-deprecated-v-bind-sync -->
 <template>
   <v-container>
-    <div class="d-flex ml-4 mb-4" style="gap: 50px">
+    <div class="d-flex ml-4 mb-6" style="gap: 50px">
       <router-link
         style="color: #293fb8; font-weight: 500"
         class="text-decoration-none"
@@ -24,36 +24,47 @@
         <p>Employers</p>
       </router-link>
     </div>
+    <div class="d-flex ml-4 mb-4" style="gap: 50px">
+      <router-link
+        style="color: black; font-weight: 500; font-size: 13px"
+        class="text-decoration-none"
+        to="/skills-group"
+      >
+        <p>Skills Group</p>
+      </router-link>
+      <router-link
+        style="color: black; font-weight: 500; font-size: 13px"
+        class="text-decoration-none"
+        to="/primary-skills"
+      >
+        <p>Primary Skills</p>
+      </router-link>
+    </div>
     <v-form v-model="valid" @submit.prevent>
       <v-container>
         <v-row>
           <v-col cols="12" md="3">
-            <v-combobox
-              density="compact"
-              :rules="rules.healthcareRules"
-              label="Select health care"
-              placeholder="Type health care"
-              :items="resource.healthcare"
-              item-title="name"
-              item-value="id"
-              v-model="input.name"
+            <v-text-field
+              v-model="input.group"
+              :rules="rules.groupRules"
+              label="Group Name"
               variant="outlined"
-            ></v-combobox>
+              density="compact"
+              required
+            ></v-text-field>
           </v-col>
-          <v-col cols="12" md="6">
+          <v-col cols="12" md="4">
             <v-textarea
               density="compact"
               v-model="input.desc"
               :rules="rules.descriptionRules"
               label="Type Description"
-              rows="1"
+              rows="3"
               variant="outlined"
               required
             ></v-textarea>
           </v-col>
-        </v-row>
-        <v-row class="mt-n2">
-          <v-col cols="12" md="3">
+          <v-col cols="12" md="2">
             <v-btn
               :prepend-icon="
                 isEdit
@@ -76,7 +87,7 @@
               {{ isEdit ? 'Save' : 'Add' }}
             </v-btn>
           </v-col>
-          <v-col v-if="isEdit" cols="12" md="3">
+          <v-col v-if="isEdit" cols="12" md="2">
             <v-btn
               prepend-icon="mdi-account-multiple-remove"
               color="red"
@@ -96,7 +107,7 @@
         </v-row>
       </v-container>
     </v-form>
-    <v-sheet class="py-6 px-4 mt-16" border rounded width="100%">
+    <v-sheet class="py-6 px-4 mt-6" border rounded width="100%">
       <v-row>
         <v-col cols="12" md="4">
           <v-text-field
@@ -115,7 +126,7 @@
               <tr>
                 <th class="text-left">Id</th>
                 <th class="text-left">Image</th>
-                <th class="text-left">Setting Name</th>
+                <th class="text-left">Group Name</th>
                 <th class="text-left">Description</th>
                 <th class="text-left">Actions</th>
               </tr>
@@ -137,7 +148,7 @@
                   ></v-img>
                 </td>
                 <td style="font-weight: 500 !important">
-                  {{ item.name }}
+                  {{ item.group }}
                 </td>
                 <td style="font-weight: 500 !important">
                   {{ item.desc }}
@@ -269,27 +280,16 @@ export default {
     successMessage: '',
     input: {
       id: 0,
-      name: null,
+      group: '',
       desc: '',
       image: null,
     },
-    resource: {
-      healthcare: [
-        {
-          name: 'Medical Center',
-          id: 1,
-        },
-        {
-          name: 'National Hospital',
-          id: 2,
-        },
-      ],
-    },
+
     rules: {
-      healthcareRules: [
+      groupRules: [
         (value) => {
           if (value) return true;
-          return 'Health care is required.';
+          return 'Group name is required.';
         },
       ],
       descriptionRules: [
@@ -305,14 +305,20 @@ export default {
       {
         id: 1,
         image: '@/assets/other-voucher-5.jpeg',
-        name: 'Medical Center',
-        desc: 'Eye Center, Skin Center, Cancer Center',
+        group: 'Nursing',
+        desc: 'Icu Nurse, Dualysis Nurse, Ward Nurse, A & E Nurse, Oncology Nurse',
       },
       {
         id: 2,
         image: '@/assets/other-voucher-5.jpeg',
-        name: 'National Hospital',
-        desc: 'Eye Center, Skin Center, Cancer Center',
+        group: 'Nursing',
+        desc: 'Icu Nurse, Dualysis Nurse, Ward Nurse, A & E Nurse, Oncology Nurse',
+      },
+      {
+        id: 3,
+        image: '@/assets/other-voucher-5.jpeg',
+        group: 'Nursing',
+        desc: 'Icu Nurse, Dualysis Nurse, Ward Nurse, A & E Nurse, Oncology Nurse',
       },
     ],
   }),
@@ -425,7 +431,7 @@ export default {
       this.isEdit = true;
       this.input = {
         id: user.id,
-        name: user.name,
+        group: user.group,
         desc: user.desc,
       };
     },
@@ -433,7 +439,7 @@ export default {
       this.isEdit = false;
       this.input = {
         id: 0,
-        name: null,
+        group: null,
         desc: '',
         image: null,
       };
@@ -460,7 +466,7 @@ export default {
             this.getUserData();
             this.input = {
               id: 0,
-              name: null,
+              group: null,
               desc: '',
               image: null,
             };
@@ -496,7 +502,7 @@ export default {
             this.getUserData();
             this.input = {
               id: 0,
-              name: null,
+              group: null,
               desc: '',
               image: null,
             };

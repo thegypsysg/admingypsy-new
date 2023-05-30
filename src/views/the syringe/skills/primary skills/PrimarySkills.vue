@@ -1,7 +1,7 @@
 <!-- eslint-disable vue/no-deprecated-v-bind-sync -->
 <template>
   <v-container>
-    <div class="d-flex ml-4 mb-4" style="gap: 50px">
+    <div class="d-flex ml-4 mb-6" style="gap: 50px">
       <router-link
         style="color: #293fb8; font-weight: 500"
         class="text-decoration-none"
@@ -12,7 +12,7 @@
       <router-link
         style="color: #a93f43; font-weight: 500"
         class="text-decoration-none"
-        to="/healthcare-settings"
+        to="/skills-group"
       >
         <p>Skills</p>
       </router-link>
@@ -22,6 +22,22 @@
         to="/healthcare-settings"
       >
         <p>Employers</p>
+      </router-link>
+    </div>
+    <div class="d-flex ml-4 mb-4" style="gap: 50px">
+      <router-link
+        style="color: black; font-weight: 500; font-size: 13px"
+        class="text-decoration-none"
+        to="/skills-group"
+      >
+        <p>Skills Group</p>
+      </router-link>
+      <router-link
+        style="color: black; font-weight: 500; font-size: 13px"
+        class="text-decoration-none"
+        to="/primary-skills"
+      >
+        <p>Primary Skills</p>
       </router-link>
     </div>
     <v-form v-model="valid" @submit.prevent>

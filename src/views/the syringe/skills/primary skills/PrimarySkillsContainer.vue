@@ -3,7 +3,7 @@
     <sidebar-dashboard :drawer-open="drawer" />
     <header-dashboard @toggle-drawer="toggleDrawer" />
     <v-main>
-      <HealthcareSettings />
+      <PrimarySkills />
     </v-main>
   </v-app>
 </template>
@@ -11,11 +11,11 @@
 <script>
 import HeaderDashboard from '@/components/HeaderDashboard.vue';
 import SidebarDashboard from '@/components/SidebarDashboard.vue';
-import HealthcareSettings from './HealthcareSettings.vue';
+import PrimarySkills from './PrimarySkills.vue';
 
 export default {
-  name: 'HealthcareSettingsContainer',
-  components: { SidebarDashboard, HeaderDashboard, HealthcareSettings },
+  name: 'PrimarySkillsContainer',
+  components: { SidebarDashboard, HeaderDashboard, PrimarySkills },
   data: () => ({
     drawer: true,
   }),
