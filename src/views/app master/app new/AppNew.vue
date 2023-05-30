@@ -523,6 +523,7 @@ export default {
         (item) =>
           item.name.toLowerCase().includes(searchTextLower) ||
           item.description.toLowerCase().includes(searchTextLower) ||
+          item.details.toLowerCase().includes(searchTextLower) ||
           item.group.toLowerCase().includes(searchTextLower) ||
           item.user.toLowerCase().includes(searchTextLower)
       );

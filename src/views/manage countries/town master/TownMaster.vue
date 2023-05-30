@@ -128,8 +128,8 @@
           <v-table class="country-table">
             <thead>
               <tr>
-                <th class="text-left">City Name</th>
-                <th class="text-left">Country</th>
+                <th class="text-left">Town Name</th>
+                <th class="text-left">City</th>
                 <th class="text-left">Active</th>
                 <th class="text-left">Favorite</th>
                 <th class="text-left">Actions</th>
@@ -394,12 +394,8 @@ export default {
         return this.itemsTry;
       }
       const searchTextLower = this.search.toLowerCase();
-      return this.itemsTry.filter(
-        (item) =>
-          item.name.toLowerCase().includes(searchTextLower) ||
-          item.email.toLowerCase().includes(searchTextLower) ||
-          item.roleName.toLowerCase().includes(searchTextLower) ||
-          item.country_name.toLowerCase().includes(searchTextLower)
+      return this.itemsTry.filter((item) =>
+        item.town.toLowerCase().includes(searchTextLower)
       );
     },
   },

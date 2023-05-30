@@ -338,10 +338,8 @@ export default {
       const searchTextLower = this.search.toLowerCase();
       return this.itemsTry.filter(
         (item) =>
-          item.name.toLowerCase().includes(searchTextLower) ||
-          item.email.toLowerCase().includes(searchTextLower) ||
-          item.roleName.toLowerCase().includes(searchTextLower) ||
-          item.country_name.toLowerCase().includes(searchTextLower)
+          item.group.toLowerCase().includes(searchTextLower) ||
+          item.desc.toLowerCase().includes(searchTextLower)
       );
     },
   },
