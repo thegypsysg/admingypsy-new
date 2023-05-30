@@ -16,8 +16,16 @@
         </v-btn>
       </template>
       <v-list>
-        <v-list-item v-for="(item, index) in items" :key="index" :value="index">
-          <v-list-item-title>{{ item.title }}</v-list-item-title>
+        <v-list-item
+          link
+          :to="item.path"
+          v-for="(item, index) in items"
+          :key="index"
+          :value="index"
+        >
+          <v-list-item-title :style="{ color: item.color, fontWeight: 500 }">{{
+            item.title
+          }}</v-list-item-title>
         </v-list-item>
       </v-list>
     </v-menu>
@@ -48,9 +56,14 @@ export default {
       fileURL: 'https://admin1.the-gypsy.sg',
       linksNavBar: ['Chat', 'Calendar', 'Notes'],
       items: [
-        { title: 'Home', path: '/home', icon: 'home' },
-        { title: 'Sign Up', path: '/signup', icon: 'face' },
-        { title: 'Sign In', path: '/signin', icon: 'lock_open' },
+        {
+          title: 'The Syringe',
+          path: '/healthcare-settings',
+          color: '#EE1C39',
+        },
+        { title: 'Mall-e', path: '', color: '#8C0F22' },
+        { title: 'Boozards', path: '', color: '#FF8943' },
+        { title: 'Biryani Run', path: '', color: '#63B14C' },
       ],
       image: '',
     };
