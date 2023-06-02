@@ -179,7 +179,8 @@ const routes = [
   {
     name: 'employers main info',
     path: '/employers/main-info/:id',
-    component: () => import('@/views/the syringe/employers/MainInfo.vue'),
+    component: () =>
+      import('@/views/the syringe/employers/main info/MainInfoContainer.vue'),
     beforeEnter: (to, from, next) => {
       // Pengecekan status login sebelum masuk ke halaman beranda
       if (localStorage.getItem('token') == null) {
