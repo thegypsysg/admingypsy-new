@@ -205,6 +205,20 @@ const routes = [
     },
   },
   {
+    name: 'employers socials',
+    path: '/employers/socials/:id',
+    component: () =>
+      import('@/views/the syringe/employers/socials/SocialsContainer.vue'),
+    beforeEnter: (to, from, next) => {
+      // Pengecekan status login sebelum masuk ke halaman beranda
+      if (localStorage.getItem('token') == null) {
+        next('/auth/login'); // Alihkan ke halaman login jika belum masuk
+      } else {
+        next(); // Lanjutkan ke halaman beranda jika sudah masuk
+      }
+    },
+  },
+  {
     name: 'employers job locations',
     path: '/employers/job-locations/:id',
     component: () =>
