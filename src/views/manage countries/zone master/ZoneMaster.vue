@@ -227,9 +227,9 @@
 <script>
 import ImageUpload from '@/components/ImageUpload.vue';
 import axios from '@/util/axios';
-import http from 'axios';
+// import http from 'axios';
 import { setAuthHeader } from '@/util/axios';
-import app from '@/util/eventBus';
+// import app from '@/util/eventBus';
 
 export default {
   name: 'UserMaster',
@@ -297,25 +297,32 @@ export default {
       const payload = {
         id: this.userIdToImage,
       };
-      axios
-        .post(`/user/deleteImage`, payload, {})
-        .then((response) => {
-          const data = response.data;
-          this.successMessage = data.message;
-          this.isSuccess = true;
-          this.getUserData();
-          // app.config.globalProperties.$eventBus.$emit('update-image');
-        })
-        .catch((error) => {
-          // eslint-disable-next-line
-          console.log(error);
-        })
-        .finally(() => {
-          this.isEdit = false;
-          this.isSending = false;
-          this.userIdToImage = null;
-          this.imageFile = [];
-        });
+      setTimeout(() => {
+        console.log(payload);
+        this.isEdit = false;
+        this.isSending = false;
+        this.userIdToImage = null;
+        this.imageFile = [];
+      }, 2000);
+      // axios
+      //   .post(`/user/deleteImage`, payload, {})
+      //   .then((response) => {
+      //     const data = response.data;
+      //     this.successMessage = data.message;
+      //     this.isSuccess = true;
+      //     this.getUserData();
+      //     // app.config.globalProperties.$eventBus.$emit('update-image');
+      //   })
+      //   .catch((error) => {
+      //     // eslint-disable-next-line
+      //     console.log(error);
+      //   })
+      //   .finally(() => {
+      //     this.isEdit = false;
+      //     this.isSending = false;
+      //     this.userIdToImage = null;
+      //     this.imageFile = [];
+      //   });
     },
     openImage(image, id) {
       this.isOpenImage = true;
@@ -345,30 +352,38 @@ export default {
         id: this.userIdToImage,
         file: this.imageFile[0],
       };
-      http
-        .post(`/user/update`, payload, {
-          headers: {
-            'Content-Type': 'multipart/form-data',
-          },
-        })
-        .then((response) => {
-          const data = response.data;
-          this.successMessage = data.message;
-          this.isSuccess = true;
-          this.getUserData();
-          // app.config.globalProperties.$eventBus.$emit('update-image');
-        })
-        .catch((error) => {
-          // eslint-disable-next-line
-          console.log(error);
-        })
-        .finally(() => {
-          this.isEdit = false;
-          this.isSending = false;
-          this.userIdToImage = null;
-          this.isOpenImage = false;
-          this.imageFile = [];
-        });
+      setTimeout(() => {
+        console.log(payload);
+        this.isEdit = false;
+        this.isSending = false;
+        this.userIdToImage = null;
+        this.isOpenImage = false;
+        this.imageFile = [];
+      }, 2000);
+      // http
+      //   .post(`/user/update`, payload, {
+      //     headers: {
+      //       'Content-Type': 'multipart/form-data',
+      //     },
+      //   })
+      //   .then((response) => {
+      //     const data = response.data;
+      //     this.successMessage = data.message;
+      //     this.isSuccess = true;
+      //     this.getUserData();
+      //     // app.config.globalProperties.$eventBus.$emit('update-image');
+      //   })
+      //   .catch((error) => {
+      //     // eslint-disable-next-line
+      //     console.log(error);
+      //   })
+      //   .finally(() => {
+      //     this.isEdit = false;
+      //     this.isSending = false;
+      //     this.userIdToImage = null;
+      //     this.isOpenImage = false;
+      //     this.imageFile = [];
+      //   });
     },
     editUser(user) {
       this.isEdit = true;
@@ -397,26 +412,31 @@ export default {
         if (this.input.image !== null) {
           payload['file'] = this.input.image;
         }
-        axios
-          .post(`/user/update`, payload)
-          .then((response) => {
-            const data = response.data;
-            this.successMessage = data.message;
-            this.isSuccess = true;
-            this.getUserData();
-            this.input = {
-              id: 0,
-              zone: '',
-            };
-          })
-          .catch((error) => {
-            // eslint-disable-next-line
-            console.log(error);
-          })
-          .finally(() => {
-            this.isEdit = false;
-            this.isSending = false;
-          });
+        setTimeout(() => {
+          console.log(payload);
+          this.isSending = false;
+          this.isEdit = false;
+        }, 2000);
+        // axios
+        //   .post(`/user/update`, payload)
+        //   .then((response) => {
+        //     const data = response.data;
+        //     this.successMessage = data.message;
+        //     this.isSuccess = true;
+        //     this.getUserData();
+        //     this.input = {
+        //       id: 0,
+        //       zone: '',
+        //     };
+        //   })
+        //   .catch((error) => {
+        //     // eslint-disable-next-line
+        //     console.log(error);
+        //   })
+        //   .finally(() => {
+        //     this.isEdit = false;
+        //     this.isSending = false;
+        //   });
       }
     },
     saveData() {
@@ -431,25 +451,29 @@ export default {
         if (this.input.image !== null) {
           payload['file'] = this.input.image;
         }
-        axios
-          .post(`/register`, payload)
-          .then((response) => {
-            const data = response.data;
-            this.successMessage = data.message;
-            this.isSuccess = true;
-            this.getUserData();
-            this.input = {
-              id: 0,
-              zone: '',
-            };
-          })
-          .catch((error) => {
-            // eslint-disable-next-line
-            console.log(error);
-          })
-          .finally(() => {
-            this.isSending = false;
-          });
+        setTimeout(() => {
+          console.log(payload);
+          this.isSending = false;
+        }, 2000);
+        // axios
+        //   .post(`/register`, payload)
+        //   .then((response) => {
+        //     const data = response.data;
+        //     this.successMessage = data.message;
+        //     this.isSuccess = true;
+        //     this.getUserData();
+        //     this.input = {
+        //       id: 0,
+        //       zone: '',
+        //     };
+        //   })
+        //   .catch((error) => {
+        //     // eslint-disable-next-line
+        //     console.log(error);
+        //   })
+        //   .finally(() => {
+        //     this.isSending = false;
+        //   });
       }
     },
     cancelDelete() {
@@ -466,64 +490,74 @@ export default {
     },
     deleteUser() {
       this.isDeleteLoading = true;
-      axios
-        .post(`/user/delete`, {
-          id: this.userIdToDelete,
-        })
-        .then((response) => {
-          const data = response.data;
-          this.successMessage = data.message;
-          this.isSuccess = true;
-          this.getUserData();
-        })
-        .catch((error) => {
-          // eslint-disable-next-line
-          console.log(error);
-        })
-        .finally(() => {
-          this.isDeleteLoading = false;
-          this.userIdToDelete = null;
-          this.isDelete = false;
-        });
+      setTimeout(() => {
+        console.log(this.userIdToDelete);
+        this.isDeleteLoading = false;
+        this.userIdToDelete = null;
+        this.isDelete = false;
+      }, 2000);
+      // axios
+      //   .post(`/user/delete`, {
+      //     id: this.userIdToDelete,
+      //   })
+      //   .then((response) => {
+      //     const data = response.data;
+      //     this.successMessage = data.message;
+      //     this.isSuccess = true;
+      //     this.getUserData();
+      //   })
+      //   .catch((error) => {
+      //     // eslint-disable-next-line
+      //     console.log(error);
+      //   })
+      //   .finally(() => {
+      //     this.isDeleteLoading = false;
+      //     this.userIdToDelete = null;
+      //     this.isDelete = false;
+      //   });
     },
     getUserData() {
       this.isLoading = true;
-      axios
-        .get(`/user`)
-        .then((response) => {
-          const data = response.data.data;
-          // console.log(data);
-          this.items = data.map((item) => {
-            return {
-              id: item.id || 1,
-              name: item.name || '',
-              email: item.email || '',
-              registered_on: item.registered_on || '',
-              role: item.role || '',
-              roleName:
-                item.role == 'S'
-                  ? 'Superadmin'
-                  : item.role == 'A'
-                  ? 'Admin'
-                  : '',
-              image: item.image || null,
-              country_id: item.country_id || 1,
-              country_name: item.country_name || '',
-            };
-          });
+      setTimeout(() => {
+        console.log('OK');
+        this.isLoading = false;
+      }, 2000);
+      // axios
+      //   .get(`/user`)
+      //   .then((response) => {
+      //     const data = response.data.data;
+      //     // console.log(data);
+      //     this.items = data.map((item) => {
+      //       return {
+      //         id: item.id || 1,
+      //         name: item.name || '',
+      //         email: item.email || '',
+      //         registered_on: item.registered_on || '',
+      //         role: item.role || '',
+      //         roleName:
+      //           item.role == 'S'
+      //             ? 'Superadmin'
+      //             : item.role == 'A'
+      //             ? 'Admin'
+      //             : '',
+      //         image: item.image || null,
+      //         country_id: item.country_id || 1,
+      //         country_name: item.country_name || '',
+      //       };
+      //     });
 
-          app.config.globalProperties.$eventBus.$emit(
-            'update-image',
-            this.items
-          );
-        })
-        .catch((error) => {
-          // eslint-disable-next-line
-          console.log(error);
-        })
-        .finally(() => {
-          this.isLoading = false;
-        });
+      //     app.config.globalProperties.$eventBus.$emit(
+      //       'update-image',
+      //       this.items
+      //     );
+      //   })
+      //   .catch((error) => {
+      //     // eslint-disable-next-line
+      //     console.log(error);
+      //   })
+      //   .finally(() => {
+      //     this.isLoading = false;
+      //   });
     },
     getCountry() {
       axios
