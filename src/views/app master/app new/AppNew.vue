@@ -305,10 +305,13 @@
     <v-dialog persistent width="500" v-model="isDelete">
       <v-card>
         <v-card-title>Confirmation</v-card-title>
-        <v-card-text> Are you sure want to delete this user? </v-card-text>
+        <v-card-text> Are you sure want to delete this app? </v-card-text>
         <v-card-actions>
+          <v-spacer></v-spacer>
           <v-btn color="error" text @click="cancelDelete">No</v-btn>
-          <v-btn color="success" text @click="deleteUser">Yes</v-btn>
+          <v-btn color="success" text @click="deleteApp">{{
+            isDeleteLoading ? 'Deleting...' : 'Yes'
+          }}</v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
@@ -350,7 +353,7 @@ import ImageUpload from '@/components/ImageUpload.vue';
 import axios from '@/util/axios';
 // import http from 'axios';
 import { setAuthHeader } from '@/util/axios';
-// import app from '@/util/eventBus';
+import app from '@/util/eventBus';
 
 export default {
   name: 'AppNew',
@@ -379,12 +382,12 @@ export default {
     resource: {
       group: [
         {
-          name: 'Super App',
-          value: 'S',
+          name: 'Promo App',
+          value: 1,
         },
         {
-          name: 'App',
-          value: 'A',
+          name: 'Alcohol App',
+          value: 2,
         },
       ],
     },
@@ -451,75 +454,22 @@ export default {
       { title: 'App Details', align: 'start', key: 'details' },
       { title: '', key: 'action' },
     ],
-    itemsTry: [
-      {
-        id: 1,
-        logo: 'src/assets/logo-img.png',
-        image: '@/assets/logo-img.png',
-        name: 'The Gypsy',
-        description: 'Marketplace App for Everything',
-        details:
-          'Lorem ipsum dolor sit, amet consectetur adipisicing elit. Sed veritatis excepturi doloremque reprehenderit',
-        isActive: true,
-        isFav: true,
-        group: 'Super App',
-        user: 'Charlton',
-        created: '27/05/2023',
-        views: 184,
-        likes: 325,
-        shares: 122,
-      },
-      {
-        id: 1,
-        logo: 'src/assets/logo-img.png',
-        image: '@/assets/logo-img.png',
-        name: 'The Gypsy',
-        description: 'Marketplace App for Everything',
-        details:
-          'Lorem ipsum dolor sit, amet consectetur adipisicing elit. Sed veritatis excepturi doloremque reprehenderit',
-        isActive: true,
-        isFav: true,
-        group: 'Super App',
-        user: 'Charlton',
-        created: '27/05/2023',
-        views: 184,
-        likes: 325,
-        shares: 122,
-      },
-      {
-        id: 1,
-        logo: 'src/assets/logo-img.png',
-        image: '@/assets/logo-img.png',
-        name: 'The Gypsy',
-        description: 'Marketplace App for Everything',
-        details:
-          'Lorem ipsum dolor sit, amet consectetur adipisicing elit. Sed veritatis excepturi doloremque reprehenderit',
-        isActive: true,
-        isFav: true,
-        group: 'Super App',
-        user: 'Charlton',
-        created: '27/05/2023',
-        views: 184,
-        likes: 325,
-        shares: 122,
-      },
-    ],
   }),
   created() {
     const token = JSON.parse(localStorage.getItem('token'));
     setAuthHeader(token);
   },
   mounted() {
-    this.getUserData();
+    this.getAppData();
     this.getCountry();
   },
   computed: {
     filteredItems() {
       if (!this.search) {
-        return this.itemsTry;
+        return this.items;
       }
       const searchTextLower = this.search.toLowerCase();
-      return this.itemsTry.filter(
+      return this.items.filter(
         (item) =>
           item.name.toLowerCase().includes(searchTextLower) ||
           item.description.toLowerCase().includes(searchTextLower) ||
@@ -557,7 +507,7 @@ export default {
       //     const data = response.data;
       //     this.successMessage = data.message;
       //     this.isSuccess = true;
-      //     this.getUserData();
+      //     this.getAppData();
       //   })
       //   .catch((error) => {
       //     // eslint-disable-next-line
@@ -607,7 +557,7 @@ export default {
         this.imageFile = [];
       }, 2000);
       // http
-      //   .post(`/user/update`, payload, {
+      //   .post(`/app/edit`, payload, {
       //     headers: {
       //       'Content-Type': 'multipart/form-data',
       //     },
@@ -616,7 +566,7 @@ export default {
       //     const data = response.data;
       //     this.successMessage = data.message;
       //     this.isSuccess = true;
-      //     this.getUserData();
+      //     this.getAppData();
       //   })
       //   .catch((error) => {
       //     // eslint-disable-next-line
@@ -654,86 +604,74 @@ export default {
       if (this.valid) {
         this.isSending = true;
         const payload = {
-          id: this.input.id,
-          name: this.input.username,
-          email: this.input.email,
-          role: this.input.role,
-          country_id: this.input.country,
+          app_id: this.input.id,
+          app_group_id: this.input.group,
+          app_name: this.input.name,
+          app_description: this.input.description,
+          app_detail: this.input.details,
         };
         if (this.input.image !== null) {
           payload['file'] = this.input.image;
         }
-        setTimeout(() => {
-          console.log(payload);
-          this.isSending = false;
-          this.isEdit = false;
-        }, 2000);
-
-        // axios
-        //   .post(`/user/update`, payload)
-        //   .then((response) => {
-        //     const data = response.data;
-        //     this.successMessage = data.message;
-        //     this.isSuccess = true;
-        //     this.getUserData();
-        //     this.input = {
-        //       id: 0,
-        //       username: '',
-        //       email: '',
-        //       country: null,
-        //       role: null,
-        //       image: null,
-        //     };
-        //   })
-        //   .catch((error) => {
-        //     // eslint-disable-next-line
-        //     console.log(error);
-        //   })
-        //   .finally(() => {
-        //     this.isEdit = false;
-        //     this.isSending = false;
-        //   });
+        axios
+          .post(`/app/edit`, payload)
+          .then((response) => {
+            const data = response.data;
+            this.successMessage = data.message;
+            this.isSuccess = true;
+            this.getAppData();
+            this.input = {
+              id: 1,
+              name: '',
+              description: '',
+              details: '',
+              group: null,
+            };
+          })
+          .catch((error) => {
+            // eslint-disable-next-line
+            console.log(error);
+          })
+          .finally(() => {
+            this.isEdit = false;
+            this.isSending = false;
+          });
       }
     },
     saveData() {
       if (this.valid) {
         this.isSending = true;
         const payload = {
-          name: this.input.username,
-          email: this.input.email,
-          role: this.input.role,
-          country_id: this.input.country,
+          app_group_id: this.input.group,
+          app_name: this.input.name,
+          app_description: this.input.description,
+          app_detail: this.input.details,
         };
         if (this.input.image !== null) {
           payload['file'] = this.input.image;
         }
-        setTimeout(() => {
-          console.log(payload);
-          this.isSending = false;
-        }, 2000);
-        // axios
-        //   .post(`/register`, payload)
-        //   .then((response) => {
-        //     const data = response.data;
-        //     this.successMessage = data.message;
-        //     this.isSuccess = true;
-        //     this.getUserData();
-        //     this.input = {
-        //       id: 0,
-        //       username: '',
-        //       email: '',
-        //       country: null,
-        //       role: null,
-        //       image: null,
-        //     };
-        //   })
-        //   .catch((error) => {
-        //     // eslint-disable-next-line
-        //     console.log(error);
-        //   })
-        //   .finally(() => {
-        //     this.isSending = false;
-        //   });
+        axios
+          .post(`/app/add`, payload)
+          .then((response) => {
+            const data = response.data;
+            this.successMessage = data.message;
+            this.isSuccess = true;
+            this.getAppData();
+            this.input = {
+              id: 1,
+              name: '',
+              description: '',
+              details: '',
+              group: null,
+            };
+          })
+          .catch((error) => {
+            // eslint-disable-next-line
+            console.log(error);
+          })
+          .finally(() => {
+            this.isSending = false;
+          });
       }
     },
     cancelDelete() {
@@ -748,76 +686,66 @@ export default {
       this.userIdToDelete = null;
       this.isDelete = false;
     },
-    deleteUser() {
+    deleteApp() {
       this.isDeleteLoading = true;
-      setTimeout(() => {
-        console.log(this.userIdToDelete);
-        this.isDeleteLoading = false;
-        this.userIdToDelete = null;
-        this.isDelete = false;
-      }, 2000);
-      // axios
-      //   .post(`/user/delete`, {
-      //     id: this.userIdToDelete,
-      //   })
-      //   .then((response) => {
-      //     const data = response.data;
-      //     this.successMessage = data.message;
-      //     this.isSuccess = true;
-      //     this.getUserData();
-      //   })
-      //   .catch((error) => {
-      //     // eslint-disable-next-line
-      //     console.log(error);
-      //   })
-      //   .finally(() => {
-      //     this.isDeleteLoading = false;
-      //     this.userIdToDelete = null;
-      //     this.isDelete = false;
-      //   });
+      axios
+        .post(`/app/delete`, {
+          app_id: this.userIdToDelete,
+        })
+        .then((response) => {
+          const data = response.data;
+          this.successMessage = data.message;
+          this.isSuccess = true;
+          this.getAppData();
+        })
+        .catch((error) => {
+          // eslint-disable-next-line
+          console.log(error);
+        })
+        .finally(() => {
+          this.isDeleteLoading = false;
+          this.userIdToDelete = null;
+          this.isDelete = false;
+        });
     },
-    getUserData() {
+    getAppData() {
       this.isLoading = true;
-      setTimeout(() => {
-        console.log('OK');
-        this.isLoading = false;
-      }, 2000);
-      // axios
-      //   .get(`/user`)
-      //   .then((response) => {
-      //     const data = response.data.data;
-      //     // console.log(data);
-      //     this.items = data.map((item) => {
-      //       return {
-      //         id: item.id || 1,
-      //         name: item.name || '',
-      //         email: item.email || '',
-      //         registered_on: item.registered_on || '',
-      //         role: item.role || '',
-      //         roleName:
-      //           item.role == 'S'
-      //             ? 'Superadmin'
-      //             : item.role == 'A'
-      //             ? 'Admin'
-      //             : '',
-      //         image: item.image || null,
-      //         country_id: item.country_id || 1,
-      //         country_name: item.country_name || '',
-      //       };
-      //     });
+      axios
+        .get(`/app`)
+        .then((response) => {
+          const data = response.data.data;
+          // console.log(data);
+          this.items = data.map((item) => {
+            return {
+              id: item.app_id || 1,
+              logo: item.app_logo || '',
+              image: item.app_main_image || '',
+              name: item.app_name || '',
+              description: item.app_description || '',
+              details: item.app_detail || '',
+              isActive: item.active || false,
+              isFav: item.favorite || false,
+              group: item.app_group_name || '',
+              user: item.user_id || 1,
+              created: item.dated || '',
+              views: item.app_views || '',
+              likes: item.app_likes || '',
+              shares: item.app_shares || '',
+            };
+          });
 
-      //     app.config.globalProperties.$eventBus.$emit(
-      //       'update-image',
-      //       this.items
-      //     );
-      //   })
-      //   .catch((error) => {
-      //     // eslint-disable-next-line
-      //     console.log(error);
-      //   })
-      //   .finally(() => {
-      //     this.isLoading = false;
-      //   });
+          app.config.globalProperties.$eventBus.$emit(
+            'update-image',
+            this.items
+          );
+        })
+        .catch((error) => {
+          // eslint-disable-next-line
+          console.log(error);
+        })
+        .finally(() => {
+          this.isLoading = false;
+        });
     },
     getCountry() {
       axios
