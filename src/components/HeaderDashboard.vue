@@ -41,8 +41,21 @@
 
     <v-spacer></v-spacer>
 
-    <v-btn class="img-app-cont" size="40" rounded icon @click="toggleDrawer">
-      <v-img height="40" width="40" class="img-app" :src="image" />
+    <v-btn
+      class="img-app-cont"
+      width="40"
+      height="40"
+      rounded
+      icon
+      @click="toggleDrawer"
+    >
+      <v-img
+        cover
+        min-width="40"
+        min-height="40"
+        class="img-app"
+        :src="image"
+      />
     </v-btn>
   </v-app-bar>
 </template>
