@@ -38,18 +38,18 @@
               required
             ></v-textarea>
           </v-col>
-          <v-col class="ml-8" cols="6" md="3">
-            <v-select
+          <v-col cols="12" md="3">
+            <v-autocomplete
               clearable
               density="compact"
               :rules="rules.groupRules"
               label="App Group"
-              :items="resource.group"
+              :items="resource.groups"
               item-title="name"
               item-value="value"
               v-model="input.group"
               variant="outlined"
-            ></v-select>
+            ></v-autocomplete>
             <div class="d-flex justify-space-between mt-3">
               <v-btn
                 :prepend-icon="
@@ -353,7 +353,7 @@ import ImageUpload from '@/components/ImageUpload.vue';
 import axios from '@/util/axios';
 // import http from 'axios';
 import { setAuthHeader } from '@/util/axios';
-import app from '@/util/eventBus';
+// import app from '@/util/eventBus';
 
 export default {
   name: 'AppNew',
@@ -380,16 +380,7 @@ export default {
       group: null,
     },
     resource: {
-      group: [
-        {
-          name: 'Promo App',
-          value: 1,
-        },
-        {
-          name: 'Alcohol App',
-          value: 2,
-        },
-      ],
+      groups: [],
     },
     rules: {
       nameRules: [
@@ -461,7 +452,8 @@ export default {
   },
   mounted() {
     this.getAppData();
-    this.getCountry();
+    // this.getCountry();
+    this.getGroups();
   },
   computed: {
     filteredItems() {
@@ -734,10 +726,10 @@ export default {
             };
           });
 
-          app.config.globalProperties.$eventBus.$emit(
-            'update-image',
-            this.items
-          );
+          // app.config.globalProperties.$eventBus.$emit(
+          //   'update-image',
+          //   this.items
+          // );
         })
         .catch((error) => {
           // eslint-disable-next-line
@@ -747,15 +739,33 @@ export default {
           this.isLoading = false;
         });
     },
-    getCountry() {
+    // getCountry() {
+    //   axios
+    //     .get(`/country`)
+    //     .then((response) => {
+    //       const data = response.data.data;
+    //       this.resource.country = data.map((country) => {
+    //         return {
+    //           id: country.country_id,
+    //           name: country.country_name,
+    //         };
+    //       });
+    //     })
+    //     .catch((error) => {
+    //       // eslint-disable-next-line
+    //       console.log(error);
+    //     });
+    // },
+    getGroups() {
       axios
-        .get(`/country`)
+        .get(`/app/groups`)
         .then((response) => {
           const data = response.data.data;
-          this.resource.country = data.map((country) => {
+          // console.log(data);
+          this.resource.groups = data.map((group) => {
             return {
-              id: country.country_id,
-              name: country.country_name,
+              value: group.app_group_id,
+              name: group.app_group_name,
             };
           });
         })
