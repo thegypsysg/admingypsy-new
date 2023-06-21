@@ -132,7 +132,7 @@
                     <v-img
                       height="40"
                       width="60"
-                      @click="openImage(item.image, item.id)"
+                      @click="openLogo(item)"
                       class="app-img"
                       :src="
                         item.logo != null
@@ -157,24 +157,12 @@
                           "
                           class="d-flex align-center"
                           v-model="item.isActive"
-                          @change="activeApp(item.id)"
+                          @click="activeApp(item.id)"
                           rounded="5"
                         >
-                          <v-btn
-                            size="27"
-                            v-model="item.isActive"
-                            :value="true"
-                          >
-                            Yes
-                          </v-btn>
+                          <v-btn size="27" :value="true"> Yes </v-btn>
 
-                          <v-btn
-                            size="27"
-                            v-model="item.isActive"
-                            :value="false"
-                          >
-                            No
-                          </v-btn>
+                          <v-btn size="27" :value="false"> No </v-btn>
                         </v-btn-toggle>
                       </td>
                     </tr>
@@ -211,7 +199,7 @@
                           class="d-flex align-center"
                           v-model="item.isFav"
                           rounded="5"
-                          @change="favoriteApp(item.id)"
+                          @click="favoriteApp(item.id)"
                         >
                           <v-btn size="27" :value="true"> Yes </v-btn>
 
@@ -339,6 +327,36 @@
         </v-card-actions>
       </v-card>
     </v-dialog>
+    <v-dialog persistent width="auto" v-model="isOpenLogo">
+      <v-card width="750">
+        <v-card-title class="upload-title px-6 py-4">
+          Upload Logo - User</v-card-title
+        >
+        <v-card-text>
+          <image-upload
+            :image-file="logoFile"
+            @update-image-file="updateLogoFile"
+            @delete-image-file="deleteLogoFile"
+          />
+        </v-card-text>
+        <v-card-actions class="mt-16">
+          <v-spacer></v-spacer>
+          <v-btn
+            style="text-transform: none"
+            color="error"
+            text
+            @click="closeLogo"
+            >Cancel</v-btn
+          >
+          <v-btn
+            style="background-color: #9ddcff; text-transform: none"
+            color="black"
+            @click="saveLogo()"
+            >Save</v-btn
+          >
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
     <v-dialog persistent width="auto" v-model="isOpenImage">
       <v-card width="750">
         <v-card-title class="upload-title px-6 py-4">
@@ -394,6 +412,13 @@ export default {
     tableHeaders: [{ text: 'Gambar', value: 'image' }],
     logoFile: [],
     imageFile: [],
+    userDataToLogo: {
+      app_id: 1,
+      app_group_id: 1,
+      app_name: '',
+      app_description: '',
+      app_detail: '',
+    },
     userDataToImage: {
       app_id: 1,
       app_group_id: 1,
@@ -401,6 +426,7 @@ export default {
       app_description: '',
       app_detail: '',
     },
+    isOpenLogo: false,
     isOpenImage: false,
     successMessage: '',
     input: {
@@ -511,8 +537,41 @@ export default {
         'grey lighten-2': value !== this.selectedItem,
       };
     },
+    updateLogoFile(newImageFile) {
+      this.logoFile.push(newImageFile);
+    },
     updateImageFile(newImageFile) {
       this.imageFile.push(newImageFile);
+    },
+    deleteLogoFile() {
+      this.isSending = true;
+      const payload = {
+        app_id: this.userDataToLogo.app_id,
+      };
+      axios
+        .post(`/app/deleteLogo`, payload, {})
+        .then((response) => {
+          const data = response.data;
+          this.successMessage = data.message;
+          this.isSuccess = true;
+          this.getAppData();
+        })
+        .catch((error) => {
+          // eslint-disable-next-line
+          console.log(error);
+        })
+        .finally(() => {
+          this.isEdit = false;
+          this.isSending = false;
+          this.userDataToLogo = {
+            app_id: 1,
+            app_group_id: 1,
+            app_name: '',
+            app_description: '',
+            app_detail: '',
+          };
+          this.logoFile = [];
+        });
     },
     deleteImageFile() {
       this.isSending = true;
@@ -544,6 +603,29 @@ export default {
           this.imageFile = [];
         });
     },
+    openLogo(item) {
+      this.isOpenLogo = true;
+      this.userDataToLogo = {
+        app_id: item.id,
+        app_group_id: item.group_id,
+        app_name: item.name,
+        app_description: item.description,
+        app_detail: item.details,
+      };
+      this.logoFile =
+        item.logo != null
+          ? [
+              {
+                file: {
+                  name: item.logo,
+                  size: '',
+                  base64: '',
+                  format: '',
+                },
+              },
+            ]
+          : [];
+    },
     openImage(item) {
       this.isOpenImage = true;
       this.userDataToImage = {
@@ -567,6 +649,17 @@ export default {
             ]
           : [];
     },
+    closeLogo() {
+      this.isOpenLogo = false;
+      this.logoFile = [];
+      this.userDataToLogo = {
+        app_id: 1,
+        app_group_id: 1,
+        app_name: '',
+        app_description: '',
+        app_detail: '',
+      };
+    },
     closeImage() {
       this.isOpenImage = false;
       this.imageFile = [];
@@ -577,6 +670,47 @@ export default {
         app_description: '',
         app_detail: '',
       };
+    },
+    saveLogo() {
+      this.isSending = true;
+      const payload = {
+        app_id: this.userDataToLogo.app_id,
+        app_group_id: this.userDataToLogo.app_group_id,
+        app_name: this.userDataToLogo.app_name,
+        app_description: this.userDataToLogo.app_description,
+        app_detail: this.userDataToLogo.app_detail,
+        app_logo: this.logoFile[0],
+      };
+
+      http
+        .post(`/app/edit`, payload, {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+        })
+        .then((response) => {
+          const data = response.data;
+          this.successMessage = data.message;
+          this.isSuccess = true;
+          this.getAppData();
+        })
+        .catch((error) => {
+          // eslint-disable-next-line
+          console.log(error);
+        })
+        .finally(() => {
+          this.isEdit = false;
+          this.isSending = false;
+          this.userDataToLogo = {
+            app_id: 1,
+            app_group_id: 1,
+            app_name: '',
+            app_description: '',
+            app_detail: '',
+          };
+          this.isOpenLogo = false;
+          this.logoFile = [];
+        });
     },
     saveImage() {
       this.isSending = true;
@@ -616,30 +750,6 @@ export default {
             app_detail: '',
           };
           this.isOpenImage = false;
-          this.imageFile = [];
-        });
-    },
-    deleteLogoFile() {
-      this.isSending = true;
-      const payload = {
-        app_id: this.userIdToImage,
-      };
-      axios
-        .post(`/app/deleteLogo`, payload, {})
-        .then((response) => {
-          const data = response.data;
-          this.successMessage = data.message;
-          this.isSuccess = true;
-          this.getAppData();
-        })
-        .catch((error) => {
-          // eslint-disable-next-line
-          console.log(error);
-        })
-        .finally(() => {
-          this.isEdit = false;
-          this.isSending = false;
-          this.userIdToImage = null;
           this.imageFile = [];
         });
     },
@@ -798,8 +908,14 @@ export default {
               name: item.app_name || '',
               description: item.app_description || '',
               details: item.app_detail || '',
-              isActive: item.active == 'N' ? null : false,
-              isFav: item.favorite == 'N' ? null : false,
+              isActive:
+                item.active == 'N' ? false : item.active == 'Y' ? true : null,
+              isFav:
+                item.favorite == 'N'
+                  ? false
+                  : item.favorite == 'Y'
+                  ? true
+                  : null,
               group: item.app_group_name || '',
               user: item.user_id || 1,
               created: item.dated || '',
@@ -860,12 +976,12 @@ export default {
     activeApp(id) {
       this.isSending = true;
       axios
-        .post(`/api/app/active/${id}`)
+        .get(`/app/active/${id}`)
         .then((response) => {
           const data = response.data;
           this.successMessage = data.message;
           this.isSuccess = true;
-          // this.getAppData();
+          this.getAppData();
         })
         .catch((error) => {
           // eslint-disable-next-line
@@ -878,12 +994,12 @@ export default {
     favoriteApp(id) {
       this.isSending = true;
       axios
-        .post(`/api/app/favorite/${id}`)
+        .get(`/app/favorite/${id}`)
         .then((response) => {
           const data = response.data;
           this.successMessage = data.message;
           this.isSuccess = true;
-          // this.getAppData();
+          this.getAppData();
         })
         .catch((error) => {
           // eslint-disable-next-line
