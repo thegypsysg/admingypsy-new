@@ -134,7 +134,11 @@
                       width="60"
                       @click="openImage(item.image, item.id)"
                       class="app-img"
-                      src="@/assets/logo-img.png"
+                      :src="
+                        item.logo != null
+                          ? fileURL + item.logo
+                          : 'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png'
+                      "
                     ></v-img>
                   </div>
                   <v-table class="app-column-table">
@@ -144,6 +148,7 @@
                     <tr>
                       <td>
                         <v-btn-toggle
+                          mandatory
                           style="
                             font-size: 10px !important;
                             font-weight: 200 !important;
@@ -152,11 +157,24 @@
                           "
                           class="d-flex align-center"
                           v-model="item.isActive"
+                          @change="activeApp(item.id)"
                           rounded="5"
                         >
-                          <v-btn size="27" :value="true"> Yes </v-btn>
+                          <v-btn
+                            size="27"
+                            v-model="item.isActive"
+                            :value="true"
+                          >
+                            Yes
+                          </v-btn>
 
-                          <v-btn size="27" :value="false"> No </v-btn>
+                          <v-btn
+                            size="27"
+                            v-model="item.isActive"
+                            :value="false"
+                          >
+                            No
+                          </v-btn>
                         </v-btn-toggle>
                       </td>
                     </tr>
@@ -167,9 +185,13 @@
                     <v-img
                       height="40"
                       width="60"
-                      @click="openImage(item.image, item.id)"
+                      @click="openImage(item)"
                       class="app-img-2"
-                      src="@/assets/other-voucher-img-5.png"
+                      :src="
+                        item.image != null
+                          ? fileURL + item.image
+                          : 'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png'
+                      "
                     ></v-img>
                   </div>
                   <v-table class="app-column-table">
@@ -179,6 +201,7 @@
                     <tr>
                       <td>
                         <v-btn-toggle
+                          mandatory
                           style="
                             font-size: 10px !important;
                             font-weight: 200 !important;
@@ -188,6 +211,7 @@
                           class="d-flex align-center"
                           v-model="item.isFav"
                           rounded="5"
+                          @change="favoriteApp(item.id)"
                         >
                           <v-btn size="27" :value="true"> Yes </v-btn>
 
@@ -351,7 +375,7 @@
 <script>
 import ImageUpload from '@/components/ImageUpload.vue';
 import axios from '@/util/axios';
-// import http from 'axios';
+import http from 'axios';
 import { setAuthHeader } from '@/util/axios';
 // import app from '@/util/eventBus';
 
@@ -368,8 +392,15 @@ export default {
     isDeleteLoading: false,
     userIdToDelete: null,
     tableHeaders: [{ text: 'Gambar', value: 'image' }],
+    logoFile: [],
     imageFile: [],
-    userIdToImage: null,
+    userDataToImage: {
+      app_id: 1,
+      app_group_id: 1,
+      app_name: '',
+      app_description: '',
+      app_detail: '',
+    },
     isOpenImage: false,
     successMessage: '',
     input: {
@@ -378,6 +409,8 @@ export default {
       description: '',
       details: '',
       group: null,
+      logo: null,
+      image: null,
     },
     resource: {
       groups: [],
@@ -484,43 +517,48 @@ export default {
     deleteImageFile() {
       this.isSending = true;
       const payload = {
-        id: this.userIdToImage,
+        app_id: this.userDataToImage.app_id,
       };
-      setTimeout(() => {
-        console.log(payload);
-        this.isEdit = false;
-        this.isSending = false;
-        this.userIdToImage = null;
-        this.imageFile = [];
-      }, 2000);
-      // axios
-      //   .post(`/user/deleteImage`, payload, {})
-      //   .then((response) => {
-      //     const data = response.data;
-      //     this.successMessage = data.message;
-      //     this.isSuccess = true;
-      //     this.getAppData();
-      //   })
-      //   .catch((error) => {
-      //     // eslint-disable-next-line
-      //     console.log(error);
-      //   })
-      //   .finally(() => {
-      //     this.isEdit = false;
-      //     this.isSending = false;
-      //     this.userIdToImage = null;
-      //     this.imageFile = [];
-      //   });
+      axios
+        .post(`/app/deleteImage`, payload, {})
+        .then((response) => {
+          const data = response.data;
+          this.successMessage = data.message;
+          this.isSuccess = true;
+          this.getAppData();
+        })
+        .catch((error) => {
+          // eslint-disable-next-line
+          console.log(error);
+        })
+        .finally(() => {
+          this.isEdit = false;
+          this.isSending = false;
+          this.userDataToImage = {
+            app_id: 1,
+            app_group_id: 1,
+            app_name: '',
+            app_description: '',
+            app_detail: '',
+          };
+          this.imageFile = [];
+        });
     },
-    openImage(image, id) {
+    openImage(item) {
       this.isOpenImage = true;
-      this.userIdToImage = id;
+      this.userDataToImage = {
+        app_id: item.id,
+        app_group_id: item.group_id,
+        app_name: item.name,
+        app_description: item.description,
+        app_detail: item.details,
+      };
       this.imageFile =
-        image != null
+        item.image != null
           ? [
               {
                 file: {
-                  name: image,
+                  name: item.image,
                   size: '',
                   base64: '',
                   format: '',
@@ -532,45 +570,78 @@ export default {
     closeImage() {
       this.isOpenImage = false;
       this.imageFile = [];
-      this.userIdToImage = null;
+      this.userDataToImage = {
+        app_id: 1,
+        app_group_id: 1,
+        app_name: '',
+        app_description: '',
+        app_detail: '',
+      };
     },
     saveImage() {
       this.isSending = true;
       const payload = {
-        id: this.userIdToImage,
-        file: this.imageFile[0],
+        app_id: this.userDataToImage.app_id,
+        app_group_id: this.userDataToImage.app_group_id,
+        app_name: this.userDataToImage.app_name,
+        app_description: this.userDataToImage.app_description,
+        app_detail: this.userDataToImage.app_detail,
+        app_image: this.imageFile[0],
       };
-      setTimeout(() => {
-        console.log(payload);
-        this.isEdit = false;
-        this.isSending = false;
-        this.userIdToImage = null;
-        this.isOpenImage = false;
-        this.imageFile = [];
-      }, 2000);
-      // http
-      //   .post(`/app/edit`, payload, {
-      //     headers: {
-      //       'Content-Type': 'multipart/form-data',
-      //     },
-      //   })
-      //   .then((response) => {
-      //     const data = response.data;
-      //     this.successMessage = data.message;
-      //     this.isSuccess = true;
-      //     this.getAppData();
-      //   })
-      //   .catch((error) => {
-      //     // eslint-disable-next-line
-      //     console.log(error);
-      //   })
-      //   .finally(() => {
-      //     this.isEdit = false;
-      //     this.isSending = false;
-      //     this.userIdToImage = null;
-      //     this.isOpenImage = false;
-      //     this.imageFile = [];
-      //   });
+
+      http
+        .post(`/app/edit`, payload, {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+        })
+        .then((response) => {
+          const data = response.data;
+          this.successMessage = data.message;
+          this.isSuccess = true;
+          this.getAppData();
+        })
+        .catch((error) => {
+          // eslint-disable-next-line
+          console.log(error);
+        })
+        .finally(() => {
+          this.isEdit = false;
+          this.isSending = false;
+          this.userDataToImage = {
+            app_id: 1,
+            app_group_id: 1,
+            app_name: '',
+            app_description: '',
+            app_detail: '',
+          };
+          this.isOpenImage = false;
+          this.imageFile = [];
+        });
+    },
+    deleteLogoFile() {
+      this.isSending = true;
+      const payload = {
+        app_id: this.userIdToImage,
+      };
+      axios
+        .post(`/app/deleteLogo`, payload, {})
+        .then((response) => {
+          const data = response.data;
+          this.successMessage = data.message;
+          this.isSuccess = true;
+          this.getAppData();
+        })
+        .catch((error) => {
+          // eslint-disable-next-line
+          console.log(error);
+        })
+        .finally(() => {
+          this.isEdit = false;
+          this.isSending = false;
+          this.userIdToImage = null;
+          this.imageFile = [];
+        });
     },
     editUser(user) {
       this.isEdit = true;
@@ -590,6 +661,8 @@ export default {
         description: '',
         details: '',
         group: null,
+        logo: null,
+        image: null,
       };
     },
     saveEdit() {
@@ -602,8 +675,10 @@ export default {
           app_description: this.input.description,
           app_detail: this.input.details,
         };
-        if (this.input.image !== null) {
-          payload['file'] = this.input.image;
+        if (this.input.logo !== null) {
+          payload['app_logo'] = this.input.logo;
+        } else if (this.input.image !== null) {
+          payload['app_image'] = this.input.image;
         }
         axios
           .post(`/app/edit`, payload)
@@ -618,6 +693,8 @@ export default {
               description: '',
               details: '',
               group: null,
+              logo: null,
+              image: null,
             };
           })
           .catch((error) => {
@@ -639,8 +716,11 @@ export default {
           app_description: this.input.description,
           app_detail: this.input.details,
         };
+        if (this.input.logo !== null) {
+          payload['app_logo'] = this.input.logo;
+        }
         if (this.input.image !== null) {
-          payload['file'] = this.input.image;
+          payload['app_image'] = this.input.image;
         }
         axios
           .post(`/app/add`, payload)
@@ -655,6 +735,8 @@ export default {
               description: '',
               details: '',
               group: null,
+              logo: null,
+              image: null,
             };
           })
           .catch((error) => {
@@ -710,13 +792,14 @@ export default {
           this.items = data.map((item) => {
             return {
               id: item.app_id || 1,
-              logo: item.app_logo || '',
-              image: item.app_main_image || '',
+              group_id: item.app_group_id || 1,
+              logo: item.app_logo || null,
+              image: item.app_main_image || null,
               name: item.app_name || '',
               description: item.app_description || '',
               details: item.app_detail || '',
-              isActive: item.active || false,
-              isFav: item.favorite || false,
+              isActive: item.active == 'N' ? null : false,
+              isFav: item.favorite == 'N' ? null : false,
               group: item.app_group_name || '',
               user: item.user_id || 1,
               created: item.dated || '',
@@ -772,6 +855,42 @@ export default {
         .catch((error) => {
           // eslint-disable-next-line
           console.log(error);
+        });
+    },
+    activeApp(id) {
+      this.isSending = true;
+      axios
+        .post(`/api/app/active/${id}`)
+        .then((response) => {
+          const data = response.data;
+          this.successMessage = data.message;
+          this.isSuccess = true;
+          // this.getAppData();
+        })
+        .catch((error) => {
+          // eslint-disable-next-line
+          console.log(error);
+        })
+        .finally(() => {
+          this.isSending = false;
+        });
+    },
+    favoriteApp(id) {
+      this.isSending = true;
+      axios
+        .post(`/api/app/favorite/${id}`)
+        .then((response) => {
+          const data = response.data;
+          this.successMessage = data.message;
+          this.isSuccess = true;
+          // this.getAppData();
+        })
+        .catch((error) => {
+          // eslint-disable-next-line
+          console.log(error);
+        })
+        .finally(() => {
+          this.isSending = false;
         });
     },
   },
