@@ -957,7 +957,7 @@ export default {
     // },
     getGroups() {
       axios
-        .get(`/app/groups`)
+        .get(`/groups`)
         .then((response) => {
           const data = response.data.data;
           // console.log(data);
