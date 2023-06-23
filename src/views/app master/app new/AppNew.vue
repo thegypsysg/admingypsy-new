@@ -563,13 +563,13 @@ export default {
         .finally(() => {
           this.isEdit = false;
           this.isSending = false;
-          this.userDataToLogo = {
-            app_id: 1,
-            app_group_id: 1,
-            app_name: '',
-            app_description: '',
-            app_detail: '',
-          };
+          // this.userDataToLogo = {
+          //   app_id: 1,
+          //   app_group_id: 1,
+          //   app_name: '',
+          //   app_description: '',
+          //   app_detail: '',
+          // };
           this.logoFile = [];
         });
     },
@@ -593,13 +593,13 @@ export default {
         .finally(() => {
           this.isEdit = false;
           this.isSending = false;
-          this.userDataToImage = {
-            app_id: 1,
-            app_group_id: 1,
-            app_name: '',
-            app_description: '',
-            app_detail: '',
-          };
+          // this.userDataToImage = {
+          //   app_id: 1,
+          //   app_group_id: 1,
+          //   app_name: '',
+          //   app_description: '',
+          //   app_detail: '',
+          // };
           this.imageFile = [];
         });
     },
@@ -924,6 +924,7 @@ export default {
               shares: item.app_shares || '',
             };
           });
+          // console.log(this.items);
 
           // app.config.globalProperties.$eventBus.$emit(
           //   'update-image',
