@@ -264,7 +264,7 @@
 <script>
 import ImageUpload from '@/components/ImageUpload.vue';
 import axios from '@/util/axios';
-// import http from 'axios';
+import http from 'axios';
 import { setAuthHeader } from '@/util/axios';
 // import app from '@/util/eventBus';
 
@@ -282,7 +282,11 @@ export default {
     userIdToDelete: null,
     tableHeaders: [{ text: 'Gambar', value: 'image' }],
     imageFile: [],
-    userIdToImage: null,
+    userDataToImage: {
+      id: 1,
+      name: '',
+      description: '',
+    },
     isOpenImage: false,
     successMessage: '',
     input: {
@@ -356,44 +360,46 @@ export default {
     deleteImageFile() {
       this.isSending = true;
       const payload = {
-        id: this.userIdToImage,
+        id: this.userDataToImage.id,
       };
-      setTimeout(() => {
-        console.log(payload);
-        this.isEdit = false;
-        this.isSending = false;
-        this.userIdToImage = null;
-        this.imageFile = [];
-      }, 2000);
-      // axios
-      //   .post(`/user/deleteImage`, payload, {})
-      //   .then((response) => {
-      //     const data = response.data;
-      //     this.successMessage = data.message;
-      //     this.isSuccess = true;
-      //     this.getSkillsGroupData();
-      //     // app.config.globalProperties.$eventBus.$emit('update-image');
-      //   })
-      //   .catch((error) => {
-      //     // eslint-disable-next-line
-      //     console.log(error);
-      //   })
-      //   .finally(() => {
-      //     this.isEdit = false;
-      //     this.isSending = false;
-      //     this.userIdToImage = null;
-      //     this.imageFile = [];
-      //   });
+      axios
+        .post(`/skillgroups/deleteImage`, payload, {})
+        .then((response) => {
+          const data = response.data;
+          this.successMessage = data.message;
+          this.isSuccess = true;
+          this.getSkillsGroupData();
+        })
+        .catch((error) => {
+          // eslint-disable-next-line
+          console.log(error);
+        })
+        .finally(() => {
+          this.isEdit = false;
+          this.isSending = false;
+          // this.userDataToImage = {
+          //   app_id: 1,
+          //   app_group_id: 1,
+          //   app_name: '',
+          //   app_description: '',
+          //   app_detail: '',
+          // };
+          this.imageFile = [];
+        });
     },
-    openImage(image, id) {
+    openImage(item) {
       this.isOpenImage = true;
-      this.userIdToImage = id;
+      this.userDataToImage = {
+        id: item.id,
+        name: item.group,
+        description: item.desc,
+      };
       this.imageFile =
-        image != null
+        item.image != null
           ? [
               {
                 file: {
-                  name: image,
+                  name: item.image,
                   size: '',
                   base64: '',
                   format: '',
@@ -405,46 +411,48 @@ export default {
     closeImage() {
       this.isOpenImage = false;
       this.imageFile = [];
-      this.userIdToImage = null;
+      this.userDataToImage = {
+        id: 1,
+        name: '',
+        description: '',
+      };
     },
     saveImage() {
       this.isSending = true;
       const payload = {
-        id: this.userIdToImage,
-        file: this.imageFile[0],
+        id: this.userDataToImage.id,
+        name: this.userDataToImage.name,
+        description: this.userDataToImage.description,
+        image: this.imageFile[0],
       };
-      setTimeout(() => {
-        console.log(payload);
-        this.isEdit = false;
-        this.isSending = false;
-        this.userIdToImage = null;
-        this.isOpenImage = false;
-        this.imageFile = [];
-      }, 2000);
-      // http
-      //   .post(`/user/update`, payload, {
-      //     headers: {
-      //       'Content-Type': 'multipart/form-data',
-      //     },
-      //   })
-      //   .then((response) => {
-      //     const data = response.data;
-      //     this.successMessage = data.message;
-      //     this.isSuccess = true;
-      //     this.getSkillsGroupData();
-      //     // app.config.globalProperties.$eventBus.$emit('update-image');
-      //   })
-      //   .catch((error) => {
-      //     // eslint-disable-next-line
-      //     console.log(error);
-      //   })
-      //   .finally(() => {
-      //     this.isEdit = false;
-      //     this.isSending = false;
-      //     this.userIdToImage = null;
-      //     this.isOpenImage = false;
-      //     this.imageFile = [];
-      //   });
+
+      http
+        .post(`/skillgroups/update`, payload, {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+        })
+        .then((response) => {
+          const data = response.data;
+          this.successMessage = data.message;
+          this.isSuccess = true;
+          this.getSkillsGroupData();
+        })
+        .catch((error) => {
+          // eslint-disable-next-line
+          console.log(error);
+        })
+        .finally(() => {
+          this.isEdit = false;
+          this.isSending = false;
+          this.userDataToImage = {
+            id: 1,
+            name: '',
+            description: '',
+          };
+          this.isOpenImage = false;
+          this.imageFile = [];
+        });
     },
     editSkillGroup(user) {
       this.isEdit = true;
