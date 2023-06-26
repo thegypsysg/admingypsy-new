@@ -52,7 +52,7 @@
               density="compact"
               required
             ></v-text-field>
-            <v-combobox
+            <v-autocomplete
               density="compact"
               :rules="rules.groupRules"
               label="Select Skills Group"
@@ -63,7 +63,7 @@
               item-value="id"
               v-model="input.group"
               variant="outlined"
-            ></v-combobox>
+            ></v-autocomplete>
           </v-col>
           <v-col cols="12" md="4">
             <v-textarea
@@ -156,9 +156,15 @@
                   <v-img
                     height="40"
                     width="65"
-                    @click="openImage(item.image, item.id)"
+                    @click="openImage(item)"
                     style="cursor: pointer"
-                    src="@/assets/other-voucher-img-5.png"
+                    :src="
+                      item.image != null
+                        ? fileURL + item.image
+                        : 'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png'
+                    "
+                  >
+                    <template #placeholder> <div class="skeleton" /> </template
                   ></v-img>
                 </td>
                 <td style="font-weight: 500 !important">
@@ -196,7 +202,7 @@
                           color="green"
                           variant="text"
                           v-bind="props"
-                          @click="editUser(item)"
+                          @click="editPrimarySkill(item)"
                           icon="mdi-pencil-outline"
                         ></v-btn>
                       </template>
@@ -250,8 +256,9 @@
         <v-card-title>Confirmation</v-card-title>
         <v-card-text> Are you sure want to delete this user? </v-card-text>
         <v-card-actions>
+          <v-spacer></v-spacer>
           <v-btn color="error" text @click="cancelDelete">No</v-btn>
-          <v-btn color="success" text @click="deleteUser">Yes</v-btn>
+          <v-btn color="success" text @click="deletePrimarySkill">Yes</v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
@@ -320,16 +327,7 @@ export default {
       image: null,
     },
     resource: {
-      group: [
-        {
-          name: 'Nursing',
-          id: 1,
-        },
-        {
-          name: 'Operation',
-          id: 2,
-        },
-      ],
+      group: [],
     },
     rules: {
       primaryRules: [
@@ -353,40 +351,22 @@ export default {
     },
     search: '',
     items: [],
-    itemsTry: [
-      {
-        id: 1,
-        image: '@/assets/other-voucher-5.jpeg',
-        primary: 'Icu Nurse',
-        group: 'Nursing',
-        desc: 'ICU, PICU, NICU, PACU',
-        isActive: true,
-      },
-      {
-        id: 2,
-        image: '@/assets/other-voucher-5.jpeg',
-        primary: 'Icu Doctor',
-        group: 'Operation',
-        desc: 'ICU, PICU, NICU, PACU',
-        isActive: true,
-      },
-    ],
   }),
   created() {
     const token = JSON.parse(localStorage.getItem('token'));
     setAuthHeader(token);
   },
   mounted() {
-    // this.getUserData();
-    this.getCountry();
+    this.getPrimarySkillData();
+    this.getSkillsGroupData();
   },
   computed: {
     filteredItems() {
       if (!this.search) {
-        return this.itemsTry;
+        return this.items;
       }
       const searchTextLower = this.search.toLowerCase();
-      return this.itemsTry.filter(
+      return this.items.filter(
         (item) =>
           item.primary.toLowerCase().includes(searchTextLower) ||
           item.group.toLowerCase().includes(searchTextLower) ||
@@ -416,7 +396,7 @@ export default {
       //     const data = response.data;
       //     this.successMessage = data.message;
       //     this.isSuccess = true;
-      //     this.getUserData();
+      //     this.getPrimarySkillData();
       //     // app.config.globalProperties.$eventBus.$emit('update-image');
       //   })
       //   .catch((error) => {
@@ -476,7 +456,7 @@ export default {
       //     const data = response.data;
       //     this.successMessage = data.message;
       //     this.isSuccess = true;
-      //     this.getUserData();
+      //     this.getPrimarySkillData();
       //     // app.config.globalProperties.$eventBus.$emit('update-image');
       //   })
       //   .catch((error) => {
@@ -491,7 +471,7 @@ export default {
       //     this.imageFile = [];
       //   });
     },
-    editUser(user) {
+    editPrimarySkill(user) {
       this.isEdit = true;
       this.input = {
         id: user.id,
@@ -515,82 +495,66 @@ export default {
         this.isSending = true;
         const payload = {
           id: this.input.id,
-          name: this.input.username,
-          email: this.input.email,
-          role: this.input.role,
-          country_id: this.input.country,
+          sgm_id: this.input.group,
+          name: this.input.primary,
+          description: this.input.desc,
         };
         if (this.input.image !== null) {
-          payload['file'] = this.input.image;
+          payload['image'] = this.input.image;
         }
-        setTimeout(() => {
-          console.log(payload);
-          this.isSending = false;
-          this.isEdit = false;
-        }, 2000);
-        // axios
-        //   .post(`/user/update`, payload)
-        //   .then((response) => {
-        //     const data = response.data;
-        //     this.successMessage = data.message;
-        //     this.isSuccess = true;
-        //     this.getUserData();
-        //     this.input = {
-        //       id: 0,
-        //       primary: '',
-        //       group: null,
-        //       desc: '',
-        //       image: null,
-        //     };
-        //   })
-        //   .catch((error) => {
-        //     // eslint-disable-next-line
-        //     console.log(error);
-        //   })
-        //   .finally(() => {
-        //     this.isEdit = false;
-        //     this.isSending = false;
-        //   });
+        axios
+          .post(`/skills/update`, payload)
+          .then((response) => {
+            const data = response.data;
+            this.successMessage = data.message;
+            this.isSuccess = true;
+            this.getPrimarySkillData();
+            this.input = {
+              name: this.input.primary,
+              description: this.input.desc,
+              sgm_id: this.input.group,
+            };
+          })
+          .catch((error) => {
+            // eslint-disable-next-line
+            console.log(error);
+          })
+          .finally(() => {
+            this.isEdit = false;
+            this.isSending = false;
+          });
       }
     },
     saveData() {
       if (this.valid) {
         this.isSending = true;
         const payload = {
-          name: this.input.username,
-          email: this.input.email,
-          role: this.input.role,
-          country_id: this.input.country,
+          name: this.input.primary,
+          description: this.input.desc,
+          sgm_id: this.input.group,
         };
-        if (this.input.image !== null) {
-          payload['file'] = this.input.image;
-        }
-        setTimeout(() => {
-          console.log(payload);
-          this.isSending = false;
-        }, 2000);
-        // axios
-        //   .post(`/register`, payload)
-        //   .then((response) => {
-        //     const data = response.data;
-        //     this.successMessage = data.message;
-        //     this.isSuccess = true;
-        //     this.getUserData();
-        //     this.input = {
-        //       id: 0,
-        //       primary: '',
-        //       group: null,
-        //       desc: '',
-        //       image: null,
-        //     };
-        //   })
-        //   .catch((error) => {
-        //     // eslint-disable-next-line
-        //     console.log(error);
-        //   })
-        //   .finally(() => {
-        //     this.isSending = false;
-        //   });
+        axios
+          .post(`/skills/add`, payload)
+          .then((response) => {
+            const data = response.data;
+            this.successMessage = data.message;
+            this.isSuccess = true;
+            this.getPrimarySkillData();
+            this.input = {
+              id: 0,
+              primary: '',
+              group: null,
+              desc: '',
+              image: null,
+            };
+          })
+          .catch((error) => {
+            // eslint-disable-next-line
+            console.log(error);
+          })
+          .finally(() => {
+            this.isSending = false;
+          });
       }
     },
     cancelDelete() {
@@ -605,93 +569,78 @@ export default {
       this.userIdToDelete = null;
       this.isDelete = false;
     },
-    deleteUser() {
+    deletePrimarySkill() {
       this.isDeleteLoading = true;
-      setTimeout(() => {
-        console.log(this.userIdToDelete);
-        this.isDeleteLoading = false;
-        this.userIdToDelete = null;
-        this.isDelete = false;
-      }, 2000);
-      // axios
-      //   .post(`/user/delete`, {
-      //     id: this.userIdToDelete,
-      //   })
-      //   .then((response) => {
-      //     const data = response.data;
-      //     this.successMessage = data.message;
-      //     this.isSuccess = true;
-      //     this.getUserData();
-      //   })
-      //   .catch((error) => {
-      //     // eslint-disable-next-line
-      //     console.log(error);
-      //   })
-      //   .finally(() => {
-      //     this.isDeleteLoading = false;
-      //     this.userIdToDelete = null;
-      //     this.isDelete = false;
-      //   });
-    },
-    getUserData() {
-      this.isLoading = true;
-
-      setTimeout(() => {
-        console.log('OK');
-        this.isLoading = false;
-      }, 2000);
-      // axios
-      //   .get(`/user`)
-      //   .then((response) => {
-      //     const data = response.data.data;
-      //     // console.log(data);
-      //     this.items = data.map((item) => {
-      //       return {
-      //         id: item.id || 1,
-      //         name: item.name || '',
-      //         email: item.email || '',
-      //         registered_on: item.registered_on || '',
-      //         role: item.role || '',
-      //         roleName:
-      //           item.role == 'S'
-      //             ? 'Superadmin'
-      //             : item.role == 'A'
-      //             ? 'Admin'
-      //             : '',
-      //         image: item.image || null,
-      //         country_id: item.country_id || 1,
-      //         country_name: item.country_name || '',
-      //       };
-      //     });
-
-      //     app.config.globalProperties.$eventBus.$emit(
-      //       'update-image',
-      //       this.items
-      //     );
-      //   })
-      //   .catch((error) => {
-      //     // eslint-disable-next-line
-      //     console.log(error);
-      //   })
-      //   .finally(() => {
-      //     this.isLoading = false;
-      //   });
-    },
-    getCountry() {
       axios
-        .get(`/country`)
+        .post(`/skills/delete`, {
+          id: this.userIdToDelete,
+        })
+        .then((response) => {
+          const data = response.data;
+          this.successMessage = data.message;
+          this.isSuccess = true;
+          this.getPrimarySkillData();
+        })
+        .catch((error) => {
+          // eslint-disable-next-line
+          console.log(error);
+        })
+        .finally(() => {
+          this.isDeleteLoading = false;
+          this.userIdToDelete = null;
+          this.isDelete = false;
+        });
+    },
+    getPrimarySkillData() {
+      this.isLoading = true;
+      axios
+        .get(`/skills`)
         .then((response) => {
           const data = response.data.data;
-          this.resource.country = data.map((country) => {
+          // console.log(data);
+
+          this.items = data
+            .sort((a, b) => a.skills_id - b.skills_id)
+            .map((item) => {
+              return {
+                id: item.skills_id || 1,
+                image: item.image || null,
+                primary: item.skills_name || '',
+                group: item.group_name || '',
+                desc: item.description || '',
+                isActive:
+                  item.active == 'N' ? false : item.active == 'Y' ? true : null,
+              };
+            });
+        })
+        .catch((error) => {
+          // eslint-disable-next-line
+          console.log(error);
+        })
+        .finally(() => {
+          this.isLoading = false;
+        });
+    },
+    getSkillsGroupData() {
+      this.isLoading = true;
+      axios
+        .get(`/skillgroups`)
+        .then((response) => {
+          const data = response.data.data;
+          // console.log(data);
+          this.resource.group = data.map((item) => {
             return {
-              id: country.country_id,
-              name: country.country_name,
+              id: item.sgm_id || 1,
+              name: item.group_name || '',
             };
           });
         })
         .catch((error) => {
           // eslint-disable-next-line
           console.log(error);
+        })
+        .finally(() => {
+          this.isLoading = false;
         });
     },
   },
@@ -727,5 +676,25 @@ export default {
 .v-btn-toggle .v-btn--active {
   background-color: #2196f3 !important;
   color: #fff !important;
+}
+
+.skeleton {
+  width: 80%;
+  height: 100%;
+  border-radius: 0;
+
+  background: linear-gradient(-90deg, #f2f2f2 0%, #e1e1e1 50%, #f2f2f2 100%);
+  background-size: 400% 400%;
+  animation: skeleton 1.6s ease infinite;
+  margin: 0 auto;
+}
+
+@keyframes skeleton {
+  0% {
+    background-position: 100% 0;
+  }
+  100% {
+    background-position: -100% 0;
+  }
 }
 </style>

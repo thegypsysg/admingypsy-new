@@ -558,7 +558,7 @@ export default {
         .get(`/health`)
         .then((response) => {
           const data = response.data.data;
-          console.log(data);
+          // console.log(data);
           this.items = data.map((item) => {
             return {
               id: item.hs_id || 1,
