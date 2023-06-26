@@ -131,14 +131,18 @@
                   <v-img
                     height="40"
                     width="65"
-                    @click="openImage(item.image, item.id)"
+                    @click="openImage(item)"
                     style="cursor: pointer"
                     :src="
                       item.image != null
                         ? fileURL + item.image
                         : 'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png'
                     "
-                  ></v-img>
+                  >
+                    <template #placeholder>
+                      <div class="skeleton" />
+                    </template>
+                  </v-img>
                 </td>
                 <td style="font-weight: 500 !important">
                   {{ item.name }}
@@ -251,14 +255,14 @@
 <script>
 import ImageUpload from '@/components/ImageUpload.vue';
 import axios from '@/util/axios';
-// import http from 'axios';
+import http from 'axios';
 import { setAuthHeader } from '@/util/axios';
 // import app from '@/util/eventBus';
 
 export default {
   name: 'UserMaster',
   data: () => ({
-    fileURL: 'https://admin1.the-gypsy.sg/',
+    fileURL: 'https://admin1.the-gypsy.sg',
     valid: false,
     isLoading: false,
     isSending: false,
@@ -269,7 +273,11 @@ export default {
     userIdToDelete: null,
     tableHeaders: [{ text: 'Gambar', value: 'image' }],
     imageFile: [],
-    userIdToImage: null,
+    userDataToImage: {
+      id: 1,
+      name: '',
+      description: '',
+    },
     isOpenImage: false,
     successMessage: '',
     input: {
@@ -349,44 +357,46 @@ export default {
     deleteImageFile() {
       this.isSending = true;
       const payload = {
-        id: this.userIdToImage,
+        id: this.userDataToImage.id,
       };
-      setTimeout(() => {
-        console.log(payload);
-        this.isEdit = false;
-        this.isSending = false;
-        this.userIdToImage = null;
-        this.imageFile = [];
-      }, 2000);
-      // axios
-      //   .post(`/user/deleteImage`, payload, {})
-      //   .then((response) => {
-      //     const data = response.data;
-      //     this.successMessage = data.message;
-      //     this.isSuccess = true;
-      //     this.getHealthData();
-      //     // app.config.globalProperties.$eventBus.$emit('update-image');
-      //   })
-      //   .catch((error) => {
-      //     // eslint-disable-next-line
-      //     console.log(error);
-      //   })
-      //   .finally(() => {
-      //     this.isEdit = false;
-      //     this.isSending = false;
-      //     this.userIdToImage = null;
-      //     this.imageFile = [];
-      //   });
+      axios
+        .post(`/health/deleteImage`, payload, {})
+        .then((response) => {
+          const data = response.data;
+          this.successMessage = data.message;
+          this.isSuccess = true;
+          this.getHealthData();
+        })
+        .catch((error) => {
+          // eslint-disable-next-line
+          console.log(error);
+        })
+        .finally(() => {
+          this.isEdit = false;
+          this.isSending = false;
+          // this.userDataToImage = {
+          //   app_id: 1,
+          //   app_group_id: 1,
+          //   app_name: '',
+          //   app_description: '',
+          //   app_detail: '',
+          // };
+          this.imageFile = [];
+        });
     },
-    openImage(image, id) {
+    openImage(item) {
       this.isOpenImage = true;
-      this.userIdToImage = id;
+      this.userDataToImage = {
+        id: item.id,
+        name: item.name,
+        description: item.desc,
+      };
       this.imageFile =
-        image != null
+        item.image != null
           ? [
               {
                 file: {
-                  name: image,
+                  name: item.image,
                   size: '',
                   base64: '',
                   format: '',
@@ -398,46 +408,48 @@ export default {
     closeImage() {
       this.isOpenImage = false;
       this.imageFile = [];
-      this.userIdToImage = null;
+      this.userDataToImage = {
+        id: 1,
+        name: '',
+        description: '',
+      };
     },
     saveImage() {
       this.isSending = true;
       const payload = {
-        id: this.userIdToImage,
-        file: this.imageFile[0],
+        id: this.userDataToImage.id,
+        name: this.userDataToImage.name,
+        description: this.userDataToImage.description,
+        image: this.imageFile[0],
       };
-      setTimeout(() => {
-        console.log(payload);
-        this.isEdit = false;
-        this.isSending = false;
-        this.userIdToImage = null;
-        this.isOpenImage = false;
-        this.imageFile = [];
-      }, 2000);
-      // http
-      //   .post(`/user/update`, payload, {
-      //     headers: {
-      //       'Content-Type': 'multipart/form-data',
-      //     },
-      //   })
-      //   .then((response) => {
-      //     const data = response.data;
-      //     this.successMessage = data.message;
-      //     this.isSuccess = true;
-      //     this.getHealthData();
-      //     // app.config.globalProperties.$eventBus.$emit('update-image');
-      //   })
-      //   .catch((error) => {
-      //     // eslint-disable-next-line
-      //     console.log(error);
-      //   })
-      //   .finally(() => {
-      //     this.isEdit = false;
-      //     this.isSending = false;
-      //     this.userIdToImage = null;
-      //     this.isOpenImage = false;
-      //     this.imageFile = [];
-      //   });
+
+      http
+        .post(`/health/update`, payload, {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+        })
+        .then((response) => {
+          const data = response.data;
+          this.successMessage = data.message;
+          this.isSuccess = true;
+          this.getHealthData();
+        })
+        .catch((error) => {
+          // eslint-disable-next-line
+          console.log(error);
+        })
+        .finally(() => {
+          this.isEdit = false;
+          this.isSending = false;
+          this.userDataToImage = {
+            id: 1,
+            name: '',
+            description: '',
+          };
+          this.isOpenImage = false;
+          this.imageFile = [];
+        });
     },
     editUser(user) {
       this.isEdit = true;
@@ -550,7 +562,7 @@ export default {
           this.items = data.map((item) => {
             return {
               id: item.hs_id || 1,
-              image: item.image,
+              image: item.image || null,
               name: item.settings_name || '',
               desc: item.description || '',
             };
@@ -614,5 +626,25 @@ export default {
 .v-btn-toggle .v-btn--active {
   background-color: #2196f3 !important;
   color: #fff !important;
+}
+
+.skeleton {
+  width: 80%;
+  height: 100%;
+  border-radius: 0;
+
+  background: linear-gradient(-90deg, #f2f2f2 0%, #e1e1e1 50%, #f2f2f2 100%);
+  background-size: 400% 400%;
+  animation: skeleton 1.6s ease infinite;
+  margin: 0 auto;
+}
+
+@keyframes skeleton {
+  0% {
+    background-position: 100% 0;
+  }
+  100% {
+    background-position: -100% 0;
+  }
 }
 </style>
