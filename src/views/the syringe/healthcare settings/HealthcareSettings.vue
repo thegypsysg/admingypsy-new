@@ -35,7 +35,7 @@
               placeholder="Type health care"
               :items="resource.healthcare"
               item-title="name"
-              item-value="id"
+              item-value="value"
               v-model="input.name"
               variant="outlined"
             ></v-combobox>
@@ -133,7 +133,11 @@
                     width="65"
                     @click="openImage(item.image, item.id)"
                     style="cursor: pointer"
-                    src="@/assets/other-voucher-img-5.png"
+                    :src="
+                      item.image != null
+                        ? fileURL + item.image
+                        : 'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png'
+                    "
                   ></v-img>
                 </td>
                 <td style="font-weight: 500 !important">
@@ -205,8 +209,9 @@
         <v-card-title>Confirmation</v-card-title>
         <v-card-text> Are you sure want to delete this user? </v-card-text>
         <v-card-actions>
+          <v-spacer></v-spacer>
           <v-btn color="error" text @click="cancelDelete">No</v-btn>
-          <v-btn color="success" text @click="deleteUser">Yes</v-btn>
+          <v-btn color="success" text @click="deleteHealth">Yes</v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
@@ -253,7 +258,7 @@ import { setAuthHeader } from '@/util/axios';
 export default {
   name: 'UserMaster',
   data: () => ({
-    fileURL: 'https://admin1.the-gypsy.sg',
+    fileURL: 'https://admin1.the-gypsy.sg/',
     valid: false,
     isLoading: false,
     isSending: false,
@@ -277,11 +282,11 @@ export default {
       healthcare: [
         {
           name: 'Medical Center',
-          id: 1,
+          value: 'Medical Center',
         },
         {
           name: 'National Hospital',
-          id: 2,
+          value: 'National Hospital',
         },
       ],
     },
@@ -321,16 +326,16 @@ export default {
     setAuthHeader(token);
   },
   mounted() {
-    // this.getUserData();
-    this.getCountry();
+    this.getHealthData();
+    // this.getCountry();
   },
   computed: {
     filteredItems() {
       if (!this.search) {
-        return this.itemsTry;
+        return this.items;
       }
       const searchTextLower = this.search.toLowerCase();
-      return this.itemsTry.filter(
+      return this.items.filter(
         (item) =>
           item.name.toLowerCase().includes(searchTextLower) ||
           item.desc.toLowerCase().includes(searchTextLower)
@@ -359,7 +364,7 @@ export default {
       //     const data = response.data;
       //     this.successMessage = data.message;
       //     this.isSuccess = true;
-      //     this.getUserData();
+      //     this.getHealthData();
       //     // app.config.globalProperties.$eventBus.$emit('update-image');
       //   })
       //   .catch((error) => {
@@ -419,7 +424,7 @@ export default {
       //     const data = response.data;
       //     this.successMessage = data.message;
       //     this.isSuccess = true;
-      //     this.getUserData();
+      //     this.getHealthData();
       //     // app.config.globalProperties.$eventBus.$emit('update-image');
       //   })
       //   .catch((error) => {
@@ -444,92 +449,61 @@ export default {
     },
     cancelEdit() {
       this.isEdit = false;
-      this.input = {
-        id: 0,
-        name: null,
-        desc: '',
-        image: null,
-      };
+      this.input = { id: 0, name: null, desc: '', image: null };
     },
     saveEdit() {
       if (this.valid) {
         this.isSending = true;
         const payload = {
           id: this.input.id,
-          name: this.input.username,
-          email: this.input.email,
-          role: this.input.role,
-          country_id: this.input.country,
+          name: this.input.name.value ? this.input.name.value : this.input.name,
+          description: this.input.desc,
         };
         if (this.input.image !== null) {
-          payload['file'] = this.input.image;
+          payload['image'] = this.input.image;
         }
-        setTimeout(() => {
-          console.log(payload);
-          this.isSending = false;
-          this.isEdit = false;
-        }, 2000);
-        // axios
-        //   .post(`/user/update`, payload)
-        //   .then((response) => {
-        //     const data = response.data;
-        //     this.successMessage = data.message;
-        //     this.isSuccess = true;
-        //     this.getUserData();
-        //     this.input = {
-        //       id: 0,
-        //       name: null,
-        //       desc: '',
-        //       image: null,
-        //     };
-        //   })
-        //   .catch((error) => {
-        //     // eslint-disable-next-line
-        //     console.log(error);
-        //   })
-        //   .finally(() => {
-        //     this.isEdit = false;
-        //     this.isSending = false;
-        //   });
+        axios
+          .post(`/health/update`, payload)
+          .then((response) => {
+            const data = response.data;
+            this.successMessage = data.message;
+            this.isSuccess = true;
+            this.getHealthData();
+            this.input = { id: 0, name: null, desc: '', image: null };
+          })
+          .catch((error) => {
+            // eslint-disable-next-line
+            console.log(error);
+          })
+          .finally(() => {
+            this.isEdit = false;
+            this.isSending = false;
+          });
       }
     },
     saveData() {
       if (this.valid) {
         this.isSending = true;
         const payload = {
-          name: this.input.username,
-          email: this.input.email,
-          role: this.input.role,
-          country_id: this.input.country,
+          name: this.input.name.value ? this.input.name.value : this.input.name,
+          description: this.input.desc,
         };
-        if (this.input.image !== null) {
-          payload['file'] = this.input.image;
-        }
-        setTimeout(() => {
-          console.log(payload);
-          this.isSending = false;
-        }, 2000);
-        // axios
-        //   .post(`/register`, payload)
-        //   .then((response) => {
-        //     const data = response.data;
-        //     this.successMessage = data.message;
-        //     this.isSuccess = true;
-        //     this.getUserData();
-        //     this.input = {
-        //       id: 0,
-        //       name: null,
-        //       desc: '',
-        //       image: null,
-        //     };
-        //   })
-        //   .catch((error) => {
-        //     // eslint-disable-next-line
-        //     console.log(error);
-        //   })
-        //   .finally(() => {
-        //     this.isSending = false;
-        //   });
+        axios
+          .post(`/health/add`, payload)
+          .then((response) => {
+            const data = response.data;
+            this.successMessage = data.message;
+            this.isSuccess = true;
+            this.getHealthData();
+            this.input = { id: 0, name: null, desc: '', image: null };
+          })
+          .catch((error) => {
+            // eslint-disable-next-line
+            console.log(error);
+          })
+          .finally(() => {
+            this.isSending = false;
+          });
       }
     },
     cancelDelete() {
@@ -544,94 +518,69 @@ export default {
       this.userIdToDelete = null;
       this.isDelete = false;
     },
-    deleteUser() {
+    deleteHealth() {
       this.isDeleteLoading = true;
-      setTimeout(() => {
-        console.log(this.userIdToDelete);
-        this.isDeleteLoading = false;
-        this.userIdToDelete = null;
-        this.isDelete = false;
-      }, 2000);
-      // axios
-      //   .post(`/user/delete`, {
-      //     id: this.userIdToDelete,
-      //   })
-      //   .then((response) => {
-      //     const data = response.data;
-      //     this.successMessage = data.message;
-      //     this.isSuccess = true;
-      //     this.getUserData();
-      //   })
-      //   .catch((error) => {
-      //     // eslint-disable-next-line
-      //     console.log(error);
-      //   })
-      //   .finally(() => {
-      //     this.isDeleteLoading = false;
-      //     this.userIdToDelete = null;
-      //     this.isDelete = false;
-      //   });
-    },
-    getUserData() {
-      this.isLoading = true;
-      setTimeout(() => {
-        console.log('OK');
-        this.isLoading = false;
-      }, 2000);
-      // axios
-      //   .get(`/user`)
-      //   .then((response) => {
-      //     const data = response.data.data;
-      //     // console.log(data);
-      //     this.items = data.map((item) => {
-      //       return {
-      //         id: item.id || 1,
-      //         name: item.name || '',
-      //         email: item.email || '',
-      //         registered_on: item.registered_on || '',
-      //         role: item.role || '',
-      //         roleName:
-      //           item.role == 'S'
-      //             ? 'Superadmin'
-      //             : item.role == 'A'
-      //             ? 'Admin'
-      //             : '',
-      //         image: item.image || null,
-      //         country_id: item.country_id || 1,
-      //         country_name: item.country_name || '',
-      //       };
-      //     });
-
-      //     app.config.globalProperties.$eventBus.$emit(
-      //       'update-image',
-      //       this.items
-      //     );
-      //   })
-      //   .catch((error) => {
-      //     // eslint-disable-next-line
-      //     console.log(error);
-      //   })
-      //   .finally(() => {
-      //     this.isLoading = false;
-      //   });
-    },
-    getCountry() {
       axios
-        .get(`/country`)
+        .post(`/health/delete`, {
+          id: this.userIdToDelete,
+        })
+        .then((response) => {
+          const data = response.data;
+          this.successMessage = data.message;
+          this.isSuccess = true;
+          this.getHealthData();
+        })
+        .catch((error) => {
+          // eslint-disable-next-line
+          console.log(error);
+        })
+        .finally(() => {
+          this.isDeleteLoading = false;
+          this.userIdToDelete = null;
+          this.isDelete = false;
+        });
+    },
+    getHealthData() {
+      this.isLoading = true;
+      axios
+        .get(`/health`)
         .then((response) => {
           const data = response.data.data;
-          this.resource.country = data.map((country) => {
+          console.log(data);
+          this.items = data.map((item) => {
             return {
-              id: country.country_id,
-              name: country.country_name,
+              id: item.hs_id || 1,
+              image: item.image,
+              name: item.settings_name || '',
+              desc: item.description || '',
             };
           });
         })
         .catch((error) => {
           // eslint-disable-next-line
           console.log(error);
+        })
+        .finally(() => {
+          this.isLoading = false;
         });
     },
+    // getCountry() {
+    //   axios
+    //     .get(`/country`)
+    //     .then((response) => {
+    //       const data = response.data.data;
+    //       this.resource.country = data.map((country) => {
+    //         return {
+    //           id: country.country_id,
+    //           name: country.country_name,
+    //         };
+    //       });
+    //     })
+    //     .catch((error) => {
+    //       // eslint-disable-next-line
+    //       console.log(error);
+    //     });
+    // },
   },
   components: { ImageUpload },
 };
