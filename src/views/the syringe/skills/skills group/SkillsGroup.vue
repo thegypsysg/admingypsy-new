@@ -142,9 +142,15 @@
                   <v-img
                     height="40"
                     width="65"
-                    @click="openImage(item.image, item.id)"
+                    @click="openImage(item)"
                     style="cursor: pointer"
-                    src="@/assets/other-voucher-img-5.png"
+                    :src="
+                      item.image != null
+                        ? fileURL + item.image
+                        : 'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png'
+                    "
+                  >
+                    <template #placeholder> <div class="skeleton" /> </template
                   ></v-img>
                 </td>
                 <td style="font-weight: 500 !important">
@@ -162,7 +168,7 @@
                           color="green"
                           variant="text"
                           v-bind="props"
-                          @click="editUser(item)"
+                          @click="editSkillGroup(item)"
                           icon="mdi-pencil-outline"
                         ></v-btn>
                       </template>
@@ -216,8 +222,9 @@
         <v-card-title>Confirmation</v-card-title>
         <v-card-text> Are you sure want to delete this user? </v-card-text>
         <v-card-actions>
+          <v-spacer></v-spacer>
           <v-btn color="error" text @click="cancelDelete">No</v-btn>
-          <v-btn color="success" text @click="deleteUser">Yes</v-btn>
+          <v-btn color="success" text @click="deleteSkillGroup">Yes</v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
@@ -327,16 +334,15 @@ export default {
     setAuthHeader(token);
   },
   mounted() {
-    // this.getUserData();
-    this.getCountry();
+    this.getSkillsGroupData();
   },
   computed: {
     filteredItems() {
       if (!this.search) {
-        return this.itemsTry;
+        return this.items;
       }
       const searchTextLower = this.search.toLowerCase();
-      return this.itemsTry.filter(
+      return this.items.filter(
         (item) =>
           item.group.toLowerCase().includes(searchTextLower) ||
           item.desc.toLowerCase().includes(searchTextLower)
@@ -365,7 +371,7 @@ export default {
       //     const data = response.data;
       //     this.successMessage = data.message;
       //     this.isSuccess = true;
-      //     this.getUserData();
+      //     this.getSkillsGroupData();
       //     // app.config.globalProperties.$eventBus.$emit('update-image');
       //   })
       //   .catch((error) => {
@@ -425,7 +431,7 @@ export default {
       //     const data = response.data;
       //     this.successMessage = data.message;
       //     this.isSuccess = true;
-      //     this.getUserData();
+      //     this.getSkillsGroupData();
       //     // app.config.globalProperties.$eventBus.$emit('update-image');
       //   })
       //   .catch((error) => {
@@ -440,7 +446,7 @@ export default {
       //     this.imageFile = [];
       //   });
     },
-    editUser(user) {
+    editSkillGroup(user) {
       this.isEdit = true;
       this.input = {
         id: user.id,
@@ -452,7 +458,7 @@ export default {
       this.isEdit = false;
       this.input = {
         id: 0,
-        group: null,
+        group: '',
         desc: '',
         image: null,
       };
@@ -462,80 +468,54 @@ export default {
         this.isSending = true;
         const payload = {
           id: this.input.id,
-          name: this.input.username,
-          email: this.input.email,
-          role: this.input.role,
-          country_id: this.input.country,
+          name: this.input.group,
+          description: this.input.desc,
         };
         if (this.input.image !== null) {
-          payload['file'] = this.input.image;
+          payload['image'] = this.input.image;
         }
-        setTimeout(() => {
-          console.log(payload);
-          this.isSending = false;
-          this.isEdit = false;
-        }, 2000);
-        // axios
-        //   .post(`/user/update`, payload)
-        //   .then((response) => {
-        //     const data = response.data;
-        //     this.successMessage = data.message;
-        //     this.isSuccess = true;
-        //     this.getUserData();
-        //     this.input = {
-        //       id: 0,
-        //       group: null,
-        //       desc: '',
-        //       image: null,
-        //     };
-        //   })
-        //   .catch((error) => {
-        //     // eslint-disable-next-line
-        //     console.log(error);
-        //   })
-        //   .finally(() => {
-        //     this.isEdit = false;
-        //     this.isSending = false;
-        //   });
+        axios
+          .post(`/skillgroups/update`, payload)
+          .then((response) => {
+            const data = response.data;
+            this.successMessage = data.message;
+            this.isSuccess = true;
+            this.getSkillsGroupData();
+            this.input = { id: 0, group: '', desc: '', image: null };
+          })
+          .catch((error) => {
+            // eslint-disable-next-line
+            console.log(error);
+          })
+          .finally(() => {
+            this.isEdit = false;
+            this.isSending = false;
+          });
       }
     },
     saveData() {
       if (this.valid) {
         this.isSending = true;
         const payload = {
-          name: this.input.username,
-          email: this.input.email,
-          role: this.input.role,
-          country_id: this.input.country,
+          name: this.input.group,
+          description: this.input.desc,
         };
-        if (this.input.image !== null) {
-          payload['file'] = this.input.image;
-        }
-        setTimeout(() => {
-          console.log(payload);
-          this.isSending = false;
-        }, 2000);
-        // axios
-        //   .post(`/register`, payload)
-        //   .then((response) => {
-        //     const data = response.data;
-        //     this.successMessage = data.message;
-        //     this.isSuccess = true;
-        //     this.getUserData();
-        //     this.input = {
-        //       id: 0,
-        //       group: null,
-        //       desc: '',
-        //       image: null,
-        //     };
-        //   })
-        //   .catch((error) => {
-        //     // eslint-disable-next-line
-        //     console.log(error);
-        //   })
-        //   .finally(() => {
-        //     this.isSending = false;
-        //   });
+        axios
+          .post(`/skillgroups/add`, payload)
+          .then((response) => {
+            const data = response.data;
+            this.successMessage = data.message;
+            this.isSuccess = true;
+            this.getSkillsGroupData();
+            this.input = { id: 0, group: '', desc: '', image: null };
+          })
+          .catch((error) => {
+            // eslint-disable-next-line
+            console.log(error);
+          })
+          .finally(() => {
+            this.isSending = false;
+          });
       }
     },
     cancelDelete() {
@@ -550,92 +530,50 @@ export default {
       this.userIdToDelete = null;
       this.isDelete = false;
     },
-    deleteUser() {
+    deleteSkillGroup() {
       this.isDeleteLoading = true;
-      setTimeout(() => {
-        console.log(this.userIdToDelete);
-        this.isDeleteLoading = false;
-        this.userIdToDelete = null;
-        this.isDelete = false;
-      }, 2000);
-      // axios
-      //   .post(`/user/delete`, {
-      //     id: this.userIdToDelete,
-      //   })
-      //   .then((response) => {
-      //     const data = response.data;
-      //     this.successMessage = data.message;
-      //     this.isSuccess = true;
-      //     this.getUserData();
-      //   })
-      //   .catch((error) => {
-      //     // eslint-disable-next-line
-      //     console.log(error);
-      //   })
-      //   .finally(() => {
-      //     this.isDeleteLoading = false;
-      //     this.userIdToDelete = null;
-      //     this.isDelete = false;
-      //   });
-    },
-    getUserData() {
-      this.isLoading = true;
-      setTimeout(() => {
-        console.log('OK');
-        this.isLoading = false;
-      }, 2000);
-      // axios
-      //   .get(`/user`)
-      //   .then((response) => {
-      //     const data = response.data.data;
-      //     // console.log(data);
-      //     this.items = data.map((item) => {
-      //       return {
-      //         id: item.id || 1,
-      //         name: item.name || '',
-      //         email: item.email || '',
-      //         registered_on: item.registered_on || '',
-      //         role: item.role || '',
-      //         roleName:
-      //           item.role == 'S'
-      //             ? 'Superadmin'
-      //             : item.role == 'A'
-      //             ? 'Admin'
-      //             : '',
-      //         image: item.image || null,
-      //         country_id: item.country_id || 1,
-      //         country_name: item.country_name || '',
-      //       };
-      //     });
-
-      //     app.config.globalProperties.$eventBus.$emit(
-      //       'update-image',
-      //       this.items
-      //     );
-      //   })
-      //   .catch((error) => {
-      //     // eslint-disable-next-line
-      //     console.log(error);
-      //   })
-      //   .finally(() => {
-      //     this.isLoading = false;
-      //   });
-    },
-    getCountry() {
       axios
-        .get(`/country`)
+        .post(`/skillgroups/delete`, {
+          id: this.userIdToDelete,
+        })
+        .then((response) => {
+          const data = response.data;
+          this.successMessage = data.message;
+          this.isSuccess = true;
+          this.getSkillsGroupData();
+        })
+        .catch((error) => {
+          // eslint-disable-next-line
+          console.log(error);
+        })
+        .finally(() => {
+          this.isDeleteLoading = false;
+          this.userIdToDelete = null;
+          this.isDelete = false;
+        });
+    },
+    getSkillsGroupData() {
+      this.isLoading = true;
+      axios
+        .get(`/skillgroups`)
         .then((response) => {
           const data = response.data.data;
-          this.resource.country = data.map((country) => {
+          // console.log(data);
+          this.items = data.map((item) => {
             return {
-              id: country.country_id,
-              name: country.country_name,
+              id: item.sgm_id || 1,
+              image: item.image || null,
+              group: item.group_name || '',
+              desc: item.description || '',
             };
           });
         })
         .catch((error) => {
           // eslint-disable-next-line
           console.log(error);
+        })
+        .finally(() => {
+          this.isLoading = false;
         });
     },
   },
@@ -671,5 +609,25 @@ export default {
 .v-btn-toggle .v-btn--active {
   background-color: #2196f3 !important;
   color: #fff !important;
+}
+
+.skeleton {
+  width: 80%;
+  height: 100%;
+  border-radius: 0;
+
+  background: linear-gradient(-90deg, #f2f2f2 0%, #e1e1e1 50%, #f2f2f2 100%);
+  background-size: 400% 400%;
+  animation: skeleton 1.6s ease infinite;
+  margin: 0 auto;
+}
+
+@keyframes skeleton {
+  0% {
+    background-position: 100% 0;
+  }
+  100% {
+    background-position: -100% 0;
+  }
 }
 </style>
