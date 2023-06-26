@@ -186,6 +186,7 @@
                     "
                     class="d-flex align-center"
                     v-model="item.isActive"
+                    @click="activeSkill(item.id)"
                     rounded="5"
                   >
                     <v-btn size="27" :value="true"> Yes </v-btn>
@@ -560,7 +561,10 @@ export default {
           .catch((error) => {
             // eslint-disable-next-line
             console.log(error);
-            const message = this.saveErrorResponse(error.response);
+            const message =
+              error.response.data.message === ''
+                ? 'Something Wrong!!!'
+                : error.response.data.message;
             this.errorMessage = message;
             this.isError = true;
           })
@@ -579,7 +583,7 @@ export default {
           sgm_id: this.input.group,
         };
         axios
-          .post(`/skills/addds`, payload)
+          .post(`/skills/add`, payload)
           .then((response) => {
             const data = response.data;
             this.successMessage = data.message;
@@ -701,6 +705,24 @@ export default {
           this.isLoading = false;
         });
     },
+    activeSkill(id) {
+      this.isSending = true;
+      axios
+        .get(`/skills/active/${id}`)
+        .then((response) => {
+          const data = response.data;
+          this.successMessage = data.message;
+          this.isSuccess = true;
+          this.getPrimarySkillData();
+        })
+        .catch((error) => {
+          // eslint-disable-next-line
+          console.log(error);
+        })
+        .finally(() => {
+          this.isSending = false;
+        });
+    },
   },
   components: { ImageUpload },
 };
@@ -737,7 +759,7 @@ export default {
 }
 
 .skeleton {
-  width: 80%;
+  width: 100%;
   height: 100%;
   border-radius: 0;
 

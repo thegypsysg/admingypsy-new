@@ -217,6 +217,15 @@
         </v-btn>
       </template>
     </v-snackbar>
+    <v-snackbar location="top" color="red" v-model="isError" :timeout="3000">
+      {{ errorMessage }}
+
+      <template v-slot:actions>
+        <v-btn color="white" variant="text" @click="isError = false">
+          <v-icon>mdi-close</v-icon>
+        </v-btn>
+      </template>
+    </v-snackbar>
     <v-dialog persistent width="500" v-model="isDelete">
       <v-card>
         <v-card-title>Confirmation</v-card-title>
@@ -277,6 +286,7 @@ export default {
     isSending: false,
     isEdit: false,
     isSuccess: false,
+    isError: false,
     isDelete: false,
     isDeleteLoading: false,
     userIdToDelete: null,
@@ -289,6 +299,7 @@ export default {
     },
     isOpenImage: false,
     successMessage: '',
+    errorMessage: '',
     input: {
       id: 0,
       group: '',
@@ -312,26 +323,6 @@ export default {
     },
     search: '',
     items: [],
-    itemsTry: [
-      {
-        id: 1,
-        image: '@/assets/other-voucher-5.jpeg',
-        group: 'Nursing',
-        desc: 'Icu Nurse, Dualysis Nurse, Ward Nurse, A & E Nurse, Oncology Nurse',
-      },
-      {
-        id: 2,
-        image: '@/assets/other-voucher-5.jpeg',
-        group: 'Nursing',
-        desc: 'Icu Nurse, Dualysis Nurse, Ward Nurse, A & E Nurse, Oncology Nurse',
-      },
-      {
-        id: 3,
-        image: '@/assets/other-voucher-5.jpeg',
-        group: 'Nursing',
-        desc: 'Icu Nurse, Dualysis Nurse, Ward Nurse, A & E Nurse, Oncology Nurse',
-      },
-    ],
   }),
   created() {
     const token = JSON.parse(localStorage.getItem('token'));
@@ -354,6 +345,15 @@ export default {
     },
   },
   methods: {
+    saveErrorResponse(response) {
+      let errorMessage = '';
+
+      for (const key in response.data) {
+        errorMessage += `${key}: ${response.data[key][0]}\n`;
+      }
+
+      return errorMessage;
+    },
     updateImageFile(newImageFile) {
       this.imageFile.push(newImageFile);
     },
@@ -373,6 +373,12 @@ export default {
         .catch((error) => {
           // eslint-disable-next-line
           console.log(error);
+          const message =
+            error.response.data.message === ''
+              ? 'Something Wrong!!!'
+              : error.response.data.message;
+          this.errorMessage = message;
+          this.isError = true;
         })
         .finally(() => {
           this.isEdit = false;
@@ -494,6 +500,12 @@ export default {
           .catch((error) => {
             // eslint-disable-next-line
             console.log(error);
+            const message =
+              error.response.data.message === ''
+                ? 'Something Wrong!!!'
+                : error.response.data.message;
+            this.errorMessage = message;
+            this.isError = true;
           })
           .finally(() => {
             this.isEdit = false;
@@ -520,6 +532,12 @@ export default {
           .catch((error) => {
             // eslint-disable-next-line
             console.log(error);
+            const message =
+              error.response.data.message === ''
+                ? 'Something Wrong!!!'
+                : error.response.data.message;
+            this.errorMessage = message;
+            this.isError = true;
           })
           .finally(() => {
             this.isSending = false;
@@ -553,6 +571,12 @@ export default {
         .catch((error) => {
           // eslint-disable-next-line
           console.log(error);
+          const message =
+            error.response.data.message === ''
+              ? 'Something Wrong!!!'
+              : error.response.data.message;
+          this.errorMessage = message;
+          this.isError = true;
         })
         .finally(() => {
           this.isDeleteLoading = false;
@@ -620,7 +644,7 @@ export default {
 }
 
 .skeleton {
-  width: 80%;
+  width: 100%;
   height: 100%;
   border-radius: 0;
 
