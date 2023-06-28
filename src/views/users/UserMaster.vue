@@ -264,7 +264,7 @@ import app from '@/util/eventBus';
 export default {
   name: 'UserMaster',
   data: () => ({
-    fileURL: 'https://admin1.the-gypsy.sg',
+    fileURL: 'https://admin1.the-gypsy.sg/img/app/',
     valid: false,
     isLoading: false,
     isSending: false,
