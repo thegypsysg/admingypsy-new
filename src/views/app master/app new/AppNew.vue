@@ -400,7 +400,7 @@ import { setAuthHeader } from '@/util/axios';
 export default {
   name: 'AppNew',
   data: () => ({
-    fileURL: 'https://admin1.the-gypsy.sg',
+    fileURL: 'https://admin1.the-gypsy.sg/img/app/',
     valid: false,
     isLoading: false,
     isSending: false,
