@@ -377,7 +377,7 @@ export default {
   },
   data() {
     return {
-      fileURL: 'https://admin1.the-gypsy.sg',
+      fileURL: 'https://admin1.the-gypsy.sg/img/app/',
       isInsertImage: false,
       isDeleteImage: false,
 

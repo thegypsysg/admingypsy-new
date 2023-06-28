@@ -67,7 +67,7 @@ export default {
   components: { Dropdown },
   data() {
     return {
-      fileURL: 'https://admin1.the-gypsy.sg',
+      fileURL: 'https://admin1.the-gypsy.sg/img/app/',
       rail: false,
       image: '',
       imagetoShow: '',
