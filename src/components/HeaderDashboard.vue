@@ -66,7 +66,7 @@ import app from '@/util/eventBus';
 export default {
   data() {
     return {
-      fileURL: 'https://admin1.the-gypsy.sg/img/app/',
+      // fileURL: 'https://admin1.the-gypsy.sg/img/app/',
       linksNavBar: ['Chat', 'Calendar', 'Notes'],
       items: [
         {
@@ -95,7 +95,7 @@ export default {
     this.image =
       getImg == 'null'
         ? 'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png'
-        : this.fileURL + getImg;
+        : this.$fileURL + getImg;
   },
   methods: {
     toggleDrawer() {
@@ -113,7 +113,7 @@ export default {
       this.image =
         getImg == 'null'
           ? 'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png'
-          : this.fileURL + getImg;
+          : this.$fileURL + getImg;
     },
   },
 };

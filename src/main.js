@@ -57,4 +57,6 @@ axiosAbsensi.interceptors.response.use(
 
 loadFonts();
 
-createApp(App).use(router).use(store).use(vuetify).mount('#app');
+const app = createApp(App);
+app.config.globalProperties.$fileURL = 'https://admin1.the-gypsy.sg/img/app/';
+app.use(router).use(store).use(vuetify).mount('#app');

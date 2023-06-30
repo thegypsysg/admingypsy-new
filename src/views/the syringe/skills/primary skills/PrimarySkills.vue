@@ -160,7 +160,7 @@
                     style="cursor: pointer"
                     :src="
                       item.image != null
-                        ? fileURL + item.image
+                        ? $fileURL + item.image
                         : 'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png'
                     "
                   >
@@ -315,7 +315,7 @@ import { setAuthHeader } from '@/util/axios';
 export default {
   name: 'UserMaster',
   data: () => ({
-    fileURL: 'https://admin1.the-gypsy.sg/img/app/',
+    //fileURL: 'https://admin1.the-gypsy.sg/img/app/',
     valid: false,
     isLoading: false,
     isSending: false,

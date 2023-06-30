@@ -310,7 +310,7 @@ import { setAuthHeader } from '@/util/axios';
 export default {
   name: 'UserMaster',
   data: () => ({
-    fileURL: 'https://admin1.the-gypsy.sg/img/app/',
+    // fileURL: 'https://admin1.the-gypsy.sg/img/app/',
     valid: false,
     isLoading: false,
     isSending: false,

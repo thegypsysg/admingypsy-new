@@ -45,7 +45,7 @@
                         :src="
                           image[0].image_path !== ''
                             ? attachment.file.file
-                            : fileURL + attachment.file.name
+                            : $fileURL + attachment.file.name
                         "
                         height="50px"
                         width="50px"
@@ -377,7 +377,7 @@ export default {
   },
   data() {
     return {
-      fileURL: 'https://admin1.the-gypsy.sg/img/app/',
+      // fileURL: 'https://admin1.the-gypsy.sg/img/app/',
       isInsertImage: false,
       isDeleteImage: false,
 
