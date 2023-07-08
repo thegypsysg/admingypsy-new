@@ -290,16 +290,8 @@ export default {
     },
     resource: {
       country: [],
-      role: [
-        {
-          name: 'Super Admin',
-          value: 'S',
-        },
-        {
-          name: 'Admin',
-          value: 'A',
-        },
-      ],
+
+      role: [],
     },
     rules: {
       nameRules: [
@@ -349,6 +341,7 @@ export default {
   mounted() {
     this.getUserData();
     this.getCountry();
+    this.getRoles();
   },
   computed: {
     filteredItems() {
@@ -611,6 +604,8 @@ export default {
                   ? 'Superadmin'
                   : item.role == 'A'
                   ? 'Admin'
+                  : item.role == 'U'
+                  ? 'Users'
                   : '',
               image: item.image || null,
               country_id: item.country_id || 1,
@@ -629,6 +624,25 @@ export default {
         })
         .finally(() => {
           this.isLoading = false;
+        });
+    },
+    getRoles() {
+      axios
+        .get(`/roles`)
+        .then((response) => {
+          const data = response.data.data;
+          // console.log(data);
+          this.resource.role = data.map((role) => {
+            return {
+              id: role.role_id,
+              name: role.role_name,
+              value: role.short_name,
+            };
+          });
+        })
+        .catch((error) => {
+          // eslint-disable-next-line
+          console.log(error);
         });
     },
     getCountry() {
