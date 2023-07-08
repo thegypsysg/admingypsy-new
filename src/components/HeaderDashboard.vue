@@ -75,7 +75,7 @@ export default {
           color: '#EE1C39',
         },
         { title: 'Mall-e', path: '', color: '#8C0F22' },
-        { title: 'Boozards', path: '', color: '#FF8943' },
+        { title: 'Boozards', path: '/booze_category', color: '#FF8943' },
         { title: 'Biryani Run', path: '', color: '#63B14C' },
       ],
       image: '',
