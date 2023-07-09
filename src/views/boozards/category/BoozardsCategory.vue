@@ -169,6 +169,7 @@
                     "
                     class="d-flex align-center"
                     v-model="item.isActive"
+                    @click="activeCategory(item.id)"
                     rounded="5"
                   >
                     <v-btn size="27" :value="true"> Yes </v-btn>
@@ -601,6 +602,24 @@ export default {
         })
         .finally(() => {
           this.isLoading = false;
+        });
+    },
+    activeCategory(id) {
+      this.isSending = true;
+      axios
+        .get(`/categories/toggle-active/${id}`)
+        .then((response) => {
+          const data = response.data;
+          this.successMessage = data.message;
+          this.isSuccess = true;
+          this.getCategory();
+        })
+        .catch((error) => {
+          // eslint-disable-next-line
+          console.log(error);
+        })
+        .finally(() => {
+          this.isSending = false;
         });
     },
   },
