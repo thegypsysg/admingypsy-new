@@ -416,8 +416,12 @@ export default {
         return this.items;
       }
       const searchTextLower = this.search.toLowerCase();
-      return this.items.filter((item) =>
-        item.country.toLowerCase().includes(searchTextLower)
+      return this.items.filter(
+        (item) =>
+          item.brand_name.toLowerCase().includes(searchTextLower) ||
+          item.country.toLowerCase().includes(searchTextLower) ||
+          item.category_name.toLowerCase().includes(searchTextLower) ||
+          item.description.toLowerCase().includes(searchTextLower)
       );
     },
   },
