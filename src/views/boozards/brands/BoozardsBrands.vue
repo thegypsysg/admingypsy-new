@@ -36,11 +36,11 @@
         </v-row> -->
         <v-row>
           <v-col cols="12" md="3">
-            <p style="color: #8f8f8b; font-weight: 500">Category Name</p>
+            <p style="color: #000; font-weight: 500">Brand Name</p>
             <v-text-field
-              v-model="input.category"
-              :rules="rules.categoryRules"
-              label="Type Category"
+              v-model="input.brand"
+              :rules="rules.brandRules"
+              label="Type Brand Name"
               variant="outlined"
               density="compact"
               class="mt-4"
@@ -49,12 +49,12 @@
           </v-col>
 
           <v-col cols="12" md="4">
-            <p style="color: #8f8f8b; font-weight: 500">Description</p>
+            <p style="color: #000; font-weight: 500">Brand Description</p>
             <v-textarea
               v-model="input.desc"
               :rules="rules.descRules"
               label="Type Description"
-              rows="3"
+              rows="2"
               variant="outlined"
               class="mt-4"
               required
@@ -101,6 +101,36 @@
             </v-btn>
           </v-col>
         </v-row>
+        <v-row class="my-n4">
+          <v-col cols="12" md="3">
+            <v-combobox
+              clearable
+              density="compact"
+              :rules="rules.countryRules"
+              label="Select Country"
+              placeholder="Type country"
+              :items="resource.country"
+              item-title="name"
+              item-value="id"
+              v-model="input.country"
+              variant="outlined"
+            ></v-combobox>
+          </v-col>
+
+          <v-col cols="12" md="3">
+            <v-combobox
+              density="compact"
+              :rules="rules.categoryRules"
+              label="Category"
+              placeholder="Type category"
+              :items="resource.category"
+              item-title="name"
+              item-value="value"
+              v-model="input.category"
+              variant="outlined"
+            ></v-combobox>
+          </v-col>
+        </v-row>
       </v-container>
     </v-form>
     <v-sheet class="py-6 px-4 mt-6" border rounded width="100%">
@@ -122,7 +152,9 @@
               <tr>
                 <th class="text-left">Id</th>
                 <th class="text-left">Image</th>
-                <th class="text-left">Category Name</th>
+                <th class="text-left">Brand</th>
+                <th class="text-left">Country of Brand</th>
+                <th class="text-left">Category</th>
                 <th class="text-left">Description</th>
                 <th class="text-left">Active</th>
                 <th class="text-left">Website</th>
@@ -154,9 +186,15 @@
                   ></v-img>
                 </td>
                 <td style="font-weight: 500 !important">
-                  {{ item.category_name }}
+                  {{ item.brand_name }}
                 </td>
                 <td style="font-weight: 500 !important">
+                  {{ item.country }}
+                </td>
+                <td style="font-weight: 500 !important">
+                  {{ item.category_name }}
+                </td>
+                <td style="color: #7f7f80; font-weight: 500 !important">
                   {{ item.description }}
                 </td>
                 <td>
@@ -325,21 +363,38 @@ export default {
     input: {
       id: 0,
       image: null,
-      category: '',
+      brand: '',
       desc: '',
+      country: null,
+      category: null,
     },
-
+    resource: {
+      country: [],
+      category: [],
+    },
     rules: {
-      categoryRules: [
+      brandRules: [
         (value) => {
           if (value) return true;
-          return 'Category Name is requred.';
+          return 'Brand Name is requred.';
         },
       ],
       descRules: [
         (value) => {
           if (value) return true;
           return 'Description is requred.';
+        },
+      ],
+      countryRules: [
+        (value) => {
+          if (value) return true;
+          return 'Country is requred.';
+        },
+      ],
+      categoryRules: [
+        (value) => {
+          if (value) return true;
+          return 'Category is requred.';
         },
       ],
     },
@@ -351,7 +406,9 @@ export default {
     setAuthHeader(token);
   },
   mounted() {
+    this.getBrands();
     this.getCategory();
+    this.getCountry();
   },
   computed: {
     filteredItems() {
@@ -359,10 +416,8 @@ export default {
         return this.items;
       }
       const searchTextLower = this.search.toLowerCase();
-      return this.items.filter(
-        (item) =>
-          item.category_name.toLowerCase().includes(searchTextLower) ||
-          item.description.toLowerCase().includes(searchTextLower)
+      return this.items.filter((item) =>
+        item.country.toLowerCase().includes(searchTextLower)
       );
     },
   },
@@ -575,6 +630,42 @@ export default {
           this.isDelete = false;
         });
     },
+    getBrands() {
+      this.items = [
+        {
+          id: 1,
+          image: null,
+          brand_name: 'Chivas',
+          country: 'Scotland',
+          category_name: 'Whisky',
+          description: 'Chivas 18 years old, 21 years old',
+          isActive: false,
+          isWebsite: false,
+        },
+      ];
+      //  this.isLoading = true;
+      //  axios
+      //  .get(`/categories`)
+      //  .then((response) => {
+      //      const data = response.data.data;
+      //      // console.log(data);
+      //      this.resource.category = data
+      //        .sort((a, b) => a.category_name.localeCompare(b.category_name))
+      //        .map((item) => {
+      //          return {
+      //            name: item.category_name || '',
+      //            value: item.category_name || '',
+      //          };
+      //        });
+      //    })
+      //    .catch((error) => {
+      //      // eslint-disable-next-line
+      //      console.log(error);
+      //    })
+      //    .finally(() => {
+      //      this.isLoading = false;
+      //    });
+    },
     getCategory() {
       this.isLoading = true;
       axios
@@ -582,18 +673,14 @@ export default {
         .then((response) => {
           const data = response.data.data;
           // console.log(data);
-          this.items = data.map((item) => {
-            return {
-              id: item.category_id || 1,
-              image: item.image || null,
-              category_name: item.category_name || '',
-              description: item.description || '',
-              isActive:
-                item.active == 'N' ? false : item.active == 'Y' ? true : null,
-              isWebsite:
-                item.website == 'N' ? false : item.website == 'Y' ? true : null,
-            };
-          });
+          this.resource.category = data
+            .sort((a, b) => a.category_name.localeCompare(b.category_name))
+            .map((item) => {
+              return {
+                name: item.category_name || '',
+                value: item.category_name || '',
+              };
+            });
         })
         .catch((error) => {
           // eslint-disable-next-line
@@ -601,6 +688,23 @@ export default {
         })
         .finally(() => {
           this.isLoading = false;
+        });
+    },
+    getCountry() {
+      axios
+        .get(`/country`)
+        .then((response) => {
+          const data = response.data.data;
+          this.resource.country = data.map((country) => {
+            return {
+              id: country.country_id,
+              name: country.country_name,
+            };
+          });
+        })
+        .catch((error) => {
+          // eslint-disable-next-line
+          console.log(error);
         });
     },
   },
