@@ -139,6 +139,8 @@
                           ? $fileURL + item.logo
                           : 'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png'
                       "
+                      ><template #placeholder>
+                        <div class="skeleton" /> </template
                     ></v-img>
                   </div>
                   <v-table class="app-column-table">
@@ -180,6 +182,8 @@
                           ? $fileURL + item.image
                           : 'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png'
                       "
+                      ><template #placeholder>
+                        <div class="skeleton" /> </template
                     ></v-img>
                   </div>
                   <v-table class="app-column-table">
@@ -217,11 +221,27 @@
 
                   <v-table class="app-column-table">
                     <tr>
-                      <th>App Group</th>
+                      <th>Live</th>
                     </tr>
-                    <tr style="color: black; font-weight: 600">
+                    <tr>
                       <td>
-                        {{ item.group }}
+                        <v-btn-toggle
+                          mandatory
+                          style="
+                            font-size: 10px !important;
+                            font-weight: 200 !important;
+                            height: 22px !important;
+                            width: 54px !important;
+                          "
+                          class="d-flex align-center"
+                          v-model="item.isLive"
+                          rounded="5"
+                          @click="liveApp(item.id)"
+                        >
+                          <v-btn size="27" :value="true"> Yes </v-btn>
+
+                          <v-btn size="27" :value="false"> No </v-btn>
+                        </v-btn-toggle>
                       </td>
                     </tr>
                   </v-table>
@@ -232,10 +252,14 @@
                   </div>
                   <v-table class="app-column-table">
                     <tr>
+                      <th>App Group</th>
                       <th>User</th>
                       <th>Created on</th>
                     </tr>
                     <tr style="color: black; font-weight: 600">
+                      <td>
+                        {{ item.group }}
+                      </td>
                       <td>
                         {{ item.user }}
                       </td>
@@ -916,6 +940,7 @@ export default {
                   : item.favorite == 'Y'
                   ? true
                   : null,
+              isLive: item.live == 'N' ? false : item.live == 'Y' ? true : null,
               group: item.app_group_name || '',
               user: item.user_id || 1,
               created: item.dated || '',
@@ -1010,6 +1035,24 @@ export default {
           this.isSending = false;
         });
     },
+    liveApp(id) {
+      this.isSending = true;
+      axios
+        .get(`/app/live/${id}`)
+        .then((response) => {
+          const data = response.data;
+          this.successMessage = data.message;
+          this.isSuccess = true;
+          this.getAppData();
+        })
+        .catch((error) => {
+          // eslint-disable-next-line
+          console.log(error);
+        })
+        .finally(() => {
+          this.isSending = false;
+        });
+    },
   },
   components: { ImageUpload },
 };
@@ -1066,5 +1109,16 @@ export default {
 
 .app-input .v-input__control {
   height: 20px !important;
+}
+
+.skeleton {
+  width: 100%;
+  height: 100%;
+  border-radius: 0;
+
+  background: linear-gradient(-90deg, #f2f2f2 0%, #e1e1e1 50%, #f2f2f2 100%);
+  background-size: 400% 400%;
+  animation: skeleton 1.6s ease infinite;
+  margin: 0 auto;
 }
 </style>
