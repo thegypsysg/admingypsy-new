@@ -52,18 +52,6 @@
               density="compact"
               required
             ></v-text-field>
-            <v-autocomplete
-              density="compact"
-              :rules="rules.groupRules"
-              label="Select Skills Group"
-              placeholder="Type Skills Group"
-              :items="resource.group"
-              class="mt-1"
-              item-title="name"
-              item-value="id"
-              v-model="input.group"
-              variant="outlined"
-            ></v-autocomplete>
           </v-col>
           <v-col cols="12" md="4">
             <v-textarea
@@ -71,7 +59,7 @@
               v-model="input.desc"
               :rules="rules.descriptionRules"
               label="Description"
-              rows="3"
+              rows="2"
               variant="outlined"
               required
             ></v-textarea>
@@ -117,6 +105,32 @@
             </v-btn>
           </v-col>
         </v-row>
+        <v-row class="mt-n4">
+          <v-col cols="12" md="3">
+            <v-autocomplete
+              density="compact"
+              :rules="rules.groupRules"
+              label="Select Skills Group"
+              placeholder="Type Skills Group"
+              :items="resource.group"
+              class="mt-1"
+              item-title="name"
+              item-value="id"
+              v-model="input.group"
+              variant="outlined"
+            ></v-autocomplete>
+          </v-col>
+          <v-col cols="12" md="3">
+            <v-text-field
+              v-model="input.slug"
+              :rules="rules.slugRules"
+              label="Slug"
+              variant="outlined"
+              density="compact"
+              required
+            ></v-text-field>
+          </v-col>
+        </v-row>
       </v-container>
     </v-form>
     <v-sheet class="py-6 px-4 mt-4" border rounded width="100%">
@@ -140,6 +154,7 @@
                 <th class="text-left">Image</th>
                 <th class="text-left">Primary Skills</th>
                 <th class="text-left">Skills Group</th>
+                <th class="text-left">Slug</th>
                 <th class="text-left">Description</th>
                 <th class="text-left">Active</th>
                 <th class="text-left">Actions</th>
@@ -172,6 +187,9 @@
                 </td>
                 <td style="font-weight: 500 !important">
                   {{ item.group }}
+                </td>
+                <td style="color: #565656; font-weight: 500 !important">
+                  {{ item.slug }}
                 </td>
                 <td style="font-weight: 500 !important">
                   {{ item.desc }}
@@ -341,6 +359,7 @@ export default {
       primary: '',
       group: null,
       desc: '',
+      slug: '',
       image: null,
     },
     resource: {
@@ -363,6 +382,12 @@ export default {
         (value) => {
           if (value) return true;
           return 'Description is required.';
+        },
+      ],
+      slugRules: [
+        (value) => {
+          if (value) return true;
+          return 'Slug is required.';
         },
       ],
     },
@@ -521,6 +546,7 @@ export default {
         primary: user.primary,
         group: user.sgm_id,
         desc: user.desc,
+        slug: user.slug,
       };
     },
     cancelEdit() {
@@ -530,6 +556,7 @@ export default {
         primary: '',
         group: null,
         desc: '',
+        slug: '',
         image: null,
       };
     },
@@ -541,6 +568,7 @@ export default {
           sgm_id: this.input.group,
           name: this.input.primary,
           description: this.input.desc,
+          slug: this.input.slug,
         };
         if (this.input.image !== null) {
           payload['image'] = this.input.image;
@@ -553,9 +581,12 @@ export default {
             this.isSuccess = true;
             this.getPrimarySkillData();
             this.input = {
-              name: this.input.primary,
-              description: this.input.desc,
-              sgm_id: this.input.group,
+              id: 0,
+              primary: '',
+              group: null,
+              desc: '',
+              slug: '',
+              image: null,
             };
           })
           .catch((error) => {
@@ -581,6 +612,7 @@ export default {
           name: this.input.primary,
           description: this.input.desc,
           sgm_id: this.input.group,
+          slug: this.input.slug,
         };
         axios
           .post(`/skills/add`, payload)
@@ -594,6 +626,7 @@ export default {
               primary: '',
               group: null,
               desc: '',
+              slug: '',
               image: null,
             };
           })
@@ -670,6 +703,7 @@ export default {
                 primary: item.skills_name || '',
                 group: item.group_name || '',
                 desc: item.description || '',
+                slug: item.slug || '',
                 isActive:
                   item.active == 'N' ? false : item.active == 'Y' ? true : null,
               };
