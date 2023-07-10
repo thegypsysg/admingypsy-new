@@ -119,6 +119,7 @@
 
           <v-col cols="12" md="3">
             <v-combobox
+              clearable
               density="compact"
               :rules="rules.categoryRules"
               label="Category"
@@ -189,7 +190,7 @@
                   {{ item.brand_name }}
                 </td>
                 <td style="font-weight: 500 !important">
-                  {{ item.country }}
+                  {{ item.country_name }}
                 </td>
                 <td style="font-weight: 500 !important">
                   {{ item.category_name }}
@@ -208,6 +209,7 @@
                     class="d-flex align-center"
                     v-model="item.isActive"
                     rounded="5"
+                    @click="activeBrand(item.id)"
                   >
                     <v-btn size="27" :value="true"> Yes </v-btn>
 
@@ -225,6 +227,7 @@
                     class="d-flex align-center"
                     v-model="item.isWebsite"
                     rounded="5"
+                    @click="websiteBrand(item.id)"
                   >
                     <v-btn size="27" :value="true"> Yes </v-btn>
 
@@ -239,7 +242,7 @@
                           color="green"
                           variant="text"
                           v-bind="props"
-                          @click="editCategory(item)"
+                          @click="editBrands(item)"
                           icon="mdi-pencil-outline"
                         ></v-btn>
                       </template>
@@ -291,18 +294,18 @@
     <v-dialog persistent width="500" v-model="isDelete">
       <v-card>
         <v-card-title>Confirmation</v-card-title>
-        <v-card-text> Are you sure want to delete this category? </v-card-text>
+        <v-card-text> Are you sure want to delete this brand? </v-card-text>
         <v-card-actions>
           <v-spacer></v-spacer>
           <v-btn color="error" text @click="cancelDelete">No</v-btn>
-          <v-btn color="success" text @click="deleteCategory">Yes</v-btn>
+          <v-btn color="success" text @click="deleteBrands">Yes</v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
     <v-dialog persistent width="auto" v-model="isOpenImage">
       <v-card width="750">
         <v-card-title class="upload-title px-6 py-4">
-          Upload Image - Category</v-card-title
+          Upload Image - Brands</v-card-title
         >
         <v-card-text>
           <image-upload
@@ -340,7 +343,7 @@ import { setAuthHeader } from '@/util/axios';
 // import app from '@/util/eventBus';
 
 export default {
-  name: 'BoozardsCategory',
+  name: 'BoozardsBrands',
   data: () => ({
     // fileURL: 'https://admin1.the-gypsy.sg/img/app/',
     valid: false,
@@ -350,12 +353,14 @@ export default {
     isSuccess: false,
     isDelete: false,
     isDeleteLoading: false,
-    categoryIdToDelete: null,
+    brandsIdToDelete: null,
     tableHeaders: [{ text: 'Gambar', value: 'image' }],
     imageFile: [],
-    categoryDataToImage: {
-      id: 1,
-      category: '',
+    brandDataToImage: {
+      id: 0,
+      brand: '',
+      country: null,
+      category: null,
       desc: '',
     },
     isOpenImage: false,
@@ -432,12 +437,12 @@ export default {
     deleteImageFile() {
       this.isSending = true;
       axios
-        .delete(`/categories/${this.categoryDataToImage.id}/image`)
+        .delete(`/brands/${this.brandDataToImage.id}/image`)
         .then((response) => {
           const data = response.data;
           this.successMessage = data.message;
           this.isSuccess = true;
-          this.getCategory();
+          this.getBrands();
           // app.config.globalProperties.$eventBus.$emit('update-image');
         })
         .catch((error) => {
@@ -452,11 +457,14 @@ export default {
     },
     openImage(item) {
       this.isOpenImage = true;
-      this.categoryDataToImage = {
+      this.brandDataToImage = {
         id: item.id,
-        category: item.category_name,
+        brand: item.brand_name,
+        country: item.country_id,
+        category: item.category_id,
         desc: item.description,
       };
+
       this.imageFile =
         item.image != null
           ? [
@@ -474,22 +482,26 @@ export default {
     closeImage() {
       this.isOpenImage = false;
       this.imageFile = [];
-      this.categoryDataToImage = {
-        id: 1,
-        category: '',
+      this.brandDataToImage = {
+        id: 0,
+        brand: '',
+        country: null,
+        category: null,
         desc: '',
       };
     },
     saveImage() {
       this.isSending = true;
       const payload = {
-        category_id: this.categoryDataToImage.id,
-        category_name: this.categoryDataToImage.category,
-        description: this.categoryDataToImage.desc,
+        brand_id: this.brandDataToImage.id,
+        brand_name: this.brandDataToImage.brand,
+        country_id: this.brandDataToImage.country,
+        category_id: this.brandDataToImage.category,
+        description: this.brandDataToImage.desc,
         image: this.imageFile[0],
       };
       http
-        .post(`/categories/update`, payload, {
+        .post(`/brands/update`, payload, {
           headers: {
             'Content-Type': 'multipart/form-data',
           },
@@ -498,7 +510,7 @@ export default {
           const data = response.data;
           this.successMessage = data.message;
           this.isSuccess = true;
-          this.getCategory();
+          this.getBrands();
           // app.config.globalProperties.$eventBus.$emit('update-image');
         })
         .catch((error) => {
@@ -508,21 +520,25 @@ export default {
         .finally(() => {
           this.isEdit = false;
           this.isSending = false;
-          this.categoryDataToImage = {
-            id: 1,
-            category: '',
+          this.brandDataToImage = {
+            id: 0,
+            brand: '',
+            country: null,
+            category: null,
             desc: '',
           };
           this.isOpenImage = false;
           this.imageFile = [];
         });
     },
-    editCategory(category) {
+    editBrands(brand) {
       this.isEdit = true;
       this.input = {
-        id: category.id,
-        category: category.category_name,
-        desc: category.description,
+        id: brand.id,
+        brand: brand.brand_name,
+        country: brand.country_id,
+        category: brand.category_id,
+        desc: brand.description,
       };
     },
     cancelEdit() {
@@ -530,7 +546,9 @@ export default {
       this.input = {
         id: 0,
         image: null,
-        category: '',
+        brand: '',
+        country: null,
+        category: null,
         desc: '',
       };
     },
@@ -538,24 +556,28 @@ export default {
       if (this.valid) {
         this.isSending = true;
         const payload = {
-          category_id: this.input.id,
-          category_name: this.input.category,
+          brand_id: this.input.id,
+          brand_name: this.input.brand,
+          country_id: this.input.country.id,
+          category_id: this.input.category.value,
           description: this.input.desc,
         };
         if (this.input.image !== null) {
           payload['image'] = this.input.image;
         }
         axios
-          .post(`/categories/update`, payload)
+          .post(`/brands/update`, payload)
           .then((response) => {
             const data = response.data;
             this.successMessage = data.message;
             this.isSuccess = true;
-            this.getCategory();
+            this.getBrands();
             this.input = {
               id: 0,
               image: null,
-              category: '',
+              brand: '',
+              country: null,
+              category: null,
               desc: '',
             };
           })
@@ -573,23 +595,27 @@ export default {
       if (this.valid) {
         this.isSending = true;
         const payload = {
-          category_name: this.input.category,
+          brand_name: this.input.brand,
+          country_id: this.input.country.id,
+          category_id: this.input.category.value,
           description: this.input.desc,
         };
         if (this.input.image !== null) {
           payload['image'] = this.input.image;
         }
         axios
-          .post(`/categories`, payload)
+          .post(`/brands`, payload)
           .then((response) => {
             const data = response.data;
             this.successMessage = data.message;
             this.isSuccess = true;
-            this.getCategory();
+            this.getBrands();
             this.input = {
               id: 0,
               image: null,
-              category: '',
+              brand: '',
+              country: null,
+              category: null,
               desc: '',
             };
           })
@@ -603,26 +629,26 @@ export default {
       }
     },
     cancelDelete() {
-      this.categoryIdToDelete = null;
+      this.brandsIdToDelete = null;
       this.isDelete = false;
     },
     openDeleteConfirm(itemId) {
-      this.categoryIdToDelete = itemId;
+      this.brandsIdToDelete = itemId;
       this.isDelete = true;
     },
     cancelConfirmation() {
-      this.categoryIdToDelete = null;
+      this.brandsIdToDelete = null;
       this.isDelete = false;
     },
-    deleteCategory() {
+    deleteBrands() {
       this.isDeleteLoading = true;
       axios
-        .delete(`/categories/${this.categoryIdToDelete}`)
+        .delete(`/brands/${this.brandsIdToDelete}`)
         .then((response) => {
           const data = response.data;
           this.successMessage = data.message;
           this.isSuccess = true;
-          this.getCategory();
+          this.getBrands();
         })
         .catch((error) => {
           // eslint-disable-next-line
@@ -630,45 +656,41 @@ export default {
         })
         .finally(() => {
           this.isDeleteLoading = false;
-          this.categoryIdToDelete = null;
+          this.brandsIdToDelete = null;
           this.isDelete = false;
         });
     },
     getBrands() {
-      this.items = [
-        {
-          id: 1,
-          image: null,
-          brand_name: 'Chivas',
-          country: 'Scotland',
-          category_name: 'Whisky',
-          description: 'Chivas 18 years old, 21 years old',
-          isActive: false,
-          isWebsite: false,
-        },
-      ];
-      //  this.isLoading = true;
-      //  axios
-      //  .get(`/categories`)
-      //  .then((response) => {
-      //      const data = response.data.data;
-      //      // console.log(data);
-      //      this.resource.category = data
-      //        .sort((a, b) => a.category_name.localeCompare(b.category_name))
-      //        .map((item) => {
-      //          return {
-      //            name: item.category_name || '',
-      //            value: item.category_name || '',
-      //          };
-      //        });
-      //    })
-      //    .catch((error) => {
-      //      // eslint-disable-next-line
-      //      console.log(error);
-      //    })
-      //    .finally(() => {
-      //      this.isLoading = false;
-      //    });
+      this.isLoading = true;
+      axios
+        .get(`/brands`)
+        .then((response) => {
+          const data = response.data.data;
+          // console.log(data);
+          this.items = data.map((item) => {
+            return {
+              id: item.brand_id || 1,
+              image: item.image || null,
+              brand_name: item.brand_name || '',
+              country_id: item.country_id || 1,
+              country_name: item.country.country_name || '',
+              category_id: item.category_id || 1,
+              category_name: item.category.category_name || '',
+              description: item.description || '',
+              isActive:
+                item.active == 'N' ? false : item.active == 'Y' ? true : null,
+              isWebsite:
+                item.website == 'N' ? false : item.website == 'Y' ? true : null,
+            };
+          });
+        })
+        .catch((error) => {
+          // eslint-disable-next-line
+          console.log(error);
+        })
+        .finally(() => {
+          this.isLoading = false;
+        });
     },
     getCategory() {
       this.isLoading = true;
@@ -682,7 +704,7 @@ export default {
             .map((item) => {
               return {
                 name: item.category_name || '',
-                value: item.category_name || '',
+                value: item.category_id || 1,
               };
             });
         })
@@ -709,6 +731,43 @@ export default {
         .catch((error) => {
           // eslint-disable-next-line
           console.log(error);
+        });
+    },
+
+    activeBrand(id) {
+      this.isSending = true;
+      axios
+        .get(`/brands/toggle-active/${id}`)
+        .then((response) => {
+          const data = response.data;
+          this.successMessage = data.message;
+          this.isSuccess = true;
+          this.getBrands();
+        })
+        .catch((error) => {
+          // eslint-disable-next-line
+          console.log(error);
+        })
+        .finally(() => {
+          this.isSending = false;
+        });
+    },
+    websiteBrand(id) {
+      this.isSending = true;
+      axios
+        .get(`/brands/toggle-show-in-website/${id}`)
+        .then((response) => {
+          const data = response.data;
+          this.successMessage = data.message;
+          this.isSuccess = true;
+          this.getBrands();
+        })
+        .catch((error) => {
+          // eslint-disable-next-line
+          console.log(error);
+        })
+        .finally(() => {
+          this.isSending = false;
         });
     },
   },
