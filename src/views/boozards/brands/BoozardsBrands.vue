@@ -536,8 +536,8 @@ export default {
       this.input = {
         id: brand.id,
         brand: brand.brand_name,
-        country: brand.country_id,
-        category: brand.category_id,
+        country: brand.country_name,
+        category: brand.category_name,
         desc: brand.description,
       };
     },
