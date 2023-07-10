@@ -1038,7 +1038,7 @@ export default {
     liveApp(id) {
       this.isSending = true;
       axios
-        .get(`/app/live/${id}`)
+        .get(`/app/toggle-live/${id}`)
         .then((response) => {
           const data = response.data;
           this.successMessage = data.message;
