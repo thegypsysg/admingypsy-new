@@ -32,25 +32,11 @@
             <v-text-field
               v-model="input.name"
               :rules="rules.nameRules"
-              label="Employer Name"
+              label="Partner Name"
               variant="outlined"
               density="compact"
               required
             ></v-text-field>
-            <v-combobox
-              density="compact"
-              :rules="rules.typeRules"
-              label="Employer Type"
-              placeholder="Type Employer Type"
-              :items="resource.type"
-              class="mt-1"
-              item-title="name"
-              item-value="id"
-              v-model="input.type"
-              variant="outlined"
-            ></v-combobox>
-          </v-col>
-          <v-col cols="12" md="3">
             <v-combobox
               density="compact"
               :rules="rules.countryRules"
@@ -58,33 +44,9 @@
               placeholder="Type Country"
               :items="resource.country"
               item-title="name"
+              class="mt-1"
               item-value="id"
               v-model="input.country"
-              variant="outlined"
-            ></v-combobox>
-            <v-combobox
-              density="compact"
-              :rules="rules.cityRules"
-              label="Select City"
-              placeholder="Type City"
-              :items="resource.city"
-              class="mt-1"
-              item-title="name"
-              item-value="id"
-              v-model="input.city"
-              variant="outlined"
-            ></v-combobox>
-          </v-col>
-          <v-col cols="12" md="3">
-            <v-combobox
-              density="compact"
-              :rules="rules.townRules"
-              label="Select Town"
-              placeholder="Type Town"
-              :items="resource.town"
-              item-title="name"
-              item-value="id"
-              v-model="input.town"
               variant="outlined"
             ></v-combobox>
             <v-combobox
@@ -97,6 +59,56 @@
               item-title="name"
               item-value="id"
               v-model="input.zone"
+              variant="outlined"
+            ></v-combobox>
+          </v-col>
+          <v-col cols="12" md="3">
+            <v-combobox
+              density="compact"
+              :rules="rules.industryRules"
+              label="Industry"
+              placeholder="Type Industry"
+              :items="resource.industry"
+              item-title="name"
+              item-value="id"
+              v-model="input.industry"
+              variant="outlined"
+            ></v-combobox>
+            <v-combobox
+              density="compact"
+              :rules="rules.cityRules"
+              label="Select City"
+              placeholder="Type City"
+              :items="resource.city"
+              item-title="name"
+              item-value="id"
+              class="mt-1"
+              v-model="input.city"
+              variant="outlined"
+            ></v-combobox>
+          </v-col>
+          <v-col cols="12" md="3">
+            <v-combobox
+              density="compact"
+              :rules="rules.subIndustryRules"
+              label="Sub Industry"
+              placeholder="Type Sub Industry"
+              :items="resource.subIndustry"
+              item-title="name"
+              item-value="id"
+              v-model="input.subIndustry"
+              variant="outlined"
+            ></v-combobox>
+            <v-combobox
+              density="compact"
+              :rules="rules.townRules"
+              label="Select Town"
+              placeholder="Type Town"
+              :items="resource.town"
+              item-title="name"
+              item-value="id"
+              class="mt-1"
+              v-model="input.town"
               variant="outlined"
             ></v-combobox>
           </v-col>
@@ -166,12 +178,11 @@
                 <th class="text-left">Id</th>
                 <th class="text-left">Logo</th>
                 <th class="text-left">Image</th>
-                <th class="text-left">Employer Name</th>
+                <th class="text-left">Partner Name</th>
                 <th class="text-left">Country</th>
                 <th class="text-left">City</th>
                 <th class="text-left">Town</th>
-                <th class="text-left">Active</th>
-                <th class="text-left">Favorite</th>
+                <th class="text-left">Zone</th>
                 <th class="text-left">Actions</th>
               </tr>
             </thead>
@@ -210,39 +221,9 @@
                     {{ item.town }}
                   </td>
                   <td>
-                    <v-btn-toggle
-                      style="
-                        font-size: 10px !important;
-                        font-weight: 200 !important;
-                        height: 22px !important;
-                        width: 54px !important;
-                      "
-                      class="d-flex align-center"
-                      v-model="item.isActive"
-                      rounded="5"
-                    >
-                      <v-btn size="27" :value="true"> Yes </v-btn>
-
-                      <v-btn size="27" :value="false"> No </v-btn>
-                    </v-btn-toggle>
+                    {{ item.zone }}
                   </td>
-                  <td>
-                    <v-btn-toggle
-                      style="
-                        font-size: 10px !important;
-                        font-weight: 200 !important;
-                        height: 22px !important;
-                        width: 54px !important;
-                      "
-                      class="d-flex align-center"
-                      v-model="item.isFav"
-                      rounded="5"
-                    >
-                      <v-btn size="27" :value="true"> Yes </v-btn>
 
-                      <v-btn size="27" :value="false"> No </v-btn>
-                    </v-btn-toggle>
-                  </td>
                   <td>
                     <div class="d-flex">
                       <v-tooltip location="top">
@@ -270,6 +251,63 @@
                         </template>
                         <span>Delete</span>
                       </v-tooltip>
+                    </div>
+                  </td>
+                </tr>
+
+                <tr>
+                  <td colspan="10" style="border: none !important">
+                    <div class="d-flex justify-center" style="gap: 20px">
+                      <v-table class="text-left">
+                        <tr>
+                          <th class="pt-2">Industry</th>
+                          <th class="pt-2">Sub Industry</th>
+                          <th class="pt-2">Active</th>
+                          <th class="pt-2">Favorite</th>
+                        </tr>
+                        <tr>
+                          <td class="pr-14 pt-2 text-grey">
+                            {{ item.industry }}
+                          </td>
+                          <td class="pr-6 pt-2 text-grey">
+                            {{ item.subIndustry }}
+                          </td>
+                          <td class="pr-6 pt-2">
+                            <v-btn-toggle
+                              style="
+                                font-size: 10px !important;
+                                font-weight: 200 !important;
+                                height: 22px !important;
+                                width: 54px !important;
+                              "
+                              class="d-flex align-center"
+                              v-model="item.isActive"
+                              rounded="5"
+                            >
+                              <v-btn size="27" :value="true"> Yes </v-btn>
+
+                              <v-btn size="27" :value="false"> No </v-btn>
+                            </v-btn-toggle>
+                          </td>
+                          <td class="pr-6 pt-2">
+                            <v-btn-toggle
+                              style="
+                                font-size: 10px !important;
+                                font-weight: 200 !important;
+                                height: 22px !important;
+                                width: 54px !important;
+                              "
+                              class="d-flex align-center"
+                              v-model="item.isFav"
+                              rounded="5"
+                            >
+                              <v-btn size="27" :value="true"> Yes </v-btn>
+
+                              <v-btn size="27" :value="false"> No </v-btn>
+                            </v-btn-toggle>
+                          </td>
+                        </tr>
+                      </v-table>
                     </div>
                   </td>
                 </tr>
@@ -408,21 +446,24 @@ export default {
     input: {
       id: 0,
       name: '',
-      type: null,
+      industry: null,
+      subIndustry: null,
       country: null,
       city: null,
       town: null,
       zone: null,
     },
     resource: {
-      type: [
+      industry: [
         {
-          name: 'Super Admin',
+          name: '',
           id: 1,
         },
+      ],
+      subIndustry: [
         {
-          name: 'Admin',
-          id: 2,
+          name: '',
+          id: 1,
         },
       ],
       country: [
@@ -485,10 +526,16 @@ export default {
           return 'Employer name is required.';
         },
       ],
-      typeRules: [
+      industryRules: [
         (value) => {
           if (value) return true;
-          return 'Employer type is required.';
+          return 'Industry is required.';
+        },
+      ],
+      subIndustryRules: [
+        (value) => {
+          if (value) return true;
+          return 'Sub Industry is required.';
         },
       ],
       countryRules: [
@@ -529,11 +576,13 @@ export default {
         city: 'Singapore',
         town: 'Woodlands',
         zone: 'North',
+        industry: 'Healthcare',
+        subIndustry: 'Private Hospital',
         isActive: true,
         isFav: true,
       },
       {
-        id: 2,
+        id: 1,
         logo: '@/assets/logo-img.jpeg',
         image: '@/assets/other-voucher-5.jpeg',
         name: 'Changi General Hospital',
@@ -542,6 +591,8 @@ export default {
         city: 'Singapore',
         town: 'Woodlands',
         zone: 'North',
+        industry: 'Healthcare',
+        subIndustry: 'Private Hospital',
         isActive: true,
         isFav: true,
       },
@@ -892,6 +943,10 @@ export default {
 .country-table-body {
   margin-top: 50px !important;
   margin-bottom: 50px !important;
+}
+
+.country-table-body td {
+  border-bottom: none !important;
 }
 
 .upload-title {
