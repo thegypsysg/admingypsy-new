@@ -76,7 +76,30 @@
               required
             ></v-text-field>
           </v-col>
-          <v-col class="ml-4" cols="12" md="2">
+        </v-row>
+        <v-row class="mt-n5">
+          <v-col cols="12" md="3">
+            <v-text-field
+              v-model="input.contactedOn"
+              :rules="rules.contactedOnRules"
+              label="Contacted on"
+              variant="outlined"
+              density="compact"
+              required
+            ></v-text-field>
+          </v-col>
+          <v-col cols="12" md="4">
+            <v-textarea
+              v-model="input.remarks"
+              :rules="rules.remarksRules"
+              label="Remarks"
+              rows="2"
+              variant="outlined"
+              density="compact"
+              required
+            ></v-textarea>
+          </v-col>
+          <v-col cols="12" md="2">
             <v-btn
               :prepend-icon="
                 isEdit
@@ -98,14 +121,13 @@
 
               {{ isEdit ? 'Save' : 'Add' }}
             </v-btn>
-
             <v-btn
               v-if="isEdit"
               prepend-icon="mdi-account-multiple-remove"
               color="red"
               style="text-transform: none"
               variant="flat"
-              class="w-100 mt-6"
+              class="w-100 mt-2"
               @click="cancelEdit"
               :disabled="isSending"
             >
@@ -125,18 +147,29 @@
           <v-table class="country-table">
             <thead>
               <tr>
+                <th class="text-left">Visiting Card</th>
                 <th class="text-left">Contact Person</th>
                 <th class="text-left">Position Held</th>
                 <th class="text-left">Telephone</th>
                 <th class="text-left">Mobile</th>
                 <th class="text-left">What'sApp</th>
-                <th class="text-left">Emmail</th>
                 <th class="text-left">Actions</th>
               </tr>
             </thead>
             <tbody>
               <template v-for="item in filteredItems" :key="item.id">
                 <tr class="country-table-body">
+                  <td>
+                    <v-img
+                      height="40"
+                      width="65"
+                      @click="openImage(item.image, item.id)"
+                      style="cursor: pointer"
+                      src="@/assets/other-voucher-img-5.png"
+                      ><template #placeholder>
+                        <div class="skeleton" /> </template
+                    ></v-img>
+                  </td>
                   <td>{{ item.contact }}</td>
                   <td>
                     {{ item.position }}
@@ -149,9 +182,6 @@
                   </td>
                   <td>
                     {{ item.whatsapp }}
-                  </td>
-                  <td>
-                    {{ item.email }}
                   </td>
                   <td>
                     <div class="d-flex">
@@ -183,6 +213,32 @@
                     </div>
                   </td>
                 </tr>
+
+                <tr>
+                  <td></td>
+                  <td
+                    class="pb-2"
+                    colspan="6"
+                    style="border-top: none !important"
+                  >
+                    <div class="d-flex" style="gap: 20px">
+                      <v-table class="text-left">
+                        <tr>
+                          <th class="pt-2">Email</th>
+                          <th class="pt-2">Contacted On</th>
+                        </tr>
+                        <tr>
+                          <td class="pr-14 pt-2">
+                            {{ item.email }}
+                          </td>
+                          <td class="pr-6 pt-2">
+                            {{ item.contactedOn }}
+                          </td>
+                        </tr>
+                      </v-table>
+                    </div>
+                  </td>
+                </tr>
               </template>
               <tr v-if="isLoading">
                 <td :colspan="6" class="text-center">
@@ -211,10 +267,51 @@
         </v-btn>
       </template>
     </v-snackbar>
+    <v-dialog persistent width="500" v-model="isDelete">
+      <v-card>
+        <v-card-title>Confirmation</v-card-title>
+        <v-card-text> Are you sure want to delete this user? </v-card-text>
+        <v-card-actions>
+          <v-btn color="error" text @click="cancelDelete">No</v-btn>
+          <v-btn color="success" text @click="deleteUser">Yes</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+    <v-dialog persistent width="auto" v-model="isOpenImage">
+      <v-card width="750">
+        <v-card-title class="upload-title px-6 py-4">
+          Upload Image - User</v-card-title
+        >
+        <v-card-text>
+          <image-upload
+            :image-file="imageFile"
+            @update-image-file="updateImageFile"
+            @delete-image-file="deleteImageFile"
+          />
+        </v-card-text>
+        <v-card-actions class="mt-16">
+          <v-spacer></v-spacer>
+          <v-btn
+            style="text-transform: none"
+            color="error"
+            text
+            @click="closeImage"
+            >Cancel</v-btn
+          >
+          <v-btn
+            style="background-color: #9ddcff; text-transform: none"
+            color="black"
+            @click="saveImage()"
+            >Save</v-btn
+          >
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
   </v-container>
 </template>
 
 <script>
+import ImageUpload from '@/components/ImageUpload.vue';
 import axios from '@/util/axios';
 // import http from 'axios';
 import { setAuthHeader } from '@/util/axios';
@@ -245,6 +342,8 @@ export default {
       mobile: '',
       email: '',
       whatsapp: '',
+      contactedOn: '',
+      remarks: '',
     },
     rules: {
       contactRules: [
@@ -287,6 +386,18 @@ export default {
           return "What'sApp is required.";
         },
       ],
+      contactedOnRules: [
+        (value) => {
+          if (value) return true;
+          return 'Contacted on is required.';
+        },
+      ],
+      remarksRules: [
+        (value) => {
+          if (value) return true;
+          return 'Remarks is required.';
+        },
+      ],
       // websiteRules: [
       //   (value) => !!value || 'Required.',
       //   (value) => {
@@ -301,21 +412,25 @@ export default {
     itemsTry: [
       {
         id: 1,
+        image: '@/assets/other-voucher-5.jpeg',
         contact: 'Charlton Mendes',
         position: 'HR Manager',
         telephone: '68352000',
         mobile: '91992000',
         whatsapp: '91992000',
         email: 'charltonmendes@gmail.com',
+        contactedOn: '08/07/2023',
       },
       {
         id: 2,
+        image: '@/assets/other-voucher-5.jpeg',
         contact: 'Charlton Mendes',
         position: 'HR Manager',
         telephone: '68352000',
         mobile: '91992000',
         whatsapp: '91992000',
         email: 'charltonmendes@gmail.com',
+        contactedOn: '08/07/2023',
       },
     ],
   }),
@@ -651,6 +766,7 @@ export default {
         });
     },
   },
+  components: { ImageUpload },
 };
 </script>
 
@@ -664,6 +780,10 @@ export default {
   margin-top: 50px !important;
   margin-bottom: 50px !important;
   font-weight: 500;
+}
+
+.country-table-body td {
+  border-bottom: none !important;
 }
 
 .upload-title {
@@ -683,5 +803,16 @@ export default {
 .v-btn-toggle .v-btn--active {
   background-color: #2196f3 !important;
   color: #fff !important;
+}
+
+.skeleton {
+  width: 100%;
+  height: 100%;
+  border-radius: 0;
+
+  background: linear-gradient(-90deg, #f2f2f2 0%, #e1e1e1 50%, #f2f2f2 100%);
+  background-size: 400% 400%;
+  animation: skeleton 1.6s ease infinite;
+  margin: 0 auto;
 }
 </style>

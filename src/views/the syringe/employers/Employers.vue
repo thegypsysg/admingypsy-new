@@ -197,6 +197,8 @@
                       @click="openImage(item.logo, item.id)"
                       style="cursor: pointer"
                       src="@/assets/logo-img.png"
+                      ><template #placeholder>
+                        <div class="skeleton" /> </template
                     ></v-img>
                   </td>
                   <td>
@@ -206,6 +208,8 @@
                       @click="openImage(item.image, item.id)"
                       style="cursor: pointer"
                       src="@/assets/other-voucher-img-5.png"
+                      ><template #placeholder>
+                        <div class="skeleton" /> </template
                     ></v-img>
                   </td>
                   <td>
@@ -966,5 +970,16 @@ export default {
 .v-btn-toggle .v-btn--active {
   background-color: #2196f3 !important;
   color: #fff !important;
+}
+
+.skeleton {
+  width: 100%;
+  height: 100%;
+  border-radius: 0;
+
+  background: linear-gradient(-90deg, #f2f2f2 0%, #e1e1e1 50%, #f2f2f2 100%);
+  background-size: 400% 400%;
+  animation: skeleton 1.6s ease infinite;
+  margin: 0 auto;
 }
 </style>
