@@ -19,6 +19,10 @@ export default createStore({
             ],
           },
           {
+            title: 'Industry Master',
+            path: '/industry_master',
+          },
+          {
             title: 'Manage Countries',
             path: '/country-master',
           },
