@@ -19,18 +19,34 @@
       <v-container>
         <v-row>
           <v-col cols="12" md="3">
-            <h4>Industry</h4>
+            <h4>Sub Industry Name</h4>
             <v-text-field
-              v-model="input.industry"
-              :rules="rules.industryRules"
-              label="Type Industry Name"
+              v-model="input.subIndustry"
+              :rules="rules.subIndustryRules"
+              label="Type Sub Industry Name"
               variant="outlined"
               density="compact"
               required
-              class="mt-2"
+              class="mt-4"
             ></v-text-field>
           </v-col>
-          <v-col class="mt-8" cols="12" md="2">
+        </v-row>
+        <v-row class="mt-n4">
+          <v-col cols="12" md="3">
+            <v-combobox
+              clearable
+              density="compact"
+              :rules="rules.industryRules"
+              label="Select Industry"
+              placeholder="Type a Industry"
+              :items="resource.industry"
+              item-title="name"
+              item-value="id"
+              v-model="input.industry"
+              variant="outlined"
+            ></v-combobox>
+          </v-col>
+          <v-col cols="12" md="2">
             <v-btn
               :prepend-icon="
                 isEdit
@@ -53,7 +69,7 @@
               {{ isEdit ? 'Save' : 'Add' }}
             </v-btn>
           </v-col>
-          <v-col class="mt-8" v-if="isEdit" cols="12" md="2">
+          <v-col v-if="isEdit" cols="12" md="2">
             <v-btn
               prepend-icon="mdi-account-multiple-remove"
               color="red"
@@ -91,6 +107,7 @@
             <thead>
               <tr>
                 <th class="text-left">Id</th>
+                <th class="text-left">Sub Industry Name</th>
                 <th class="text-left">Industry Name</th>
                 <th class="text-left">Actions</th>
               </tr>
@@ -103,6 +120,9 @@
               >
                 <td style="font-weight: 500 !important">
                   {{ item.id }}
+                </td>
+                <td style="font-weight: 500 !important">
+                  {{ item.subIndustry }}
                 </td>
                 <td style="font-weight: 500 !important">
                   {{ item.industry }}
@@ -168,7 +188,9 @@
     <v-dialog persistent width="500" v-model="isDelete">
       <v-card>
         <v-card-title>Confirmation</v-card-title>
-        <v-card-text> Are you sure want to delete this industry? </v-card-text>
+        <v-card-text>
+          Are you sure want to delete this sub industry?
+        </v-card-text>
         <v-card-actions>
           <v-btn color="error" text @click="cancelDelete">No</v-btn>
           <v-btn color="success" text @click="deleteUser">Yes</v-btn>
@@ -234,7 +256,16 @@ export default {
     successMessage: '',
     input: {
       id: 0,
-      industry: '',
+      subIndustry: '',
+      industry: null,
+    },
+    resource: {
+      industry: [
+        {
+          id: 8,
+          name: 'Healthcare',
+        },
+      ],
     },
     rules: {
       industryRules: [
@@ -243,12 +274,19 @@ export default {
           return 'Industry is requred.';
         },
       ],
+      subIndustryRules: [
+        (value) => {
+          if (value) return true;
+          return 'Sub Industry is requred.';
+        },
+      ],
     },
     search: '',
     items: [],
     itemsTry: [
       {
         id: 8,
+        subIndustry: 'Private Hospital',
         industry: 'Healthcare',
       },
     ],
@@ -267,8 +305,10 @@ export default {
         return this.itemsTry;
       }
       const searchTextLower = this.search.toLowerCase();
-      return this.itemsTry.filter((item) =>
-        item.zone.toLowerCase().includes(searchTextLower)
+      return this.itemsTry.filter(
+        (item) =>
+          item.subIndustry.toLowerCase().includes(searchTextLower) ||
+          item.industry.toLowerCase().includes(searchTextLower)
       );
     },
   },
@@ -373,14 +413,16 @@ export default {
       this.isEdit = true;
       this.input = {
         id: user.id,
-        zone: user.zone,
+        subIndustry: user.subIndustry,
+        industry: user.industry,
       };
     },
     cancelEdit() {
       this.isEdit = false;
       this.input = {
         id: 0,
-        zone: '',
+        subIndustry: '',
+        industry: null,
       };
     },
     saveEdit() {
