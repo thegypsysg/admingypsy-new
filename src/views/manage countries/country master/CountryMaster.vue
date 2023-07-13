@@ -46,8 +46,6 @@
               label="Select Country"
               placeholder="Type a Country"
               :items="resource.country"
-              item-title="name"
-              item-value="id"
               v-model="input.country"
               variant="outlined"
             ></v-combobox>
@@ -64,14 +62,19 @@
           </v-col>
 
           <v-col cols="12" md="3">
-            <v-text-field
+            <v-combobox
               v-model="input.national"
               :rules="rules.nationalRules"
               label="Enter Nationality"
-              density="compact"
               variant="outlined"
+              density="compact"
               required
-            ></v-text-field>
+              clearable
+              placeholder="Type a Nationality"
+              :items="resource.nationality"
+              item-title="name"
+              item-value="name"
+            ></v-combobox>
           </v-col>
         </v-row>
         <v-row class="mt-n2">
@@ -156,7 +159,11 @@
                     width="65"
                     @click="openImage(item.image, item.id)"
                     style="cursor: pointer"
-                    src="@/assets/indonesia.jpg"
+                    :src="
+                      item.image != null
+                        ? $fileURL + item.image
+                        : 'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png'
+                    "
                   ></v-img>
                 </td>
                 <td style="font-weight: 500 !important">
@@ -328,11 +335,12 @@ export default {
       id: 0,
       image: null,
       country: null,
-      code: '',
-      national: '',
+      code: null,
+      national: null,
     },
     resource: {
       country: [],
+      nationality: [],
       role: [
         {
           name: 'Super Admin',
@@ -374,51 +382,33 @@ export default {
     },
     search: '',
     items: [],
-    itemsTry: [
-      {
-        id: 1,
-        image: '@/assets/indonesia.jpeg',
-        country: 'Indonesia',
-        code: '+62',
-        national: 'Indonesian',
-        isActive: true,
-        isFav: true,
-      },
-      {
-        id: 1,
-        image: '@/assets/indonesia.jpeg',
-        country: 'Indonesia',
-        code: '+62',
-        national: 'Indonesian',
-        isActive: true,
-        isFav: true,
-      },
-      {
-        id: 1,
-        image: '@/assets/indonesia.jpeg',
-        country: 'Indonesia',
-        code: '+62',
-        national: 'Indonesian',
-        isActive: true,
-        isFav: true,
-      },
-    ],
+    // itemsTry: [
+    //   {
+    //     id: 1,
+    //     image: '@/assets/indonesia.jpeg',
+    //     country: 'Indonesia',
+    //     code: '+62',
+    //     national: 'Indonesian',
+    //     isActive: true,
+    //     isFav: true,
+    //   },
+    // ],
   }),
   created() {
     const token = JSON.parse(localStorage.getItem('token'));
     setAuthHeader(token);
   },
   mounted() {
-    // this.getUserData();
+    this.getCountryData();
     this.getCountry();
   },
   computed: {
     filteredItems() {
       if (!this.search) {
-        return this.itemsTry;
+        return this.items;
       }
       const searchTextLower = this.search.toLowerCase();
-      return this.itemsTry.filter((item) =>
+      return this.items.filter((item) =>
         item.country.toLowerCase().includes(searchTextLower)
       );
     },
@@ -445,7 +435,7 @@ export default {
       //     const data = response.data;
       //     this.successMessage = data.message;
       //     this.isSuccess = true;
-      //     this.getUserData();
+      //     this.getCountryData();
       //     // app.config.globalProperties.$eventBus.$emit('update-image');
       //   })
       //   .catch((error) => {
@@ -505,7 +495,7 @@ export default {
       //     const data = response.data;
       //     this.successMessage = data.message;
       //     this.isSuccess = true;
-      //     this.getUserData();
+      //     this.getCountryData();
       //     // app.config.globalProperties.$eventBus.$emit('update-image');
       //   })
       //   .catch((error) => {
@@ -535,8 +525,8 @@ export default {
         id: 1,
         image: null,
         country: null,
-        code: '',
-        national: '',
+        code: null,
+        national: null,
       };
     },
     saveEdit() {
@@ -563,7 +553,7 @@ export default {
         //     const data = response.data;
         //     this.successMessage = data.message;
         //     this.isSuccess = true;
-        //     this.getUserData();
+        //     this.getCountryData();
         //     this.input = {
         //       id: 0,
         //       username: '',
@@ -587,40 +577,35 @@ export default {
       if (this.valid) {
         this.isSending = true;
         const payload = {
-          name: this.input.username,
-          email: this.input.email,
-          role: this.input.role,
-          country_id: this.input.country,
+          country_name: this.input.country,
+          country_code: this.input.code,
+          nationality: this.input.national,
         };
         if (this.input.image !== null) {
-          payload['file'] = this.input.image;
+          payload['flag'] = this.input.image;
         }
-        setTimeout(() => {
-          console.log(payload);
-          this.isSending = false;
-        }, 2000);
-        // axios
-        //   .post(`/register`, payload)
-        //   .then((response) => {
-        //     const data = response.data;
-        //     this.successMessage = data.message;
-        //     this.isSuccess = true;
-        //     this.getUserData();
-        //     this.input = {
-        //       id: 0,
-        //       image: null,
-        //       country: null,
-        //       code: '',
-        //       national: '',
-        //     };
-        //   })
-        //   .catch((error) => {
-        //     // eslint-disable-next-line
-        //     console.log(error);
-        //   })
-        //   .finally(() => {
-        //     this.isSending = false;
-        //   });
+        axios
+          .post(`/countries`, payload)
+          .then((response) => {
+            const data = response.data;
+            this.successMessage = data.message;
+            this.isSuccess = true;
+            this.getCountryData();
+            this.input = {
+              id: 0,
+              image: null,
+              country: null,
+              code: null,
+              national: null,
+            };
+          })
+          .catch((error) => {
+            // eslint-disable-next-line
+            console.log(error);
+          })
+          .finally(() => {
+            this.isSending = false;
+          });
       }
     },
     cancelDelete() {
@@ -651,7 +636,7 @@ export default {
       //     const data = response.data;
       //     this.successMessage = data.message;
       //     this.isSuccess = true;
-      //     this.getUserData();
+      //     this.getCountryData();
       //   })
       //   .catch((error) => {
       //     // eslint-disable-next-line
@@ -663,60 +648,48 @@ export default {
       //     this.isDelete = false;
       //   });
     },
-    getUserData() {
+    getCountryData() {
       this.isLoading = true;
-      setTimeout(() => {
-        console.log('OK');
-        this.isLoading = false;
-      }, 2000);
-      // axios
-      //   .get(`/user`)
-      //   .then((response) => {
-      //     const data = response.data.data;
-      //     // console.log(data);
-      //     this.items = data.map((item) => {
-      //       return {
-      //         id: item.id || 1,
-      //         name: item.name || '',
-      //         email: item.email || '',
-      //         registered_on: item.registered_on || '',
-      //         role: item.role || '',
-      //         roleName:
-      //           item.role == 'S'
-      //             ? 'Superadmin'
-      //             : item.role == 'A'
-      //             ? 'Admin'
-      //             : '',
-      //         image: item.image || null,
-      //         country_id: item.country_id || 1,
-      //         country_name: item.country_name || '',
-      //       };
-      //     });
-
-      //     app.config.globalProperties.$eventBus.$emit(
-      //       'update-image',
-      //       this.items
-      //     );
-      //   })
-      //   .catch((error) => {
-      //     // eslint-disable-next-line
-      //     console.log(error);
-      //   })
-      //   .finally(() => {
-      //     this.isLoading = false;
-      //   });
+      axios
+        .get(`/countries`)
+        .then((response) => {
+          const data = response.data.data;
+          console.log(data);
+          this.items = data.map((item) => {
+            return {
+              id: item.country_id || 1,
+              image: item.flag || null,
+              country: item.country_name || '',
+              code: item.country_code || '',
+              national: item.nationality || '',
+              isActive:
+                item.active == 'N' ? false : item.active == 'Y' ? true : null,
+              isFav:
+                item.favorite == 'N'
+                  ? false
+                  : item.favorite == 'Y'
+                  ? true
+                  : null,
+            };
+          });
+          this.resource.nationality = data
+            .filter((d) => d.nationality !== '')
+            .map((item) => item.nationality);
+        })
+        .catch((error) => {
+          // eslint-disable-next-line
+          console.log(error);
+        })
+        .finally(() => {
+          this.isLoading = false;
+        });
     },
     getCountry() {
       axios
         .get(`/country`)
         .then((response) => {
           const data = response.data.data;
-          this.resource.country = data.map((country) => {
-            return {
-              id: country.country_id,
-              name: country.country_name,
-            };
-          });
+          this.resource.country = data.map((country) => country.country_name);
         })
         .catch((error) => {
           // eslint-disable-next-line
