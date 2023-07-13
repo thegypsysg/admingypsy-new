@@ -751,6 +751,12 @@ export default {
         .catch((error) => {
           // eslint-disable-next-line
           console.log(error);
+          const message =
+            error.response.data.message === ''
+              ? 'Something Wrong!!!'
+              : error.response.data.message;
+          this.errorMessage = message;
+          this.isError = true;
         })
         .finally(() => {
           this.isSending = false;
@@ -769,6 +775,12 @@ export default {
         .catch((error) => {
           // eslint-disable-next-line
           console.log(error);
+          const message =
+            error.response.data.message === ''
+              ? 'Something Wrong!!!'
+              : error.response.data.message;
+          this.errorMessage = message;
+          this.isError = true;
         })
         .finally(() => {
           this.isSending = false;
