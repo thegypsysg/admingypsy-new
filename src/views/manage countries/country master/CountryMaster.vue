@@ -48,6 +48,7 @@
               :items="resource.country"
               v-model="input.country"
               variant="outlined"
+              required
             ></v-combobox>
           </v-col>
           <v-col cols="12" md="3">
@@ -157,7 +158,7 @@
                   <v-img
                     height="40"
                     width="65"
-                    @click="openImage(item.image, item.id)"
+                    @click="openImage(item)"
                     style="cursor: pointer"
                     :src="
                       item.image != null
@@ -184,6 +185,7 @@
                     class="d-flex align-center"
                     v-model="item.isActive"
                     rounded="5"
+                    @click="activeCountry(item.id)"
                   >
                     <v-btn size="27" :value="true"> Yes </v-btn>
 
@@ -201,6 +203,7 @@
                     class="d-flex align-center"
                     v-model="item.isFav"
                     rounded="5"
+                    @click="favoriteCountry(item.id)"
                   >
                     <v-btn size="27" :value="true"> Yes </v-btn>
 
@@ -215,7 +218,7 @@
                           color="green"
                           variant="text"
                           v-bind="props"
-                          @click="editUser(item)"
+                          @click="editCountry(item)"
                           icon="mdi-pencil-outline"
                         ></v-btn>
                       </template>
@@ -264,20 +267,30 @@
         </v-btn>
       </template>
     </v-snackbar>
+    <v-snackbar location="top" color="red" v-model="isError" :timeout="3000">
+      {{ errorMessage }}
+
+      <template v-slot:actions>
+        <v-btn color="white" variant="text" @click="isError = false">
+          <v-icon>mdi-close</v-icon>
+        </v-btn>
+      </template>
+    </v-snackbar>
     <v-dialog persistent width="500" v-model="isDelete">
       <v-card>
         <v-card-title>Confirmation</v-card-title>
-        <v-card-text> Are you sure want to delete this user? </v-card-text>
+        <v-card-text> Are you sure want to delete this country? </v-card-text>
         <v-card-actions>
+          <v-spacer></v-spacer>
           <v-btn color="error" text @click="cancelDelete">No</v-btn>
-          <v-btn color="success" text @click="deleteUser">Yes</v-btn>
+          <v-btn color="success" text @click="deleteCountry">Yes</v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
     <v-dialog persistent width="auto" v-model="isOpenImage">
       <v-card width="750">
         <v-card-title class="upload-title px-6 py-4">
-          Upload Image - User</v-card-title
+          Upload Image - Flag</v-card-title
         >
         <v-card-text>
           <image-upload
@@ -310,27 +323,34 @@
 <script>
 import ImageUpload from '@/components/ImageUpload.vue';
 import axios from '@/util/axios';
-// import http from 'axios';
+import http from 'axios';
 import { setAuthHeader } from '@/util/axios';
 // import app from '@/util/eventBus';
 
 export default {
-  name: 'UserMaster',
+  name: 'CountryMaster',
   data: () => ({
     // fileURL: 'https://admin1.the-gypsy.sg/img/app/',
     valid: false,
     isLoading: false,
     isSending: false,
+    isError: false,
     isEdit: false,
     isSuccess: false,
     isDelete: false,
     isDeleteLoading: false,
-    userIdToDelete: null,
+    countryIdToDelete: null,
     tableHeaders: [{ text: 'Gambar', value: 'image' }],
     imageFile: [],
-    userIdToImage: null,
+    countryDataToImage: {
+      id: 0,
+      country: null,
+      code: null,
+      national: null,
+    },
     isOpenImage: false,
     successMessage: '',
+    errorMessage: '',
     input: {
       id: 0,
       image: null,
@@ -419,45 +439,45 @@ export default {
     },
     deleteImageFile() {
       this.isSending = true;
-      const payload = {
-        id: this.userIdToImage,
-      };
-      setTimeout(() => {
-        console.log(payload);
-        this.isEdit = false;
-        this.isSending = false;
-        this.userIdToImage = null;
-        this.imageFile = [];
-      }, 2000);
-      // axios
-      //   .post(`/user/deleteImage`, payload, {})
-      //   .then((response) => {
-      //     const data = response.data;
-      //     this.successMessage = data.message;
-      //     this.isSuccess = true;
-      //     this.getCountryData();
-      //     // app.config.globalProperties.$eventBus.$emit('update-image');
-      //   })
-      //   .catch((error) => {
-      //     // eslint-disable-next-line
-      //     console.log(error);
-      //   })
-      //   .finally(() => {
-      //     this.isEdit = false;
-      //     this.isSending = false;
-      //     this.userIdToImage = null;
-      //     this.imageFile = [];
-      //   });
+      axios
+        .delete(`/countries/${this.countryDataToImage.id}/flag`)
+        .then((response) => {
+          const data = response.data;
+          this.successMessage = data.message;
+          this.isSuccess = true;
+          this.getCountryData();
+          // app.config.globalProperties.$eventBus.$emit('update-image');
+        })
+        .catch((error) => {
+          // eslint-disable-next-line
+          console.log(error);
+          const message =
+            error.response.data.message === ''
+              ? 'Something Wrong!!!'
+              : error.response.data.message;
+          this.errorMessage = message;
+          this.isError = true;
+        })
+        .finally(() => {
+          this.isEdit = false;
+          this.isSending = false;
+          this.imageFile = [];
+        });
     },
-    openImage(image, id) {
+    openImage(item) {
       this.isOpenImage = true;
-      this.userIdToImage = id;
+      this.countryDataToImage = {
+        id: item.id,
+        country: item.country,
+        code: item.code,
+        national: item.national,
+      };
       this.imageFile =
-        image != null
+        item.image != null
           ? [
               {
                 file: {
-                  name: image,
+                  name: item.image,
                   size: '',
                   base64: '',
                   format: '',
@@ -469,54 +489,72 @@ export default {
     closeImage() {
       this.isOpenImage = false;
       this.imageFile = [];
-      this.userIdToImage = null;
+      this.countryDataToImage = {
+        id: 0,
+        country: null,
+        code: null,
+        national: null,
+      };
     },
     saveImage() {
-      this.isSending = true;
       const payload = {
-        id: this.userIdToImage,
-        file: this.imageFile[0],
+        country_id: this.countryDataToImage.id,
+        country_name: this.countryDataToImage.country,
+        country_code: this.countryDataToImage.code,
+        nationality: this.countryDataToImage.national,
+        flag: this.imageFile[0],
       };
-      setTimeout(() => {
-        console.log(payload);
-        this.isEdit = false;
-        this.isSending = false;
-        this.userIdToImage = null;
-        this.isOpenImage = false;
-        this.imageFile = [];
-      }, 2000);
-      // http
-      //   .post(`/user/update`, payload, {
-      //     headers: {
-      //       'Content-Type': 'multipart/form-data',
-      //     },
-      //   })
-      //   .then((response) => {
-      //     const data = response.data;
-      //     this.successMessage = data.message;
-      //     this.isSuccess = true;
-      //     this.getCountryData();
-      //     // app.config.globalProperties.$eventBus.$emit('update-image');
-      //   })
-      //   .catch((error) => {
-      //     // eslint-disable-next-line
-      //     console.log(error);
-      //   })
-      //   .finally(() => {
-      //     this.isEdit = false;
-      //     this.isSending = false;
-      //     this.userIdToImage = null;
-      //     this.isOpenImage = false;
-      //     this.imageFile = [];
-      //   });
+
+      if (payload.country_code == '') {
+        this.isError = true;
+        this.errorMessage = 'Please input the country code!';
+      } else if (payload.nationality == '') {
+        this.isError = true;
+        this.errorMessage = 'Please input the nationality!';
+      } else {
+        this.isError = false;
+      }
+
+      if (this.isError == false) {
+        this.isSending = true;
+        http
+          .post(`/countries/update`, payload, {
+            headers: {
+              'Content-Type': 'multipart/form-data',
+            },
+          })
+          .then((response) => {
+            const data = response.data;
+            this.successMessage = data.message;
+            this.isSuccess = true;
+            this.getCountryData();
+            // app.config.globalProperties.$eventBus.$emit('update-image');
+          })
+          .catch((error) => {
+            // eslint-disable-next-line
+            console.log(error);
+          })
+          .finally(() => {
+            this.isEdit = false;
+            this.isSending = false;
+            this.countryDataToImage = {
+              id: 0,
+              country: null,
+              code: null,
+              national: null,
+            };
+            this.isOpenImage = false;
+            this.imageFile = [];
+          });
+      }
     },
-    editUser(user) {
+    editCountry(country) {
       this.isEdit = true;
       this.input = {
-        id: user.id,
-        country: user.country,
-        code: user.code,
-        national: user.national,
+        id: country.id,
+        country: country.country,
+        code: country.code,
+        national: country.national,
       };
     },
     cancelEdit() {
@@ -533,44 +571,43 @@ export default {
       if (this.valid) {
         this.isSending = true;
         const payload = {
-          id: this.input.id,
-          name: this.input.username,
-          email: this.input.email,
-          role: this.input.role,
-          country_id: this.input.country,
+          country_id: this.input.id,
+          country_name: this.input.country,
+          country_code: this.input.code,
+          nationality: this.input.national,
         };
         if (this.input.image !== null) {
-          payload['file'] = this.input.image;
+          payload['flag'] = this.input.image;
         }
-        setTimeout(() => {
-          console.log(payload);
-          this.isSending = false;
-          this.isEdit = false;
-        }, 2000);
-        // axios
-        //   .post(`/user/update`, payload)
-        //   .then((response) => {
-        //     const data = response.data;
-        //     this.successMessage = data.message;
-        //     this.isSuccess = true;
-        //     this.getCountryData();
-        //     this.input = {
-        //       id: 0,
-        //       username: '',
-        //       email: '',
-        //       country: null,
-        //       role: null,
-        //       image: null,
-        //     };
-        //   })
-        //   .catch((error) => {
-        //     // eslint-disable-next-line
-        //     console.log(error);
-        //   })
-        //   .finally(() => {
-        //     this.isEdit = false;
-        //     this.isSending = false;
-        //   });
+        axios
+          .post(`/countries/update`, payload)
+          .then((response) => {
+            const data = response.data;
+            this.successMessage = data.message;
+            this.isSuccess = true;
+            this.getCountryData();
+            this.input = {
+              id: 0,
+              image: null,
+              country: null,
+              code: null,
+              national: null,
+            };
+          })
+          .catch((error) => {
+            // eslint-disable-next-line
+            console.log(error);
+            const message =
+              error.response.data.message === ''
+                ? 'Something Wrong!!!'
+                : error.response.data.message;
+            this.errorMessage = message;
+            this.isError = true;
+          })
+          .finally(() => {
+            this.isEdit = false;
+            this.isSending = false;
+          });
       }
     },
     saveData() {
@@ -602,6 +639,12 @@ export default {
           .catch((error) => {
             // eslint-disable-next-line
             console.log(error);
+            const message =
+              error.response.data.message === ''
+                ? 'Something Wrong!!!'
+                : error.response.data.message;
+            this.errorMessage = message;
+            this.isError = true;
           })
           .finally(() => {
             this.isSending = false;
@@ -609,44 +652,42 @@ export default {
       }
     },
     cancelDelete() {
-      this.userIdToDelete = null;
+      this.countryIdToDelete = null;
       this.isDelete = false;
     },
     openDeleteConfirm(itemId) {
-      this.userIdToDelete = itemId;
+      this.countryIdToDelete = itemId;
       this.isDelete = true;
     },
     cancelConfirmation() {
-      this.userIdToDelete = null;
+      this.countryIdToDelete = null;
       this.isDelete = false;
     },
-    deleteUser() {
+    deleteCountry() {
       this.isDeleteLoading = true;
-      setTimeout(() => {
-        console.log(this.userIdToDelete);
-        this.isDeleteLoading = false;
-        this.userIdToDelete = null;
-        this.isDelete = false;
-      }, 2000);
-      // axios
-      //   .post(`/user/delete`, {
-      //     id: this.userIdToDelete,
-      //   })
-      //   .then((response) => {
-      //     const data = response.data;
-      //     this.successMessage = data.message;
-      //     this.isSuccess = true;
-      //     this.getCountryData();
-      //   })
-      //   .catch((error) => {
-      //     // eslint-disable-next-line
-      //     console.log(error);
-      //   })
-      //   .finally(() => {
-      //     this.isDeleteLoading = false;
-      //     this.userIdToDelete = null;
-      //     this.isDelete = false;
-      //   });
+      axios
+        .delete(`/countries/${this.countryIdToDelete}`)
+        .then((response) => {
+          const data = response.data;
+          this.successMessage = data.message;
+          this.isSuccess = true;
+          this.getCountryData();
+        })
+        .catch((error) => {
+          // eslint-disable-next-line
+          console.log(error);
+          const message =
+            error.response.data.message === ''
+              ? 'Something Wrong!!!'
+              : error.response.data.message;
+          this.errorMessage = message;
+          this.isError = true;
+        })
+        .finally(() => {
+          this.isDeleteLoading = false;
+          this.countryIdToDelete = null;
+          this.isDelete = false;
+        });
     },
     getCountryData() {
       this.isLoading = true;
@@ -654,7 +695,7 @@ export default {
         .get(`/countries`)
         .then((response) => {
           const data = response.data.data;
-          console.log(data);
+          // console.log(data);
           this.items = data.map((item) => {
             return {
               id: item.country_id || 1,
@@ -694,6 +735,43 @@ export default {
         .catch((error) => {
           // eslint-disable-next-line
           console.log(error);
+        });
+    },
+
+    activeCountry(id) {
+      this.isSending = true;
+      axios
+        .get(`/countries/toggle-active/${id}`)
+        .then((response) => {
+          const data = response.data;
+          this.successMessage = data.message;
+          this.isSuccess = true;
+          this.getCountryData();
+        })
+        .catch((error) => {
+          // eslint-disable-next-line
+          console.log(error);
+        })
+        .finally(() => {
+          this.isSending = false;
+        });
+    },
+    favoriteCountry(id) {
+      this.isSending = true;
+      axios
+        .get(`/countries/toggle-favorite/${id}`)
+        .then((response) => {
+          const data = response.data;
+          this.successMessage = data.message;
+          this.isSuccess = true;
+          this.getCountryData();
+        })
+        .catch((error) => {
+          // eslint-disable-next-line
+          console.log(error);
+        })
+        .finally(() => {
+          this.isSending = false;
         });
     },
   },
