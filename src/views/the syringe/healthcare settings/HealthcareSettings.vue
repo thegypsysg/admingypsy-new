@@ -19,7 +19,7 @@
       <router-link
         style="color: #be6bbe; font-weight: 500"
         class="text-decoration-none"
-        to="/employers"
+        to="/partner_master"
       >
         <p>Employers</p>
       </router-link>

@@ -6,7 +6,7 @@
       <router-link
         style="color: #293fb8; font-size: 13px"
         class="text-decoration-none"
-        to="/employers"
+        to="/partner_master"
       >
         <p>Back</p>
       </router-link>

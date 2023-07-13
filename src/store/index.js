@@ -19,6 +19,10 @@ export default createStore({
             ],
           },
           {
+            title: 'Partner Master',
+            path: '/partner_master',
+          },
+          {
             title: 'Industry Master',
             path: '/industry_master',
           },

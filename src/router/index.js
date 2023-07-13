@@ -193,8 +193,8 @@ const routes = [
     },
   },
   {
-    name: 'employers',
-    path: '/employers',
+    name: 'partner master',
+    path: '/partner_master',
     component: () =>
       import('@/views/the syringe/employers/EmployersContainer.vue'),
     beforeEnter: (to, from, next) => {
@@ -207,8 +207,8 @@ const routes = [
     },
   },
   {
-    name: 'employers main info',
-    path: '/employers/main-info/:id',
+    name: 'partner master main info',
+    path: '/partner_master/main-info/:id',
     component: () =>
       import('@/views/the syringe/employers/main info/MainInfoContainer.vue'),
     beforeEnter: (to, from, next) => {
@@ -221,8 +221,8 @@ const routes = [
     },
   },
   {
-    name: 'employers contacts',
-    path: '/employers/contacts/:id',
+    name: 'partner master contacts',
+    path: '/partner_master/contacts/:id',
     component: () =>
       import('@/views/the syringe/employers/contacts/ContactsContainer.vue'),
     beforeEnter: (to, from, next) => {
@@ -235,8 +235,8 @@ const routes = [
     },
   },
   {
-    name: 'employers socials',
-    path: '/employers/socials/:id',
+    name: 'partner master socials',
+    path: '/partner_master/socials/:id',
     component: () =>
       import('@/views/the syringe/employers/socials/SocialsContainer.vue'),
     beforeEnter: (to, from, next) => {
@@ -249,8 +249,8 @@ const routes = [
     },
   },
   {
-    name: 'employers job locations',
-    path: '/employers/job-locations/:id',
+    name: 'partner master job locations',
+    path: '/partner_master/job-locations/:id',
     component: () =>
       import(
         '@/views/the syringe/employers/job locations/JobLocationsContainer.vue'

@@ -20,7 +20,7 @@
       <router-link
         style="color: #be6bbe; font-weight: 500"
         class="text-decoration-none"
-        to="/employers"
+        to="/partner_master"
       >
         <p>Employers</p>
       </router-link>
@@ -321,31 +321,31 @@
                     <div class="d-flex justify-center" style="gap: 20px">
                       <router-link
                         class="text-decoration-none"
-                        :to="`employers/main-info/${item.id}`"
+                        :to="`partner_master/main-info/${item.id}`"
                       >
                         <span>Main Info</span>
                       </router-link>
                       <router-link
                         class="text-decoration-none"
-                        :to="`employers/contacts/${item.id}`"
+                        :to="`partner_master/contacts/${item.id}`"
                       >
                         <span>Contacts</span>
                       </router-link>
                       <router-link
                         class="text-decoration-none"
-                        :to="`employers/images/${item.id}`"
+                        :to="`partner_master/images/${item.id}`"
                       >
                         <span>Images</span>
                       </router-link>
                       <router-link
                         class="text-decoration-none"
-                        :to="`employers/socials/${item.id}`"
+                        :to="`partner_master/socials/${item.id}`"
                       >
                         <span>Socials</span>
                       </router-link>
                       <router-link
                         class="text-decoration-none"
-                        :to="`employers/job-locations/${item.id}`"
+                        :to="`partner_master/job-locations/${item.id}`"
                       >
                         <span>Job Locations</span>
                       </router-link>
