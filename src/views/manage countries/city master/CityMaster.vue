@@ -335,8 +335,10 @@ export default {
         return this.items;
       }
       const searchTextLower = this.search.toLowerCase();
-      return this.items.filter((item) =>
-        item.city.toLowerCase().includes(searchTextLower)
+      return this.items.filter(
+        (item) =>
+          item.city.toLowerCase().includes(searchTextLower) ||
+          item.country.toLowerCase().includes(searchTextLower)
       );
     },
   },

@@ -165,6 +165,7 @@
                         ? $fileURL + item.image
                         : 'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png'
                     "
+                    ><template #placeholder> <div class="skeleton" /> </template
                   ></v-img>
                 </td>
                 <td style="font-weight: 500 !important">
@@ -428,8 +429,11 @@ export default {
         return this.items;
       }
       const searchTextLower = this.search.toLowerCase();
-      return this.items.filter((item) =>
-        item.country.toLowerCase().includes(searchTextLower)
+      return this.items.filter(
+        (item) =>
+          item.country.toLowerCase().includes(searchTextLower) ||
+          item.code.toLowerCase().includes(searchTextLower) ||
+          item.national.toLowerCase().includes(searchTextLower)
       );
     },
   },
@@ -819,5 +823,16 @@ export default {
 .v-btn-toggle .v-btn--active {
   background-color: #2196f3 !important;
   color: #fff !important;
+}
+
+.skeleton {
+  width: 100%;
+  height: 100%;
+  border-radius: 0;
+
+  background: linear-gradient(-90deg, #f2f2f2 0%, #e1e1e1 50%, #f2f2f2 100%);
+  background-size: 400% 400%;
+  animation: skeleton 1.6s ease infinite;
+  margin: 0 auto;
 }
 </style>
