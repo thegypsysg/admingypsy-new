@@ -33,7 +33,7 @@
         </v-row>
         <v-row class="mt-n4">
           <v-col cols="12" md="3">
-            <v-combobox
+            <v-autocomplete
               clearable
               density="compact"
               :rules="rules.industryRules"
@@ -44,7 +44,7 @@
               item-value="id"
               v-model="input.industry"
               variant="outlined"
-            ></v-combobox>
+            ></v-autocomplete>
           </v-col>
           <v-col cols="12" md="2">
             <v-btn
@@ -136,7 +136,7 @@
                           color="green"
                           variant="text"
                           v-bind="props"
-                          @click="editUser(item)"
+                          @click="editSubIndustry(item)"
                           icon="mdi-pencil-outline"
                         ></v-btn>
                       </template>
@@ -185,6 +185,15 @@
         </v-btn>
       </template>
     </v-snackbar>
+    <v-snackbar location="top" color="red" v-model="isError" :timeout="3000">
+      {{ errorMessage }}
+
+      <template v-slot:actions>
+        <v-btn color="white" variant="text" @click="isError = false">
+          <v-icon>mdi-close</v-icon>
+        </v-btn>
+      </template>
+    </v-snackbar>
     <v-dialog persistent width="500" v-model="isDelete">
       <v-card>
         <v-card-title>Confirmation</v-card-title>
@@ -192,38 +201,9 @@
           Are you sure want to delete this sub industry?
         </v-card-text>
         <v-card-actions>
-          <v-btn color="error" text @click="cancelDelete">No</v-btn>
-          <v-btn color="success" text @click="deleteUser">Yes</v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
-    <v-dialog persistent width="auto" v-model="isOpenImage">
-      <v-card width="750">
-        <v-card-title class="upload-title px-6 py-4">
-          Upload Image - User</v-card-title
-        >
-        <v-card-text>
-          <image-upload
-            :image-file="imageFile"
-            @update-image-file="updateImageFile"
-            @delete-image-file="deleteImageFile"
-          />
-        </v-card-text>
-        <v-card-actions class="mt-16">
           <v-spacer></v-spacer>
-          <v-btn
-            style="text-transform: none"
-            color="error"
-            text
-            @click="closeImage"
-            >Cancel</v-btn
-          >
-          <v-btn
-            style="background-color: #9ddcff; text-transform: none"
-            color="black"
-            @click="saveImage()"
-            >Save</v-btn
-          >
+          <v-btn color="error" text @click="cancelDelete">No</v-btn>
+          <v-btn color="success" text @click="deleteSubIndustry">Yes</v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
@@ -231,41 +211,36 @@
 </template>
 
 <script>
-import ImageUpload from '@/components/ImageUpload.vue';
 import axios from '@/util/axios';
 // import http from 'axios';
 import { setAuthHeader } from '@/util/axios';
 // import app from '@/util/eventBus';
 
 export default {
-  name: 'UserMaster',
+  name: 'SubIndustryMaster',
   data: () => ({
     // fileURL: 'https://admin1.the-gypsy.sg/img/app/',
     valid: false,
     isLoading: false,
     isSending: false,
+    isError: false,
     isEdit: false,
     isSuccess: false,
     isDelete: false,
     isDeleteLoading: false,
-    userIdToDelete: null,
+    subIndustryIdToDelete: null,
     tableHeaders: [{ text: 'Gambar', value: 'image' }],
     imageFile: [],
-    userIdToImage: null,
     isOpenImage: false,
     successMessage: '',
+    errorMessage: '',
     input: {
       id: 0,
-      subIndustry: '',
+      subIndustry: null,
       industry: null,
     },
     resource: {
-      industry: [
-        {
-          id: 8,
-          name: 'Healthcare',
-        },
-      ],
+      industry: [],
     },
     rules: {
       industryRules: [
@@ -283,29 +258,29 @@ export default {
     },
     search: '',
     items: [],
-    itemsTry: [
-      {
-        id: 8,
-        subIndustry: 'Private Hospital',
-        industry: 'Healthcare',
-      },
-    ],
+    // itemsTry: [
+    //   {
+    //     id: 8,
+    //     subIndustry: 'Private Hospital',
+    //     industry: 'Healthcare',
+    //   },
+    // ],
   }),
   created() {
     const token = JSON.parse(localStorage.getItem('token'));
     setAuthHeader(token);
   },
-  // mounted() {
-  //   this.getUserData();
-  //   this.getCountry();
-  // },
+  mounted() {
+    this.getSubIndustryData();
+    this.getIndustryData();
+  },
   computed: {
     filteredItems() {
       if (!this.search) {
-        return this.itemsTry;
+        return this.items;
       }
       const searchTextLower = this.search.toLowerCase();
-      return this.itemsTry.filter(
+      return this.items.filter(
         (item) =>
           item.subIndustry.toLowerCase().includes(searchTextLower) ||
           item.industry.toLowerCase().includes(searchTextLower)
@@ -313,115 +288,19 @@ export default {
     },
   },
   methods: {
-    updateImageFile(newImageFile) {
-      this.imageFile.push(newImageFile);
-    },
-    deleteImageFile() {
-      this.isSending = true;
-      const payload = {
-        id: this.userIdToImage,
-      };
-      setTimeout(() => {
-        console.log(payload);
-        this.isEdit = false;
-        this.isSending = false;
-        this.userIdToImage = null;
-        this.imageFile = [];
-      }, 2000);
-      // axios
-      //   .post(`/user/deleteImage`, payload, {})
-      //   .then((response) => {
-      //     const data = response.data;
-      //     this.successMessage = data.message;
-      //     this.isSuccess = true;
-      //     this.getUserData();
-      //     // app.config.globalProperties.$eventBus.$emit('update-image');
-      //   })
-      //   .catch((error) => {
-      //     // eslint-disable-next-line
-      //     console.log(error);
-      //   })
-      //   .finally(() => {
-      //     this.isEdit = false;
-      //     this.isSending = false;
-      //     this.userIdToImage = null;
-      //     this.imageFile = [];
-      //   });
-    },
-    openImage(image, id) {
-      this.isOpenImage = true;
-      this.userIdToImage = id;
-      this.imageFile =
-        image != null
-          ? [
-              {
-                file: {
-                  name: image,
-                  size: '',
-                  base64: '',
-                  format: '',
-                },
-              },
-            ]
-          : [];
-    },
-    closeImage() {
-      this.isOpenImage = false;
-      this.imageFile = [];
-      this.userIdToImage = null;
-    },
-    saveImage() {
-      this.isSending = true;
-      const payload = {
-        id: this.userIdToImage,
-        file: this.imageFile[0],
-      };
-      setTimeout(() => {
-        console.log(payload);
-        this.isEdit = false;
-        this.isSending = false;
-        this.userIdToImage = null;
-        this.isOpenImage = false;
-        this.imageFile = [];
-      }, 2000);
-      // http
-      //   .post(`/user/update`, payload, {
-      //     headers: {
-      //       'Content-Type': 'multipart/form-data',
-      //     },
-      //   })
-      //   .then((response) => {
-      //     const data = response.data;
-      //     this.successMessage = data.message;
-      //     this.isSuccess = true;
-      //     this.getUserData();
-      //     // app.config.globalProperties.$eventBus.$emit('update-image');
-      //   })
-      //   .catch((error) => {
-      //     // eslint-disable-next-line
-      //     console.log(error);
-      //   })
-      //   .finally(() => {
-      //     this.isEdit = false;
-      //     this.isSending = false;
-      //     this.userIdToImage = null;
-      //     this.isOpenImage = false;
-      //     this.imageFile = [];
-      //   });
-    },
-    editUser(user) {
+    editSubIndustry(subIndustry) {
       this.isEdit = true;
       this.input = {
-        id: user.id,
-        subIndustry: user.subIndustry,
-        industry: user.industry,
+        id: subIndustry.id,
+        subIndustry: subIndustry.subIndustry,
+        industry: subIndustry.industry_id,
       };
     },
     cancelEdit() {
       this.isEdit = false;
       this.input = {
         id: 0,
-        subIndustry: '',
+        subIndustry: null,
         industry: null,
       };
     },
@@ -429,181 +308,172 @@ export default {
       if (this.valid) {
         this.isSending = true;
         const payload = {
-          id: this.input.id,
-          name: this.input.username,
-          email: this.input.email,
-          role: this.input.role,
-          country_id: this.input.country,
+          sub_industry_id: this.input.id,
+          sub_industry_name: this.input.subIndustry,
+          industry_id: this.input.industry,
         };
-        if (this.input.image !== null) {
-          payload['file'] = this.input.image;
-        }
-        setTimeout(() => {
-          console.log(payload);
-          this.isSending = false;
-          this.isEdit = false;
-        }, 2000);
-        // axios
-        //   .post(`/user/update`, payload)
-        //   .then((response) => {
-        //     const data = response.data;
-        //     this.successMessage = data.message;
-        //     this.isSuccess = true;
-        //     this.getUserData();
-        //     this.input = {
-        //       id: 0,
-        //       zone: '',
-        //     };
-        //   })
-        //   .catch((error) => {
-        //     // eslint-disable-next-line
-        //     console.log(error);
-        //   })
-        //   .finally(() => {
-        //     this.isEdit = false;
-        //     this.isSending = false;
-        //   });
+        axios
+          .post(`/sub-industries/update`, payload)
+          .then((response) => {
+            const data = response.data;
+            this.successMessage = data.message;
+            this.isSuccess = true;
+            this.getSubIndustryData();
+            this.input = {
+              id: 0,
+              subIndustry: null,
+              industry: null,
+            };
+          })
+          .catch((error) => {
+            // eslint-disable-next-line
+            console.log(error);
+            const message = error.response.data.sub_industry_name
+              ? error.response.data.sub_industry_name[0]
+              : error.response.data.message
+              ? error.response.data.message
+              : 'Something Wrong!!!';
+            this.errorMessage = message;
+            this.isError = true;
+          })
+          .finally(() => {
+            this.isEdit = false;
+            this.isSending = false;
+          });
       }
     },
     saveData() {
       if (this.valid) {
         this.isSending = true;
         const payload = {
-          name: this.input.username,
-          email: this.input.email,
-          role: this.input.role,
-          country_id: this.input.country,
+          sub_industry_name: this.input.subIndustry,
+          industry_id: this.input.industry,
         };
-        if (this.input.image !== null) {
-          payload['file'] = this.input.image;
-        }
-        setTimeout(() => {
-          console.log(payload);
-          this.isSending = false;
-        }, 2000);
-        // axios
-        //   .post(`/register`, payload)
-        //   .then((response) => {
-        //     const data = response.data;
-        //     this.successMessage = data.message;
-        //     this.isSuccess = true;
-        //     this.getUserData();
-        //     this.input = {
-        //       id: 0,
-        //       zone: '',
-        //     };
-        //   })
-        //   .catch((error) => {
-        //     // eslint-disable-next-line
-        //     console.log(error);
-        //   })
-        //   .finally(() => {
-        //     this.isSending = false;
-        //   });
+        axios
+          .post(`/sub-industries`, payload)
+          .then((response) => {
+            const data = response.data;
+            this.successMessage = data.message;
+            this.isSuccess = true;
+            this.getSubIndustryData();
+            this.input = {
+              id: 0,
+              subIndustry: null,
+              industry: null,
+            };
+          })
+          .catch((error) => {
+            // eslint-disable-next-line
+            console.log(error);
+            const message = error.response.data.sub_industry_name
+              ? error.response.data.sub_industry_name[0]
+              : error.response.data.message
+              ? error.response.data.message
+              : 'Something Wrong!!!';
+            this.errorMessage = message;
+            this.isError = true;
+          })
+          .finally(() => {
+            this.isSending = false;
+          });
       }
     },
     cancelDelete() {
-      this.userIdToDelete = null;
+      this.subIndustryIdToDelete = null;
       this.isDelete = false;
     },
     openDeleteConfirm(itemId) {
-      this.userIdToDelete = itemId;
+      this.subIndustryIdToDelete = itemId;
       this.isDelete = true;
     },
     cancelConfirmation() {
-      this.userIdToDelete = null;
+      this.subIndustryIdToDelete = null;
       this.isDelete = false;
     },
-    deleteUser() {
+    deleteSubIndustry() {
       this.isDeleteLoading = true;
-      setTimeout(() => {
-        console.log(this.userIdToDelete);
-        this.isDeleteLoading = false;
-        this.userIdToDelete = null;
-        this.isDelete = false;
-      }, 2000);
-      // axios
-      //   .post(`/user/delete`, {
-      //     id: this.userIdToDelete,
-      //   })
-      //   .then((response) => {
-      //     const data = response.data;
-      //     this.successMessage = data.message;
-      //     this.isSuccess = true;
-      //     this.getUserData();
-      //   })
-      //   .catch((error) => {
-      //     // eslint-disable-next-line
-      //     console.log(error);
-      //   })
-      //   .finally(() => {
-      //     this.isDeleteLoading = false;
-      //     this.userIdToDelete = null;
-      //     this.isDelete = false;
-      //   });
-    },
-    getUserData() {
-      this.isLoading = true;
-      setTimeout(() => {
-        console.log('OK');
-        this.isLoading = false;
-      }, 2000);
-      // axios
-      //   .get(`/user`)
-      //   .then((response) => {
-      //     const data = response.data.data;
-      //     // console.log(data);
-      //     this.items = data.map((item) => {
-      //       return {
-      //         id: item.id || 1,
-      //         name: item.name || '',
-      //         email: item.email || '',
-      //         registered_on: item.registered_on || '',
-      //         role: item.role || '',
-      //         roleName:
-      //           item.role == 'S'
-      //             ? 'Superadmin'
-      //             : item.role == 'A'
-      //             ? 'Admin'
-      //             : '',
-      //         image: item.image || null,
-      //         country_id: item.country_id || 1,
-      //         country_name: item.country_name || '',
-      //       };
-      //     });
-
-      //     app.config.globalProperties.$eventBus.$emit(
-      //       'update-image',
-      //       this.items
-      //     );
-      //   })
-      //   .catch((error) => {
-      //     // eslint-disable-next-line
-      //     console.log(error);
-      //   })
-      //   .finally(() => {
-      //     this.isLoading = false;
-      //   });
-    },
-    getCountry() {
       axios
-        .get(`/country`)
+        .delete(`/sub-industries/${this.subIndustryIdToDelete}`)
+        .then((response) => {
+          const data = response.data;
+          this.successMessage = data.message;
+          this.isSuccess = true;
+          this.getSubIndustryData();
+        })
+        .catch((error) => {
+          // eslint-disable-next-line
+          console.log(error);
+          const message =
+            error.response.data.message === ''
+              ? 'Something Wrong!!!'
+              : error.response.data.message;
+          this.errorMessage = message;
+          this.isError = true;
+        })
+        .finally(() => {
+          this.isDeleteLoading = false;
+          this.subIndustryIdToDelete = null;
+          this.isDelete = false;
+        });
+    },
+    getSubIndustryData() {
+      this.isLoading = true;
+      axios
+        .get(`/sub-industries`)
         .then((response) => {
           const data = response.data.data;
-          this.resource.country = data.map((country) => {
+          this.items = data.map((item) => {
             return {
-              id: country.country_id,
-              name: country.country_name,
+              id: item.sub_industry_id || 1,
+              subIndustry: item.sub_industry_name || '',
+              industry: item.industry.industry_name || '',
+              industry_id: item.industry_id || '',
             };
           });
         })
         .catch((error) => {
           // eslint-disable-next-line
           console.log(error);
+          const message =
+            error.response.data.message === ''
+              ? 'Something Wrong!!!'
+              : error.response.data.message;
+          this.errorMessage = message;
+          this.isError = true;
+        })
+        .finally(() => {
+          this.isLoading = false;
+        });
+    },
+    getIndustryData() {
+      this.isLoading = true;
+      axios
+        .get(`/industries`)
+        .then((response) => {
+          const data = response.data.data;
+          // console.log(data);
+          this.resource.industry = data.map((item) => {
+            return {
+              id: item.industry_id || 1,
+              name: item.industry_name || '',
+            };
+          });
+        })
+        .catch((error) => {
+          // eslint-disable-next-line
+          console.log(error);
+          const message =
+            error.response.data.message === ''
+              ? 'Something Wrong!!!'
+              : error.response.data.message;
+          this.errorMessage = message;
+          this.isError = true;
+        })
+        .finally(() => {
+          this.isLoading = false;
         });
     },
   },
-  components: { ImageUpload },
 };
 </script>
 
