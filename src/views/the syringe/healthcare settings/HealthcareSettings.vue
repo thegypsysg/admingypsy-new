@@ -16,13 +16,6 @@
       >
         <p>Skills</p>
       </router-link>
-      <router-link
-        style="color: #be6bbe; font-weight: 500"
-        class="text-decoration-none"
-        to="/partner_master"
-      >
-        <p>Employers</p>
-      </router-link>
     </div>
     <v-form v-model="valid" @submit.prevent>
       <v-container>

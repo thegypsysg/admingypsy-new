@@ -2,33 +2,10 @@
 <!-- eslint-disable vue/no-deprecated-v-bind-sync -->
 <template>
   <v-container>
-    <div class="d-flex ml-4 mb-6" style="gap: 50px">
-      <router-link
-        style="color: #293fb8; font-weight: 500"
-        class="text-decoration-none"
-        to="/healthcare-settings"
-      >
-        <p>Healthcare Settings</p>
-      </router-link>
-      <router-link
-        style="color: #a93f43; font-weight: 500"
-        class="text-decoration-none"
-        to="/skills-group"
-      >
-        <p>Skills</p>
-      </router-link>
-      <router-link
-        style="color: #be6bbe; font-weight: 500"
-        class="text-decoration-none"
-        to="/partner_master"
-      >
-        <p>Employers</p>
-      </router-link>
-    </div>
     <v-form v-model="valid" @submit.prevent>
       <v-container>
         <v-row>
-          <v-col cols="12" md="3">
+          <v-col cols="12" md="6">
             <v-text-field
               v-model="input.name"
               :rules="rules.nameRules"
@@ -37,6 +14,8 @@
               density="compact"
               required
             ></v-text-field>
+          </v-col>
+          <v-col cols="12" md="3">
             <v-combobox
               density="compact"
               :rules="rules.countryRules"
@@ -44,24 +23,13 @@
               placeholder="Type Country"
               :items="resource.country"
               item-title="name"
-              class="mt-1"
               item-value="id"
               v-model="input.country"
               variant="outlined"
             ></v-combobox>
-            <v-combobox
-              density="compact"
-              :rules="rules.zoneRules"
-              label="Select Zone"
-              placeholder="Type Zone"
-              :items="resource.zone"
-              class="mt-1"
-              item-title="name"
-              item-value="id"
-              v-model="input.zone"
-              variant="outlined"
-            ></v-combobox>
           </v-col>
+        </v-row>
+        <v-row class="mt-n4">
           <v-col cols="12" md="3">
             <v-combobox
               density="compact"
@@ -72,18 +40,6 @@
               item-title="name"
               item-value="id"
               v-model="input.industry"
-              variant="outlined"
-            ></v-combobox>
-            <v-combobox
-              density="compact"
-              :rules="rules.cityRules"
-              label="Select City"
-              placeholder="Type City"
-              :items="resource.city"
-              item-title="name"
-              item-value="id"
-              class="mt-1"
-              v-model="input.city"
               variant="outlined"
             ></v-combobox>
           </v-col>
@@ -99,22 +55,9 @@
               v-model="input.subIndustry"
               variant="outlined"
             ></v-combobox>
-            <v-combobox
-              density="compact"
-              :rules="rules.townRules"
-              label="Select Town"
-              placeholder="Type Town"
-              :items="resource.town"
-              item-title="name"
-              item-value="id"
-              class="mt-1"
-              v-model="input.town"
-              variant="outlined"
-            ></v-combobox>
           </v-col>
         </v-row>
-
-        <v-row class="mt-n2">
+        <v-row class="mt-n4">
           <v-col cols="12" md="2">
             <v-btn
               :prepend-icon="
@@ -180,9 +123,8 @@
                 <th class="text-left">Image</th>
                 <th class="text-left">Partner Name</th>
                 <th class="text-left">Country</th>
-                <th class="text-left">City</th>
-                <th class="text-left">Town</th>
-                <th class="text-left">Zone</th>
+                <th class="text-left">Industry</th>
+                <th class="text-left">Sub Industry</th>
                 <th class="text-left">Actions</th>
               </tr>
             </thead>
@@ -219,13 +161,10 @@
                     {{ item.country }}
                   </td>
                   <td>
-                    {{ item.city }}
+                    {{ item.industry }}
                   </td>
                   <td>
-                    {{ item.town }}
-                  </td>
-                  <td>
-                    {{ item.zone }}
+                    {{ item.subIndustry }}
                   </td>
 
                   <td>
@@ -260,23 +199,16 @@
                 </tr>
 
                 <tr>
-                  <td colspan="10" style="border: none !important">
+                  <td colspan="5">
                     <div class="d-flex justify-center" style="gap: 20px">
                       <v-table class="text-left">
                         <tr>
-                          <th class="pt-2">Industry</th>
-                          <th class="pt-2">Sub Industry</th>
                           <th class="pt-2">Active</th>
                           <th class="pt-2">Favorite</th>
+                          <th class="pt-2"></th>
                         </tr>
                         <tr>
-                          <td class="pr-14 pt-2 text-grey">
-                            {{ item.industry }}
-                          </td>
-                          <td class="pr-6 pt-2 text-grey">
-                            {{ item.subIndustry }}
-                          </td>
-                          <td class="pr-6 pt-2">
+                          <td class="pr-6 pt-2 pb-4">
                             <v-btn-toggle
                               style="
                                 font-size: 10px !important;
@@ -293,7 +225,7 @@
                               <v-btn size="27" :value="false"> No </v-btn>
                             </v-btn-toggle>
                           </td>
-                          <td class="pr-6 pt-2">
+                          <td class="pr-6 pt-2 pb-4">
                             <v-btn-toggle
                               style="
                                 font-size: 10px !important;
@@ -310,45 +242,39 @@
                               <v-btn size="27" :value="false"> No </v-btn>
                             </v-btn-toggle>
                           </td>
+                          <td class="pr-6 pt-2 pb-4">
+                            <div
+                              class="d-flex justify-center"
+                              style="gap: 20px"
+                            >
+                              <router-link
+                                class="text-decoration-none"
+                                :to="`partner_master/main-info/${item.id}`"
+                              >
+                                <span>Main Info</span>
+                              </router-link>
+                              <router-link
+                                class="text-decoration-none"
+                                :to="`partner_master/contacts/${item.id}`"
+                              >
+                                <span>Contacts</span>
+                              </router-link>
+                              <router-link
+                                class="text-decoration-none"
+                                :to="`partner_master/socials/${item.id}`"
+                              >
+                                <span>Socials</span>
+                              </router-link>
+                              <router-link
+                                class="text-decoration-none"
+                                :to="`partner_master/job-locations/${item.id}`"
+                              >
+                                <span>Job Locations</span>
+                              </router-link>
+                            </div>
+                          </td>
                         </tr>
                       </v-table>
-                    </div>
-                  </td>
-                </tr>
-
-                <tr>
-                  <td colspan="10">
-                    <div class="d-flex justify-center" style="gap: 20px">
-                      <router-link
-                        class="text-decoration-none"
-                        :to="`partner_master/main-info/${item.id}`"
-                      >
-                        <span>Main Info</span>
-                      </router-link>
-                      <router-link
-                        class="text-decoration-none"
-                        :to="`partner_master/contacts/${item.id}`"
-                      >
-                        <span>Contacts</span>
-                      </router-link>
-                      <router-link
-                        class="text-decoration-none"
-                        :to="`partner_master/images/${item.id}`"
-                      >
-                        <span>Images</span>
-                      </router-link>
-                      <router-link
-                        class="text-decoration-none"
-                        :to="`partner_master/socials/${item.id}`"
-                      >
-                        <span>Socials</span>
-                      </router-link>
-                      <router-link
-                        class="text-decoration-none"
-                        :to="`partner_master/job-locations/${item.id}`"
-                      >
-                        <span>Job Locations</span>
-                      </router-link>
                     </div>
                   </td>
                 </tr>
