@@ -11,7 +11,7 @@
         <p>Back</p>
       </router-link>
     </div>
-    <h3 class="ml-4 mb-6">Contacts</h3>
+    <h3 class="ml-4 mb-6">Job Locations</h3>
     <h4 class="ml-4 mb-6" style="color: #293fb8; font-weight: 400">
       Woodlands Health Care
     </h4>
@@ -19,86 +19,59 @@
       <v-container>
         <v-row>
           <v-col cols="12" md="3">
-            <v-text-field
-              v-model="input.contact"
-              :rules="rules.contactCodeRules"
-              label="Contact"
-              variant="outlined"
+            <v-combobox
               density="compact"
-              required
-            ></v-text-field>
-            <v-text-field
-              v-model="input.telephone"
-              :rules="rules.telephoneRules"
-              label="Telephone"
+              :rules="rules.countryRules"
+              label="Select Country"
+              placeholder="Type Country"
+              :items="resource.country"
+              item-title="name"
+              item-value="id"
+              v-model="input.country"
               variant="outlined"
-              type="phone"
-              density="compact"
-              required
-            ></v-text-field>
+            ></v-combobox>
           </v-col>
           <v-col cols="12" md="3">
-            <v-text-field
-              v-model="input.position"
-              :rules="rules.positionRules"
-              label="Position Held"
-              variant="outlined"
+            <v-combobox
               density="compact"
-              required
-            ></v-text-field>
-            <v-text-field
-              v-model="input.mobile"
-              :rules="rules.mobileRules"
-              label="Mobile"
-              type="phone"
+              :rules="rules.cityRules"
+              label="Select City"
+              placeholder="Type City"
+              :items="resource.city"
+              item-title="name"
+              item-value="id"
+              v-model="input.city"
               variant="outlined"
-              density="compact"
-              required
-            ></v-text-field>
+            ></v-combobox>
           </v-col>
           <v-col cols="12" md="3">
-            <v-text-field
-              v-model="input.email"
-              :rules="rules.emailRules"
-              label="Enter Email"
-              type="email"
+            <v-combobox
               density="compact"
+              :rules="rules.townRules"
+              label="Select Town"
+              placeholder="Type Town"
+              :items="resource.town"
+              item-title="name"
+              item-value="id"
+              v-model="input.town"
               variant="outlined"
-              required
-            ></v-text-field>
-            <v-text-field
-              v-model="input.whatsapp"
-              :rules="rules.whatsappRules"
-              label="What'sApp"
-              type="phone"
-              variant="outlined"
+            ></v-combobox>
+          </v-col>
+          <v-col cols="12" md="3">
+            <v-combobox
               density="compact"
-              required
-            ></v-text-field>
+              :rules="rules.zoneRules"
+              label="Select Zone"
+              placeholder="Type Zone"
+              :items="resource.zone"
+              item-title="name"
+              item-value="id"
+              v-model="input.zone"
+              variant="outlined"
+            ></v-combobox>
           </v-col>
         </v-row>
-        <v-row class="mt-n5">
-          <v-col cols="12" md="3">
-            <v-text-field
-              v-model="input.contactedOn"
-              :rules="rules.contactedOnRules"
-              label="Contacted on"
-              variant="outlined"
-              density="compact"
-              required
-            ></v-text-field>
-          </v-col>
-          <v-col cols="12" md="4">
-            <v-textarea
-              v-model="input.remarks"
-              :rules="rules.remarksRules"
-              label="Remarks"
-              rows="2"
-              variant="outlined"
-              density="compact"
-              required
-            ></v-textarea>
-          </v-col>
+        <v-row>
           <v-col cols="12" md="2">
             <v-btn
               :prepend-icon="
@@ -121,13 +94,15 @@
 
               {{ isEdit ? 'Save' : 'Add' }}
             </v-btn>
+          </v-col>
+          <v-col cols="12" md="2">
             <v-btn
               v-if="isEdit"
               prepend-icon="mdi-account-multiple-remove"
               color="red"
               style="text-transform: none"
               variant="flat"
-              class="w-100 mt-2"
+              class="w-100"
               @click="cancelEdit"
               :disabled="isSending"
             >
@@ -147,41 +122,25 @@
           <v-table class="country-table">
             <thead>
               <tr>
-                <th class="text-left">Visiting Card</th>
-                <th class="text-left">Contact Person</th>
-                <th class="text-left">Position Held</th>
-                <th class="text-left">Telephone</th>
-                <th class="text-left">Mobile</th>
-                <th class="text-left">What'sApp</th>
+                <th class="text-left">Country</th>
+                <th class="text-left">City</th>
+                <th class="text-left">Town</th>
+                <th class="text-left">Zone</th>
                 <th class="text-left">Actions</th>
               </tr>
             </thead>
             <tbody>
               <template v-for="item in filteredItems" :key="item.id">
                 <tr class="country-table-body">
+                  <td>{{ item.country }}</td>
                   <td>
-                    <v-img
-                      height="40"
-                      width="65"
-                      @click="openImage(item.image, item.id)"
-                      style="cursor: pointer"
-                      src="@/assets/other-voucher-img-5.png"
-                      ><template #placeholder>
-                        <div class="skeleton" /> </template
-                    ></v-img>
-                  </td>
-                  <td>{{ item.contact }}</td>
-                  <td>
-                    {{ item.position }}
+                    {{ item.city }}
                   </td>
                   <td>
-                    {{ item.telephone }}
+                    {{ item.town }}
                   </td>
                   <td>
-                    {{ item.mobile }}
-                  </td>
-                  <td>
-                    {{ item.whatsapp }}
+                    {{ item.zone }}
                   </td>
                   <td>
                     <div class="d-flex">
@@ -213,32 +172,6 @@
                     </div>
                   </td>
                 </tr>
-
-                <tr>
-                  <td></td>
-                  <td
-                    class="pb-2"
-                    colspan="6"
-                    style="border-top: none !important"
-                  >
-                    <div class="d-flex" style="gap: 20px">
-                      <v-table class="text-left">
-                        <tr>
-                          <th class="pt-2">Email</th>
-                          <th class="pt-2">Contacted On</th>
-                        </tr>
-                        <tr>
-                          <td class="pr-14 pt-2">
-                            {{ item.email }}
-                          </td>
-                          <td class="pr-6 pt-2">
-                            {{ item.contactedOn }}
-                          </td>
-                        </tr>
-                      </v-table>
-                    </div>
-                  </td>
-                </tr>
               </template>
               <tr v-if="isLoading">
                 <td :colspan="6" class="text-center">
@@ -267,58 +200,17 @@
         </v-btn>
       </template>
     </v-snackbar>
-    <v-dialog persistent width="500" v-model="isDelete">
-      <v-card>
-        <v-card-title>Confirmation</v-card-title>
-        <v-card-text> Are you sure want to delete this user? </v-card-text>
-        <v-card-actions>
-          <v-btn color="error" text @click="cancelDelete">No</v-btn>
-          <v-btn color="success" text @click="deleteUser">Yes</v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
-    <v-dialog persistent width="auto" v-model="isOpenImage">
-      <v-card width="750">
-        <v-card-title class="upload-title px-6 py-4">
-          Upload Image - User</v-card-title
-        >
-        <v-card-text>
-          <image-upload
-            :image-file="imageFile"
-            @update-image-file="updateImageFile"
-            @delete-image-file="deleteImageFile"
-          />
-        </v-card-text>
-        <v-card-actions class="mt-16">
-          <v-spacer></v-spacer>
-          <v-btn
-            style="text-transform: none"
-            color="error"
-            text
-            @click="closeImage"
-            >Cancel</v-btn
-          >
-          <v-btn
-            style="background-color: #9ddcff; text-transform: none"
-            color="black"
-            @click="saveImage()"
-            >Save</v-btn
-          >
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
   </v-container>
 </template>
 
 <script>
-import ImageUpload from '@/components/ImageUpload.vue';
 import axios from '@/util/axios';
 // import http from 'axios';
 import { setAuthHeader } from '@/util/axios';
 // import app from '@/util/eventBus';
 
 export default {
-  name: 'EmployersVue',
+  name: 'JobLocations',
   data: () => ({
     // fileURL: 'https://admin1.the-gypsy.sg/img/app/',
     valid: false,
@@ -336,101 +228,102 @@ export default {
     successMessage: '',
     input: {
       id: 0,
-      contact: '',
-      telephone: '',
-      position: '',
-      mobile: '',
-      email: '',
-      whatsapp: '',
-      contactedOn: '',
-      remarks: '',
+      country: null,
+      town: null,
+      city: null,
+      zone: null,
     },
+
     rules: {
-      contactRules: [
+      countryRules: [
         (value) => {
           if (value) return true;
-          return 'Contact Person is required.';
+          return 'Country is required.';
         },
       ],
-      telephoneRules: [
+      townRules: [
         (value) => {
           if (value) return true;
-          return 'Telephone is required.';
+          return 'Town is required.';
         },
       ],
-      positionRules: [
+
+      cityRules: [
         (value) => {
           if (value) return true;
-          return 'Position Held is required.';
+          return 'City is required.';
         },
       ],
-      mobileRules: [
+      zoneRules: [
         (value) => {
           if (value) return true;
-          return 'Mobile is required.';
+          return 'Zone is required.';
         },
       ],
-      emailRules: [
-        (value) => {
-          if (value) return true;
-          return 'E-mail is requred.';
-        },
-        (value) => {
-          if (/.+@.+\..+/.test(value)) return true;
-          return 'E-mail must be valid.';
-        },
-      ],
-      whatsappRules: [
-        (value) => {
-          if (value) return true;
-          return "What'sApp is required.";
-        },
-      ],
-      contactedOnRules: [
-        (value) => {
-          if (value) return true;
-          return 'Contacted on is required.';
-        },
-      ],
-      remarksRules: [
-        (value) => {
-          if (value) return true;
-          return 'Remarks is required.';
-        },
-      ],
-      // websiteRules: [
-      //   (value) => !!value || 'Required.',
-      //   (value) => {
-      //     const regex =
-      //       /(www\.)?[-a-zA-Z0-9@:%._\\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}/gm;
-      //     return regex.test(value) || 'Invalid Url Format!!';
-      //   },
-      // ],
     },
     search: '',
     items: [],
+    resource: {
+      country: [
+        {
+          name: 'Indonesia',
+          id: 1,
+        },
+        {
+          name: 'India',
+          id: 2,
+        },
+        {
+          name: 'Singapore',
+          id: 3,
+        },
+      ],
+      city: [
+        {
+          name: 'Jakarta',
+          id: 1,
+        },
+        {
+          name: 'Semarang',
+          id: 2,
+        },
+        {
+          name: 'Singapore',
+          id: 3,
+        },
+      ],
+      town: [
+        {
+          name: 'Kota Tua',
+          id: 1,
+        },
+        {
+          name: 'Kota Lama',
+          id: 2,
+        },
+        {
+          name: 'Woodlands',
+          id: 3,
+        },
+      ],
+      zone: [
+        {
+          name: 'North',
+          id: 1,
+        },
+        {
+          name: 'South',
+          id: 2,
+        },
+      ],
+    },
     itemsTry: [
       {
         id: 1,
-        image: '@/assets/other-voucher-5.jpeg',
-        contact: 'Charlton Mendes',
-        position: 'HR Manager',
-        telephone: '68352000',
-        mobile: '91992000',
-        whatsapp: '91992000',
-        email: 'charltonmendes@gmail.com',
-        contactedOn: '08/07/2023',
-      },
-      {
-        id: 2,
-        image: '@/assets/other-voucher-5.jpeg',
-        contact: 'Charlton Mendes',
-        position: 'HR Manager',
-        telephone: '68352000',
-        mobile: '91992000',
-        whatsapp: '91992000',
-        email: 'charltonmendes@gmail.com',
-        contactedOn: '08/07/2023',
+        country: 'Singapore',
+        city: 'Singapore',
+        town: 'Woodlands',
+        zone: 'North',
       },
     ],
   }),
@@ -558,24 +451,20 @@ export default {
       this.isEdit = true;
       this.input = {
         id: user.id,
-        contact: user.contact,
-        telephone: user.telephone,
-        position: user.position,
-        mobile: user.mobile,
-        email: user.email,
-        whatsapp: user.whatsapp,
+        country: user.country,
+        town: user.town,
+        city: user.city,
+        zone: user.zone,
       };
     },
     cancelEdit() {
       this.isEdit = false;
       this.input = {
         id: 0,
-        contact: '',
-        telephone: '',
-        position: '',
-        mobile: '',
-        email: '',
-        whatsapp: '',
+        country: null,
+        town: null,
+        city: null,
+        zone: null,
       };
     },
     saveEdit() {
@@ -605,12 +494,10 @@ export default {
         //     this.getUserData();
         //     this.input = {
         //       id: 0,
-        //       contact: '',
-        //       telephone: '',
-        //       position: '',
-        //       mobile: '',
-        //       email: '',
-        //       whatsapp: '',
+        //       country: null,
+        //       town: null,
+        //       city: null,
+        //       zone: null,
         //     };
         //   })
         //   .catch((error) => {
@@ -648,12 +535,10 @@ export default {
         //     this.getUserData();
         //     this.input = {
         //       id: 0,
-        //       contact: '',
-        //       telephone: '',
-        //       position: '',
-        //       mobile: '',
-        //       email: '',
-        //       whatsapp: '',
+        //       country: null,
+        //       town: null,
+        //       city: null,
+        //       zone: null,
         //     };
         //   })
         //   .catch((error) => {
@@ -766,7 +651,6 @@ export default {
         });
     },
   },
-  components: { ImageUpload },
 };
 </script>
 
@@ -780,10 +664,6 @@ export default {
   margin-top: 50px !important;
   margin-bottom: 50px !important;
   font-weight: 500;
-}
-
-.country-table-body td {
-  border-bottom: none !important;
 }
 
 .upload-title {
@@ -803,16 +683,5 @@ export default {
 .v-btn-toggle .v-btn--active {
   background-color: #2196f3 !important;
   color: #fff !important;
-}
-
-.skeleton {
-  width: 100%;
-  height: 100%;
-  border-radius: 0;
-
-  background: linear-gradient(-90deg, #f2f2f2 0%, #e1e1e1 50%, #f2f2f2 100%);
-  background-size: 400% 400%;
-  animation: skeleton 1.6s ease infinite;
-  margin: 0 auto;
 }
 </style>

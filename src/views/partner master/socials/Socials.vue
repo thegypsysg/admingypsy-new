@@ -11,7 +11,7 @@
         <p>Back</p>
       </router-link>
     </div>
-    <h3 class="ml-4 mb-6">Job Locations</h3>
+    <h3 class="ml-4 mb-6">Socials</h3>
     <h4 class="ml-4 mb-6" style="color: #293fb8; font-weight: 400">
       Woodlands Health Care
     </h4>
@@ -19,56 +19,60 @@
       <v-container>
         <v-row>
           <v-col cols="12" md="3">
-            <v-combobox
-              density="compact"
-              :rules="rules.countryRules"
-              label="Select Country"
-              placeholder="Type Country"
-              :items="resource.country"
-              item-title="name"
-              item-value="id"
-              v-model="input.country"
+            <v-text-field
+              v-model="input.facebook"
+              :rules="rules.facebookRules"
+              label="Facebook"
               variant="outlined"
-            ></v-combobox>
+              density="compact"
+              required
+            ></v-text-field>
+            <v-text-field
+              v-model="input.linkedin"
+              :rules="rules.linkedinRules"
+              label="Linked In"
+              variant="outlined"
+              density="compact"
+              required
+            ></v-text-field>
           </v-col>
           <v-col cols="12" md="3">
-            <v-combobox
-              density="compact"
-              :rules="rules.cityRules"
-              label="Select City"
-              placeholder="Type City"
-              :items="resource.city"
-              item-title="name"
-              item-value="id"
-              v-model="input.city"
+            <v-text-field
+              v-model="input.instagram"
+              :rules="rules.instagramRules"
+              label="Instagram"
+              type="phone"
               variant="outlined"
-            ></v-combobox>
+              density="compact"
+              required
+            ></v-text-field>
+
+            <v-text-field
+              v-model="input.twitter"
+              :rules="rules.twitterRules"
+              label="Twitter"
+              variant="outlined"
+              density="compact"
+              required
+            ></v-text-field>
           </v-col>
           <v-col cols="12" md="3">
-            <v-combobox
-              density="compact"
-              :rules="rules.townRules"
-              label="Select Town"
-              placeholder="Type Town"
-              :items="resource.town"
-              item-title="name"
-              item-value="id"
-              v-model="input.town"
+            <v-text-field
+              v-model="input.tiktok"
+              :rules="rules.tiktokRules"
+              label="Tiktok"
               variant="outlined"
-            ></v-combobox>
-          </v-col>
-          <v-col cols="12" md="3">
-            <v-combobox
               density="compact"
-              :rules="rules.zoneRules"
-              label="Select Zone"
-              placeholder="Type Zone"
-              :items="resource.zone"
-              item-title="name"
-              item-value="id"
-              v-model="input.zone"
+              required
+            ></v-text-field>
+            <v-text-field
+              v-model="input.youtube"
+              :rules="rules.youtubeRules"
+              label="YouTube"
               variant="outlined"
-            ></v-combobox>
+              density="compact"
+              required
+            ></v-text-field>
           </v-col>
         </v-row>
         <v-row>
@@ -95,97 +99,9 @@
               {{ isEdit ? 'Save' : 'Add' }}
             </v-btn>
           </v-col>
-          <v-col cols="12" md="2">
-            <v-btn
-              v-if="isEdit"
-              prepend-icon="mdi-account-multiple-remove"
-              color="red"
-              style="text-transform: none"
-              variant="flat"
-              class="w-100"
-              @click="cancelEdit"
-              :disabled="isSending"
-            >
-              <template v-slot:prepend>
-                <v-icon color="white"></v-icon>
-              </template>
-
-              CANCEL
-            </v-btn>
-          </v-col>
         </v-row>
       </v-container>
     </v-form>
-    <v-sheet class="py-6 px-4 mt-10" border rounded width="100%">
-      <v-row>
-        <v-col cols="12">
-          <v-table class="country-table">
-            <thead>
-              <tr>
-                <th class="text-left">Country</th>
-                <th class="text-left">City</th>
-                <th class="text-left">Town</th>
-                <th class="text-left">Zone</th>
-                <th class="text-left">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              <template v-for="item in filteredItems" :key="item.id">
-                <tr class="country-table-body">
-                  <td>{{ item.country }}</td>
-                  <td>
-                    {{ item.city }}
-                  </td>
-                  <td>
-                    {{ item.town }}
-                  </td>
-                  <td>
-                    {{ item.zone }}
-                  </td>
-                  <td>
-                    <div class="d-flex">
-                      <v-tooltip location="top">
-                        <template v-slot:activator="{ props }">
-                          <v-btn
-                            color="green"
-                            variant="text"
-                            v-bind="props"
-                            @click="editUser(item)"
-                            icon="mdi-pencil-outline"
-                          ></v-btn>
-                        </template>
-                        <span>Edit</span>
-                      </v-tooltip>
-                      <v-tooltip location="top">
-                        <template v-slot:activator="{ props }">
-                          <v-btn
-                            color="red"
-                            v-bind="props"
-                            variant="text"
-                            :disabled="isDeleteLoading"
-                            @click="openDeleteConfirm(item.id)"
-                            icon="mdi-trash-can-outline"
-                          ></v-btn>
-                        </template>
-                        <span>Delete</span>
-                      </v-tooltip>
-                    </div>
-                  </td>
-                </tr>
-              </template>
-              <tr v-if="isLoading">
-                <td :colspan="6" class="text-center">
-                  <v-progress-circular
-                    indeterminate
-                    color="indigo-accent-2"
-                  ></v-progress-circular>
-                </td>
-              </tr>
-            </tbody>
-          </v-table>
-        </v-col>
-      </v-row>
-    </v-sheet>
     <v-snackbar
       location="top"
       color="green"
@@ -210,7 +126,7 @@ import { setAuthHeader } from '@/util/axios';
 // import app from '@/util/eventBus';
 
 export default {
-  name: 'EmployersVue',
+  name: 'SocialsVue',
   data: () => ({
     // fileURL: 'https://admin1.the-gypsy.sg/img/app/',
     valid: false,
@@ -228,102 +144,81 @@ export default {
     successMessage: '',
     input: {
       id: 0,
-      country: null,
-      town: null,
-      city: null,
-      zone: null,
+      facebook: '',
+      linkedin: '',
+      instagram: '',
+      twitter: '',
+      tiktok: '',
+      youtube: '',
     },
-
     rules: {
-      countryRules: [
+      facebookRules: [
         (value) => {
           if (value) return true;
-          return 'Country is required.';
-        },
-      ],
-      townRules: [
-        (value) => {
-          if (value) return true;
-          return 'Town is required.';
+          return 'Facebook is required.';
         },
       ],
 
-      cityRules: [
+      linkedinRules: [
         (value) => {
           if (value) return true;
-          return 'City is required.';
+          return 'Linked In is required.';
         },
       ],
-      zoneRules: [
+      instagramRules: [
         (value) => {
           if (value) return true;
-          return 'Zone is required.';
+          return 'Instagram is required.';
+        },
+      ],
+      twitterRules: [
+        (value) => {
+          if (value) return true;
+          return 'Twitter is required.';
+        },
+      ],
+      tiktokRules: [
+        (value) => {
+          if (value) return true;
+          return 'Tiktok is required.';
+        },
+      ],
+
+      youtubeRules: [
+        (value) => {
+          if (value) return true;
+          return 'YouTube is required.';
         },
       ],
     },
     search: '',
     items: [],
-    resource: {
-      country: [
-        {
-          name: 'Indonesia',
-          id: 1,
-        },
-        {
-          name: 'India',
-          id: 2,
-        },
-        {
-          name: 'Singapore',
-          id: 3,
-        },
-      ],
-      city: [
-        {
-          name: 'Jakarta',
-          id: 1,
-        },
-        {
-          name: 'Semarang',
-          id: 2,
-        },
-        {
-          name: 'Singapore',
-          id: 3,
-        },
-      ],
-      town: [
-        {
-          name: 'Kota Tua',
-          id: 1,
-        },
-        {
-          name: 'Kota Lama',
-          id: 2,
-        },
-        {
-          name: 'Woodlands',
-          id: 3,
-        },
-      ],
-      zone: [
-        {
-          name: 'North',
-          id: 1,
-        },
-        {
-          name: 'South',
-          id: 2,
-        },
-      ],
-    },
     itemsTry: [
       {
         id: 1,
+        logo: '@/assets/logo-img.jpeg',
+        image: '@/assets/other-voucher-5.jpeg',
+        name: 'Changi General Hospital',
+        type: 'Admin',
         country: 'Singapore',
         city: 'Singapore',
         town: 'Woodlands',
         zone: 'North',
+        isActive: true,
+        isFav: true,
+      },
+      {
+        id: 2,
+        logo: '@/assets/logo-img.jpeg',
+        image: '@/assets/other-voucher-5.jpeg',
+        name: 'Changi General Hospital',
+        type: 'Admin',
+        country: 'Singapore',
+        city: 'Singapore',
+        town: 'Woodlands',
+        zone: 'North',
+        isActive: true,
+        isFav: true,
       },
     ],
   }),
@@ -451,9 +346,11 @@ export default {
       this.isEdit = true;
       this.input = {
         id: user.id,
+        name: user.name,
+        type: user.type,
         country: user.country,
-        town: user.town,
         city: user.city,
+        town: user.town,
         zone: user.zone,
       };
     },
@@ -461,9 +358,11 @@ export default {
       this.isEdit = false;
       this.input = {
         id: 0,
+        name: '',
+        type: null,
         country: null,
-        town: null,
         city: null,
+        town: null,
         zone: null,
       };
     },
@@ -494,9 +393,11 @@ export default {
         //     this.getUserData();
         //     this.input = {
         //       id: 0,
+        //       name: '',
+        //       type: null,
         //       country: null,
-        //       town: null,
         //       city: null,
+        //       town: null,
         //       zone: null,
         //     };
         //   })
@@ -535,9 +436,11 @@ export default {
         //     this.getUserData();
         //     this.input = {
         //       id: 0,
+        //       name: '',
+        //       type: null,
         //       country: null,
-        //       town: null,
         //       city: null,
+        //       town: null,
         //       zone: null,
         //     };
         //   })
@@ -657,13 +560,12 @@ export default {
 <style lang="scss" scoped>
 .country-table {
   font-size: 12px;
-  color: black !important;
+  color: rgb(100, 100, 100) !important;
 }
 
 .country-table-body {
   margin-top: 50px !important;
   margin-bottom: 50px !important;
-  font-weight: 500;
 }
 
 .upload-title {

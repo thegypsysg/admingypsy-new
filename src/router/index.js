@@ -87,6 +87,20 @@ const routes = [
     },
   },
   {
+    name: 'position master',
+    path: '/position_master',
+    component: () =>
+      import('@/views/position master/PositionMasterContainer.vue'),
+    beforeEnter: (to, from, next) => {
+      // Pengecekan status login sebelum masuk ke halaman beranda
+      if (localStorage.getItem('token') == null) {
+        next('/auth/login'); // Alihkan ke halaman login jika belum masuk
+      } else {
+        next(); // Lanjutkan ke halaman beranda jika sudah masuk
+      }
+    },
+  },
+  {
     name: 'city master',
     path: '/city-master',
     component: () =>
@@ -196,7 +210,7 @@ const routes = [
     name: 'partner master',
     path: '/partner_master',
     component: () =>
-      import('@/views/the syringe/employers/EmployersContainer.vue'),
+      import('@/views/partner master/PartnerMasterContainer.vue'),
     beforeEnter: (to, from, next) => {
       // Pengecekan status login sebelum masuk ke halaman beranda
       if (localStorage.getItem('token') == null) {
@@ -210,7 +224,7 @@ const routes = [
     name: 'partner master main info',
     path: '/partner_master/main-info/:id',
     component: () =>
-      import('@/views/the syringe/employers/main info/MainInfoContainer.vue'),
+      import('@/views/partner master/main info/MainInfoContainer.vue'),
     beforeEnter: (to, from, next) => {
       // Pengecekan status login sebelum masuk ke halaman beranda
       if (localStorage.getItem('token') == null) {
@@ -224,7 +238,7 @@ const routes = [
     name: 'partner master contacts',
     path: '/partner_master/contacts/:id',
     component: () =>
-      import('@/views/the syringe/employers/contacts/ContactsContainer.vue'),
+      import('@/views/partner master/contacts/ContactsContainer.vue'),
     beforeEnter: (to, from, next) => {
       // Pengecekan status login sebelum masuk ke halaman beranda
       if (localStorage.getItem('token') == null) {
@@ -238,7 +252,7 @@ const routes = [
     name: 'partner master socials',
     path: '/partner_master/socials/:id',
     component: () =>
-      import('@/views/the syringe/employers/socials/SocialsContainer.vue'),
+      import('@/views/partner master/socials/SocialsContainer.vue'),
     beforeEnter: (to, from, next) => {
       // Pengecekan status login sebelum masuk ke halaman beranda
       if (localStorage.getItem('token') == null) {
@@ -252,9 +266,7 @@ const routes = [
     name: 'partner master job locations',
     path: '/partner_master/job-locations/:id',
     component: () =>
-      import(
-        '@/views/the syringe/employers/job locations/JobLocationsContainer.vue'
-      ),
+      import('@/views/partner master/job locations/JobLocationsContainer.vue'),
     beforeEnter: (to, from, next) => {
       // Pengecekan status login sebelum masuk ke halaman beranda
       if (localStorage.getItem('token') == null) {

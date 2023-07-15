@@ -3,7 +3,7 @@
     <sidebar-dashboard :drawer-open="drawer" />
     <header-dashboard @toggle-drawer="toggleDrawer" />
     <v-main>
-      <Employers />
+      <PositionMaster />
     </v-main>
   </v-app>
 </template>
@@ -11,19 +11,19 @@
 <script>
 import HeaderDashboard from '@/components/HeaderDashboard.vue';
 import SidebarDashboard from '@/components/SidebarDashboard.vue';
-import Employers from './Employers.vue';
+import PositionMaster from './PositionMaster.vue';
 
 export default {
-  name: 'EmployersContainer',
-  components: { SidebarDashboard, HeaderDashboard, Employers },
+  name: 'PositionMasterContainer',
+  components: { SidebarDashboard, HeaderDashboard, PositionMaster },
   data: () => ({
     drawer: true,
   }),
   // created() {
   //   // Cek keberadaan data pengguna di localStorage
-  //   // const CountryData = localStorage.getItem('token') == null ? false : true;
+  //   // const ZoneData = localStorage.getItem('token') == null ? false : true;
   //   if (localStorage.getItem('token') != null) {
-  //     this.$router.replace('/Country'); // Alihkan ke halaman dashboard jika pengguna sudah masuk dan terdapat data pengguna di localStorage
+  //     this.$router.replace('/Zone'); // Alihkan ke halaman dashboard jika pengguna sudah masuk dan terdapat data pengguna di localStorage
   //   } else {
   //     this.$router.replace('/auth/login');
   //   }
