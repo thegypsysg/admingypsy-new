@@ -19,7 +19,7 @@
       <v-container>
         <v-row>
           <v-col cols="12" md="3">
-            <v-combobox
+            <v-autocomplete
               density="compact"
               :rules="rules.countryRules"
               label="Select Country"
@@ -29,10 +29,10 @@
               item-value="id"
               v-model="input.country"
               variant="outlined"
-            ></v-combobox>
+            ></v-autocomplete>
           </v-col>
           <v-col cols="12" md="3">
-            <v-combobox
+            <v-autocomplete
               density="compact"
               :rules="rules.cityRules"
               label="Select City"
@@ -42,10 +42,10 @@
               item-value="id"
               v-model="input.city"
               variant="outlined"
-            ></v-combobox>
+            ></v-autocomplete>
           </v-col>
           <v-col cols="12" md="3">
-            <v-combobox
+            <v-autocomplete
               density="compact"
               :rules="rules.townRules"
               label="Select Town"
@@ -55,10 +55,10 @@
               item-value="id"
               v-model="input.town"
               variant="outlined"
-            ></v-combobox>
+            ></v-autocomplete>
           </v-col>
           <v-col cols="12" md="3">
-            <v-combobox
+            <v-autocomplete
               density="compact"
               :rules="rules.zoneRules"
               label="Select Zone"
@@ -68,10 +68,52 @@
               item-value="id"
               v-model="input.zone"
               variant="outlined"
-            ></v-combobox>
+            ></v-autocomplete>
           </v-col>
         </v-row>
-        <v-row>
+        <v-row class="mt-n4">
+          <v-col cols="12" md="3">
+            <v-text-field
+              v-model="input.location"
+              :rules="rules.locationRules"
+              label="Location Name"
+              variant="outlined"
+              density="compact"
+              required
+            ></v-text-field>
+          </v-col>
+          <v-col cols="12" md="3">
+            <v-text-field
+              v-model="input.latitude"
+              :rules="rules.latitudeRules"
+              label="Latitude"
+              variant="outlined"
+              density="compact"
+              required
+            ></v-text-field>
+          </v-col>
+          <v-col cols="12" md="3">
+            <v-text-field
+              v-model="input.longitude"
+              :rules="rules.longitudeRules"
+              label="Longitude"
+              variant="outlined"
+              density="compact"
+              required
+            ></v-text-field>
+          </v-col>
+          <v-col cols="12" md="3">
+            <v-textarea
+              v-model="input.address"
+              :rules="rules.addressRules"
+              label="Address"
+              rows="2"
+              variant="outlined"
+              required
+            ></v-textarea>
+          </v-col>
+        </v-row>
+        <v-row class="mt-n6">
           <v-col cols="12" md="2">
             <v-btn
               :prepend-icon="
@@ -122,57 +164,190 @@
           <v-table class="country-table">
             <thead>
               <tr>
-                <th class="text-left">Country</th>
-                <th class="text-left">City</th>
-                <th class="text-left">Town</th>
-                <th class="text-left">Zone</th>
-                <th class="text-left">Actions</th>
+                <th class="text-left font-weight-bold text-black">
+                  Location ID
+                </th>
+                <th class="text-left font-weight-bold text-black">Image</th>
+                <th class="text-left font-weight-bold text-black"></th>
+                <th class="text-left font-weight-bold text-black">
+                  Location Name
+                </th>
+                <th class="text-left font-weight-bold text-black">Latitude</th>
+                <th class="text-left font-weight-bold text-black">Longitude</th>
+                <th class="text-left font-weight-bold text-black">Address</th>
+                <th class="text-left font-weight-bold text-black"></th>
+                <th class="text-left font-weight-bold text-black"></th>
+                <th class="text-left font-weight-bold text-black">Actions</th>
               </tr>
             </thead>
             <tbody>
-              <template v-for="item in filteredItems" :key="item.id">
-                <tr class="country-table-body">
-                  <td>{{ item.country }}</td>
-                  <td>
-                    {{ item.city }}
-                  </td>
-                  <td>
-                    {{ item.town }}
-                  </td>
-                  <td>
-                    {{ item.zone }}
-                  </td>
-                  <td>
-                    <div class="d-flex">
-                      <v-tooltip location="top">
-                        <template v-slot:activator="{ props }">
-                          <v-btn
-                            color="green"
-                            variant="text"
-                            v-bind="props"
-                            @click="editUser(item)"
-                            icon="mdi-pencil-outline"
-                          ></v-btn>
-                        </template>
-                        <span>Edit</span>
-                      </v-tooltip>
-                      <v-tooltip location="top">
-                        <template v-slot:activator="{ props }">
-                          <v-btn
-                            color="red"
-                            v-bind="props"
-                            variant="text"
-                            :disabled="isDeleteLoading"
-                            @click="openDeleteConfirm(item.id)"
-                            icon="mdi-trash-can-outline"
-                          ></v-btn>
-                        </template>
-                        <span>Delete</span>
-                      </v-tooltip>
-                    </div>
-                  </td>
-                </tr>
-              </template>
+              <tr v-for="item in filteredItems" :key="item.id">
+                <td>
+                  <div class="app-column">
+                    {{ item.id }}
+                  </div>
+                  <v-table class="app-column-table">
+                    <tr>
+                      <th>Primary</th>
+                    </tr>
+                    <tr>
+                      <td>
+                        <v-btn-toggle
+                          mandatory
+                          style="
+                            font-size: 10px !important;
+                            font-weight: 200 !important;
+                            height: 22px !important;
+                            width: 54px !important;
+                          "
+                          class="d-flex align-center"
+                          v-model="item.isPrimary"
+                          rounded="5"
+                        >
+                          <v-btn size="27" :value="true"> Yes </v-btn>
+
+                          <v-btn size="27" :value="false"> No </v-btn>
+                        </v-btn-toggle>
+                      </td>
+                    </tr>
+                  </v-table>
+                </td>
+                <td>
+                  <div class="app-column">
+                    <v-img
+                      height="40"
+                      width="60"
+                      @click="openImage(item)"
+                      class="app-img"
+                      :src="
+                        item.image != null
+                          ? $fileURL + item.image
+                          : 'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png'
+                      "
+                      ><template #placeholder>
+                        <div class="skeleton" /> </template
+                    ></v-img>
+                  </div>
+                  <v-table class="app-column-table">
+                    <tr>
+                      <th>Favorite</th>
+                    </tr>
+                    <tr>
+                      <td>
+                        <v-btn-toggle
+                          mandatory
+                          style="
+                            font-size: 10px !important;
+                            font-weight: 200 !important;
+                            height: 22px !important;
+                            width: 54px !important;
+                          "
+                          class="d-flex align-center"
+                          v-model="item.isFavorite"
+                          rounded="5"
+                        >
+                          <v-btn size="27" :value="true"> Yes </v-btn>
+
+                          <v-btn size="27" :value="false"> No </v-btn>
+                        </v-btn-toggle>
+                      </td>
+                    </tr>
+                  </v-table>
+                </td>
+
+                <td></td>
+                <td>
+                  <div class="app-column">
+                    {{ item.location }}
+                  </div>
+                  <v-table class="app-column-table">
+                    <tr>
+                      <th>Country</th>
+                    </tr>
+                    <tr>
+                      <td>
+                        {{ item.country }}
+                      </td>
+                    </tr>
+                  </v-table>
+                </td>
+                <td>
+                  <div class="app-column">
+                    {{ item.latitude }}
+                  </div>
+                  <v-table class="app-column-table">
+                    <tr>
+                      <th>City</th>
+                    </tr>
+                    <tr>
+                      <td>
+                        {{ item.city }}
+                      </td>
+                    </tr>
+                  </v-table>
+                </td>
+                <td>
+                  <div class="app-column">
+                    {{ item.longitude }}
+                  </div>
+                  <v-table class="app-column-table">
+                    <tr>
+                      <th>Town</th>
+                    </tr>
+                    <tr>
+                      <td>
+                        {{ item.town }}
+                      </td>
+                    </tr>
+                  </v-table>
+                </td>
+                <td>
+                  <div class="app-column">
+                    {{ item.address }}
+                  </div>
+                  <v-table class="app-column-table">
+                    <tr>
+                      <th>Zone</th>
+                    </tr>
+                    <tr>
+                      <td>
+                        {{ item.zone }}
+                      </td>
+                    </tr>
+                  </v-table>
+                </td>
+                <td></td>
+                <td></td>
+                <td>
+                  <div class="d-flex">
+                    <v-tooltip location="top">
+                      <template v-slot:activator="{ props }">
+                        <v-btn
+                          color="green"
+                          variant="text"
+                          v-bind="props"
+                          @click="editUser(item)"
+                          icon="mdi-pencil-outline"
+                        ></v-btn>
+                      </template>
+                      <span>Edit</span>
+                    </v-tooltip>
+                    <v-tooltip location="top">
+                      <template v-slot:activator="{ props }">
+                        <v-btn
+                          color="red"
+                          v-bind="props"
+                          variant="text"
+                          :disabled="isDeleteLoading"
+                          @click="openDeleteConfirm(item.id)"
+                          icon="mdi-trash-can-outline"
+                        ></v-btn>
+                      </template>
+                      <span>Delete</span>
+                    </v-tooltip>
+                  </div>
+                </td>
+              </tr>
               <tr v-if="isLoading">
                 <td :colspan="6" class="text-center">
                   <v-progress-circular
@@ -200,10 +375,63 @@
         </v-btn>
       </template>
     </v-snackbar>
+    <v-snackbar location="top" color="red" v-model="isError" :timeout="3000">
+      {{ errorMessage }}
+
+      <template v-slot:actions>
+        <v-btn color="white" variant="text" @click="isError = false">
+          <v-icon>mdi-close</v-icon>
+        </v-btn>
+      </template>
+    </v-snackbar>
+    <v-dialog persistent width="500" v-model="isDelete">
+      <v-card>
+        <v-card-title>Confirmation</v-card-title>
+        <v-card-text> Are you sure want to delete this app? </v-card-text>
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn color="error" text @click="cancelDelete">No</v-btn>
+          <v-btn color="success" text @click="deleteApp">{{
+            isDeleteLoading ? 'Deleting...' : 'Yes'
+          }}</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+    <v-dialog persistent width="auto" v-model="isOpenImage">
+      <v-card width="750">
+        <v-card-title class="upload-title px-6 py-4">
+          Upload Image - User</v-card-title
+        >
+        <v-card-text>
+          <image-upload
+            :image-file="imageFile"
+            @update-image-file="updateImageFile"
+            @delete-image-file="deleteImageFile"
+          />
+        </v-card-text>
+        <v-card-actions class="mt-16">
+          <v-spacer></v-spacer>
+          <v-btn
+            style="text-transform: none"
+            color="error"
+            text
+            @click="closeImage"
+            >Cancel</v-btn
+          >
+          <v-btn
+            style="background-color: #9ddcff; text-transform: none"
+            color="black"
+            @click="saveImage()"
+            >Save</v-btn
+          >
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
   </v-container>
 </template>
 
 <script>
+import ImageUpload from '@/components/ImageUpload.vue';
 import axios from '@/util/axios';
 // import http from 'axios';
 import { setAuthHeader } from '@/util/axios';
@@ -216,6 +444,7 @@ export default {
     valid: false,
     isLoading: false,
     isSending: false,
+    isError: false,
     isEdit: false,
     isSuccess: false,
     isDelete: false,
@@ -226,12 +455,17 @@ export default {
     userIdToImage: null,
     isOpenImage: false,
     successMessage: '',
+    errorMessage: '',
     input: {
       id: 0,
       country: null,
       town: null,
       city: null,
       zone: null,
+      location: null,
+      latitude: null,
+      longitude: null,
+      address: null,
     },
 
     rules: {
@@ -260,70 +494,54 @@ export default {
           return 'Zone is required.';
         },
       ],
+      locationRules: [
+        (value) => {
+          if (value) return true;
+          return 'Location is required.';
+        },
+      ],
+      latitudeRules: [
+        (value) => {
+          if (value) return true;
+          return 'Latitude is required.';
+        },
+      ],
+      longitudeRules: [
+        (value) => {
+          if (value) return true;
+          return 'Longitude is required.';
+        },
+      ],
+      addressRules: [
+        (value) => {
+          if (value) return true;
+          return 'Address is required.';
+        },
+      ],
     },
     search: '',
     items: [],
     resource: {
-      country: [
-        {
-          name: 'Indonesia',
-          id: 1,
-        },
-        {
-          name: 'India',
-          id: 2,
-        },
-        {
-          name: 'Singapore',
-          id: 3,
-        },
-      ],
-      city: [
-        {
-          name: 'Jakarta',
-          id: 1,
-        },
-        {
-          name: 'Semarang',
-          id: 2,
-        },
-        {
-          name: 'Singapore',
-          id: 3,
-        },
-      ],
-      town: [
-        {
-          name: 'Kota Tua',
-          id: 1,
-        },
-        {
-          name: 'Kota Lama',
-          id: 2,
-        },
-        {
-          name: 'Woodlands',
-          id: 3,
-        },
-      ],
-      zone: [
-        {
-          name: 'North',
-          id: 1,
-        },
-        {
-          name: 'South',
-          id: 2,
-        },
-      ],
+      country: [],
+      city: [],
+      town: [],
+      zone: [],
     },
     itemsTry: [
       {
         id: 1,
+        image: null,
+        location: 'Headquarters',
+        latitude: 0.927336,
+        longitude: 0.53383,
+        address:
+          '320 North Bridge Road # 09-17 Peninsular Plaza Singapore - 760887',
         country: 'Singapore',
         city: 'Singapore',
         town: 'Woodlands',
         zone: 'North',
+        isPrimary: false,
+        isFavorite: false,
       },
     ],
   }),
@@ -334,6 +552,9 @@ export default {
   mounted() {
     // this.getUserData();
     this.getCountry();
+    this.getCityData();
+    this.getTownData();
+    this.getZoneData();
   },
   computed: {
     filteredItems() {
@@ -386,15 +607,15 @@ export default {
       //     this.imageFile = [];
       //   });
     },
-    openImage(image, id) {
+    openImage(item) {
       this.isOpenImage = true;
-      this.userIdToImage = id;
+      this.userIdToImage = item.id;
       this.imageFile =
-        image != null
+        item.image != null
           ? [
               {
                 file: {
-                  name: image,
+                  name: item.image,
                   size: '',
                   base64: '',
                   format: '',
@@ -455,6 +676,10 @@ export default {
         town: user.town,
         city: user.city,
         zone: user.zone,
+        location: user.location,
+        latitude: user.latitude,
+        longitude: user.longitude,
+        address: user.address,
       };
     },
     cancelEdit() {
@@ -465,6 +690,10 @@ export default {
         town: null,
         city: null,
         zone: null,
+        location: null,
+        latitude: null,
+        longitude: null,
+        address: null,
       };
     },
     saveEdit() {
@@ -494,10 +723,14 @@ export default {
         //     this.getUserData();
         //     this.input = {
         //       id: 0,
-        //       country: null,
-        //       town: null,
-        //       city: null,
-        //       zone: null,
+        // country: null,
+        // town: null,
+        // city: null,
+        // zone: null,
+        // location: null,
+        // latitude: null,
+        // longitude: null,
+        // address: null,
         //     };
         //   })
         //   .catch((error) => {
@@ -535,10 +768,14 @@ export default {
         //     this.getUserData();
         //     this.input = {
         //       id: 0,
-        //       country: null,
-        //       town: null,
-        //       city: null,
-        //       zone: null,
+        // country: null,
+        // town: null,
+        // city: null,
+        // zone: null,
+        // location: null,
+        // latitude: null,
+        // longitude: null,
+        // address: null,
         //     };
         //   })
         //   .catch((error) => {
@@ -635,22 +872,151 @@ export default {
     },
     getCountry() {
       axios
-        .get(`/country`)
+        .get(`/countries`)
         .then((response) => {
           const data = response.data.data;
-          this.resource.country = data.map((country) => {
-            return {
-              id: country.country_id,
-              name: country.country_name,
-            };
-          });
+          this.resource.country = data
+            .sort((a, b) => a.country_name.localeCompare(b.country_name))
+            .map((country) => {
+              return {
+                id: country.country_id,
+                name: country.country_name,
+              };
+            });
         })
         .catch((error) => {
           // eslint-disable-next-line
           console.log(error);
         });
     },
+    getCityData() {
+      this.isLoading = true;
+      axios
+        .get(`/cities`)
+        .then((response) => {
+          const data = response.data.data;
+          // console.log(data);
+          this.resource.city = data
+            .sort((a, b) => a.city_name.localeCompare(b.city_name))
+            .map((item) => {
+              return {
+                id: item.city_id || 1,
+                name: item.city_name || '',
+              };
+            });
+        })
+        .catch((error) => {
+          // eslint-disable-next-line
+          console.log(error);
+          const message =
+            error.response.data.message === ''
+              ? 'Something Wrong!!!'
+              : error.response.data.message;
+          this.errorMessage = message;
+          this.isError = true;
+        })
+        .finally(() => {
+          this.isLoading = false;
+        });
+    },
+    getTownData() {
+      this.isLoading = true;
+      axios
+        .get(`/towns`)
+        .then((response) => {
+          const data = response.data.data;
+          // console.log(data);
+          this.resource.town = data
+            .sort((a, b) => a.town_name.localeCompare(b.town_name))
+            .map((item) => {
+              return {
+                id: item.town_id || 1,
+                name: item.town_name || '',
+              };
+            });
+        })
+        .catch((error) => {
+          // eslint-disable-next-line
+          console.log(error);
+          const message =
+            error.response.data.message === ''
+              ? 'Something Wrong!!!'
+              : error.response.data.message;
+          this.errorMessage = message;
+          this.isError = true;
+        })
+        .finally(() => {
+          this.isLoading = false;
+        });
+    },
+    getZoneData() {
+      this.isLoading = true;
+      axios
+        .get(`/zones`)
+        .then((response) => {
+          const data = response.data.data;
+          // console.log(data);
+          this.resource.zone = data
+            .sort((a, b) => a.zone_name.localeCompare(b.zone_name))
+            .map((item) => {
+              return {
+                id: item.zone_id || 1,
+                name: item.zone_name || '',
+              };
+            });
+        })
+        .catch((error) => {
+          // eslint-disable-next-line
+          console.log(error);
+          const message =
+            error.response.data.message === ''
+              ? 'Something Wrong!!!'
+              : error.response.data.message;
+          this.errorMessage = message;
+          this.isError = true;
+        })
+        .finally(() => {
+          this.isLoading = false;
+        });
+    },
+    primaryLocation(id) {
+      this.isSending = true;
+      axios
+        .get(`/app/active/${id}`)
+        .then((response) => {
+          const data = response.data;
+          this.successMessage = data.message;
+          this.isSuccess = true;
+          this.getAppData();
+        })
+        .catch((error) => {
+          // eslint-disable-next-line
+          console.log(error);
+        })
+        .finally(() => {
+          this.isSending = false;
+        });
+    },
+    favoriteLocation(id) {
+      this.isSending = true;
+      axios
+        .get(`/app/favorite/${id}`)
+        .then((response) => {
+          const data = response.data;
+          this.successMessage = data.message;
+          this.isSuccess = true;
+          this.getAppData();
+        })
+        .catch((error) => {
+          // eslint-disable-next-line
+          console.log(error);
+        })
+        .finally(() => {
+          this.isSending = false;
+        });
+    },
   },
+  components: { ImageUpload },
 };
 </script>
 
@@ -664,6 +1030,28 @@ export default {
   margin-top: 50px !important;
   margin-bottom: 50px !important;
   font-weight: 500;
+}
+
+.app-column {
+  display: flex;
+  align-items: center;
+  min-height: 70px;
+  margin-bottom: 10px;
+}
+
+.app-column-table {
+  min-height: 70px;
+  margin-bottom: 10px !important;
+}
+.app-img {
+  border: 1px solid grey !important;
+  cursor: pointer !important;
+}
+
+.app-column-table th {
+  text-align: left;
+  font-weight: 600;
+  padding-bottom: 5px !important;
 }
 
 .upload-title {
@@ -683,5 +1071,16 @@ export default {
 .v-btn-toggle .v-btn--active {
   background-color: #2196f3 !important;
   color: #fff !important;
+}
+
+.skeleton {
+  width: 100%;
+  height: 100%;
+  border-radius: 0;
+
+  background: linear-gradient(-90deg, #f2f2f2 0%, #e1e1e1 50%, #f2f2f2 100%);
+  background-size: 400% 400%;
+  animation: skeleton 1.6s ease infinite;
+  margin: 0 auto;
 }
 </style>

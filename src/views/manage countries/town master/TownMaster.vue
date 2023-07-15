@@ -450,6 +450,8 @@ export default {
           });
           this.resource.town = data
             .filter((d) => d.town_name !== '')
+            .sort((a, b) => a.town_name.localeCompare(b.town_name))
+
             .map((item) => item.town_name);
         })
         .catch((error) => {
@@ -473,12 +475,14 @@ export default {
         .then((response) => {
           const data = response.data.data;
           // console.log(data);
-          this.resource.city = data.map((item) => {
-            return {
-              id: item.city_id || 1,
-              name: item.city_name || '',
-            };
-          });
+          this.resource.city = data
+            .sort((a, b) => a.city_name.localeCompare(b.city_name))
+            .map((item) => {
+              return {
+                id: item.city_id || 1,
+                name: item.city_name || '',
+              };
+            });
         })
         .catch((error) => {
           // eslint-disable-next-line

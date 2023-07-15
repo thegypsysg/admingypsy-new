@@ -496,6 +496,8 @@ export default {
           });
           this.resource.city = data
             .filter((d) => d.city_name !== '')
+            .sort((a, b) => a.city_name.localeCompare(b.city_name))
+
             .map((item) => item.city_name);
         })
         .catch((error) => {
@@ -517,12 +519,14 @@ export default {
         .get(`/country`)
         .then((response) => {
           const data = response.data.data;
-          this.resource.country = data.map((country) => {
-            return {
-              id: country.country_id,
-              name: country.country_name,
-            };
-          });
+          this.resource.country = data
+            .sort((a, b) => a.country_name.localeCompare(b.country_name))
+            .map((country) => {
+              return {
+                id: country.country_id,
+                name: country.country_name,
+              };
+            });
         })
         .catch((error) => {
           // eslint-disable-next-line
