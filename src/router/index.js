@@ -207,6 +207,20 @@ const routes = [
     },
   },
   {
+    name: 'job master',
+    path: '/job-master',
+    component: () =>
+      import('@/views/the syringe/job master/JobMasterContainer.vue'),
+    beforeEnter: (to, from, next) => {
+      // Pengecekan status login sebelum masuk ke halaman beranda
+      if (localStorage.getItem('token') == null) {
+        next('/auth/login'); // Alihkan ke halaman login jika belum masuk
+      } else {
+        next(); // Lanjutkan ke halaman beranda jika sudah masuk
+      }
+    },
+  },
+  {
     name: 'partner master',
     path: '/partner_master',
     component: () =>

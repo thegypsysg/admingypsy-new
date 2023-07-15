@@ -16,6 +16,13 @@
       >
         <p>Skills</p>
       </router-link>
+      <router-link
+        style="color: #000; font-weight: 500"
+        class="text-decoration-none"
+        to="/job-master"
+      >
+        <p>Job Master</p>
+      </router-link>
     </div>
     <v-form v-model="valid" @submit.prevent>
       <v-container>

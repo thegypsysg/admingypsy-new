@@ -2,20 +2,71 @@
 <!-- eslint-disable vue/no-deprecated-v-bind-sync -->
 <template>
   <v-container>
+    <div class="d-flex ml-4 mb-6" style="gap: 50px">
+      <router-link
+        style="color: #293fb8; font-weight: 500"
+        class="text-decoration-none"
+        to="/healthcare-settings"
+      >
+        <p>Healthcare Settings</p>
+      </router-link>
+      <router-link
+        style="color: #a93f43; font-weight: 500"
+        class="text-decoration-none"
+        to="/skills-group"
+      >
+        <p>Skills</p>
+      </router-link>
+      <router-link
+        style="color: #000; font-weight: 500"
+        class="text-decoration-none"
+        to="/job-master"
+      >
+        <p>Job Master</p>
+      </router-link>
+    </div>
     <v-form v-model="valid" @submit.prevent>
       <v-container>
         <v-row>
-          <v-col cols="12" md="6">
+          <v-col cols="12" md="5">
             <v-text-field
-              v-model="input.name"
-              :rules="rules.nameRules"
-              label="Partner Name"
+              v-model="input.position"
+              :rules="rules.positionRules"
+              label="Type Position"
               variant="outlined"
               density="compact"
               required
             ></v-text-field>
           </v-col>
-          <v-col cols="12" md="3">
+          <v-col cols="12" md="4">
+            <v-autocomplete
+              density="compact"
+              :rules="rules.skillsRules"
+              label="Select Skills Page"
+              placeholder="Type Skills Page"
+              :items="resource.subIndustry"
+              item-title="name"
+              item-value="id"
+              v-model="input.skills"
+              variant="outlined"
+            ></v-autocomplete>
+          </v-col>
+        </v-row>
+        <v-row class="mt-n4">
+          <v-col cols="12" md="5">
+            <v-autocomplete
+              density="compact"
+              :rules="rules.companyRules"
+              label="Selact Company"
+              placeholder="Type Company"
+              :items="resource.company"
+              item-title="name"
+              item-value="id"
+              v-model="input.company"
+              variant="outlined"
+            ></v-autocomplete>
+          </v-col>
+          <v-col cols="12" md="4">
             <v-autocomplete
               density="compact"
               :rules="rules.countryRules"
@@ -25,34 +76,6 @@
               item-title="name"
               item-value="id"
               v-model="input.country"
-              variant="outlined"
-            ></v-autocomplete>
-          </v-col>
-        </v-row>
-        <v-row class="mt-n4">
-          <v-col cols="12" md="3">
-            <v-autocomplete
-              density="compact"
-              :rules="rules.industryRules"
-              label="Industry"
-              placeholder="Type Industry"
-              :items="resource.industry"
-              item-title="name"
-              item-value="id"
-              v-model="input.industry"
-              variant="outlined"
-            ></v-autocomplete>
-          </v-col>
-          <v-col cols="12" md="3">
-            <v-autocomplete
-              density="compact"
-              :rules="rules.subIndustryRules"
-              label="Sub Industry"
-              placeholder="Type Sub Industry"
-              :items="resource.subIndustry"
-              item-title="name"
-              item-value="id"
-              v-model="input.subIndustry"
               variant="outlined"
             ></v-autocomplete>
           </v-col>
@@ -118,53 +141,31 @@
           <v-table class="country-table">
             <thead>
               <tr>
-                <th class="text-left">Id</th>
-                <th class="text-left">Logo</th>
-                <th class="text-left">Image</th>
-                <th class="text-left">Partner Name</th>
-                <th class="text-left">Country</th>
-                <th class="text-left">Industry</th>
+                <th class="text-left">Job Id</th>
+                <th class="text-left">Position</th>
+                <th class="text-left">Client Name</th>
                 <th class="text-left">Sub Industry</th>
+                <th class="text-left">Country</th>
+                <th class="text-left">Status</th>
                 <th class="text-left">Actions</th>
               </tr>
             </thead>
             <tbody>
               <template v-for="item in filteredItems" :key="item.id">
                 <tr class="country-table-body">
-                  <td>{{ item.id }}</td>
-                  <td>
-                    <v-img
-                      height="40"
-                      width="65"
-                      @click="openImage(item.logo, item.id)"
-                      style="cursor: pointer"
-                      src="@/assets/logo-img.png"
-                      ><template #placeholder>
-                        <div class="skeleton" /> </template
-                    ></v-img>
+                  <td class="text-black text-bold">{{ item.id }}</td>
+                  <td class="text-black text-bold">{{ item.position }}</td>
+                  <td class="text-black text-bold">
+                    {{ item.client }}
                   </td>
-                  <td>
-                    <v-img
-                      height="40"
-                      width="65"
-                      @click="openImage(item.image, item.id)"
-                      style="cursor: pointer"
-                      src="@/assets/other-voucher-img-5.png"
-                      ><template #placeholder>
-                        <div class="skeleton" /> </template
-                    ></v-img>
+                  <td class="text-black text-bold">
+                    {{ item.subIndustry }}
                   </td>
-                  <td>
-                    {{ item.name }}
-                  </td>
-                  <td>
+                  <td class="text-black text-bold">
                     {{ item.country }}
                   </td>
-                  <td>
-                    {{ item.industry }}
-                  </td>
-                  <td>
-                    {{ item.subIndustry }}
+                  <td class="text-green text-bold">
+                    {{ item.status }}
                   </td>
 
                   <td>
@@ -175,7 +176,7 @@
                             color="green"
                             variant="text"
                             v-bind="props"
-                            @click="editPartner(item)"
+                            @click="editJob(item)"
                             icon="mdi-pencil-outline"
                           ></v-btn>
                         </template>
@@ -204,11 +205,13 @@
                       <v-table class="text-left">
                         <tr>
                           <th class="pt-2">Active</th>
+                          <th class="pt-2">Live</th>
                           <th class="pt-2">Favorite</th>
+                          <th class="pt-2"></th>
                           <th class="pt-2"></th>
                         </tr>
                         <tr>
-                          <td class="pr-6 pt-2 pb-4">
+                          <td class="pr-8 pt-2 pb-4">
                             <v-btn-toggle
                               style="
                                 font-size: 10px !important;
@@ -225,7 +228,24 @@
                               <v-btn size="27" :value="false"> No </v-btn>
                             </v-btn-toggle>
                           </td>
-                          <td class="pr-6 pt-2 pb-4">
+                          <td class="pr-8 pt-2 pb-4">
+                            <v-btn-toggle
+                              style="
+                                font-size: 10px !important;
+                                font-weight: 200 !important;
+                                height: 22px !important;
+                                width: 54px !important;
+                              "
+                              class="d-flex align-center"
+                              v-model="item.isLive"
+                              rounded="5"
+                            >
+                              <v-btn size="27" :value="true"> Yes </v-btn>
+
+                              <v-btn size="27" :value="false"> No </v-btn>
+                            </v-btn-toggle>
+                          </td>
+                          <td class="pr-8 pt-2 pb-4">
                             <v-btn-toggle
                               style="
                                 font-size: 10px !important;
@@ -242,34 +262,17 @@
                               <v-btn size="27" :value="false"> No </v-btn>
                             </v-btn-toggle>
                           </td>
-                          <td class="pr-6 pt-2 pb-4">
+                          <td class="pr-16 pt-2 pb-4"></td>
+                          <td class="pr-8 pt-2 pb-4">
                             <div
                               class="d-flex justify-center"
                               style="gap: 20px"
                             >
                               <router-link
                                 class="text-decoration-none"
-                                :to="`partner_master/main-info/${item.id}`"
-                              >
-                                <span>Main Info</span>
-                              </router-link>
-                              <router-link
-                                class="text-decoration-none"
-                                :to="`partner_master/contacts/${item.id}`"
-                              >
-                                <span>Contacts</span>
-                              </router-link>
-                              <router-link
-                                class="text-decoration-none"
-                                :to="`partner_master/socials/${item.id}`"
-                              >
-                                <span>Socials</span>
-                              </router-link>
-                              <router-link
-                                class="text-decoration-none"
                                 :to="`partner_master/locations/${item.id}`"
                               >
-                                <span>Locations</span>
+                                <span>Job Locations</span>
                               </router-link>
                             </div>
                           </td>
@@ -319,40 +322,11 @@
     <v-dialog persistent width="500" v-model="isDelete">
       <v-card>
         <v-card-title>Confirmation</v-card-title>
-        <v-card-text> Are you sure want to delete this partner? </v-card-text>
+        <v-card-text> Are you sure want to delete this job? </v-card-text>
         <v-card-actions>
-          <v-btn color="error" text @click="cancelDelete">No</v-btn>
-          <v-btn color="success" text @click="deletePartner">Yes</v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
-    <v-dialog persistent width="auto" v-model="isOpenImage">
-      <v-card width="750">
-        <v-card-title class="upload-title px-6 py-4">
-          Upload Image - Partner</v-card-title
-        >
-        <v-card-text>
-          <image-upload
-            :image-file="imageFile"
-            @update-image-file="updateImageFile"
-            @delete-image-file="deleteImageFile"
-          />
-        </v-card-text>
-        <v-card-actions class="mt-16">
           <v-spacer></v-spacer>
-          <v-btn
-            style="text-transform: none"
-            color="error"
-            text
-            @click="closeImage"
-            >Cancel</v-btn
-          >
-          <v-btn
-            style="background-color: #9ddcff; text-transform: none"
-            color="black"
-            @click="saveImage()"
-            >Save</v-btn
-          >
+          <v-btn color="error" text @click="cancelDelete">No</v-btn>
+          <v-btn color="success" text @click="deleteJob">Yes</v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
@@ -360,7 +334,6 @@
 </template>
 
 <script>
-import ImageUpload from '@/components/ImageUpload.vue';
 import axios from '@/util/axios';
 // import http from 'axios';
 import { setAuthHeader } from '@/util/axios';
@@ -373,48 +346,51 @@ export default {
     valid: false,
     isLoading: false,
     isSending: false,
+    isError: false,
     isEdit: false,
     isSuccess: false,
     isDelete: false,
     isDeleteLoading: false,
-    partnerIdToDelete: null,
+    jobIdToDelete: null,
     tableHeaders: [{ text: 'Gambar', value: 'image' }],
     imageFile: [],
-    partnerIdToImage: null,
     isOpenImage: false,
     successMessage: '',
+    errorMessage: '',
     input: {
       id: 0,
-      name: '',
-      industry: null,
-      subIndustry: null,
+      position: null,
+      company: null,
+      skills: null,
       country: null,
-      city: null,
-      town: null,
-      zone: null,
     },
     resource: {
-      industry: [],
+      company: [
+        {
+          id: 1,
+          name: 'BMJ Therapy Pte Ltd',
+        },
+      ],
       subIndustry: [],
       country: [],
     },
     rules: {
-      nameRules: [
+      positionRules: [
         (value) => {
           if (value) return true;
-          return 'Employer name is required.';
+          return 'Position is required.';
         },
       ],
-      industryRules: [
+      companyRules: [
         (value) => {
           if (value) return true;
-          return 'Industry is required.';
+          return 'Company is required.';
         },
       ],
-      subIndustryRules: [
+      skillsRules: [
         (value) => {
           if (value) return true;
-          return 'Sub Industry is required.';
+          return 'Skills Page is required.';
         },
       ],
       countryRules: [
@@ -423,44 +399,21 @@ export default {
           return 'Country is required.';
         },
       ],
-      cityRules: [
-        (value) => {
-          if (value) return true;
-          return 'City is required.';
-        },
-      ],
-      townRules: [
-        (value) => {
-          if (value) return true;
-          return 'Town is required.';
-        },
-      ],
-      zoneRules: [
-        (value) => {
-          if (value) return true;
-          return 'Zone is required.';
-        },
-      ],
     },
     search: '',
     items: [],
     itemsTry: [
       {
-        id: 1,
-        logo: '@/assets/logo-img.jpeg',
-        image: '@/assets/other-voucher-5.jpeg',
-        name: 'Changi General Hospital',
-        type: 'Admin',
+        id: '05-SG-2023-07-1',
+        position: 'Senior Physioterapist',
+        client: 'BMJ Therapy Pte Ltd',
+        subIndustry: 'Private Clinic',
+        sub_industry_id: 1,
         country: 'Singapore',
-        city: 'Singapore',
-        town: 'Woodlands',
-        zone: 'North',
-        industry: 'testt',
-        industry_id: 1,
-        subIndustry: 'test test',
-        sub_industry_id: 7,
+        status: 'Completed',
         isActive: true,
         isFav: true,
+        isLive: true,
       },
     ],
   }),
@@ -469,9 +422,8 @@ export default {
     setAuthHeader(token);
   },
   mounted() {
-    // this.getPartnerData();
+    // this.getJobData();
     this.getCountry();
-    this.getIndustryData();
     this.getSubIndustryData();
   },
   computed: {
@@ -482,136 +434,32 @@ export default {
       const searchTextLower = this.search.toLowerCase();
       return this.itemsTry.filter(
         (item) =>
-          item.name.toLowerCase().includes(searchTextLower) ||
-          item.country.toLowerCase().includes(searchTextLower) ||
-          item.industry.toLowerCase().includes(searchTextLower) ||
-          item.subIndustry.toLowerCase().includes(searchTextLower)
+          item.position.toLowerCase().includes(searchTextLower) ||
+          item.client.toLowerCase().includes(searchTextLower) ||
+          item.subIndustry.toLowerCase().includes(searchTextLower) ||
+          item.country.toLowerCase().includes(searchTextLower)
       );
     },
   },
   methods: {
-    updateImageFile(newImageFile) {
-      this.imageFile.push(newImageFile);
-    },
-    deleteImageFile() {
-      this.isSending = true;
-      const payload = {
-        id: this.partnerIdToImage,
-      };
-      setTimeout(() => {
-        console.log(payload);
-        this.isEdit = false;
-        this.isSending = false;
-        this.partnerIdToImage = null;
-        this.imageFile = [];
-      }, 2000);
-      // axios
-      //   .post(`/user/deleteImage`, payload, {})
-      //   .then((response) => {
-      //     const data = response.data;
-      //     this.successMessage = data.message;
-      //     this.isSuccess = true;
-      //     this.getPartnerData();
-      //     // app.config.globalProperties.$eventBus.$emit('update-image');
-      //   })
-      //   .catch((error) => {
-      //     // eslint-disable-next-line
-      //     console.log(error);
-      //   })
-      //   .finally(() => {
-      //     this.isEdit = false;
-      //     this.isSending = false;
-      //     this.partnerIdToImage = null;
-      //     this.imageFile = [];
-      //   });
-    },
-    openImage(image, id) {
-      this.isOpenImage = true;
-      this.partnerIdToImage = id;
-      this.imageFile =
-        image != null
-          ? [
-              {
-                file: {
-                  name: image,
-                  size: '',
-                  base64: '',
-                  format: '',
-                },
-              },
-            ]
-          : [];
-    },
-    closeImage() {
-      this.isOpenImage = false;
-      this.imageFile = [];
-      this.partnerIdToImage = null;
-    },
-    saveImage() {
-      this.isSending = true;
-      const payload = {
-        id: this.partnerIdToImage,
-        file: this.imageFile[0],
-      };
-      setTimeout(() => {
-        console.log(payload);
-        this.isEdit = false;
-        this.isSending = false;
-        this.partnerIdToImage = null;
-        this.isOpenImage = false;
-        this.imageFile = [];
-      }, 2000);
-      // http
-      //   .post(`/user/update`, payload, {
-      //     headers: {
-      //       'Content-Type': 'multipart/form-data',
-      //     },
-      //   })
-      //   .then((response) => {
-      //     const data = response.data;
-      //     this.successMessage = data.message;
-      //     this.isSuccess = true;
-      //     this.getPartnerData();
-      //     // app.config.globalProperties.$eventBus.$emit('update-image');
-      //   })
-      //   .catch((error) => {
-      //     // eslint-disable-next-line
-      //     console.log(error);
-      //   })
-      //   .finally(() => {
-      //     this.isEdit = false;
-      //     this.isSending = false;
-      //     this.partnerIdToImage = null;
-      //     this.isOpenImage = false;
-      //     this.imageFile = [];
-      //   });
-    },
-    editPartner(partner) {
+    editJob(job) {
       this.isEdit = true;
       this.input = {
-        id: partner.id,
-        name: partner.name,
-        type: partner.type,
-        country: partner.country,
-        city: partner.city,
-        town: partner.town,
-        zone: partner.zone,
-        industry: partner.industry_id,
-        subIndustry: partner.sub_industry_id,
+        id: job.id,
+        position: job.position,
+        company: job.client,
+        skills: job.subIndustry,
+        country: job.country,
       };
     },
     cancelEdit() {
       this.isEdit = false;
       this.input = {
         id: 0,
-        name: '',
-        type: null,
+        position: null,
+        company: null,
+        skills: null,
         country: null,
-        city: null,
-        town: null,
-        zone: null,
-        industry: null,
-        subIndustry: null,
       };
     },
     saveEdit() {
@@ -638,15 +486,13 @@ export default {
         //     const data = response.data;
         //     this.successMessage = data.message;
         //     this.isSuccess = true;
-        //     this.getPartnerData();
+        //     this.getJobData();
         //     this.input = {
-        //       id: 0,
-        //       name: '',
-        //       type: null,
-        //       country: null,
-        //       city: null,
-        //       town: null,
-        //       zone: null,
+        //     id: 0,
+        // position: null,
+        // company: null,
+        // skills: null,
+        // country: null,
         //     };
         //   })
         //   .catch((error) => {
@@ -681,15 +527,13 @@ export default {
         //     const data = response.data;
         //     this.successMessage = data.message;
         //     this.isSuccess = true;
-        //     this.getPartnerData();
+        //     this.getJobData();
         //     this.input = {
-        //       id: 0,
-        //       name: '',
-        //       type: null,
-        //       country: null,
-        //       city: null,
-        //       town: null,
-        //       zone: null,
+        //     id: 0,
+        // position: null,
+        // company: null,
+        // skills: null,
+        // country: null,
         //     };
         //   })
         //   .catch((error) => {
@@ -702,34 +546,34 @@ export default {
       }
     },
     cancelDelete() {
-      this.partnerIdToDelete = null;
+      this.jobIdToDelete = null;
       this.isDelete = false;
     },
     openDeleteConfirm(itemId) {
-      this.partnerIdToDelete = itemId;
+      this.jobIdToDelete = itemId;
       this.isDelete = true;
     },
     cancelConfirmation() {
-      this.partnerIdToDelete = null;
+      this.jobIdToDelete = null;
       this.isDelete = false;
     },
-    deletePartner() {
+    deleteJob() {
       this.isDeleteLoading = true;
       setTimeout(() => {
-        console.log(this.partnerIdToDelete);
+        console.log(this.jobIdToDelete);
         this.isDeleteLoading = false;
-        this.partnerIdToDelete = null;
+        this.jobIdToDelete = null;
         this.isDelete = false;
       }, 2000);
       // axios
       //   .post(`/user/delete`, {
-      //     id: this.partnerIdToDelete,
+      //     id: this.jobIdToDelete,
       //   })
       //   .then((response) => {
       //     const data = response.data;
       //     this.successMessage = data.message;
       //     this.isSuccess = true;
-      //     this.getPartnerData();
+      //     this.getJobData();
       //   })
       //   .catch((error) => {
       //     // eslint-disable-next-line
@@ -737,11 +581,11 @@ export default {
       //   })
       //   .finally(() => {
       //     this.isDeleteLoading = false;
-      //     this.partnerIdToDelete = null;
+      //     this.jobIdToDelete = null;
       //     this.isDelete = false;
       //   });
     },
-    getPartnerData() {
+    getJobData() {
       this.isLoading = true;
       setTimeout(() => {
         console.log('OK');
@@ -858,14 +702,12 @@ export default {
         });
     },
   },
-  components: { ImageUpload },
 };
 </script>
 
 <style lang="scss" scoped>
 .country-table {
   font-size: 12px;
-  color: rgb(100, 100, 100) !important;
 }
 
 .country-table-body {
