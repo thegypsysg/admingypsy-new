@@ -267,9 +267,9 @@
                               </router-link>
                               <router-link
                                 class="text-decoration-none"
-                                :to="`partner_master/job-locations/${item.id}`"
+                                :to="`partner_master/locations/${item.id}`"
                               >
-                                <span>Job Locations</span>
+                                <span>Locations</span>
                               </router-link>
                             </div>
                           </td>

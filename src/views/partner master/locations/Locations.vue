@@ -11,7 +11,7 @@
         <p>Back</p>
       </router-link>
     </div>
-    <h3 class="ml-4 mb-6">Job Locations</h3>
+    <h3 class="ml-4 mb-6">Locations</h3>
     <h4 class="ml-4 mb-6" style="color: #293fb8; font-weight: 400">
       Woodlands Health Care
     </h4>
@@ -210,7 +210,7 @@ import { setAuthHeader } from '@/util/axios';
 // import app from '@/util/eventBus';
 
 export default {
-  name: 'JobLocations',
+  name: 'LocationsVue',
   data: () => ({
     // fileURL: 'https://admin1.the-gypsy.sg/img/app/',
     valid: false,

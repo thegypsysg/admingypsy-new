@@ -3,7 +3,7 @@
     <sidebar-dashboard :drawer-open="drawer" />
     <header-dashboard @toggle-drawer="toggleDrawer" />
     <v-main>
-      <JobLocations />
+      <Locations />
     </v-main>
   </v-app>
 </template>
@@ -11,11 +11,11 @@
 <script>
 import HeaderDashboard from '@/components/HeaderDashboard.vue';
 import SidebarDashboard from '@/components/SidebarDashboard.vue';
-import JobLocations from './JobLocations.vue';
+import Locations from './Locations.vue';
 
 export default {
-  name: 'JobLocationsContainer',
-  components: { SidebarDashboard, HeaderDashboard, JobLocations },
+  name: 'LocationsContainer',
+  components: { SidebarDashboard, HeaderDashboard, Locations },
   data: () => ({
     drawer: true,
   }),

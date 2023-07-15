@@ -263,10 +263,10 @@ const routes = [
     },
   },
   {
-    name: 'partner master job locations',
-    path: '/partner_master/job-locations/:id',
+    name: 'partner master locations',
+    path: '/partner_master/locations/:id',
     component: () =>
-      import('@/views/partner master/job locations/JobLocationsContainer.vue'),
+      import('@/views/partner master/locations/LocationsContainer.vue'),
     beforeEnter: (to, from, next) => {
       // Pengecekan status login sebelum masuk ke halaman beranda
       if (localStorage.getItem('token') == null) {
