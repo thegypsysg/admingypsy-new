@@ -16,7 +16,7 @@
             ></v-text-field>
           </v-col>
           <v-col cols="12" md="3">
-            <v-combobox
+            <v-autocomplete
               density="compact"
               :rules="rules.countryRules"
               label="Select Country"
@@ -26,12 +26,12 @@
               item-value="id"
               v-model="input.country"
               variant="outlined"
-            ></v-combobox>
+            ></v-autocomplete>
           </v-col>
         </v-row>
         <v-row class="mt-n4">
           <v-col cols="12" md="3">
-            <v-combobox
+            <v-autocomplete
               density="compact"
               :rules="rules.industryRules"
               label="Industry"
@@ -41,10 +41,10 @@
               item-value="id"
               v-model="input.industry"
               variant="outlined"
-            ></v-combobox>
+            ></v-autocomplete>
           </v-col>
           <v-col cols="12" md="3">
-            <v-combobox
+            <v-autocomplete
               density="compact"
               :rules="rules.subIndustryRules"
               label="Sub Industry"
@@ -54,7 +54,7 @@
               item-value="id"
               v-model="input.subIndustry"
               variant="outlined"
-            ></v-combobox>
+            ></v-autocomplete>
           </v-col>
         </v-row>
         <v-row class="mt-n4">
@@ -384,70 +384,9 @@ export default {
       zone: null,
     },
     resource: {
-      industry: [
-        {
-          name: '',
-          id: 1,
-        },
-      ],
-      subIndustry: [
-        {
-          name: '',
-          id: 1,
-        },
-      ],
-      country: [
-        {
-          name: 'Indonesia',
-          id: 1,
-        },
-        {
-          name: 'India',
-          id: 2,
-        },
-        {
-          name: 'Singapore',
-          id: 3,
-        },
-      ],
-      city: [
-        {
-          name: 'Jakarta',
-          id: 1,
-        },
-        {
-          name: 'Semarang',
-          id: 2,
-        },
-        {
-          name: 'Singapore',
-          id: 3,
-        },
-      ],
-      town: [
-        {
-          name: 'Kota Tua',
-          id: 1,
-        },
-        {
-          name: 'Kota Lama',
-          id: 2,
-        },
-        {
-          name: 'Woodlands',
-          id: 3,
-        },
-      ],
-      zone: [
-        {
-          name: 'North',
-          id: 1,
-        },
-        {
-          name: 'South',
-          id: 2,
-        },
-      ],
+      industry: [],
+      subIndustry: [],
+      country: [],
     },
     rules: {
       nameRules: [
@@ -506,23 +445,10 @@ export default {
         city: 'Singapore',
         town: 'Woodlands',
         zone: 'North',
-        industry: 'Healthcare',
-        subIndustry: 'Private Hospital',
-        isActive: true,
-        isFav: true,
-      },
-      {
-        id: 1,
-        logo: '@/assets/logo-img.jpeg',
-        image: '@/assets/other-voucher-5.jpeg',
-        name: 'Changi General Hospital',
-        type: 'Admin',
-        country: 'Singapore',
-        city: 'Singapore',
-        town: 'Woodlands',
-        zone: 'North',
-        industry: 'Healthcare',
-        subIndustry: 'Private Hospital',
+        industry: 'testt',
+        industry_id: 1,
+        subIndustry: 'test test',
+        sub_industry_id: 7,
         isActive: true,
         isFav: true,
       },
@@ -535,6 +461,8 @@ export default {
   mounted() {
     // this.getUserData();
     this.getCountry();
+    this.getIndustryData();
+    this.getSubIndustryData();
   },
   computed: {
     filteredItems() {
@@ -546,8 +474,8 @@ export default {
         (item) =>
           item.name.toLowerCase().includes(searchTextLower) ||
           item.country.toLowerCase().includes(searchTextLower) ||
-          item.city.toLowerCase().includes(searchTextLower) ||
-          item.town.toLowerCase().includes(searchTextLower)
+          item.industry.toLowerCase().includes(searchTextLower) ||
+          item.subIndustry.toLowerCase().includes(searchTextLower)
       );
     },
   },
@@ -658,6 +586,8 @@ export default {
         city: user.city,
         town: user.town,
         zone: user.zone,
+        industry: user.industry_id,
+        subIndustry: user.sub_industry_id,
       };
     },
     cancelEdit() {
@@ -670,6 +600,8 @@ export default {
         city: null,
         town: null,
         zone: null,
+        industry: null,
+        subIndustry: null,
       };
     },
     saveEdit() {
@@ -857,6 +789,62 @@ export default {
         .catch((error) => {
           // eslint-disable-next-line
           console.log(error);
+        });
+    },
+    getIndustryData() {
+      this.isLoading = true;
+      axios
+        .get(`/industries`)
+        .then((response) => {
+          const data = response.data.data;
+          console.log(data);
+          this.resource.industry = data.map((item) => {
+            return {
+              id: item.industry_id || 1,
+              name: item.industry_name || '',
+            };
+          });
+        })
+        .catch((error) => {
+          // eslint-disable-next-line
+          console.log(error);
+          const message =
+            error.response.data.message === ''
+              ? 'Something Wrong!!!'
+              : error.response.data.message;
+          this.errorMessage = message;
+          this.isError = true;
+        })
+        .finally(() => {
+          this.isLoading = false;
+        });
+    },
+    getSubIndustryData() {
+      this.isLoading = true;
+      axios
+        .get(`/sub-industries`)
+        .then((response) => {
+          const data = response.data.data;
+          console.log(data);
+          this.resource.subIndustry = data.map((item) => {
+            return {
+              id: item.sub_industry_id || 1,
+              name: item.sub_industry_name || '',
+            };
+          });
+        })
+        .catch((error) => {
+          // eslint-disable-next-line
+          console.log(error);
+          const message =
+            error.response.data.message === ''
+              ? 'Something Wrong!!!'
+              : error.response.data.message;
+          this.errorMessage = message;
+          this.isError = true;
+        })
+        .finally(() => {
+          this.isLoading = false;
         });
     },
   },
