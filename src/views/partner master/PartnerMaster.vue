@@ -136,9 +136,13 @@
                     <v-img
                       height="40"
                       width="65"
-                      @click="openImage(item.logo, item.id)"
+                      @click="openLogo(item)"
                       style="cursor: pointer"
-                      src="@/assets/logo-img.png"
+                      :src="
+                        item.logo != null
+                          ? $fileURL + item.logo
+                          : 'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png'
+                      "
                       ><template #placeholder>
                         <div class="skeleton" /> </template
                     ></v-img>
@@ -147,9 +151,13 @@
                     <v-img
                       height="40"
                       width="65"
-                      @click="openImage(item.image, item.id)"
+                      @click="openImage(item)"
                       style="cursor: pointer"
-                      src="@/assets/other-voucher-img-5.png"
+                      :src="
+                        item.image != null
+                          ? $fileURL + item.image
+                          : 'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png'
+                      "
                       ><template #placeholder>
                         <div class="skeleton" /> </template
                     ></v-img>
@@ -219,6 +227,7 @@
                               class="d-flex align-center"
                               v-model="item.isActive"
                               rounded="5"
+                              @click="activePartner(item.id)"
                             >
                               <v-btn size="27" :value="true"> Yes </v-btn>
 
@@ -236,6 +245,7 @@
                               class="d-flex align-center"
                               v-model="item.isFav"
                               rounded="5"
+                              @click="favoritePartner(item.id)"
                             >
                               <v-btn size="27" :value="true"> Yes </v-btn>
 
@@ -321,6 +331,7 @@
         <v-card-title>Confirmation</v-card-title>
         <v-card-text> Are you sure want to delete this partner? </v-card-text>
         <v-card-actions>
+          <v-spacer></v-spacer>
           <v-btn color="error" text @click="cancelDelete">No</v-btn>
           <v-btn color="success" text @click="deletePartner">Yes</v-btn>
         </v-card-actions>
@@ -356,13 +367,44 @@
         </v-card-actions>
       </v-card>
     </v-dialog>
+
+    <v-dialog persistent width="auto" v-model="isOpenLogo">
+      <v-card width="750">
+        <v-card-title class="upload-title px-6 py-4">
+          Upload Logo - Partner</v-card-title
+        >
+        <v-card-text>
+          <image-upload
+            :image-file="logoFile"
+            @update-image-file="updateLogoFile"
+            @delete-image-file="deleteLogoFile"
+          />
+        </v-card-text>
+        <v-card-actions class="mt-16">
+          <v-spacer></v-spacer>
+          <v-btn
+            style="text-transform: none"
+            color="error"
+            text
+            @click="closeLogo"
+            >Cancel</v-btn
+          >
+          <v-btn
+            style="background-color: #9ddcff; text-transform: none"
+            color="black"
+            @click="saveLogo()"
+            >Save</v-btn
+          >
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
   </v-container>
 </template>
 
 <script>
 import ImageUpload from '@/components/ImageUpload.vue';
 import axios from '@/util/axios';
-// import http from 'axios';
+import http from 'axios';
 import { setAuthHeader } from '@/util/axios';
 // import app from '@/util/eventBus';
 
@@ -380,8 +422,23 @@ export default {
     partnerIdToDelete: null,
     tableHeaders: [{ text: 'Gambar', value: 'image' }],
     imageFile: [],
-    partnerIdToImage: null,
+    logoFile: [],
+    partnerDataToImage: {
+      id: 0,
+      name: '',
+      industry: null,
+      subIndustry: null,
+      country: null,
+    },
+    partnerDataToLogo: {
+      id: 0,
+      name: '',
+      industry: null,
+      subIndustry: null,
+      country: null,
+    },
     isOpenImage: false,
+    isOpenLogo: false,
     successMessage: '',
     input: {
       id: 0,
@@ -389,9 +446,8 @@ export default {
       industry: null,
       subIndustry: null,
       country: null,
-      city: null,
-      town: null,
-      zone: null,
+      logo: null,
+      image: null,
     },
     resource: {
       industry: [],
@@ -444,32 +500,13 @@ export default {
     },
     search: '',
     items: [],
-    itemsTry: [
-      {
-        id: 1,
-        logo: '@/assets/logo-img.jpeg',
-        image: '@/assets/other-voucher-5.jpeg',
-        name: 'Changi General Hospital',
-        type: 'Admin',
-        country: 'Singapore',
-        city: 'Singapore',
-        town: 'Woodlands',
-        zone: 'North',
-        industry: 'testt',
-        industry_id: 1,
-        subIndustry: 'test test',
-        sub_industry_id: 7,
-        isActive: true,
-        isFav: true,
-      },
-    ],
   }),
   created() {
     const token = JSON.parse(localStorage.getItem('token'));
     setAuthHeader(token);
   },
   mounted() {
-    // this.getPartnerData();
+    this.getPartnerData();
     this.getCountry();
     this.getIndustryData();
     this.getSubIndustryData();
@@ -477,10 +514,10 @@ export default {
   computed: {
     filteredItems() {
       if (!this.search) {
-        return this.itemsTry;
+        return this.items;
       }
       const searchTextLower = this.search.toLowerCase();
-      return this.itemsTry.filter(
+      return this.items.filter(
         (item) =>
           item.name.toLowerCase().includes(searchTextLower) ||
           item.country.toLowerCase().includes(searchTextLower) ||
@@ -490,50 +527,93 @@ export default {
     },
   },
   methods: {
+    updateLogoFile(newImageFile) {
+      this.logoFile.push(newImageFile);
+    },
     updateImageFile(newImageFile) {
       this.imageFile.push(newImageFile);
     },
+    deleteLogoFile() {
+      this.isSending = true;
+      axios
+        .delete(`/partners/${this.partnerDataToLogo.id}/logo`)
+        .then((response) => {
+          const data = response.data;
+          this.successMessage = data.message;
+          this.isSuccess = true;
+          this.getPartnerData();
+        })
+        .catch((error) => {
+          // eslint-disable-next-line
+          console.log(error);
+          const message =
+            error.response.data.message === ''
+              ? 'Something Wrong!!!'
+              : error.response.data.message;
+          this.errorMessage = message;
+          this.isError = true;
+        })
+        .finally(() => {
+          this.isEdit = false;
+          this.isSending = false;
+          // this.partnerDataToLogo = {
+          //   app_id: 1,
+          //   app_group_id: 1,
+          //   app_name: '',
+          //   app_description: '',
+          //   app_detail: '',
+          // };
+          this.logoFile = [];
+        });
+    },
     deleteImageFile() {
       this.isSending = true;
-      const payload = {
-        id: this.partnerIdToImage,
-      };
-      setTimeout(() => {
-        console.log(payload);
-        this.isEdit = false;
-        this.isSending = false;
-        this.partnerIdToImage = null;
-        this.imageFile = [];
-      }, 2000);
-      // axios
-      //   .post(`/user/deleteImage`, payload, {})
-      //   .then((response) => {
-      //     const data = response.data;
-      //     this.successMessage = data.message;
-      //     this.isSuccess = true;
-      //     this.getPartnerData();
-      //     // app.config.globalProperties.$eventBus.$emit('update-image');
-      //   })
-      //   .catch((error) => {
-      //     // eslint-disable-next-line
-      //     console.log(error);
-      //   })
-      //   .finally(() => {
-      //     this.isEdit = false;
-      //     this.isSending = false;
-      //     this.partnerIdToImage = null;
-      //     this.imageFile = [];
-      //   });
+      axios
+        .delete(`/partners/${this.partnerDataToImage.id}/main-image`)
+        .then((response) => {
+          const data = response.data;
+          this.successMessage = data.message;
+          this.isSuccess = true;
+          this.getPartnerData();
+        })
+        .catch((error) => {
+          // eslint-disable-next-line
+          console.log(error);
+          const message =
+            error.response.data.message === ''
+              ? 'Something Wrong!!!'
+              : error.response.data.message;
+          this.errorMessage = message;
+          this.isError = true;
+        })
+        .finally(() => {
+          this.isEdit = false;
+          this.isSending = false;
+          // this.partnerDataToImage = {
+          //   app_id: 1,
+          //   app_group_id: 1,
+          //   app_name: '',
+          //   app_description: '',
+          //   app_detail: '',
+          // };
+          this.imageFile = [];
+        });
     },
-    openImage(image, id) {
-      this.isOpenImage = true;
-      this.partnerIdToImage = id;
-      this.imageFile =
-        image != null
+    openLogo(item) {
+      this.isOpenLogo = true;
+      this.partnerDataToLogo = {
+        id: item.id,
+        name: item.name,
+        country: item.country_id,
+        industry: item.industry_id,
+        subIndustry: item.sub_industry_id,
+      };
+      this.logoFile =
+        item.logo != null
           ? [
               {
                 file: {
-                  name: image,
+                  name: item.logo,
                   size: '',
                   base64: '',
                   format: '',
@@ -542,60 +622,151 @@ export default {
             ]
           : [];
     },
+    openImage(item) {
+      this.isOpenImage = true;
+      this.partnerDataToImage = {
+        id: item.id,
+        name: item.name,
+        country: item.country_id,
+        industry: item.industry_id,
+        subIndustry: item.sub_industry_id,
+      };
+      this.imageFile =
+        item.image != null
+          ? [
+              {
+                file: {
+                  name: item.image,
+                  size: '',
+                  base64: '',
+                  format: '',
+                },
+              },
+            ]
+          : [];
+    },
+    closeLogo() {
+      this.isOpenLogo = false;
+      this.logoFile = [];
+      this.partnerDataToLogo = {
+        id: 0,
+        name: '',
+        industry: null,
+        subIndustry: null,
+        country: null,
+      };
+    },
     closeImage() {
       this.isOpenImage = false;
       this.imageFile = [];
-      this.partnerIdToImage = null;
+      this.partnerDataToImage = {
+        id: 0,
+        name: '',
+        industry: null,
+        subIndustry: null,
+        country: null,
+      };
+    },
+    saveLogo() {
+      this.isSending = true;
+      const payload = {
+        partner_id: this.partnerDataToLogo.id,
+        partner_name: this.partnerDataToLogo.name,
+        country_id: this.partnerDataToLogo.country,
+        sub_industry_id: this.partnerDataToLogo.subIndustry,
+        industry_id: this.partnerDataToLogo.industry,
+        logo: this.logoFile[0],
+      };
+
+      http
+        .post(`/partners/update`, payload, {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+        })
+        .then((response) => {
+          const data = response.data;
+          this.successMessage = data.message;
+          this.isSuccess = true;
+          this.getPartnerData();
+        })
+        .catch((error) => {
+          // eslint-disable-next-line
+          console.log(error);
+          const message =
+            error.response.data.message === ''
+              ? 'Something Wrong!!!'
+              : error.response.data.message;
+          this.errorMessage = message;
+          this.isError = true;
+        })
+        .finally(() => {
+          this.isEdit = false;
+          this.isSending = false;
+          this.partnerDataToLogo = {
+            id: 0,
+            name: '',
+            industry: null,
+            subIndustry: null,
+            country: null,
+          };
+          this.isOpenLogo = false;
+          this.logoFile = [];
+        });
     },
     saveImage() {
       this.isSending = true;
       const payload = {
-        id: this.partnerIdToImage,
-        file: this.imageFile[0],
+        partner_id: this.partnerDataToImage.id,
+        partner_name: this.partnerDataToImage.name,
+        country_id: this.partnerDataToImage.country,
+        sub_industry_id: this.partnerDataToImage.subIndustry,
+        industry_id: this.partnerDataToImage.industry,
+        main_image: this.imageFile[0],
       };
-      setTimeout(() => {
-        console.log(payload);
-        this.isEdit = false;
-        this.isSending = false;
-        this.partnerIdToImage = null;
-        this.isOpenImage = false;
-        this.imageFile = [];
-      }, 2000);
-      // http
-      //   .post(`/user/update`, payload, {
-      //     headers: {
-      //       'Content-Type': 'multipart/form-data',
-      //     },
-      //   })
-      //   .then((response) => {
-      //     const data = response.data;
-      //     this.successMessage = data.message;
-      //     this.isSuccess = true;
-      //     this.getPartnerData();
-      //     // app.config.globalProperties.$eventBus.$emit('update-image');
-      //   })
-      //   .catch((error) => {
-      //     // eslint-disable-next-line
-      //     console.log(error);
-      //   })
-      //   .finally(() => {
-      //     this.isEdit = false;
-      //     this.isSending = false;
-      //     this.partnerIdToImage = null;
-      //     this.isOpenImage = false;
-      //     this.imageFile = [];
-      //   });
+
+      http
+        .post(`/partners/update`, payload, {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+        })
+        .then((response) => {
+          const data = response.data;
+          this.successMessage = data.message;
+          this.isSuccess = true;
+          this.getPartnerData();
+        })
+        .catch((error) => {
+          // eslint-disable-next-line
+          console.log(error);
+          const message =
+            error.response.data.message === ''
+              ? 'Something Wrong!!!'
+              : error.response.data.message;
+          this.errorMessage = message;
+          this.isError = true;
+        })
+        .finally(() => {
+          this.isEdit = false;
+          this.isSending = false;
+          this.partnerDataToImage = {
+            id: 0,
+            name: '',
+            industry: null,
+            subIndustry: null,
+            country: null,
+          };
+          this.isOpenImage = false;
+          this.imageFile = [];
+        });
     },
     editPartner(partner) {
       this.isEdit = true;
       this.input = {
         id: partner.id,
         name: partner.name,
-        type: partner.type,
-        country: partner.country,
-        city: partner.city,
-        town: partner.town,
-        zone: partner.zone,
+        country: partner.country_id,
         industry: partner.industry_id,
         subIndustry: partner.sub_industry_id,
       };
@@ -605,100 +776,111 @@ export default {
       this.input = {
         id: 0,
         name: '',
-        type: null,
-        country: null,
-        city: null,
-        town: null,
-        zone: null,
         industry: null,
         subIndustry: null,
+        country: null,
+        logo: null,
+        image: null,
       };
     },
     saveEdit() {
       if (this.valid) {
         this.isSending = true;
         const payload = {
-          id: this.input.id,
-          name: this.input.username,
-          email: this.input.email,
-          role: this.input.role,
+          partner_id: this.input.id,
+          partner_name: this.input.name,
           country_id: this.input.country,
+          sub_industry_id: this.input.subIndustry,
+          industry_id: this.input.industry,
         };
-        if (this.input.image !== null) {
-          payload['file'] = this.input.image;
+        if (this.input.logo !== null) {
+          payload['logo'] = this.input.logo;
+        } else if (this.input.image !== null) {
+          payload['main_image'] = this.input.image;
         }
-        setTimeout(() => {
-          console.log(payload);
-          this.isSending = false;
-          this.isEdit = false;
-        }, 2000);
-        // axios
-        //   .post(`/user/update`, payload)
-        //   .then((response) => {
-        //     const data = response.data;
-        //     this.successMessage = data.message;
-        //     this.isSuccess = true;
-        //     this.getPartnerData();
-        //     this.input = {
-        //       id: 0,
-        //       name: '',
-        //       type: null,
-        //       country: null,
-        //       city: null,
-        //       town: null,
-        //       zone: null,
-        //     };
-        //   })
-        //   .catch((error) => {
-        //     // eslint-disable-next-line
-        //     console.log(error);
-        //   })
-        //   .finally(() => {
-        //     this.isEdit = false;
-        //     this.isSending = false;
-        //   });
+        axios
+          .post(`/partners/update`, payload)
+          .then((response) => {
+            const data = response.data;
+            this.successMessage = data.message;
+            this.isSuccess = true;
+            this.getPartnerData();
+            this.input = {
+              id: 0,
+              name: '',
+              industry: null,
+              subIndustry: null,
+              country: null,
+              logo: null,
+              image: null,
+            };
+          })
+          .catch((error) => {
+            // eslint-disable-next-line
+            console.log(error);
+            const message = error.response.data.partner_name
+              ? error.response.data.partner_name[0]
+              : error.response.data.message
+              ? error.response.data.message
+              : 'Something Wrong!!!';
+            this.errorMessage = message;
+            this.isError = true;
+            this.input = {
+              id: 0,
+              name: '',
+              industry: null,
+              subIndustry: null,
+              country: null,
+              logo: null,
+              image: null,
+            };
+          })
+          .finally(() => {
+            this.isEdit = false;
+            this.isSending = false;
+          });
       }
     },
     saveData() {
       if (this.valid) {
         this.isSending = true;
         const payload = {
-          name: this.input.username,
-          email: this.input.email,
-          role: this.input.role,
+          partner_name: this.input.name,
           country_id: this.input.country,
+          sub_industry_id: this.input.subIndustry,
+          industry_id: this.input.industry,
         };
-        if (this.input.image !== null) {
-          payload['file'] = this.input.image;
-        }
-        setTimeout(() => {
-          console.log(payload);
-          this.isSending = false;
-        }, 2000);
-        // axios
-        //   .post(`/register`, payload)
-        //   .then((response) => {
-        //     const data = response.data;
-        //     this.successMessage = data.message;
-        //     this.isSuccess = true;
-        //     this.getPartnerData();
-        //     this.input = {
-        //       id: 0,
-        //       name: '',
-        //       type: null,
-        //       country: null,
-        //       city: null,
-        //       town: null,
-        //       zone: null,
-        //     };
-        //   })
-        //   .catch((error) => {
-        //     // eslint-disable-next-line
-        //     console.log(error);
-        //   })
-        //   .finally(() => {
-        //     this.isSending = false;
-        //   });
+        axios
+          .post(`/partners`, payload)
+          .then((response) => {
+            const data = response.data;
+            this.successMessage = data.message;
+            this.isSuccess = true;
+            this.getPartnerData();
+            this.input = {
+              id: 0,
+              name: '',
+              industry: null,
+              subIndustry: null,
+              country: null,
+              logo: null,
+              image: null,
+            };
+          })
+          .catch((error) => {
+            // eslint-disable-next-line
+            console.log(error);
+            const message = error.response.data.partner_name
+              ? error.response.data.partner_name[0]
+              : error.response.data.message
+              ? error.response.data.message
+              : 'Something Wrong!!!';
+            this.errorMessage = message;
+            this.isError = true;
+          })
+          .finally(() => {
+            this.isSending = false;
+          });
       }
     },
     cancelDelete() {
@@ -715,74 +897,73 @@ export default {
     },
     deletePartner() {
       this.isDeleteLoading = true;
-      setTimeout(() => {
-        console.log(this.partnerIdToDelete);
-        this.isDeleteLoading = false;
-        this.partnerIdToDelete = null;
-        this.isDelete = false;
-      }, 2000);
-      // axios
-      //   .post(`/user/delete`, {
-      //     id: this.partnerIdToDelete,
-      //   })
-      //   .then((response) => {
-      //     const data = response.data;
-      //     this.successMessage = data.message;
-      //     this.isSuccess = true;
-      //     this.getPartnerData();
-      //   })
-      //   .catch((error) => {
-      //     // eslint-disable-next-line
-      //     console.log(error);
-      //   })
-      //   .finally(() => {
-      //     this.isDeleteLoading = false;
-      //     this.partnerIdToDelete = null;
-      //     this.isDelete = false;
-      //   });
+      axios
+        .delete(`/partners/${this.partnerIdToDelete}`)
+        .then((response) => {
+          const data = response.data;
+          this.successMessage = data.message;
+          this.isSuccess = true;
+          this.getPartnerData();
+        })
+        .catch((error) => {
+          // eslint-disable-next-line
+          console.log(error);
+          const message =
+            error.response.data.message === ''
+              ? 'Something Wrong!!!'
+              : error.response.data.message;
+          this.errorMessage = message;
+          this.isError = true;
+        })
+        .finally(() => {
+          this.isDeleteLoading = false;
+          this.partnerIdToDelete = null;
+          this.isDelete = false;
+        });
     },
     getPartnerData() {
       this.isLoading = true;
-      setTimeout(() => {
-        console.log('OK');
-        this.isLoading = false;
-      }, 2000);
-      // axios
-      //   .get(`/user`)
-      //   .then((response) => {
-      //     const data = response.data.data;
-      //     // console.log(data);
-      //     this.items = data.map((item) => {
-      //       return {
-      //         id: item.id || 1,
-      //         name: item.name || '',
-      //         email: item.email || '',
-      //         registered_on: item.registered_on || '',
-      //         role: item.role || '',
-      //         roleName:
-      //           item.role == 'S'
-      //             ? 'Superadmin'
-      //             : item.role == 'A'
-      //             ? 'Admin'
-      //             : '',
-      //         image: item.image || null,
-      //         country_id: item.country_id || 1,
-      //         country_name: item.country_name || '',
-      //       };
-      //     });
-
-      //     app.config.globalProperties.$eventBus.$emit(
-      //       'update-image',
-      //       this.items
-      //     );
-      //   })
-      //   .catch((error) => {
-      //     // eslint-disable-next-line
-      //     console.log(error);
-      //   })
-      //   .finally(() => {
-      //     this.isLoading = false;
-      //   });
+      axios
+        .get(`/partners`)
+        .then((response) => {
+          const data = response.data.data;
+          // console.log(data);
+          this.items = data.map((item) => {
+            return {
+              id: item.partner_id || 1,
+              logo: item.logo || null,
+              image: item.main_image || null,
+              name: item.partner_name || '',
+              country: item.country.country_name || '',
+              country_id: item.country_id || 1,
+              industry: item.industry.industry_name || '',
+              industry_id: item.industry_id || 1,
+              subIndustry: item.sub_industry.sub_industry_name || '',
+              sub_industry_id: item.sub_industry_id || 1,
+              isActive:
+                item.active == 'N' ? false : item.active == 'Y' ? true : null,
+              isFav:
+                item.favorite == 'N'
+                  ? false
+                  : item.favorite == 'Y'
+                  ? true
+                  : null,
+            };
+          });
+        })
+        .catch((error) => {
+          // eslint-disable-next-line
+          console.log(error);
+          const message =
+            error.response.data.message === ''
+              ? 'Something Wrong!!!'
+              : error.response.data.message;
+          this.errorMessage = message;
+          this.isError = true;
+        })
+        .finally(() => {
+          this.isLoading = false;
+        });
     },
     getCountry() {
       axios
@@ -799,6 +980,12 @@ export default {
         .catch((error) => {
           // eslint-disable-next-line
           console.log(error);
+          const message =
+            error.response.data.message === ''
+              ? 'Something Wrong!!!'
+              : error.response.data.message;
+          this.errorMessage = message;
+          this.isError = true;
         });
     },
     getIndustryData() {
@@ -807,7 +994,7 @@ export default {
         .get(`/industries`)
         .then((response) => {
           const data = response.data.data;
-          console.log(data);
+          //console.log(data);
           this.resource.industry = data.map((item) => {
             return {
               id: item.industry_id || 1,
@@ -835,7 +1022,7 @@ export default {
         .get(`/sub-industries`)
         .then((response) => {
           const data = response.data.data;
-          console.log(data);
+          // console.log(data);
           this.resource.subIndustry = data.map((item) => {
             return {
               id: item.sub_industry_id || 1,
@@ -855,6 +1042,54 @@ export default {
         })
         .finally(() => {
           this.isLoading = false;
+        });
+    },
+    activePartner(id) {
+      this.isSending = true;
+      axios
+        .get(`/partners/toggle-active/${id}`)
+        .then((response) => {
+          const data = response.data;
+          this.successMessage = data.message;
+          this.isSuccess = true;
+          this.getPartnerData();
+        })
+        .catch((error) => {
+          // eslint-disable-next-line
+          console.log(error);
+          const message =
+            error.response.data.message === ''
+              ? 'Something Wrong!!!'
+              : error.response.data.message;
+          this.errorMessage = message;
+          this.isError = true;
+        })
+        .finally(() => {
+          this.isSending = false;
+        });
+    },
+    favoritePartner(id) {
+      this.isSending = true;
+      axios
+        .get(`/partners/toggle-favorite/${id}`)
+        .then((response) => {
+          const data = response.data;
+          this.successMessage = data.message;
+          this.isSuccess = true;
+          this.getPartnerData();
+        })
+        .catch((error) => {
+          // eslint-disable-next-line
+          console.log(error);
+          const message =
+            error.response.data.message === ''
+              ? 'Something Wrong!!!'
+              : error.response.data.message;
+          this.errorMessage = message;
+          this.isError = true;
+        })
+        .finally(() => {
+          this.isSending = false;
         });
     },
   },
