@@ -83,6 +83,8 @@
               v-model="input.contactedOn"
               :rules="rules.contactedOnRules"
               label="Contacted on"
+              type="date"
+              @input="changeFormatDate"
               variant="outlined"
               density="compact"
               required
@@ -163,9 +165,13 @@
                     <v-img
                       height="40"
                       width="65"
-                      @click="openImage(item.image, item.id)"
+                      @click="openImage(item)"
                       style="cursor: pointer"
-                      src="@/assets/other-voucher-img-5.png"
+                      :src="
+                        item.image != null
+                          ? $fileURL + item.image
+                          : 'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png'
+                      "
                       ><template #placeholder>
                         <div class="skeleton" /> </template
                     ></v-img>
@@ -191,7 +197,7 @@
                             color="green"
                             variant="text"
                             v-bind="props"
-                            @click="editUser(item)"
+                            @click="editPartnerContact(item)"
                             icon="mdi-pencil-outline"
                           ></v-btn>
                         </template>
@@ -267,20 +273,32 @@
         </v-btn>
       </template>
     </v-snackbar>
+    <v-snackbar location="top" color="red" v-model="isError" :timeout="3000">
+      {{ errorMessage }}
+
+      <template v-slot:actions>
+        <v-btn color="white" variant="text" @click="isError = false">
+          <v-icon>mdi-close</v-icon>
+        </v-btn>
+      </template>
+    </v-snackbar>
     <v-dialog persistent width="500" v-model="isDelete">
       <v-card>
         <v-card-title>Confirmation</v-card-title>
-        <v-card-text> Are you sure want to delete this user? </v-card-text>
+        <v-card-text>
+          Are you sure want to delete this partner contact?
+        </v-card-text>
         <v-card-actions>
+          <v-spacer></v-spacer>
           <v-btn color="error" text @click="cancelDelete">No</v-btn>
-          <v-btn color="success" text @click="deleteUser">Yes</v-btn>
+          <v-btn color="success" text @click="deletePartnerContact">Yes</v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
     <v-dialog persistent width="auto" v-model="isOpenImage">
       <v-card width="750">
         <v-card-title class="upload-title px-6 py-4">
-          Upload Image - User</v-card-title
+          Upload Image - Visiting Card</v-card-title
         >
         <v-card-text>
           <image-upload
@@ -313,7 +331,7 @@
 <script>
 import ImageUpload from '@/components/ImageUpload.vue';
 import axios from '@/util/axios';
-// import http from 'axios';
+import http from 'axios';
 import { setAuthHeader } from '@/util/axios';
 // import app from '@/util/eventBus';
 
@@ -321,30 +339,45 @@ export default {
   name: 'ContactsVue',
   data: () => ({
     // fileURL: 'https://admin1.the-gypsy.sg/img/app/',
+    idPartnerContact: null,
     valid: false,
     isLoading: false,
     isSending: false,
     isEdit: false,
     isSuccess: false,
+    isError: false,
     isDelete: false,
     isDeleteLoading: false,
-    userIdToDelete: null,
+    partnerContactIdToDelete: null,
     tableHeaders: [{ text: 'Gambar', value: 'image' }],
     imageFile: [],
-    userIdToImage: null,
+    partnerContactDataToImage: {
+      id: 0,
+      contact: null,
+      telephone: null,
+      position: null,
+      mobile: null,
+      email: null,
+      whatsapp: null,
+      contactedOn: null,
+      remarks: null,
+    },
     isOpenImage: false,
     successMessage: '',
+    errorMessage: '',
     input: {
       id: 0,
-      contact: '',
-      telephone: '',
-      position: '',
-      mobile: '',
-      email: '',
-      whatsapp: '',
-      contactedOn: '',
-      remarks: '',
+      contact: null,
+      telephone: null,
+      position: null,
+      mobile: null,
+      email: null,
+      whatsapp: null,
+      contactedOn: null,
+      remarks: null,
+      image: null,
     },
+    formattedDate: null,
     rules: {
       contactRules: [
         (value) => {
@@ -409,99 +442,102 @@ export default {
     },
     search: '',
     items: [],
-    itemsTry: [
-      {
-        id: 1,
-        image: '@/assets/other-voucher-5.jpeg',
-        contact: 'Charlton Mendes',
-        position: 'HR Manager',
-        telephone: '68352000',
-        mobile: '91992000',
-        whatsapp: '91992000',
-        email: 'charltonmendes@gmail.com',
-        contactedOn: '08/07/2023',
-      },
-      {
-        id: 2,
-        image: '@/assets/other-voucher-5.jpeg',
-        contact: 'Charlton Mendes',
-        position: 'HR Manager',
-        telephone: '68352000',
-        mobile: '91992000',
-        whatsapp: '91992000',
-        email: 'charltonmendes@gmail.com',
-        contactedOn: '08/07/2023',
-      },
-    ],
   }),
   created() {
     const token = JSON.parse(localStorage.getItem('token'));
     setAuthHeader(token);
   },
   mounted() {
-    // this.getUserData();
-    this.getCountry();
+    this.idPartnerContact = this.$route.params.id;
+    this.getPartnerContactData();
   },
   computed: {
     filteredItems() {
       if (!this.search) {
-        return this.itemsTry;
+        return this.items;
       }
       const searchTextLower = this.search.toLowerCase();
-      return this.itemsTry.filter(
+      return this.items.filter(
         (item) =>
-          item.name.toLowerCase().includes(searchTextLower) ||
-          item.country.toLowerCase().includes(searchTextLower) ||
-          item.city.toLowerCase().includes(searchTextLower) ||
-          item.town.toLowerCase().includes(searchTextLower)
+          item.contact.toLowerCase().includes(searchTextLower) ||
+          item.position.toLowerCase().includes(searchTextLower) ||
+          item.telephone.toLowerCase().includes(searchTextLower) ||
+          item.mobile.toLowerCase().includes(searchTextLower) ||
+          item.whatsapp.toLowerCase().includes(searchTextLower) ||
+          item.email.toLowerCase().includes(searchTextLower)
       );
     },
   },
   methods: {
+    reverseFormatDate(date) {
+      const arrayDate = date.split('/');
+      const formattedDate = `${arrayDate[2]}-${arrayDate[1]}-${arrayDate[0]}`;
+      return formattedDate;
+    },
+    changeFormatDate() {
+      if (this.input.contactedOn) {
+        const arrayDate = this.input.contactedOn.split('-');
+        const formattedDate = `${arrayDate[2]}/${arrayDate[1]}/${arrayDate[0]}`;
+        this.formattedDate = formattedDate;
+      }
+    },
     updateImageFile(newImageFile) {
       this.imageFile.push(newImageFile);
     },
     deleteImageFile() {
       this.isSending = true;
-      const payload = {
-        id: this.userIdToImage,
-      };
-      setTimeout(() => {
-        console.log(payload);
-        this.isEdit = false;
-        this.isSending = false;
-        this.userIdToImage = null;
-        this.imageFile = [];
-      }, 2000);
-      // axios
-      //   .post(`/user/deleteImage`, payload, {})
-      //   .then((response) => {
-      //     const data = response.data;
-      //     this.successMessage = data.message;
-      //     this.isSuccess = true;
-      //     this.getUserData();
-      //     // app.config.globalProperties.$eventBus.$emit('update-image');
-      //   })
-      //   .catch((error) => {
-      //     // eslint-disable-next-line
-      //     console.log(error);
-      //   })
-      //   .finally(() => {
-      //     this.isEdit = false;
-      //     this.isSending = false;
-      //     this.userIdToImage = null;
-      //     this.imageFile = [];
-      //   });
+      axios
+        .delete(
+          `/partner-contacts/${this.partnerContactDataToImage.id}/visiting-card`
+        )
+        .then((response) => {
+          const data = response.data;
+          this.successMessage = data.message;
+          this.isSuccess = true;
+          this.getPartnerContactData();
+        })
+        .catch((error) => {
+          // eslint-disable-next-line
+          console.log(error);
+          const message =
+            error.response.data.message === ''
+              ? 'Something Wrong!!!'
+              : error.response.data.message;
+          this.errorMessage = message;
+          this.isError = true;
+        })
+        .finally(() => {
+          this.isEdit = false;
+          this.isSending = false;
+          // this.partnerContactDataToImage = {
+          //   app_id: 1,
+          //   app_group_id: 1,
+          //   app_name: '',
+          //   app_description: '',
+          //   app_detail: '',
+          // };
+          this.imageFile = [];
+        });
     },
-    openImage(image, id) {
+    openImage(item) {
       this.isOpenImage = true;
-      this.userIdToImage = id;
+      this.partnerContactDataToImage = {
+        id: item.id,
+        contact: item.contact,
+        telephone: item.telephone,
+        position: item.position,
+        mobile: item.mobile,
+        email: item.email,
+        whatsapp: item.whatsapp,
+        contactedOn: item.contactedOn,
+        remarks: item.remarks,
+      };
       this.imageFile =
-        image != null
+        item.image != null
           ? [
               {
                 file: {
-                  name: image,
+                  name: item.image,
                   size: '',
                   base64: '',
                   format: '',
@@ -513,256 +549,279 @@ export default {
     closeImage() {
       this.isOpenImage = false;
       this.imageFile = [];
-      this.userIdToImage = null;
+      this.partnerContactDataToImage = {
+        id: 0,
+        contact: null,
+        telephone: null,
+        position: null,
+        mobile: null,
+        email: null,
+        whatsapp: null,
+        contactedOn: null,
+        remarks: null,
+      };
     },
     saveImage() {
       this.isSending = true;
       const payload = {
-        id: this.userIdToImage,
-        file: this.imageFile[0],
+        partner_contact_id: this.partnerContactDataToImage.id,
+        name: this.partnerContactDataToImage.contact,
+        position: this.partnerContactDataToImage.position,
+        email: this.partnerContactDataToImage.email,
+        telephone: this.partnerContactDataToImage.telephone,
+        mobile: this.partnerContactDataToImage.mobile,
+        whatsapp: this.partnerContactDataToImage.whatsapp,
+        reference: this.partnerContactDataToImage.remarks,
+        contact_on: this.partnerContactDataToImage.contactedOn,
+        visiting_card: this.imageFile[0],
       };
-      setTimeout(() => {
-        console.log(payload);
-        this.isEdit = false;
-        this.isSending = false;
-        this.userIdToImage = null;
-        this.isOpenImage = false;
-        this.imageFile = [];
-      }, 2000);
-      // http
-      //   .post(`/user/update`, payload, {
-      //     headers: {
-      //       'Content-Type': 'multipart/form-data',
-      //     },
-      //   })
-      //   .then((response) => {
-      //     const data = response.data;
-      //     this.successMessage = data.message;
-      //     this.isSuccess = true;
-      //     this.getUserData();
-      //     // app.config.globalProperties.$eventBus.$emit('update-image');
-      //   })
-      //   .catch((error) => {
-      //     // eslint-disable-next-line
-      //     console.log(error);
-      //   })
-      //   .finally(() => {
-      //     this.isEdit = false;
-      //     this.isSending = false;
-      //     this.userIdToImage = null;
-      //     this.isOpenImage = false;
-      //     this.imageFile = [];
-      //   });
+
+      http
+        .post(`/partner-contacts/update`, payload, {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+        })
+        .then((response) => {
+          const data = response.data;
+          this.successMessage = data.message;
+          this.isSuccess = true;
+          this.getPartnerContactData();
+        })
+        .catch((error) => {
+          // eslint-disable-next-line
+          console.log(error);
+          const message =
+            error.response.data.message === ''
+              ? 'Something Wrong!!!'
+              : error.response.data.message;
+          this.errorMessage = message;
+          this.isError = true;
+        })
+        .finally(() => {
+          this.isEdit = false;
+          this.isSending = false;
+          this.partnerContactDataToImage = {
+            id: 0,
+            contact: null,
+            telephone: null,
+            position: null,
+            mobile: null,
+            email: null,
+            whatsapp: null,
+            contactedOn: null,
+            remarks: null,
+            image: null,
+          };
+          this.isOpenImage = false;
+          this.imageFile = [];
+        });
     },
-    editUser(user) {
+    editPartnerContact(item) {
       this.isEdit = true;
       this.input = {
-        id: user.id,
-        contact: user.contact,
-        telephone: user.telephone,
-        position: user.position,
-        mobile: user.mobile,
-        email: user.email,
-        whatsapp: user.whatsapp,
+        id: item.id,
+        contact: item.contact,
+        telephone: item.telephone,
+        position: item.position,
+        mobile: item.mobile,
+        email: item.email,
+        whatsapp: item.whatsapp,
+        contactedOn: this.reverseFormatDate(item.contactedOn),
+        remarks: item.remarks,
       };
     },
     cancelEdit() {
       this.isEdit = false;
       this.input = {
         id: 0,
-        contact: '',
-        telephone: '',
-        position: '',
-        mobile: '',
-        email: '',
-        whatsapp: '',
+        contact: null,
+        telephone: null,
+        position: null,
+        mobile: null,
+        email: null,
+        whatsapp: null,
+        contactedOn: null,
+        remarks: null,
+        image: null,
       };
     },
     saveEdit() {
       if (this.valid) {
         this.isSending = true;
         const payload = {
-          id: this.input.id,
-          name: this.input.username,
+          partner_contact_id: this.input.id,
+          name: this.input.contact,
+          position: this.input.position,
           email: this.input.email,
-          role: this.input.role,
-          country_id: this.input.country,
+          telephone: this.input.telephone,
+          mobile: this.input.mobile,
+          whatsapp: this.input.whatsapp,
+          reference: this.input.remarks,
+          contact_on: this.formattedDate,
         };
         if (this.input.image !== null) {
-          payload['file'] = this.input.image;
+          payload['visiting_card'] = this.input.image;
         }
-        setTimeout(() => {
-          console.log(payload);
-          this.isSending = false;
-          this.isEdit = false;
-        }, 2000);
-        // axios
-        //   .post(`/user/update`, payload)
-        //   .then((response) => {
-        //     const data = response.data;
-        //     this.successMessage = data.message;
-        //     this.isSuccess = true;
-        //     this.getUserData();
-        //     this.input = {
-        //       id: 0,
-        //       contact: '',
-        //       telephone: '',
-        //       position: '',
-        //       mobile: '',
-        //       email: '',
-        //       whatsapp: '',
-        //     };
-        //   })
-        //   .catch((error) => {
-        //     // eslint-disable-next-line
-        //     console.log(error);
-        //   })
-        //   .finally(() => {
-        //     this.isEdit = false;
-        //     this.isSending = false;
-        //   });
+        axios
+          .post(`/partner-contacts/update`, payload)
+          .then((response) => {
+            const data = response.data;
+            this.successMessage = data.message;
+            this.isSuccess = true;
+            this.getPartnerContactData();
+            this.input = {
+              id: 0,
+              contact: null,
+              telephone: null,
+              position: null,
+              mobile: null,
+              email: null,
+              whatsapp: null,
+              contactedOn: null,
+              remarks: null,
+              image: null,
+            };
+          })
+          .catch((error) => {
+            // eslint-disable-next-line
+            console.log(error);
+            const message = error.response.data.name
+              ? error.response.data.name[0]
+              : error.response.data.message
+              ? error.response.data.message
+              : 'Something Wrong!!!';
+            this.errorMessage = message;
+            this.isError = true;
+          })
+          .finally(() => {
+            this.isEdit = false;
+            this.isSending = false;
+          });
       }
     },
     saveData() {
       if (this.valid) {
         this.isSending = true;
         const payload = {
-          name: this.input.username,
+          partner_id: this.idPartnerContact,
+          name: this.input.contact,
+          position: this.input.position,
           email: this.input.email,
-          role: this.input.role,
-          country_id: this.input.country,
+          telephone: this.input.telephone,
+          mobile: this.input.mobile,
+          whatsapp: this.input.whatsapp,
+          reference: this.input.remarks,
+          contact_on: this.formattedDate,
         };
-        if (this.input.image !== null) {
-          payload['file'] = this.input.image;
-        }
-        setTimeout(() => {
-          console.log(payload);
-          this.isSending = false;
-        }, 2000);
-        // axios
-        //   .post(`/register`, payload)
-        //   .then((response) => {
-        //     const data = response.data;
-        //     this.successMessage = data.message;
-        //     this.isSuccess = true;
-        //     this.getUserData();
-        //     this.input = {
-        //       id: 0,
-        //       contact: '',
-        //       telephone: '',
-        //       position: '',
-        //       mobile: '',
-        //       email: '',
-        //       whatsapp: '',
-        //     };
-        //   })
-        //   .catch((error) => {
-        //     // eslint-disable-next-line
-        //     console.log(error);
-        //   })
-        //   .finally(() => {
-        //     this.isSending = false;
-        //   });
+        axios
+          .post(`/partner-contacts`, payload)
+          .then((response) => {
+            const data = response.data;
+            this.successMessage = data.message;
+            this.isSuccess = true;
+            this.getPartnerContactData();
+            this.input = {
+              id: 0,
+              contact: null,
+              telephone: null,
+              position: null,
+              mobile: null,
+              email: null,
+              whatsapp: null,
+              contactedOn: null,
+              remarks: null,
+              image: null,
+            };
+          })
+          .catch((error) => {
+            // eslint-disable-next-line
+            console.log(error);
+            const message = error.response.data.name
+              ? error.response.data.name[0]
+              : error.response.data.message
+              ? error.response.data.message
+              : 'Something Wrong!!!';
+            this.errorMessage = message;
+            this.isError = true;
+          })
+          .finally(() => {
+            this.isSending = false;
+          });
       }
     },
     cancelDelete() {
-      this.userIdToDelete = null;
+      this.partnerContactIdToDelete = null;
       this.isDelete = false;
     },
     openDeleteConfirm(itemId) {
-      this.userIdToDelete = itemId;
+      this.partnerContactIdToDelete = itemId;
       this.isDelete = true;
     },
     cancelConfirmation() {
-      this.userIdToDelete = null;
+      this.partnerContactIdToDelete = null;
       this.isDelete = false;
     },
-    deleteUser() {
+    deletePartnerContact() {
       this.isDeleteLoading = true;
-      setTimeout(() => {
-        console.log(this.userIdToDelete);
-        this.isDeleteLoading = false;
-        this.userIdToDelete = null;
-        this.isDelete = false;
-      }, 2000);
-      // axios
-      //   .post(`/user/delete`, {
-      //     id: this.userIdToDelete,
-      //   })
-      //   .then((response) => {
-      //     const data = response.data;
-      //     this.successMessage = data.message;
-      //     this.isSuccess = true;
-      //     this.getUserData();
-      //   })
-      //   .catch((error) => {
-      //     // eslint-disable-next-line
-      //     console.log(error);
-      //   })
-      //   .finally(() => {
-      //     this.isDeleteLoading = false;
-      //     this.userIdToDelete = null;
-      //     this.isDelete = false;
-      //   });
-    },
-    getUserData() {
-      this.isLoading = true;
-      setTimeout(() => {
-        console.log('OK');
-        this.isLoading = false;
-      }, 2000);
-      // axios
-      //   .get(`/user`)
-      //   .then((response) => {
-      //     const data = response.data.data;
-      //     // console.log(data);
-      //     this.items = data.map((item) => {
-      //       return {
-      //         id: item.id || 1,
-      //         name: item.name || '',
-      //         email: item.email || '',
-      //         registered_on: item.registered_on || '',
-      //         role: item.role || '',
-      //         roleName:
-      //           item.role == 'S'
-      //             ? 'Superadmin'
-      //             : item.role == 'A'
-      //             ? 'Admin'
-      //             : '',
-      //         image: item.image || null,
-      //         country_id: item.country_id || 1,
-      //         country_name: item.country_name || '',
-      //       };
-      //     });
-
-      //     app.config.globalProperties.$eventBus.$emit(
-      //       'update-image',
-      //       this.items
-      //     );
-      //   })
-      //   .catch((error) => {
-      //     // eslint-disable-next-line
-      //     console.log(error);
-      //   })
-      //   .finally(() => {
-      //     this.isLoading = false;
-      //   });
-    },
-    getCountry() {
       axios
-        .get(`/country`)
+        .delete(`/partner-contacts/${this.partnerContactIdToDelete}`)
+        .then((response) => {
+          const data = response.data;
+          this.successMessage = data.message;
+          this.isSuccess = true;
+          this.getPartnerContactData();
+        })
+        .catch((error) => {
+          // eslint-disable-next-line
+          console.log(error);
+          const message =
+            error.response.data.message === ''
+              ? 'Something Wrong!!!'
+              : error.response.data.message;
+          this.errorMessage = message;
+          this.isError = true;
+        })
+        .finally(() => {
+          this.isDeleteLoading = false;
+          this.partnerContactIdToDelete = null;
+          this.isDelete = false;
+        });
+    },
+    getPartnerContactData() {
+      this.isLoading = true;
+      axios
+        .get(`/partner-contacts/${this.idPartnerContact}`)
         .then((response) => {
           const data = response.data.data;
-          this.resource.country = data.map((country) => {
+          //console.log(data);
+          this.items = data.map((item) => {
             return {
-              id: country.country_id,
-              name: country.country_name,
+              id: item.partner_contact_id || 1,
+              image: item.visiting_card || null,
+              contact: item.name || '',
+              position: item.position || '',
+              telephone: item.telephone || '',
+              mobile: item.mobile || '',
+              whatsapp: item.whatsapp || '',
+              email: item.email || '',
+              contactedOn: item.contact_on || '',
+              remarks: item.reference || '',
             };
           });
         })
         .catch((error) => {
           // eslint-disable-next-line
           console.log(error);
+          const message =
+            error.response.data.message === ''
+              ? 'Something Wrong!!!'
+              : error.response.data.message;
+          this.errorMessage = message;
+          this.isError = true;
+        })
+        .finally(() => {
+          this.isLoading = false;
         });
     },
   },

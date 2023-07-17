@@ -417,6 +417,7 @@ export default {
     isSending: false,
     isEdit: false,
     isSuccess: false,
+    isError: false,
     isDelete: false,
     isDeleteLoading: false,
     partnerIdToDelete: null,
@@ -440,6 +441,7 @@ export default {
     isOpenImage: false,
     isOpenLogo: false,
     successMessage: '',
+    errorMessage: '',
     input: {
       id: 0,
       name: '',
