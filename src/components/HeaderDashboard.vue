@@ -15,7 +15,7 @@
           <v-icon right dark> mdi-chevron-down </v-icon>
         </v-btn>
       </template>
-      <v-list>
+      <v-list max-height="300">
         <v-list-item
           link
           :to="item.path"
@@ -23,9 +23,21 @@
           :key="index"
           :value="index"
         >
-          <v-list-item-title :style="{ color: item.color, fontWeight: 500 }">{{
-            item.title
-          }}</v-list-item-title>
+          <v-list-item-title :style="{ fontWeight: 500 }">
+            <div class="d-flex align-center" style="gap: 10px">
+              <div class="img-cont">
+                <v-img cover :src="item.image"
+                  ><template #placeholder> <div class="skeleton" /> </template
+                ></v-img>
+              </div>
+              <div style="font-size: 12px !important">
+                <p>
+                  App id: <span class="text-blue-darken-4">{{ item.id }}</span>
+                </p>
+                <p class="text-blue-darken-4">{{ item.title }}</p>
+              </div>
+            </div>
+          </v-list-item-title>
         </v-list-item>
       </v-list>
     </v-menu>
@@ -61,6 +73,7 @@
 </template>
 
 <script>
+import axios from '@/util/axios';
 import app from '@/util/eventBus';
 
 export default {
@@ -68,16 +81,7 @@ export default {
     return {
       // fileURL: 'https://admin1.the-gypsy.sg/img/app/',
       linksNavBar: ['Chat', 'Calendar', 'Notes'],
-      items: [
-        {
-          title: 'The Syringe',
-          path: '/healthcare-settings',
-          color: '#EE1C39',
-        },
-        { title: 'Mall-e', path: '', color: '#8C0F22' },
-        { title: 'Boozards', path: '/booze_category', color: '#FF8943' },
-        { title: 'Biryani Run', path: '', color: '#63B14C' },
-      ],
+      items: [],
       image: '',
     };
   },
@@ -91,6 +95,7 @@ export default {
     );
   },
   mounted() {
+    this.getAppActive();
     const getImg = localStorage.getItem('image');
     this.image =
       getImg == 'null'
@@ -98,6 +103,34 @@ export default {
         : this.$fileURL + getImg;
   },
   methods: {
+    getAppActive() {
+      axios
+        .get(`/app/active`)
+        .then((response) => {
+          const data = response.data.data;
+          // console.log(data);
+          this.items = data
+            .sort((a, b) => a.app_id < b.app_id)
+            .map((app) => {
+              return {
+                id: app.app_id || 1,
+                title: app.app_name || '',
+                path:
+                  app.app_name == 'The Syringe'
+                    ? '/healthcare-settings'
+                    : app.app_name == 'Boozards'
+                    ? '/booze_category'
+                    : '',
+                image: this.$fileURL + app.app_main_image || null,
+              };
+            });
+          //console.log(this.items);
+        })
+        .catch((error) => {
+          // eslint-disable-next-line
+          console.log(error);
+        });
+    },
     toggleDrawer() {
       this.$emit('toggle-drawer');
     },
@@ -124,11 +157,27 @@ export default {
   overflow: hidden !important;
 }
 
+.img-cont {
+  height: 40px !important;
+  width: 60px !important;
+}
+
 .img-app {
   width: 100% !important;
   height: 100% !important;
   object-fit: cover !important;
   object-position: center !important;
   border-radius: 50%;
+}
+
+.skeleton {
+  width: 100%;
+  height: 100%;
+  border-radius: 0;
+
+  background: linear-gradient(-90deg, #f2f2f2 0%, #e1e1e1 50%, #f2f2f2 100%);
+  background-size: 400% 400%;
+  animation: skeleton 1.6s ease infinite;
+  margin: 0 auto;
 }
 </style>

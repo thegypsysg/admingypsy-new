@@ -21,7 +21,7 @@
           <v-col cols="12" md="3">
             <v-text-field
               v-model="input.contact"
-              :rules="rules.contactCodeRules"
+              :rules="rules.contactRules"
               label="Contact"
               variant="outlined"
               density="compact"
@@ -29,7 +29,6 @@
             ></v-text-field>
             <v-text-field
               v-model="input.telephone"
-              :rules="rules.telephoneRules"
               label="Telephone"
               variant="outlined"
               type="phone"
@@ -40,7 +39,6 @@
           <v-col cols="12" md="3">
             <v-text-field
               v-model="input.position"
-              :rules="rules.positionRules"
               label="Position Held"
               variant="outlined"
               density="compact"
@@ -48,7 +46,6 @@
             ></v-text-field>
             <v-text-field
               v-model="input.mobile"
-              :rules="rules.mobileRules"
               label="Mobile"
               type="phone"
               variant="outlined"
@@ -59,7 +56,6 @@
           <v-col cols="12" md="3">
             <v-text-field
               v-model="input.email"
-              :rules="rules.emailRules"
               label="Enter Email"
               type="email"
               density="compact"
@@ -68,7 +64,6 @@
             ></v-text-field>
             <v-text-field
               v-model="input.whatsapp"
-              :rules="rules.whatsappRules"
               label="What'sApp"
               type="phone"
               variant="outlined"
@@ -81,7 +76,6 @@
           <v-col cols="12" md="3">
             <v-text-field
               v-model="input.contactedOn"
-              :rules="rules.contactedOnRules"
               label="Contacted on"
               type="date"
               @input="changeFormatDate"
@@ -93,7 +87,6 @@
           <v-col cols="12" md="4">
             <v-textarea
               v-model="input.remarks"
-              :rules="rules.remarksRules"
               label="Remarks"
               rows="2"
               variant="outlined"

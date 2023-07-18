@@ -3,6 +3,7 @@
     <h1>My Dasboard</h1>
     <div class="card-container d-flex flex-wrap mb-8">
       <v-card
+        :to="item.path"
         v-for="(item, index) in cardItem"
         :key="index"
         :width="!isSmall ? '15%' : '100%'"
@@ -10,60 +11,27 @@
         :color="item.color"
         class="my-4 text-center mx-3 card-item"
         elevation="0"
-        style="border-radius: 12px; padding: 20px"
+        style="border-radius: 12px"
         @click="toggle"
       >
-        <p class="card-title">{{ item.title }}</p>
+        <div :width="!isSmall ? '15%' : '100%'" class="img-cont">
+          <div class="overlay"></div>
+          <v-img width="100%" height="150" cover :src="item.image"
+            ><template #placeholder> <div class="skeleton" /> </template
+          ></v-img>
+        </div>
+        <p class="card-title text-white">{{ item.title }}</p>
       </v-card>
     </div>
   </v-container>
 </template>
 
 <script>
+import axios from '@/util/axios';
+
 export default {
   data: () => ({
-    cardItem: [
-      {
-        color: '#ECF2FF',
-        title: 'Mall-e',
-      },
-      {
-        color: '#E6FFFB',
-        title: 'Flea',
-      },
-      {
-        color: '#FEF5E4',
-        title: 'the-syringe',
-      },
-      {
-        color: '#E8F6FF',
-        title: 'Symphinite',
-      },
-      {
-        color: '#E6FFFB',
-        title: 'I-hired',
-      },
-      {
-        color: '#FCEDE8',
-        title: 'Biryani Run',
-      },
-      {
-        color: '#E6FFFB',
-        title: 'Cake Run',
-      },
-      {
-        color: '#E8F6FF',
-        title: 'Pizza  Run',
-      },
-      {
-        color: '#FCEDE8',
-        title: 'Astalavista',
-      },
-      {
-        color: '#E6FFFB',
-        title: 'Staycacy',
-      },
-    ],
+    cardItem: [],
     screenWidth: window.innerWidth,
   }),
   created() {
@@ -84,7 +52,9 @@ export default {
     const options = { day: 'numeric', month: 'long', year: 'numeric' };
     this.loginTime = time.toLocaleDateString('en-GB', options);
   },
-
+  mounted() {
+    this.getAppActive();
+  },
   unmounted() {
     window.removeEventListener('resize', this.handleResize);
   },
@@ -97,6 +67,34 @@ export default {
     },
   },
   methods: {
+    getAppActive() {
+      axios
+        .get(`/app/active`)
+        .then((response) => {
+          const data = response.data.data;
+          // console.log(data);
+          this.cardItem = data
+            .sort((a, b) => a.app_id < b.app_id)
+            .map((app) => {
+              return {
+                id: app.app_id || 1,
+                title: app.app_name || '',
+                path:
+                  app.app_name == 'The Syringe'
+                    ? '/healthcare-settings'
+                    : app.app_name == 'Boozards'
+                    ? '/booze_category'
+                    : '',
+                image: this.$fileURL + app.app_main_image || null,
+              };
+            });
+          // console.log(this.items);
+        })
+        .catch((error) => {
+          // eslint-disable-next-line
+          console.log(error);
+        });
+    },
     logout() {
       localStorage.clear();
       this.$router.push('/auth/login');
@@ -127,6 +125,23 @@ export default {
 <style lang="scss" scoped>
 .img-cont {
   width: 100%;
+  height: 150px !important;
+}
+
+.overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  z-index: 9;
+}
+
+.card-item:hover .overlay {
+  opacity: 1;
 }
 .login span {
   font-size: 12px;
@@ -147,9 +162,14 @@ export default {
 }
 
 .card-title {
+  width: 100%;
+  position: absolute;
+  bottom: 20px;
   margin-top: 80px;
   font-size: 13px;
   font-weight: 600;
+  z-index: 10;
+  margin: 0 auto;
 }
 
 #navigation {
@@ -174,5 +194,16 @@ export default {
       right: 10px;
     }
   }
+}
+
+.skeleton {
+  width: 100%;
+  height: 100%;
+  border-radius: 0;
+
+  background: linear-gradient(-90deg, #f2f2f2 0%, #e1e1e1 50%, #f2f2f2 100%);
+  background-size: 400% 400%;
+  animation: skeleton 1.6s ease infinite;
+  margin: 0 auto;
 }
 </style>
