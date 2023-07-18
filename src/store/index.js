@@ -31,6 +31,10 @@ export default createStore({
             path: '/position_master',
           },
           {
+            title: 'Skills Master',
+            path: '/skills-group',
+          },
+          {
             title: 'Manage Countries',
             path: '/country-master',
           },

@@ -10,13 +10,6 @@
         <p>Healthcare Settings</p>
       </router-link>
       <router-link
-        style="color: #a93f43; font-weight: 500"
-        class="text-decoration-none"
-        to="/skills-group"
-      >
-        <p>Skills</p>
-      </router-link>
-      <router-link
         style="color: #000; font-weight: 500"
         class="text-decoration-none"
         to="/job-master"

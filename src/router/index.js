@@ -178,9 +178,7 @@ const routes = [
     name: 'skills group',
     path: '/skills-group',
     component: () =>
-      import(
-        '@/views/the syringe/skills/skills group/SkillsGroupContainer.vue'
-      ),
+      import('@/views/skills master/skills group/SkillsGroupContainer.vue'),
     beforeEnter: (to, from, next) => {
       // Pengecekan status login sebelum masuk ke halaman beranda
       if (localStorage.getItem('token') == null) {
@@ -194,9 +192,7 @@ const routes = [
     name: 'primary skills',
     path: '/primary-skills',
     component: () =>
-      import(
-        '@/views/the syringe/skills/primary skills/PrimarySkillsContainer.vue'
-      ),
+      import('@/views/skills master/primary skills/PrimarySkillsContainer.vue'),
     beforeEnter: (to, from, next) => {
       // Pengecekan status login sebelum masuk ke halaman beranda
       if (localStorage.getItem('token') == null) {

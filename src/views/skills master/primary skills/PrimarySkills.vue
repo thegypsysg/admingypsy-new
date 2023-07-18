@@ -1,28 +1,8 @@
 <!-- eslint-disable vue/no-deprecated-v-bind-sync -->
 <template>
   <v-container>
-    <div class="d-flex ml-4 mb-6" style="gap: 50px">
-      <router-link
-        style="color: #293fb8; font-weight: 500"
-        class="text-decoration-none"
-        to="/healthcare-settings"
-      >
-        <p>Healthcare Settings</p>
-      </router-link>
-      <router-link
-        style="color: #a93f43; font-weight: 500"
-        class="text-decoration-none"
-        to="/skills-group"
-      >
-        <p>Skills</p>
-      </router-link>
-      <router-link
-        style="color: #000; font-weight: 500"
-        class="text-decoration-none"
-        to="/job-master"
-      >
-        <p>Job Master</p>
-      </router-link>
+    <div class="d-flex ml-4 mb-2" style="gap: 50px">
+      <h1 style="color: #293fb8; font-weight: 500">Skills Master</h1>
     </div>
     <div class="d-flex ml-4 mb-4" style="gap: 50px">
       <router-link
@@ -45,9 +25,9 @@
         <v-row>
           <v-col cols="12" md="3">
             <v-text-field
-              v-model="input.group"
-              :rules="rules.groupRules"
-              label="Group Name"
+              v-model="input.primary"
+              :rules="rules.primaryRules"
+              label="Primary Skills"
               variant="outlined"
               density="compact"
               required
@@ -58,8 +38,8 @@
               density="compact"
               v-model="input.desc"
               :rules="rules.descriptionRules"
-              label="Type Description"
-              rows="3"
+              label="Description"
+              rows="2"
               variant="outlined"
               required
             ></v-textarea>
@@ -105,9 +85,35 @@
             </v-btn>
           </v-col>
         </v-row>
+        <v-row class="mt-n4">
+          <v-col cols="12" md="3">
+            <v-autocomplete
+              density="compact"
+              :rules="rules.groupRules"
+              label="Select Skills Group"
+              placeholder="Type Skills Group"
+              :items="resource.group"
+              class="mt-1"
+              item-title="name"
+              item-value="id"
+              v-model="input.group"
+              variant="outlined"
+            ></v-autocomplete>
+          </v-col>
+          <v-col cols="12" md="3">
+            <v-text-field
+              v-model="input.slug"
+              :rules="rules.slugRules"
+              label="Slug"
+              variant="outlined"
+              density="compact"
+              required
+            ></v-text-field>
+          </v-col>
+        </v-row>
       </v-container>
     </v-form>
-    <v-sheet class="py-6 px-4 mt-6" border rounded width="100%">
+    <v-sheet class="py-6 px-4 mt-4" border rounded width="100%">
       <v-row>
         <v-col cols="12" md="4">
           <v-text-field
@@ -126,8 +132,11 @@
               <tr>
                 <th class="text-left">Id</th>
                 <th class="text-left">Image</th>
-                <th class="text-left">Group Name</th>
+                <th class="text-left">Primary Skills</th>
+                <th class="text-left">Skills Group</th>
+                <th class="text-left">Slug</th>
                 <th class="text-left">Description</th>
+                <th class="text-left">Active</th>
                 <th class="text-left">Actions</th>
               </tr>
             </thead>
@@ -154,10 +163,34 @@
                   ></v-img>
                 </td>
                 <td style="font-weight: 500 !important">
+                  {{ item.primary }}
+                </td>
+                <td style="font-weight: 500 !important">
                   {{ item.group }}
+                </td>
+                <td style="color: #565656; font-weight: 500 !important">
+                  {{ item.slug }}
                 </td>
                 <td style="font-weight: 500 !important">
                   {{ item.desc }}
+                </td>
+                <td>
+                  <v-btn-toggle
+                    style="
+                      font-size: 10px !important;
+                      font-weight: 200 !important;
+                      height: 22px !important;
+                      width: 54px !important;
+                    "
+                    class="d-flex align-center"
+                    v-model="item.isActive"
+                    @click="activeSkill(item.id)"
+                    rounded="5"
+                  >
+                    <v-btn size="27" :value="true"> Yes </v-btn>
+
+                    <v-btn size="27" :value="false"> No </v-btn>
+                  </v-btn-toggle>
                 </td>
 
                 <td>
@@ -168,7 +201,7 @@
                           color="green"
                           variant="text"
                           v-bind="props"
-                          @click="editSkillGroup(item)"
+                          @click="editPrimarySkill(item)"
                           icon="mdi-pencil-outline"
                         ></v-btn>
                       </template>
@@ -233,7 +266,7 @@
         <v-card-actions>
           <v-spacer></v-spacer>
           <v-btn color="error" text @click="cancelDelete">No</v-btn>
-          <v-btn color="success" text @click="deleteSkillGroup">Yes</v-btn>
+          <v-btn color="success" text @click="deletePrimarySkill">Yes</v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
@@ -294,6 +327,7 @@ export default {
     imageFile: [],
     userDataToImage: {
       id: 1,
+      sgm_id: 1,
       name: '',
       description: '',
     },
@@ -302,22 +336,38 @@ export default {
     errorMessage: '',
     input: {
       id: 0,
-      group: '',
+      primary: '',
+      group: null,
       desc: '',
+      slug: '',
       image: null,
     },
-
+    resource: {
+      group: [],
+    },
     rules: {
+      primaryRules: [
+        (value) => {
+          if (value) return true;
+          return 'Health care is required.';
+        },
+      ],
       groupRules: [
         (value) => {
           if (value) return true;
-          return 'Group name is required.';
+          return 'Description is required.';
         },
       ],
       descriptionRules: [
         (value) => {
           if (value) return true;
           return 'Description is required.';
+        },
+      ],
+      slugRules: [
+        (value) => {
+          if (value) return true;
+          return 'Slug is required.';
         },
       ],
     },
@@ -329,6 +379,7 @@ export default {
     setAuthHeader(token);
   },
   mounted() {
+    this.getPrimarySkillData();
     this.getSkillsGroupData();
   },
   computed: {
@@ -339,6 +390,7 @@ export default {
       const searchTextLower = this.search.toLowerCase();
       return this.items.filter(
         (item) =>
+          item.primary.toLowerCase().includes(searchTextLower) ||
           item.group.toLowerCase().includes(searchTextLower) ||
           item.desc.toLowerCase().includes(searchTextLower)
       );
@@ -363,12 +415,12 @@ export default {
         id: this.userDataToImage.id,
       };
       axios
-        .post(`/skillgroups/deleteImage`, payload, {})
+        .post(`/skills/deleteImage`, payload, {})
         .then((response) => {
           const data = response.data;
           this.successMessage = data.message;
           this.isSuccess = true;
-          this.getSkillsGroupData();
+          this.getPrimarySkillData();
         })
         .catch((error) => {
           // eslint-disable-next-line
@@ -397,7 +449,8 @@ export default {
       this.isOpenImage = true;
       this.userDataToImage = {
         id: item.id,
-        name: item.group,
+        sgm_id: item.sgm_id,
+        name: item.primary,
         description: item.desc,
       };
       this.imageFile =
@@ -419,6 +472,7 @@ export default {
       this.imageFile = [];
       this.userDataToImage = {
         id: 1,
+        sgm_id: 1,
         name: '',
         description: '',
       };
@@ -427,13 +481,14 @@ export default {
       this.isSending = true;
       const payload = {
         id: this.userDataToImage.id,
+        sgm_id: this.userDataToImage.sgm_id,
         name: this.userDataToImage.name,
         description: this.userDataToImage.description,
         image: this.imageFile[0],
       };
 
       http
-        .post(`/skillgroups/update`, payload, {
+        .post(`/skills/update`, payload, {
           headers: {
             'Content-Type': 'multipart/form-data',
           },
@@ -442,17 +497,21 @@ export default {
           const data = response.data;
           this.successMessage = data.message;
           this.isSuccess = true;
-          this.getSkillsGroupData();
+          this.getPrimarySkillData();
         })
         .catch((error) => {
           // eslint-disable-next-line
           console.log(error);
+          const message = this.saveErrorResponse(error.response);
+          this.errorMessage = message;
+          this.isError = true;
         })
         .finally(() => {
           this.isEdit = false;
           this.isSending = false;
           this.userDataToImage = {
             id: 1,
+            sgm_id: 1,
             name: '',
             description: '',
           };
@@ -460,20 +519,24 @@ export default {
           this.imageFile = [];
         });
     },
-    editSkillGroup(user) {
+    editPrimarySkill(user) {
       this.isEdit = true;
       this.input = {
         id: user.id,
-        group: user.group,
+        primary: user.primary,
+        group: user.sgm_id,
         desc: user.desc,
+        slug: user.slug,
       };
     },
     cancelEdit() {
       this.isEdit = false;
       this.input = {
         id: 0,
-        group: '',
+        primary: '',
+        group: null,
         desc: '',
+        slug: '',
         image: null,
       };
     },
@@ -482,20 +545,29 @@ export default {
         this.isSending = true;
         const payload = {
           id: this.input.id,
-          name: this.input.group,
+          sgm_id: this.input.group,
+          name: this.input.primary,
           description: this.input.desc,
+          slug: this.input.slug,
         };
         if (this.input.image !== null) {
           payload['image'] = this.input.image;
         }
         axios
-          .post(`/skillgroups/update`, payload)
+          .post(`/skills/update`, payload)
           .then((response) => {
             const data = response.data;
             this.successMessage = data.message;
             this.isSuccess = true;
-            this.getSkillsGroupData();
-            this.input = { id: 0, group: '', desc: '', image: null };
+            this.getPrimarySkillData();
+            this.input = {
+              id: 0,
+              primary: '',
+              group: null,
+              desc: '',
+              slug: '',
+              image: null,
+            };
           })
           .catch((error) => {
             // eslint-disable-next-line
@@ -517,17 +589,26 @@ export default {
       if (this.valid) {
         this.isSending = true;
         const payload = {
-          name: this.input.group,
+          name: this.input.primary,
           description: this.input.desc,
+          sgm_id: this.input.group,
+          slug: this.input.slug,
         };
         axios
-          .post(`/skillgroups/add`, payload)
+          .post(`/skills/add`, payload)
           .then((response) => {
             const data = response.data;
             this.successMessage = data.message;
             this.isSuccess = true;
-            this.getSkillsGroupData();
-            this.input = { id: 0, group: '', desc: '', image: null };
+            this.getPrimarySkillData();
+            this.input = {
+              id: 0,
+              primary: '',
+              group: null,
+              desc: '',
+              slug: '',
+              image: null,
+            };
           })
           .catch((error) => {
             // eslint-disable-next-line
@@ -556,17 +637,17 @@ export default {
       this.userIdToDelete = null;
       this.isDelete = false;
     },
-    deleteSkillGroup() {
+    deletePrimarySkill() {
       this.isDeleteLoading = true;
       axios
-        .post(`/skillgroups/delete`, {
+        .post(`/skills/delete`, {
           id: this.userIdToDelete,
         })
         .then((response) => {
           const data = response.data;
           this.successMessage = data.message;
           this.isSuccess = true;
-          this.getSkillsGroupData();
+          this.getPrimarySkillData();
         })
         .catch((error) => {
           // eslint-disable-next-line
@@ -584,6 +665,38 @@ export default {
           this.isDelete = false;
         });
     },
+    getPrimarySkillData() {
+      this.isLoading = true;
+      axios
+        .get(`/skills`)
+        .then((response) => {
+          const data = response.data.data;
+          // console.log(data);
+
+          this.items = data
+            .sort((a, b) => a.skills_id - b.skills_id)
+            .map((item) => {
+              return {
+                id: item.skills_id || 1,
+                sgm_id: item.sgm_id || 1,
+                image: item.image || null,
+                primary: item.skills_name || '',
+                group: item.group_name || '',
+                desc: item.description || '',
+                slug: item.slug || '',
+                isActive:
+                  item.active == 'N' ? false : item.active == 'Y' ? true : null,
+              };
+            });
+        })
+        .catch((error) => {
+          // eslint-disable-next-line
+          console.log(error);
+        })
+        .finally(() => {
+          this.isLoading = false;
+        });
+    },
     getSkillsGroupData() {
       this.isLoading = true;
       axios
@@ -591,12 +704,10 @@ export default {
         .then((response) => {
           const data = response.data.data;
           // console.log(data);
-          this.items = data.map((item) => {
+          this.resource.group = data.map((item) => {
             return {
               id: item.sgm_id || 1,
-              image: item.image || null,
-              group: item.group_name || '',
-              desc: item.description || '',
+              name: item.group_name || '',
             };
           });
         })
@@ -606,6 +717,24 @@ export default {
         })
         .finally(() => {
           this.isLoading = false;
+        });
+    },
+    activeSkill(id) {
+      this.isSending = true;
+      axios
+        .get(`/skills/active/${id}`)
+        .then((response) => {
+          const data = response.data;
+          this.successMessage = data.message;
+          this.isSuccess = true;
+          this.getPrimarySkillData();
+        })
+        .catch((error) => {
+          // eslint-disable-next-line
+          console.log(error);
+        })
+        .finally(() => {
+          this.isSending = false;
         });
     },
   },
