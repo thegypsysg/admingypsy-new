@@ -6,14 +6,16 @@
       <v-container>
         <v-row>
           <v-col cols="12" md="6">
-            <v-text-field
+            <v-combobox
               v-model="input.name"
               :rules="rules.nameRules"
+              :items="resource.name"
               label="Partner Name"
+              placeholder="Type Partner Name"
               variant="outlined"
               density="compact"
               required
-            ></v-text-field>
+            ></v-combobox>
           </v-col>
           <v-col cols="12" md="3">
             <v-autocomplete
@@ -426,14 +428,14 @@ export default {
     logoFile: [],
     partnerDataToImage: {
       id: 0,
-      name: '',
+      name: null,
       industry: null,
       subIndustry: null,
       country: null,
     },
     partnerDataToLogo: {
       id: 0,
-      name: '',
+      name: null,
       industry: null,
       subIndustry: null,
       country: null,
@@ -444,7 +446,7 @@ export default {
     errorMessage: '',
     input: {
       id: 0,
-      name: '',
+      name: null,
       industry: null,
       subIndustry: null,
       country: null,
@@ -452,6 +454,7 @@ export default {
       image: null,
     },
     resource: {
+      name: [],
       industry: [],
       subIndustry: [],
       country: [],
@@ -652,7 +655,7 @@ export default {
       this.logoFile = [];
       this.partnerDataToLogo = {
         id: 0,
-        name: '',
+        name: null,
         industry: null,
         subIndustry: null,
         country: null,
@@ -663,7 +666,7 @@ export default {
       this.imageFile = [];
       this.partnerDataToImage = {
         id: 0,
-        name: '',
+        name: null,
         industry: null,
         subIndustry: null,
         country: null,
@@ -707,7 +710,7 @@ export default {
           this.isSending = false;
           this.partnerDataToLogo = {
             id: 0,
-            name: '',
+            name: null,
             industry: null,
             subIndustry: null,
             country: null,
@@ -754,7 +757,7 @@ export default {
           this.isSending = false;
           this.partnerDataToImage = {
             id: 0,
-            name: '',
+            name: null,
             industry: null,
             subIndustry: null,
             country: null,
@@ -777,7 +780,7 @@ export default {
       this.isEdit = false;
       this.input = {
         id: 0,
-        name: '',
+        name: null,
         industry: null,
         subIndustry: null,
         country: null,
@@ -809,7 +812,7 @@ export default {
             this.getPartnerData();
             this.input = {
               id: 0,
-              name: '',
+              name: null,
               industry: null,
               subIndustry: null,
               country: null,
@@ -829,7 +832,7 @@ export default {
             this.isError = true;
             this.input = {
               id: 0,
-              name: '',
+              name: null,
               industry: null,
               subIndustry: null,
               country: null,
@@ -861,7 +864,7 @@ export default {
             this.getPartnerData();
             this.input = {
               id: 0,
-              name: '',
+              name: null,
               industry: null,
               subIndustry: null,
               country: null,
@@ -952,6 +955,7 @@ export default {
                   : null,
             };
           });
+          this.resource.name = data.map((item) => item.partner_name || '');
         })
         .catch((error) => {
           // eslint-disable-next-line
