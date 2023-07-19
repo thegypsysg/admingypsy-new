@@ -288,10 +288,10 @@ const routes = [
   },
 
   {
-    name: 'boozards category',
-    path: '/booze_category',
+    name: 'category master',
+    path: '/category_master',
     component: () =>
-      import('@/views/boozards/category/BoozardsCategoryContainer.vue'),
+      import('@/views/category master/CategoryMasterContainer.vue'),
     beforeEnter: (to, from, next) => {
       // Pengecekan status login sebelum masuk ke halaman beranda
       if (localStorage.getItem('token') == null) {

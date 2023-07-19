@@ -3,13 +3,6 @@
   <v-container>
     <div class="d-flex ml-4 mb-4" style="gap: 40px">
       <router-link
-        style="color: #3f70e0; font-weight: 500"
-        class="text-decoration-none"
-        to="/booze_category"
-      >
-        <p>Booze Category</p>
-      </router-link>
-      <router-link
         style="color: #a370c8; font-weight: 500"
         class="text-decoration-none"
         to="/booze_brands"
@@ -19,7 +12,7 @@
       <router-link
         style="color: #ff7f27; font-weight: 500"
         class="text-decoration-none"
-        to="/town-master"
+        to=""
       >
         <p>Booze Products</p>
       </router-link>

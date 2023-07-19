@@ -32,6 +32,18 @@
               density="compact"
               required
             ></v-text-field>
+            <v-autocomplete
+              density="compact"
+              :rules="rules.groupRules"
+              label="Select Skills Group"
+              placeholder="Type Skills Group"
+              :items="resource.group"
+              class="mt-1"
+              item-title="name"
+              item-value="id"
+              v-model="input.group"
+              variant="outlined"
+            ></v-autocomplete>
           </v-col>
           <v-col cols="12" md="4">
             <v-textarea
@@ -39,7 +51,7 @@
               v-model="input.desc"
               :rules="rules.descriptionRules"
               label="Description"
-              rows="2"
+              rows="3"
               variant="outlined"
               required
             ></v-textarea>
@@ -89,14 +101,13 @@
           <v-col cols="12" md="3">
             <v-autocomplete
               density="compact"
-              :rules="rules.groupRules"
-              label="Select Skills Group"
-              placeholder="Type Skills Group"
-              :items="resource.group"
-              class="mt-1"
+              :rules="rules.appRules"
+              label="---Select App---"
+              placeholder="Type App"
+              :items="resource.app"
               item-title="name"
               item-value="id"
-              v-model="input.group"
+              v-model="input.app"
               variant="outlined"
             ></v-autocomplete>
           </v-col>
@@ -141,88 +152,98 @@
               </tr>
             </thead>
             <tbody>
-              <tr
-                class="country-table-body"
-                v-for="item in filteredItems"
-                :key="item.id"
-              >
-                <td>{{ item.id }}</td>
-                <td>
-                  <v-img
-                    height="40"
-                    width="65"
-                    @click="openImage(item)"
-                    style="cursor: pointer"
-                    :src="
-                      item.image != null
-                        ? $fileURL + item.image
-                        : 'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png'
-                    "
-                  >
-                    <template #placeholder> <div class="skeleton" /> </template
-                  ></v-img>
-                </td>
-                <td style="font-weight: 500 !important">
-                  {{ item.primary }}
-                </td>
-                <td style="font-weight: 500 !important">
-                  {{ item.group }}
-                </td>
-                <td style="color: #565656; font-weight: 500 !important">
-                  {{ item.slug }}
-                </td>
-                <td style="font-weight: 500 !important">
-                  {{ item.desc }}
-                </td>
-                <td>
-                  <v-btn-toggle
-                    style="
-                      font-size: 10px !important;
-                      font-weight: 200 !important;
-                      height: 22px !important;
-                      width: 54px !important;
-                    "
-                    class="d-flex align-center"
-                    v-model="item.isActive"
-                    @click="activeSkill(item.id)"
-                    rounded="5"
-                  >
-                    <v-btn size="27" :value="true"> Yes </v-btn>
+              <template v-for="item in filteredItems" :key="item.id">
+                <tr class="country-table-body">
+                  <td>{{ item.id }}</td>
+                  <td>
+                    <v-img
+                      height="40"
+                      width="65"
+                      @click="openImage(item)"
+                      style="cursor: pointer"
+                      :src="
+                        item.image != null
+                          ? $fileURL + item.image
+                          : 'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png'
+                      "
+                    >
+                      <template #placeholder>
+                        <div class="skeleton" /> </template
+                    ></v-img>
+                  </td>
+                  <td style="font-weight: 500 !important">
+                    {{ item.primary }}
+                  </td>
+                  <td style="font-weight: 500 !important">
+                    {{ item.group }}
+                  </td>
+                  <td style="color: #565656; font-weight: 500 !important">
+                    {{ item.slug }}
+                  </td>
+                  <td style="font-weight: 500 !important">
+                    {{ item.desc }}
+                  </td>
+                  <td>
+                    <v-btn-toggle
+                      style="
+                        font-size: 10px !important;
+                        font-weight: 200 !important;
+                        height: 22px !important;
+                        width: 54px !important;
+                      "
+                      class="d-flex align-center"
+                      v-model="item.isActive"
+                      @click="activeSkill(item.id)"
+                      rounded="5"
+                    >
+                      <v-btn size="27" :value="true"> Yes </v-btn>
 
-                    <v-btn size="27" :value="false"> No </v-btn>
-                  </v-btn-toggle>
-                </td>
+                      <v-btn size="27" :value="false"> No </v-btn>
+                    </v-btn-toggle>
+                  </td>
 
-                <td>
-                  <div class="d-flex">
-                    <v-tooltip location="top">
-                      <template v-slot:activator="{ props }">
-                        <v-btn
-                          color="green"
-                          variant="text"
-                          v-bind="props"
-                          @click="editPrimarySkill(item)"
-                          icon="mdi-pencil-outline"
-                        ></v-btn>
-                      </template>
-                      <span>Edit</span>
-                    </v-tooltip>
-                    <v-tooltip location="top">
-                      <template v-slot:activator="{ props }">
-                        <v-btn
-                          color="red"
-                          v-bind="props"
-                          variant="text"
-                          :disabled="isDeleteLoading"
-                          @click="openDeleteConfirm(item.id)"
-                          icon="mdi-trash-can-outline"
-                        ></v-btn>
-                      </template>
-                      <span>Delete</span>
-                    </v-tooltip>
-                  </div>
-                </td>
-              </tr>
+                  <td>
+                    <div class="d-flex">
+                      <v-tooltip location="top">
+                        <template v-slot:activator="{ props }">
+                          <v-btn
+                            color="green"
+                            variant="text"
+                            v-bind="props"
+                            @click="editPrimarySkill(item)"
+                            icon="mdi-pencil-outline"
+                          ></v-btn>
+                        </template>
+                        <span>Edit</span>
+                      </v-tooltip>
+                      <v-tooltip location="top">
+                        <template v-slot:activator="{ props }">
+                          <v-btn
+                            color="red"
+                            v-bind="props"
+                            variant="text"
+                            :disabled="isDeleteLoading"
+                            @click="openDeleteConfirm(item.id)"
+                            icon="mdi-trash-can-outline"
+                          ></v-btn>
+                        </template>
+                        <span>Delete</span>
+                      </v-tooltip>
+                    </div>
+                  </td>
+                </tr>
+                <tr>
+                  <td colspan="5">
+                    <div class="d-flex justify-center" style="gap: 20px">
+                      <v-table class="text-left">
+                        <tr>
+                          <td>App Name: {{ item.app }}</td>
+                        </tr>
+                      </v-table>
+                    </div>
+                  </td>
+                </tr>
+              </template>
               <tr v-if="isLoading">
                 <td :colspan="6" class="text-center">
                   <v-progress-circular
@@ -262,7 +283,9 @@
     <v-dialog persistent width="500" v-model="isDelete">
       <v-card>
         <v-card-title>Confirmation</v-card-title>
-        <v-card-text> Are you sure want to delete this user? </v-card-text>
+        <v-card-text>
+          Are you sure want to delete this primary skills?
+        </v-card-text>
         <v-card-actions>
           <v-spacer></v-spacer>
           <v-btn color="error" text @click="cancelDelete">No</v-btn>
@@ -273,7 +296,7 @@
     <v-dialog persistent width="auto" v-model="isOpenImage">
       <v-card width="750">
         <v-card-title class="upload-title px-6 py-4">
-          Upload Image - User</v-card-title
+          Upload Image - Primary Skills</v-card-title
         >
         <v-card-text>
           <image-upload
@@ -311,7 +334,7 @@ import { setAuthHeader } from '@/util/axios';
 // import app from '@/util/eventBus';
 
 export default {
-  name: 'UserMaster',
+  name: 'PrimarySkillsMaster',
   data: () => ({
     //fileURL: 'https://admin1.the-gypsy.sg/img/app/',
     valid: false,
@@ -322,10 +345,10 @@ export default {
     isError: false,
     isDelete: false,
     isDeleteLoading: false,
-    userIdToDelete: null,
+    primarySkillsIdToDelete: null,
     tableHeaders: [{ text: 'Gambar', value: 'image' }],
     imageFile: [],
-    userDataToImage: {
+    primarySkillsDataToImage: {
       id: 1,
       sgm_id: 1,
       name: '',
@@ -336,14 +359,16 @@ export default {
     errorMessage: '',
     input: {
       id: 0,
-      primary: '',
+      primary: null,
       group: null,
-      desc: '',
-      slug: '',
+      app: null,
+      desc: null,
+      slug: null,
       image: null,
     },
     resource: {
       group: [],
+      app: [],
     },
     rules: {
       primaryRules: [
@@ -370,6 +395,12 @@ export default {
           return 'Slug is required.';
         },
       ],
+      appRules: [
+        (value) => {
+          if (value) return true;
+          return 'App is required.';
+        },
+      ],
     },
     search: '',
     items: [],
@@ -381,6 +412,7 @@ export default {
   mounted() {
     this.getPrimarySkillData();
     this.getSkillsGroupData();
+    this.getAppActive();
   },
   computed: {
     filteredItems() {
@@ -412,7 +444,7 @@ export default {
     deleteImageFile() {
       this.isSending = true;
       const payload = {
-        id: this.userDataToImage.id,
+        id: this.primarySkillsDataToImage.id,
       };
       axios
         .post(`/skills/deleteImage`, payload, {})
@@ -435,7 +467,7 @@ export default {
         .finally(() => {
           this.isEdit = false;
           this.isSending = false;
-          // this.userDataToImage = {
+          // this.primarySkillsDataToImage = {
           //   app_id: 1,
           //   app_group_id: 1,
           //   app_name: '',
@@ -447,7 +479,7 @@ export default {
     },
     openImage(item) {
       this.isOpenImage = true;
-      this.userDataToImage = {
+      this.primarySkillsDataToImage = {
         id: item.id,
         sgm_id: item.sgm_id,
         name: item.primary,
@@ -470,7 +502,7 @@ export default {
     closeImage() {
       this.isOpenImage = false;
       this.imageFile = [];
-      this.userDataToImage = {
+      this.primarySkillsDataToImage = {
         id: 1,
         sgm_id: 1,
         name: '',
@@ -480,10 +512,10 @@ export default {
     saveImage() {
       this.isSending = true;
       const payload = {
-        id: this.userDataToImage.id,
-        sgm_id: this.userDataToImage.sgm_id,
-        name: this.userDataToImage.name,
-        description: this.userDataToImage.description,
+        id: this.primarySkillsDataToImage.id,
+        sgm_id: this.primarySkillsDataToImage.sgm_id,
+        name: this.primarySkillsDataToImage.name,
+        description: this.primarySkillsDataToImage.description,
         image: this.imageFile[0],
       };
 
@@ -509,7 +541,7 @@ export default {
         .finally(() => {
           this.isEdit = false;
           this.isSending = false;
-          this.userDataToImage = {
+          this.primarySkillsDataToImage = {
             id: 1,
             sgm_id: 1,
             name: '',
@@ -519,14 +551,14 @@ export default {
           this.imageFile = [];
         });
     },
-    editPrimarySkill(user) {
+    editPrimarySkill(skill) {
       this.isEdit = true;
       this.input = {
-        id: user.id,
-        primary: user.primary,
-        group: user.sgm_id,
-        desc: user.desc,
-        slug: user.slug,
+        id: skill.id,
+        primary: skill.primary,
+        group: skill.sgm_id,
+        desc: skill.desc,
+        slug: skill.slug,
       };
     },
     cancelEdit() {
@@ -626,22 +658,22 @@ export default {
       }
     },
     cancelDelete() {
-      this.userIdToDelete = null;
+      this.primarySkillsIdToDelete = null;
       this.isDelete = false;
     },
     openDeleteConfirm(itemId) {
-      this.userIdToDelete = itemId;
+      this.primarySkillsIdToDelete = itemId;
       this.isDelete = true;
     },
     cancelConfirmation() {
-      this.userIdToDelete = null;
+      this.primarySkillsIdToDelete = null;
       this.isDelete = false;
     },
     deletePrimarySkill() {
       this.isDeleteLoading = true;
       axios
         .post(`/skills/delete`, {
-          id: this.userIdToDelete,
+          id: this.primarySkillsIdToDelete,
         })
         .then((response) => {
           const data = response.data;
@@ -661,7 +693,7 @@ export default {
         })
         .finally(() => {
           this.isDeleteLoading = false;
-          this.userIdToDelete = null;
+          this.primarySkillsIdToDelete = null;
           this.isDelete = false;
         });
     },
@@ -684,6 +716,8 @@ export default {
                 group: item.group_name || '',
                 desc: item.description || '',
                 slug: item.slug || '',
+                app: item.app_name || '',
+                app_id: item.app_id || 0,
                 isActive:
                   item.active == 'N' ? false : item.active == 'Y' ? true : null,
               };
@@ -717,6 +751,34 @@ export default {
         })
         .finally(() => {
           this.isLoading = false;
+        });
+    },
+
+    getAppActive() {
+      axios
+        .get(`/app/active`)
+        .then((response) => {
+          const data = response.data.data;
+          // console.log(data);
+          this.resource.app = data
+            .sort((a, b) => a.app_id < b.app_id)
+            .map((app) => {
+              return {
+                id: app.app_id || 0,
+                name: app.app_name || '',
+              };
+            });
+          // console.log(this.items);
+        })
+        .catch((error) => {
+          // eslint-disable-next-line
+          console.log(error);
+          const message =
+            error.response.data.message === ''
+              ? 'Something Wrong!!!'
+              : error.response.data.message;
+          this.errorMessage = message;
+          this.isError = true;
         });
     },
     activeSkill(id) {

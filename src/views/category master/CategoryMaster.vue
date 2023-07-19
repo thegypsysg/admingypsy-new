@@ -1,29 +1,6 @@
 <!-- eslint-disable vue/no-deprecated-v-bind-sync -->
 <template>
   <v-container>
-    <div class="d-flex ml-4 mb-4" style="gap: 40px">
-      <router-link
-        style="color: #3f70e0; font-weight: 500"
-        class="text-decoration-none"
-        to="/booze_category"
-      >
-        <p>Booze Category</p>
-      </router-link>
-      <router-link
-        style="color: #a370c8; font-weight: 500"
-        class="text-decoration-none"
-        to="/booze_brands"
-      >
-        <p>Booze Brands</p>
-      </router-link>
-      <router-link
-        style="color: #ff7f27; font-weight: 500"
-        class="text-decoration-none"
-        to="/town-master"
-      >
-        <p>Booze Products</p>
-      </router-link>
-    </div>
     <v-form v-model="valid" @submit.prevent>
       <v-container>
         <!-- <v-row>
@@ -46,6 +23,18 @@
               class="mt-4"
               required
             ></v-text-field>
+            <v-autocomplete
+              density="compact"
+              :rules="rules.appRules"
+              label="---Select App---"
+              placeholder="Type App"
+              :items="resource.app"
+              class="mt-1"
+              item-title="name"
+              item-value="id"
+              v-model="input.app"
+              variant="outlined"
+            ></v-autocomplete>
           </v-col>
 
           <v-col cols="12" md="4">
@@ -130,101 +119,118 @@
               </tr>
             </thead>
             <tbody>
-              <tr
-                class="country-table-body"
-                v-for="item in filteredItems"
-                :key="item.id"
-              >
-                <td style="font-weight: 500 !important">
-                  {{ item.id }}
-                </td>
-                <td>
-                  <v-img
-                    height="40"
-                    width="65"
-                    @click="openImage(item)"
-                    style="cursor: pointer"
-                    :src="
-                      item.image != null
-                        ? $fileURL + item.image
-                        : 'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png'
-                    "
-                  >
-                    <template #placeholder> <div class="skeleton" /> </template
-                  ></v-img>
-                </td>
-                <td style="font-weight: 500 !important">
-                  {{ item.category_name }}
-                </td>
-                <td style="font-weight: 500 !important">
-                  {{ item.description }}
-                </td>
-                <td>
-                  <v-btn-toggle
-                    style="
-                      font-size: 10px !important;
-                      font-weight: 200 !important;
-                      height: 22px !important;
-                      width: 54px !important;
-                    "
-                    class="d-flex align-center"
-                    v-model="item.isActive"
-                    @click="activeCategory(item.id)"
-                    rounded="5"
-                  >
-                    <v-btn size="27" :value="true"> Yes </v-btn>
+              <template v-for="item in filteredItems" :key="item.id">
+                <tr class="country-table-body">
+                  <td style="font-weight: 500 !important">
+                    {{ item.id }}
+                  </td>
+                  <td>
+                    <v-img
+                      height="40"
+                      width="65"
+                      @click="openImage(item)"
+                      style="cursor: pointer"
+                      :src="
+                        item.image != null
+                          ? $fileURL + item.image
+                          : 'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png'
+                      "
+                    >
+                      <template #placeholder>
+                        <div class="skeleton" /> </template
+                    ></v-img>
+                  </td>
+                  <td style="font-weight: 500 !important">
+                    {{ item.category_name }}
+                  </td>
+                  <td style="font-weight: 500 !important">
+                    {{ item.description }}
+                  </td>
+                  <td>
+                    <v-btn-toggle
+                      style="
+                        font-size: 10px !important;
+                        font-weight: 200 !important;
+                        height: 22px !important;
+                        width: 54px !important;
+                      "
+                      class="d-flex align-center"
+                      v-model="item.isActive"
+                      @click="activeCategory(item.id)"
+                      rounded="5"
+                    >
+                      <v-btn size="27" :value="true"> Yes </v-btn>
 
-                    <v-btn size="27" :value="false"> No </v-btn>
-                  </v-btn-toggle>
-                </td>
-                <td>
-                  <v-btn-toggle
-                    style="
-                      font-size: 10px !important;
-                      font-weight: 200 !important;
-                      height: 22px !important;
-                      width: 54px !important;
-                    "
-                    class="d-flex align-center"
-                    v-model="item.isWebsite"
-                    @click="websiteCategory(item.id)"
-                    rounded="5"
-                  >
-                    <v-btn size="27" :value="true"> Yes </v-btn>
+                      <v-btn size="27" :value="false"> No </v-btn>
+                    </v-btn-toggle>
+                  </td>
+                  <td>
+                    <v-btn-toggle
+                      style="
+                        font-size: 10px !important;
+                        font-weight: 200 !important;
+                        height: 22px !important;
+                        width: 54px !important;
+                      "
+                      class="d-flex align-center"
+                      v-model="item.isWebsite"
+                      @click="websiteCategory(item.id)"
+                      rounded="5"
+                    >
+                      <v-btn size="27" :value="true"> Yes </v-btn>
 
-                    <v-btn size="27" :value="false"> No </v-btn>
-                  </v-btn-toggle>
-                </td>
-                <td>
-                  <div class="d-flex">
-                    <v-tooltip location="top">
-                      <template v-slot:activator="{ props }">
-                        <v-btn
-                          color="green"
-                          variant="text"
-                          v-bind="props"
-                          @click="editCategory(item)"
-                          icon="mdi-pencil-outline"
-                        ></v-btn>
-                      </template>
-                      <span>Edit</span>
-                    </v-tooltip>
-                    <v-tooltip location="top">
-                      <template v-slot:activator="{ props }">
-                        <v-btn
-                          color="red"
-                          v-bind="props"
-                          variant="text"
-                          :disabled="isDeleteLoading"
-                          @click="openDeleteConfirm(item.id)"
-                          icon="mdi-trash-can-outline"
-                        ></v-btn>
-                      </template>
-                      <span>Delete</span>
-                    </v-tooltip>
-                  </div>
-                </td>
-              </tr>
+                      <v-btn size="27" :value="false"> No </v-btn>
+                    </v-btn-toggle>
+                  </td>
+                  <td>
+                    <div class="d-flex">
+                      <v-tooltip location="top">
+                        <template v-slot:activator="{ props }">
+                          <v-btn
+                            color="green"
+                            variant="text"
+                            v-bind="props"
+                            @click="editCategory(item)"
+                            icon="mdi-pencil-outline"
+                          ></v-btn>
+                        </template>
+                        <span>Edit</span>
+                      </v-tooltip>
+                      <v-tooltip location="top">
+                        <template v-slot:activator="{ props }">
+                          <v-btn
+                            color="red"
+                            v-bind="props"
+                            variant="text"
+                            :disabled="isDeleteLoading"
+                            @click="openDeleteConfirm(item.id)"
+                            icon="mdi-trash-can-outline"
+                          ></v-btn>
+                        </template>
+                        <span>Delete</span>
+                      </v-tooltip>
+                    </div>
+                  </td>
+                </tr>
+                <tr>
+                  <td colspan="7">
+                    <div class="d-flex" style="gap: 20px">
+                      <v-table class="text-left">
+                        <tr>
+                          <td><div style="width: 200px"></div></td>
+                          <td>
+                            <span class="text-black font-weight-black"
+                              >App: </span
+                            ><span class="text-red font-weight-bold">{{
+                              item.app
+                            }}</span>
+                          </td>
+                        </tr>
+                      </v-table>
+                    </div>
+                  </td>
+                </tr>
+              </template>
               <tr v-if="isLoading">
                 <td :colspan="6" class="text-center">
                   <v-progress-circular
@@ -248,6 +254,15 @@
 
       <template v-slot:actions>
         <v-btn color="white" variant="text" @click="isSuccess = false">
+          <v-icon>mdi-close</v-icon>
+        </v-btn>
+      </template>
+    </v-snackbar>
+    <v-snackbar location="top" color="red" v-model="isError" :timeout="3000">
+      {{ errorMessage }}
+
+      <template v-slot:actions>
+        <v-btn color="white" variant="text" @click="isError = false">
           <v-icon>mdi-close</v-icon>
         </v-btn>
       </template>
@@ -312,6 +327,7 @@ export default {
     isSending: false,
     isEdit: false,
     isSuccess: false,
+    isError: false,
     isDelete: false,
     isDeleteLoading: false,
     categoryIdToDelete: null,
@@ -324,13 +340,17 @@ export default {
     },
     isOpenImage: false,
     successMessage: '',
+    errorMessage: '',
     input: {
       id: 0,
       image: null,
-      category: '',
-      desc: '',
+      category: null,
+      app: null,
+      desc: null,
     },
-
+    resource: {
+      app: [],
+    },
     rules: {
       categoryRules: [
         (value) => {
@@ -344,6 +364,12 @@ export default {
           return 'Description is requred.';
         },
       ],
+      appRules: [
+        (value) => {
+          if (value) return true;
+          return 'App is required.';
+        },
+      ],
     },
     search: '',
     items: [],
@@ -354,6 +380,7 @@ export default {
   },
   mounted() {
     this.getCategory();
+    this.getAppActive();
   },
   computed: {
     filteredItems() {
@@ -364,6 +391,7 @@ export default {
       return this.items.filter(
         (item) =>
           item.category_name.toLowerCase().includes(searchTextLower) ||
+          item.app.toLowerCase().includes(searchTextLower) ||
           item.description.toLowerCase().includes(searchTextLower)
       );
     },
@@ -386,6 +414,12 @@ export default {
         .catch((error) => {
           // eslint-disable-next-line
           console.log(error);
+          const message =
+            error.response.data.message === ''
+              ? 'Something Wrong!!!'
+              : error.response.data.message;
+          this.errorMessage = message;
+          this.isError = true;
         })
         .finally(() => {
           this.isEdit = false;
@@ -399,6 +433,7 @@ export default {
         id: item.id,
         category: item.category_name,
         desc: item.description,
+        app: item.app_id == 0 ? '' : item.app_id,
       };
       this.imageFile =
         item.image != null
@@ -428,6 +463,7 @@ export default {
       const payload = {
         category_id: this.categoryDataToImage.id,
         category_name: this.categoryDataToImage.category,
+        app_id: this.categoryDataToImage.app,
         description: this.categoryDataToImage.desc,
         image: this.imageFile[0],
       };
@@ -447,6 +483,12 @@ export default {
         .catch((error) => {
           // eslint-disable-next-line
           console.log(error);
+          const message =
+            error.response.data.message === ''
+              ? 'Something Wrong!!!'
+              : error.response.data.message;
+          this.errorMessage = message;
+          this.isError = true;
         })
         .finally(() => {
           this.isEdit = false;
@@ -465,6 +507,7 @@ export default {
       this.input = {
         id: category.id,
         category: category.category_name,
+        app: category.app_id == 0 ? '' : category.app_id,
         desc: category.description,
       };
     },
@@ -473,8 +516,9 @@ export default {
       this.input = {
         id: 0,
         image: null,
-        category: '',
-        desc: '',
+        category: null,
+        app: null,
+        desc: null,
       };
     },
     saveEdit() {
@@ -484,6 +528,7 @@ export default {
           category_id: this.input.id,
           category_name: this.input.category,
           description: this.input.desc,
+          app_id: this.input.app,
         };
         if (this.input.image !== null) {
           payload['image'] = this.input.image;
@@ -498,13 +543,21 @@ export default {
             this.input = {
               id: 0,
               image: null,
-              category: '',
-              desc: '',
+              category: null,
+              app: null,
+              desc: null,
             };
           })
           .catch((error) => {
             // eslint-disable-next-line
             console.log(error);
+            const message = error.response.data.category_name
+              ? error.response.data.category_name[0]
+              : error.response.data.message
+              ? error.response.data.message
+              : 'Something Wrong!!!';
+            this.errorMessage = message;
+            this.isError = true;
           })
           .finally(() => {
             this.isEdit = false;
@@ -518,6 +571,7 @@ export default {
         const payload = {
           category_name: this.input.category,
           description: this.input.desc,
+          app_id: this.input.app,
         };
         if (this.input.image !== null) {
           payload['image'] = this.input.image;
@@ -532,13 +586,21 @@ export default {
             this.input = {
               id: 0,
               image: null,
-              category: '',
-              desc: '',
+              category: null,
+              app: null,
+              desc: null,
             };
           })
           .catch((error) => {
             // eslint-disable-next-line
             console.log(error);
+            const message = error.response.data.category_name
+              ? error.response.data.category_name[0]
+              : error.response.data.message
+              ? error.response.data.message
+              : 'Something Wrong!!!';
+            this.errorMessage = message;
+            this.isError = true;
           })
           .finally(() => {
             this.isSending = false;
@@ -570,6 +632,12 @@ export default {
         .catch((error) => {
           // eslint-disable-next-line
           console.log(error);
+          const message =
+            error.response.data.message === ''
+              ? 'Something Wrong!!!'
+              : error.response.data.message;
+          this.errorMessage = message;
+          this.isError = true;
         })
         .finally(() => {
           this.isDeleteLoading = false;
@@ -590,6 +658,8 @@ export default {
               image: item.image || null,
               category_name: item.category_name || '',
               description: item.description || '',
+              app: item.app !== null ? item.app.app_name : '',
+              app_id: item.app_id || 0,
               isActive:
                 item.active == 'N' ? false : item.active == 'Y' ? true : null,
               isWebsite:
@@ -600,9 +670,42 @@ export default {
         .catch((error) => {
           // eslint-disable-next-line
           console.log(error);
+          const message =
+            error.response.data.message === ''
+              ? 'Something Wrong!!!'
+              : error.response.data.message;
+          this.errorMessage = message;
+          this.isError = true;
         })
         .finally(() => {
           this.isLoading = false;
+        });
+    },
+    getAppActive() {
+      axios
+        .get(`/app/active`)
+        .then((response) => {
+          const data = response.data.data;
+          // console.log(data);
+          this.resource.app = data
+            .sort((a, b) => a.app_id < b.app_id)
+            .map((app) => {
+              return {
+                id: app.app_id || 0,
+                name: app.app_name || '',
+              };
+            });
+          // console.log(this.items);
+        })
+        .catch((error) => {
+          // eslint-disable-next-line
+          console.log(error);
+          const message =
+            error.response.data.message === ''
+              ? 'Something Wrong!!!'
+              : error.response.data.message;
+          this.errorMessage = message;
+          this.isError = true;
         });
     },
     activeCategory(id) {
@@ -618,6 +721,12 @@ export default {
         .catch((error) => {
           // eslint-disable-next-line
           console.log(error);
+          const message =
+            error.response.data.message === ''
+              ? 'Something Wrong!!!'
+              : error.response.data.message;
+          this.errorMessage = message;
+          this.isError = true;
         })
         .finally(() => {
           this.isSending = false;
@@ -636,6 +745,12 @@ export default {
         .catch((error) => {
           // eslint-disable-next-line
           console.log(error);
+          const message =
+            error.response.data.message === ''
+              ? 'Something Wrong!!!'
+              : error.response.data.message;
+          this.errorMessage = message;
+          this.isError = true;
         })
         .finally(() => {
           this.isSending = false;

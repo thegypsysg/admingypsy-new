@@ -35,6 +35,10 @@ export default createStore({
             path: '/skills-group',
           },
           {
+            title: 'Category Master',
+            path: '/category_master',
+          },
+          {
             title: 'Manage Countries',
             path: '/country-master',
           },

@@ -3,7 +3,7 @@
     <sidebar-dashboard :drawer-open="drawer" />
     <header-dashboard @toggle-drawer="toggleDrawer" />
     <v-main>
-      <BoozardsCategory />
+      <CategoryMaster />
     </v-main>
   </v-app>
 </template>
@@ -11,11 +11,11 @@
 <script>
 import HeaderDashboard from '@/components/HeaderDashboard.vue';
 import SidebarDashboard from '@/components/SidebarDashboard.vue';
-import BoozardsCategory from './BoozardsCategory.vue';
+import CategoryMaster from './CategoryMaster.vue';
 
 export default {
-  name: 'BoozardsCategoryContainer',
-  components: { SidebarDashboard, HeaderDashboard, BoozardsCategory },
+  name: 'CategoryMasterContainer',
+  components: { SidebarDashboard, HeaderDashboard, CategoryMaster },
   data: () => ({
     drawer: true,
   }),
