@@ -22,7 +22,6 @@
             <h4>Sub Industry Name</h4>
             <v-text-field
               v-model="input.subIndustry"
-              :rules="rules.subIndustryRules"
               label="Type Sub Industry Name"
               variant="outlined"
               density="compact"
@@ -36,7 +35,6 @@
             <v-autocomplete
               clearable
               density="compact"
-              :rules="rules.industryRules"
               label="Select Industry"
               placeholder="Type a Industry"
               :items="resource.industry"

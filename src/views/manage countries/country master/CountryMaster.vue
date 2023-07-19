@@ -42,7 +42,6 @@
             <v-combobox
               clearable
               density="compact"
-              :rules="rules.countryRules"
               label="Select Country"
               placeholder="Type a Country"
               :items="resource.country"
@@ -54,7 +53,6 @@
           <v-col cols="12" md="3">
             <v-text-field
               v-model="input.code"
-              :rules="rules.codeRules"
               label="Enter Country Code"
               variant="outlined"
               density="compact"
@@ -65,7 +63,6 @@
           <v-col cols="12" md="3">
             <v-combobox
               v-model="input.national"
-              :rules="rules.nationalRules"
               label="Enter Nationality"
               variant="outlined"
               density="compact"

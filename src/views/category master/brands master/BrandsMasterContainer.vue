@@ -3,7 +3,7 @@
     <sidebar-dashboard :drawer-open="drawer" />
     <header-dashboard @toggle-drawer="toggleDrawer" />
     <v-main>
-      <BoozardsBrands />
+      <BrandsMaster />
     </v-main>
   </v-app>
 </template>
@@ -11,11 +11,11 @@
 <script>
 import HeaderDashboard from '@/components/HeaderDashboard.vue';
 import SidebarDashboard from '@/components/SidebarDashboard.vue';
-import BoozardsBrands from './BoozardsBrands.vue';
+import BrandsMaster from './BrandsMaster.vue';
 
 export default {
-  name: 'BoozardsBrandsContainer',
-  components: { SidebarDashboard, HeaderDashboard, BoozardsBrands },
+  name: 'BrandsMasterContainer',
+  components: { SidebarDashboard, HeaderDashboard, BrandsMaster },
   data: () => ({
     drawer: true,
   }),

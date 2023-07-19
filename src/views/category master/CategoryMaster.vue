@@ -1,6 +1,22 @@
 <!-- eslint-disable vue/no-deprecated-v-bind-sync -->
 <template>
   <v-container>
+    <div class="d-flex ml-4 mb-4" style="gap: 40px">
+      <router-link
+        style="color: #a370c8; font-weight: 500"
+        class="text-decoration-none"
+        to="/category_master"
+      >
+        <p>Category Master</p>
+      </router-link>
+      <router-link
+        style="color: #ff7f27; font-weight: 500"
+        class="text-decoration-none"
+        to="/brands_master"
+      >
+        <p>Brands Master</p>
+      </router-link>
+    </div>
     <v-form v-model="valid" @submit.prevent>
       <v-container>
         <!-- <v-row>
@@ -16,7 +32,6 @@
             <p style="color: #8f8f8b; font-weight: 500">Category Name</p>
             <v-text-field
               v-model="input.category"
-              :rules="rules.categoryRules"
               label="Type Category"
               variant="outlined"
               density="compact"
@@ -25,7 +40,6 @@
             ></v-text-field>
             <v-autocomplete
               density="compact"
-              :rules="rules.appRules"
               label="---Select App---"
               placeholder="Type App"
               :items="resource.app"
@@ -41,7 +55,6 @@
             <p style="color: #8f8f8b; font-weight: 500">Description</p>
             <v-textarea
               v-model="input.desc"
-              :rules="rules.descRules"
               label="Type Description"
               rows="3"
               variant="outlined"
@@ -217,7 +230,7 @@
                     <div class="d-flex" style="gap: 20px">
                       <v-table class="text-left">
                         <tr>
-                          <td><div style="width: 200px"></div></td>
+                          <td><div style="width: 190px"></div></td>
                           <td>
                             <span class="text-black font-weight-black"
                               >App: </span
@@ -765,6 +778,7 @@ export default {
 .country-table {
   font-size: 12px;
   color: black !important;
+  border-bottom: none !important;
 }
 
 .country-table-body {

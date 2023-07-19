@@ -26,7 +26,6 @@
           <v-col cols="12" md="3">
             <v-text-field
               v-model="input.primary"
-              :rules="rules.primaryRules"
               label="Primary Skills"
               variant="outlined"
               density="compact"
@@ -34,7 +33,6 @@
             ></v-text-field>
             <v-autocomplete
               density="compact"
-              :rules="rules.groupRules"
               label="Select Skills Group"
               placeholder="Type Skills Group"
               :items="resource.group"
@@ -49,7 +47,6 @@
             <v-textarea
               density="compact"
               v-model="input.desc"
-              :rules="rules.descriptionRules"
               label="Description"
               rows="3"
               variant="outlined"
@@ -101,7 +98,6 @@
           <v-col cols="12" md="3">
             <v-autocomplete
               density="compact"
-              :rules="rules.appRules"
               label="---Select App---"
               placeholder="Type App"
               :items="resource.app"
@@ -114,7 +110,6 @@
           <v-col cols="12" md="3">
             <v-text-field
               v-model="input.slug"
-              :rules="rules.slugRules"
               label="Slug"
               variant="outlined"
               density="compact"
@@ -233,10 +228,11 @@
                   </td>
                 </tr>
                 <tr>
-                  <td colspan="5">
-                    <div class="d-flex justify-center" style="gap: 20px">
+                  <td colspan="8">
+                    <div class="d-flex" style="gap: 20px">
                       <v-table class="text-left">
                         <tr>
+                          <td><div style="width: 170px"></div></td>
                           <td>
                             <span class="text-black font-weight-black"
                               >App Name: </span

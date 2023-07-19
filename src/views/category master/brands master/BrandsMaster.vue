@@ -1,20 +1,20 @@
 <!-- eslint-disable vue/no-deprecated-v-bind-sync -->
 <template>
-  <v-container>
-    <div class="d-flex ml-4 mb-4" style="gap: 40px">
+  <v-container
+    ><div class="d-flex ml-4 mb-4" style="gap: 40px">
       <router-link
         style="color: #a370c8; font-weight: 500"
         class="text-decoration-none"
-        to="/booze_brands"
+        to="/category_master"
       >
-        <p>Booze Brands</p>
+        <p>Category Master</p>
       </router-link>
       <router-link
         style="color: #ff7f27; font-weight: 500"
         class="text-decoration-none"
-        to=""
+        to="/brands_master"
       >
-        <p>Booze Products</p>
+        <p>Brands Master</p>
       </router-link>
     </div>
     <v-form v-model="valid" @submit.prevent>
@@ -32,22 +32,32 @@
             <p style="color: #000; font-weight: 500">Brand Name</p>
             <v-text-field
               v-model="input.brand"
-              :rules="rules.brandRules"
               label="Type Brand Name"
               variant="outlined"
               density="compact"
               class="mt-4"
               required
             ></v-text-field>
+            <v-autocomplete
+              clearable
+              density="compact"
+              label="Category"
+              placeholder="Type category"
+              :items="resource.category"
+              item-title="name"
+              item-value="value"
+              class="mt-1"
+              v-model="input.category"
+              variant="outlined"
+            ></v-autocomplete>
           </v-col>
 
           <v-col cols="12" md="4">
             <p style="color: #000; font-weight: 500">Brand Description</p>
             <v-textarea
               v-model="input.desc"
-              :rules="rules.descRules"
               label="Type Description"
-              rows="2"
+              rows="3"
               variant="outlined"
               class="mt-4"
               required
@@ -96,10 +106,9 @@
         </v-row>
         <v-row class="my-n4">
           <v-col cols="12" md="3">
-            <v-combobox
+            <v-autocomplete
               clearable
               density="compact"
-              :rules="rules.countryRules"
               label="Select Country"
               placeholder="Type country"
               :items="resource.country"
@@ -107,22 +116,21 @@
               item-value="id"
               v-model="input.country"
               variant="outlined"
-            ></v-combobox>
+            ></v-autocomplete>
           </v-col>
 
           <v-col cols="12" md="3">
-            <v-combobox
-              clearable
+            <v-autocomplete
               density="compact"
-              :rules="rules.categoryRules"
-              label="Category"
-              placeholder="Type category"
-              :items="resource.category"
+              label="---Select App---"
+              placeholder="Type App"
+              :items="resource.app"
+              class="mt-1"
               item-title="name"
-              item-value="value"
-              v-model="input.category"
+              item-value="id"
+              v-model="input.app"
               variant="outlined"
-            ></v-combobox>
+            ></v-autocomplete>
           </v-col>
         </v-row>
       </v-container>
@@ -141,7 +149,7 @@
       </v-row>
       <v-row>
         <v-col cols="12">
-          <v-table class="country-table">
+          <v-table style="font-size: 12px !important">
             <thead>
               <tr>
                 <th class="text-left">Id</th>
@@ -156,79 +164,109 @@
               </tr>
             </thead>
             <tbody>
-              <tr
-                class="country-table-body"
-                v-for="item in filteredItems"
-                :key="item.id"
-              >
+              <tr v-for="item in filteredItems" :key="item.id">
                 <td style="font-weight: 500 !important">
-                  {{ item.id }}
+                  <div class="app-column">
+                    {{ item.id }}
+                  </div>
+                  <v-table class="app-column-table"></v-table>
                 </td>
                 <td>
-                  <v-img
-                    height="40"
-                    width="65"
-                    @click="openImage(item)"
-                    style="cursor: pointer"
-                    :src="
-                      item.image != null
-                        ? $fileURL + item.image
-                        : 'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png'
-                    "
-                  >
-                    <template #placeholder> <div class="skeleton" /> </template
-                  ></v-img>
+                  <div class="app-column">
+                    <v-img
+                      height="40"
+                      width="65"
+                      @click="openImage(item)"
+                      style="cursor: pointer"
+                      :src="
+                        item.image != null
+                          ? $fileURL + item.image
+                          : 'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png'
+                      "
+                    >
+                      <template #placeholder>
+                        <div class="skeleton" /> </template
+                    ></v-img>
+                  </div>
+                  <v-table class="app-column-table"></v-table>
                 </td>
                 <td style="font-weight: 500 !important">
-                  {{ item.brand_name }}
+                  <div class="app-column">
+                    {{ item.brand_name }}
+                  </div>
+                  <v-table class="app-column-table">
+                    <tr>
+                      <td>
+                        <span class="text-black font-weight-black">App: </span
+                        ><span class="text-red font-weight-bold">{{
+                          item.app
+                        }}</span>
+                      </td>
+                    </tr>
+                  </v-table>
                 </td>
                 <td style="font-weight: 500 !important">
-                  {{ item.country_name }}
+                  <div class="app-column">
+                    {{ item.country_name }}
+                  </div>
+                  <v-table class="app-column-table"></v-table>
                 </td>
                 <td style="font-weight: 500 !important">
-                  {{ item.category_name }}
+                  <div class="app-column">
+                    {{ item.category_name }}
+                  </div>
+                  <v-table class="app-column-table"></v-table>
                 </td>
                 <td style="color: #7f7f80; font-weight: 500 !important">
-                  {{ item.description }}
+                  <div class="app-column">
+                    {{ item.description }}
+                  </div>
+                  <v-table class="app-column-table"></v-table>
                 </td>
                 <td>
-                  <v-btn-toggle
-                    style="
-                      font-size: 10px !important;
-                      font-weight: 200 !important;
-                      height: 22px !important;
-                      width: 54px !important;
-                    "
-                    class="d-flex align-center"
-                    v-model="item.isActive"
-                    rounded="5"
-                    @click="activeBrand(item.id)"
-                  >
-                    <v-btn size="27" :value="true"> Yes </v-btn>
+                  <div class="app-column">
+                    <v-btn-toggle
+                      style="
+                        font-size: 10px !important;
+                        font-weight: 200 !important;
+                        height: 22px !important;
+                        width: 54px !important;
+                      "
+                      class="d-flex align-center"
+                      v-model="item.isActive"
+                      rounded="5"
+                      @click="activeBrand(item.id)"
+                    >
+                      <v-btn size="27" :value="true"> Yes </v-btn>
 
-                    <v-btn size="27" :value="false"> No </v-btn>
-                  </v-btn-toggle>
+                      <v-btn size="27" :value="false"> No </v-btn>
+                    </v-btn-toggle>
+                  </div>
+                  <v-table class="app-column-table"></v-table>
                 </td>
                 <td>
-                  <v-btn-toggle
-                    style="
-                      font-size: 10px !important;
-                      font-weight: 200 !important;
-                      height: 22px !important;
-                      width: 54px !important;
-                    "
-                    class="d-flex align-center"
-                    v-model="item.isWebsite"
-                    rounded="5"
-                    @click="websiteBrand(item.id)"
-                  >
-                    <v-btn size="27" :value="true"> Yes </v-btn>
+                  <div class="app-column">
+                    <v-btn-toggle
+                      style="
+                        font-size: 10px !important;
+                        font-weight: 200 !important;
+                        height: 22px !important;
+                        width: 54px !important;
+                      "
+                      class="d-flex align-center"
+                      v-model="item.isWebsite"
+                      rounded="5"
+                      @click="websiteBrand(item.id)"
+                    >
+                      <v-btn size="27" :value="true"> Yes </v-btn>
 
-                    <v-btn size="27" :value="false"> No </v-btn>
-                  </v-btn-toggle>
+                      <v-btn size="27" :value="false"> No </v-btn>
+                    </v-btn-toggle>
+                  </div>
+                  <v-table class="app-column-table"></v-table>
                 </td>
                 <td>
-                  <div class="d-flex">
+                  <div class="d-flex app-column">
                     <v-tooltip location="top">
                       <template v-slot:activator="{ props }">
                         <v-btn
@@ -255,6 +293,7 @@
                       <span>Delete</span>
                     </v-tooltip>
                   </div>
+                  <v-table class="app-column-table"></v-table>
                 </td>
               </tr>
               <tr v-if="isLoading">
@@ -280,6 +319,15 @@
 
       <template v-slot:actions>
         <v-btn color="white" variant="text" @click="isSuccess = false">
+          <v-icon>mdi-close</v-icon>
+        </v-btn>
+      </template>
+    </v-snackbar>
+    <v-snackbar location="top" color="red" v-model="isError" :timeout="3000">
+      {{ errorMessage }}
+
+      <template v-slot:actions>
+        <v-btn color="white" variant="text" @click="isError = false">
           <v-icon>mdi-close</v-icon>
         </v-btn>
       </template>
@@ -344,6 +392,7 @@ export default {
     isSending: false,
     isEdit: false,
     isSuccess: false,
+    isError: false,
     isDelete: false,
     isDeleteLoading: false,
     brandsIdToDelete: null,
@@ -351,24 +400,28 @@ export default {
     imageFile: [],
     brandDataToImage: {
       id: 0,
-      brand: '',
+      brand: null,
+      desc: null,
       country: null,
       category: null,
-      desc: '',
+      app: null,
     },
     isOpenImage: false,
     successMessage: '',
+    errorMessage: '',
     input: {
       id: 0,
       image: null,
-      brand: '',
-      desc: '',
+      brand: null,
+      desc: null,
       country: null,
       category: null,
+      app: null,
     },
     resource: {
       country: [],
       category: [],
+      app: [],
     },
     rules: {
       brandRules: [
@@ -395,6 +448,12 @@ export default {
           return 'Category is requred.';
         },
       ],
+      appRules: [
+        (value) => {
+          if (value) return true;
+          return 'App is required.';
+        },
+      ],
     },
     search: '',
     items: [],
@@ -407,6 +466,7 @@ export default {
     this.getBrands();
     this.getCategory();
     this.getCountry();
+    this.getAppActive();
   },
   computed: {
     filteredItems() {
@@ -441,6 +501,12 @@ export default {
         .catch((error) => {
           // eslint-disable-next-line
           console.log(error);
+          const message =
+            error.response.data.message === ''
+              ? 'Something Wrong!!!'
+              : error.response.data.message;
+          this.errorMessage = message;
+          this.isError = true;
         })
         .finally(() => {
           this.isEdit = false;
@@ -477,10 +543,11 @@ export default {
       this.imageFile = [];
       this.brandDataToImage = {
         id: 0,
-        brand: '',
+        brand: null,
+        desc: null,
         country: null,
         category: null,
-        desc: '',
+        app: null,
       };
     },
     saveImage() {
@@ -509,16 +576,23 @@ export default {
         .catch((error) => {
           // eslint-disable-next-line
           console.log(error);
+          const message =
+            error.response.data.message === ''
+              ? 'Something Wrong!!!'
+              : error.response.data.message;
+          this.errorMessage = message;
+          this.isError = true;
         })
         .finally(() => {
           this.isEdit = false;
           this.isSending = false;
           this.brandDataToImage = {
             id: 0,
-            brand: '',
+            brand: null,
+            desc: null,
             country: null,
             category: null,
-            desc: '',
+            app: null,
           };
           this.isOpenImage = false;
           this.imageFile = [];
@@ -529,9 +603,10 @@ export default {
       this.input = {
         id: brand.id,
         brand: brand.brand_name,
-        country: brand.country_name,
-        category: brand.category_name,
+        country: brand.country_id,
+        category: brand.category_id,
         desc: brand.description,
+        app: brand.app,
       };
     },
     cancelEdit() {
@@ -539,10 +614,11 @@ export default {
       this.input = {
         id: 0,
         image: null,
-        brand: '',
+        brand: null,
+        desc: null,
         country: null,
         category: null,
-        desc: '',
+        app: null,
       };
     },
     saveEdit() {
@@ -551,8 +627,8 @@ export default {
         const payload = {
           brand_id: this.input.id,
           brand_name: this.input.brand,
-          country_id: this.input.country.id,
-          category_id: this.input.category.value,
+          country_id: this.input.country,
+          category_id: this.input.category,
           description: this.input.desc,
         };
         if (this.input.image !== null) {
@@ -568,15 +644,22 @@ export default {
             this.input = {
               id: 0,
               image: null,
-              brand: '',
+              brand: null,
+              desc: null,
               country: null,
               category: null,
-              desc: '',
+              app: null,
             };
           })
           .catch((error) => {
             // eslint-disable-next-line
             console.log(error);
+            const message =
+              error.response.data.message === ''
+                ? 'Something Wrong!!!'
+                : error.response.data.message;
+            this.errorMessage = message;
+            this.isError = true;
           })
           .finally(() => {
             this.isEdit = false;
@@ -589,8 +672,8 @@ export default {
         this.isSending = true;
         const payload = {
           brand_name: this.input.brand,
-          country_id: this.input.country.id,
-          category_id: this.input.category.value,
+          country_id: this.input.country,
+          category_id: this.input.category,
           description: this.input.desc,
         };
         if (this.input.image !== null) {
@@ -606,15 +689,22 @@ export default {
             this.input = {
               id: 0,
               image: null,
-              brand: '',
+              brand: null,
+              desc: null,
               country: null,
               category: null,
-              desc: '',
+              app: null,
             };
           })
           .catch((error) => {
             // eslint-disable-next-line
             console.log(error);
+            const message =
+              error.response.data.message === ''
+                ? 'Something Wrong!!!'
+                : error.response.data.message;
+            this.errorMessage = message;
+            this.isError = true;
           })
           .finally(() => {
             this.isSending = false;
@@ -646,6 +736,12 @@ export default {
         .catch((error) => {
           // eslint-disable-next-line
           console.log(error);
+          const message =
+            error.response.data.message === ''
+              ? 'Something Wrong!!!'
+              : error.response.data.message;
+          this.errorMessage = message;
+          this.isError = true;
         })
         .finally(() => {
           this.isDeleteLoading = false;
@@ -660,26 +756,41 @@ export default {
         .then((response) => {
           const data = response.data.data;
           // console.log(data);
-          this.items = data.map((item) => {
-            return {
-              id: item.brand_id || 1,
-              image: item.image || null,
-              brand_name: item.brand_name || '',
-              country_id: item.country_id || 1,
-              country_name: item.country.country_name || '',
-              category_id: item.category_id || 1,
-              category_name: item.category.category_name || '',
-              description: item.description || '',
-              isActive:
-                item.active == 'N' ? false : item.active == 'Y' ? true : null,
-              isWebsite:
-                item.website == 'N' ? false : item.website == 'Y' ? true : null,
-            };
-          });
+          this.items = data
+            .sort((a, b) => a.brand_id > b.brand_id)
+            .map((item) => {
+              return {
+                id: item.brand_id || 1,
+                image: item.image || null,
+                brand_name: item.brand_name || '',
+                country_id: item.country_id || 1,
+                country_name:
+                  item.country != null ? item.country.country_name : '',
+                category_id: item.category_id || 1,
+                category_name: item.category.category_name || '',
+                description: item.description || '',
+                app: item.category.app.app_name || '',
+                app_id: item.category.app_id || 0,
+                isActive:
+                  item.active == 'N' ? false : item.active == 'Y' ? true : null,
+                isWebsite:
+                  item.website == 'N'
+                    ? false
+                    : item.website == 'Y'
+                    ? true
+                    : null,
+              };
+            });
         })
         .catch((error) => {
           // eslint-disable-next-line
           console.log(error);
+          const message =
+            error.response.data.message === ''
+              ? 'Something Wrong!!!'
+              : error.response.data.message;
+          this.errorMessage = message;
+          this.isError = true;
         })
         .finally(() => {
           this.isLoading = false;
@@ -704,6 +815,12 @@ export default {
         .catch((error) => {
           // eslint-disable-next-line
           console.log(error);
+          const message =
+            error.response.data.message === ''
+              ? 'Something Wrong!!!'
+              : error.response.data.message;
+          this.errorMessage = message;
+          this.isError = true;
         })
         .finally(() => {
           this.isLoading = false;
@@ -711,7 +828,7 @@ export default {
     },
     getCountry() {
       axios
-        .get(`/country`)
+        .get(`/countries`)
         .then((response) => {
           const data = response.data.data;
           this.resource.country = data.map((country) => {
@@ -724,6 +841,39 @@ export default {
         .catch((error) => {
           // eslint-disable-next-line
           console.log(error);
+          const message =
+            error.response.data.message === ''
+              ? 'Something Wrong!!!'
+              : error.response.data.message;
+          this.errorMessage = message;
+          this.isError = true;
+        });
+    },
+    getAppActive() {
+      axios
+        .get(`/app/active`)
+        .then((response) => {
+          const data = response.data.data;
+          // console.log(data);
+          this.resource.app = data
+            .sort((a, b) => a.app_id < b.app_id)
+            .map((app) => {
+              return {
+                id: app.app_id || 0,
+                name: app.app_name || '',
+              };
+            });
+          // console.log(this.items);
+        })
+        .catch((error) => {
+          // eslint-disable-next-line
+          console.log(error);
+          const message =
+            error.response.data.message === ''
+              ? 'Something Wrong!!!'
+              : error.response.data.message;
+          this.errorMessage = message;
+          this.isError = true;
         });
     },
 
@@ -740,6 +890,12 @@ export default {
         .catch((error) => {
           // eslint-disable-next-line
           console.log(error);
+          const message =
+            error.response.data.message === ''
+              ? 'Something Wrong!!!'
+              : error.response.data.message;
+          this.errorMessage = message;
+          this.isError = true;
         })
         .finally(() => {
           this.isSending = false;
@@ -758,6 +914,12 @@ export default {
         .catch((error) => {
           // eslint-disable-next-line
           console.log(error);
+          const message =
+            error.response.data.message === ''
+              ? 'Something Wrong!!!'
+              : error.response.data.message;
+          this.errorMessage = message;
+          this.isError = true;
         })
         .finally(() => {
           this.isSending = false;
@@ -807,5 +969,23 @@ export default {
   background-size: 400% 400%;
   animation: skeleton 1.6s ease infinite;
   margin: 0 auto;
+}
+
+.app-column {
+  font-size: 12px;
+  display: flex;
+  align-items: center;
+  min-height: 70px;
+}
+
+.app-column-table {
+  font-size: 12px;
+  min-height: 50px;
+}
+
+.app-column-table th {
+  color: grey;
+  text-align: left;
+  font-weight: 400;
 }
 </style>

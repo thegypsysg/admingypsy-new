@@ -42,7 +42,6 @@
             <v-combobox
               clearable
               density="compact"
-              :rules="rules.townRules"
               label="Select Town"
               placeholder="Type a Town Name"
               :items="resource.town"
@@ -54,7 +53,6 @@
             <v-autocomplete
               clearable
               density="compact"
-              :rules="rules.cityRules"
               label="Select City"
               placeholder="Type a City"
               :items="resource.city"

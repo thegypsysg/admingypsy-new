@@ -23,7 +23,6 @@
           <v-col cols="12" md="3">
             <v-combobox
               density="compact"
-              :rules="rules.healthcareRules"
               label="Select health care"
               placeholder="Type health care"
               :items="resource.healthcare"
@@ -37,7 +36,6 @@
             <v-textarea
               density="compact"
               v-model="input.desc"
-              :rules="rules.descriptionRules"
               label="Type Description"
               rows="1"
               variant="outlined"

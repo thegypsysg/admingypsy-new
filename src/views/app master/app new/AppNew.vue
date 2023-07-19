@@ -10,7 +10,6 @@
             <!-- <div class="d-flex h-100 flex-column"> -->
             <v-text-field
               v-model="input.name"
-              :rules="rules.nameRules"
               :counter="20"
               label="App Name"
               variant="outlined"
@@ -20,7 +19,6 @@
             <v-text-field
               class="mt-3"
               v-model="input.description"
-              :rules="rules.descriptionRules"
               label="App Description (Short)"
               variant="outlined"
               required
@@ -31,7 +29,6 @@
           <v-col cols="12" md="4">
             <v-textarea
               v-model="input.details"
-              :rules="rules.detailsRules"
               label="App Details"
               rows="3"
               variant="outlined"
@@ -42,7 +39,6 @@
             <v-autocomplete
               clearable
               density="compact"
-              :rules="rules.groupRules"
               label="App Group"
               :items="resource.groups"
               item-title="name"

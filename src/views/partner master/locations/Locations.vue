@@ -21,7 +21,6 @@
           <v-col cols="12" md="3">
             <v-autocomplete
               density="compact"
-              :rules="rules.countryRules"
               label="Select Country"
               placeholder="Type Country"
               :items="resource.country"
@@ -34,7 +33,6 @@
           <v-col cols="12" md="3">
             <v-autocomplete
               density="compact"
-              :rules="rules.cityRules"
               label="Select City"
               placeholder="Type City"
               :items="resource.city"
@@ -47,7 +45,6 @@
           <v-col cols="12" md="3">
             <v-autocomplete
               density="compact"
-              :rules="rules.townRules"
               label="Select Town"
               placeholder="Type Town"
               :items="resource.town"
@@ -60,7 +57,6 @@
           <v-col cols="12" md="3">
             <v-autocomplete
               density="compact"
-              :rules="rules.zoneRules"
               label="Select Zone"
               placeholder="Type Zone"
               :items="resource.zone"
@@ -75,7 +71,6 @@
           <v-col cols="12" md="3">
             <v-text-field
               v-model="input.location"
-              :rules="rules.locationRules"
               label="Location Name"
               variant="outlined"
               density="compact"
@@ -85,7 +80,6 @@
           <v-col cols="12" md="3">
             <v-text-field
               v-model="input.latitude"
-              :rules="rules.latitudeRules"
               label="Latitude"
               variant="outlined"
               density="compact"
@@ -95,7 +89,6 @@
           <v-col cols="12" md="3">
             <v-text-field
               v-model="input.longitude"
-              :rules="rules.longitudeRules"
               label="Longitude"
               variant="outlined"
               density="compact"
@@ -105,7 +98,6 @@
           <v-col cols="12" md="3">
             <v-textarea
               v-model="input.address"
-              :rules="rules.addressRules"
               label="Address"
               rows="2"
               variant="outlined"

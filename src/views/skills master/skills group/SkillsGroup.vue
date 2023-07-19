@@ -26,7 +26,6 @@
           <v-col cols="12" md="3">
             <v-text-field
               v-model="input.group"
-              :rules="rules.groupRules"
               label="Group Name"
               variant="outlined"
               density="compact"
@@ -34,7 +33,6 @@
             ></v-text-field>
             <v-autocomplete
               density="compact"
-              :rules="rules.appRules"
               label="---Select App---"
               placeholder="Type App"
               :items="resource.app"
@@ -48,7 +46,6 @@
             <v-textarea
               density="compact"
               v-model="input.desc"
-              :rules="rules.descriptionRules"
               label="Type Description"
               rows="3"
               variant="outlined"

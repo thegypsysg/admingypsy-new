@@ -24,7 +24,6 @@
           <v-col cols="12" md="5">
             <v-text-field
               v-model="input.position"
-              :rules="rules.positionRules"
               label="Type Position"
               variant="outlined"
               density="compact"
@@ -34,7 +33,6 @@
           <v-col cols="12" md="4">
             <v-autocomplete
               density="compact"
-              :rules="rules.skillsRules"
               label="Select Skills Page"
               placeholder="Type Skills Page"
               :items="resource.subIndustry"
@@ -49,7 +47,6 @@
           <v-col cols="12" md="5">
             <v-autocomplete
               density="compact"
-              :rules="rules.companyRules"
               label="Selact Company"
               placeholder="Type Company"
               :items="resource.company"
@@ -62,7 +59,6 @@
           <v-col cols="12" md="4">
             <v-autocomplete
               density="compact"
-              :rules="rules.countryRules"
               label="Select Country"
               placeholder="Type Country"
               :items="resource.country"

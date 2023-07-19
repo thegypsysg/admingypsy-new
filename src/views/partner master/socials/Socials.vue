@@ -21,7 +21,6 @@
           <v-col cols="12" md="3">
             <v-text-field
               v-model="input.facebook"
-              :rules="rules.facebookRules"
               label="Facebook"
               variant="outlined"
               density="compact"
@@ -29,7 +28,6 @@
             ></v-text-field>
             <v-text-field
               v-model="input.linkedin"
-              :rules="rules.linkedinRules"
               label="Linked In"
               variant="outlined"
               density="compact"
@@ -39,7 +37,6 @@
           <v-col cols="12" md="3">
             <v-text-field
               v-model="input.instagram"
-              :rules="rules.instagramRules"
               label="Instagram"
               type="phone"
               variant="outlined"
@@ -49,7 +46,6 @@
 
             <v-text-field
               v-model="input.twitter"
-              :rules="rules.twitterRules"
               label="Twitter"
               variant="outlined"
               density="compact"
@@ -59,7 +55,6 @@
           <v-col cols="12" md="3">
             <v-text-field
               v-model="input.tiktok"
-              :rules="rules.tiktokRules"
               label="Tiktok"
               variant="outlined"
               density="compact"
@@ -67,7 +62,6 @@
             ></v-text-field>
             <v-text-field
               v-model="input.youtube"
-              :rules="rules.youtubeRules"
               label="YouTube"
               variant="outlined"
               density="compact"

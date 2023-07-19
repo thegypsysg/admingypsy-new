@@ -119,7 +119,7 @@ export default {
                   app.app_name == 'The Syringe'
                     ? '/healthcare-settings'
                     : app.app_name == 'Boozards'
-                    ? '/booze_brands'
+                    ? ''
                     : '',
                 image: this.$fileURL + app.app_main_image || null,
               };

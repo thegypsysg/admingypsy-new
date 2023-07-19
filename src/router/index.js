@@ -302,10 +302,10 @@ const routes = [
     },
   },
   {
-    name: 'boozards brands',
-    path: '/booze_brands',
+    name: 'brands master',
+    path: '/brands_master',
     component: () =>
-      import('@/views/boozards/brands/BoozardsBrandsContainer.vue'),
+      import('@/views/category master/brands master/BrandsMasterContainer.vue'),
     beforeEnter: (to, from, next) => {
       // Pengecekan status login sebelum masuk ke halaman beranda
       if (localStorage.getItem('token') == null) {

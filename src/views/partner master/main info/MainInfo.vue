@@ -21,7 +21,6 @@
           <v-col cols="12" md="3">
             <v-combobox
               density="compact"
-              :rules="rules.typeRules"
               label="Employer Type"
               placeholder="Type Employer Type"
               :items="resource.type"
@@ -33,7 +32,6 @@
             <v-textarea
               density="compact"
               v-model="input.address"
-              :rules="rules.addressRules"
               label="Address"
               rows="3"
               variant="outlined"
@@ -41,7 +39,6 @@
             ></v-textarea>
             <v-text-field
               v-model="input.postalCode"
-              :rules="rules.postalCodeRules"
               label="Postal Code"
               class="mt-2"
               variant="outlined"
@@ -50,7 +47,6 @@
             ></v-text-field>
             <v-text-field
               v-model="input.website"
-              :rules="rules.websiteRules"
               label="Website"
               variant="outlined"
               density="compact"
@@ -60,7 +56,6 @@
           <v-col cols="12" md="3">
             <v-text-field
               v-model="input.telephone"
-              :rules="rules.telephoneRules"
               label="Telephone"
               type="phone"
               variant="outlined"
@@ -69,7 +64,6 @@
             ></v-text-field>
             <v-combobox
               density="compact"
-              :rules="rules.countryRules"
               label="Select Country"
               placeholder="Type Country"
               :items="resource.country"
@@ -80,7 +74,6 @@
             ></v-combobox>
             <v-combobox
               density="compact"
-              :rules="rules.townRules"
               label="Select Town"
               placeholder="Type Town"
               :items="resource.town"
@@ -91,7 +84,6 @@
             ></v-combobox>
             <v-text-field
               v-model="input.latitude"
-              :rules="rules.latitudeRules"
               label="Latitude"
               variant="outlined"
               density="compact"
@@ -101,7 +93,6 @@
           <v-col cols="12" md="3">
             <v-text-field
               v-model="input.whatsapp"
-              :rules="rules.whatsappRules"
               label="What'sApp"
               type="phone"
               variant="outlined"
@@ -110,7 +101,6 @@
             ></v-text-field>
             <v-combobox
               density="compact"
-              :rules="rules.cityRules"
               label="Select City"
               placeholder="Type City"
               :items="resource.city"
@@ -121,7 +111,6 @@
             ></v-combobox>
             <v-combobox
               density="compact"
-              :rules="rules.zoneRules"
               label="Select Zone"
               placeholder="Type Zone"
               :items="resource.zone"
@@ -132,7 +121,6 @@
             ></v-combobox>
             <v-text-field
               v-model="input.longitude"
-              :rules="rules.longitudeRules"
               label="Longitude"
               variant="outlined"
               density="compact"

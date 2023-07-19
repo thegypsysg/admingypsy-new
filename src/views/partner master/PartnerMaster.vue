@@ -8,7 +8,6 @@
           <v-col cols="12" md="6">
             <v-combobox
               v-model="input.name"
-              :rules="rules.nameRules"
               :items="resource.name"
               label="Partner Name"
               placeholder="Type Partner Name"
@@ -20,7 +19,6 @@
           <v-col cols="12" md="3">
             <v-autocomplete
               density="compact"
-              :rules="rules.countryRules"
               label="Select Country"
               placeholder="Type Country"
               :items="resource.country"
@@ -35,7 +33,6 @@
           <v-col cols="12" md="3">
             <v-autocomplete
               density="compact"
-              :rules="rules.industryRules"
               label="Industry"
               placeholder="Type Industry"
               :items="resource.industry"
@@ -48,7 +45,6 @@
           <v-col cols="12" md="3">
             <v-autocomplete
               density="compact"
-              :rules="rules.subIndustryRules"
               label="Sub Industry"
               placeholder="Type Sub Industry"
               :items="resource.subIndustry"

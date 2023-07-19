@@ -22,7 +22,6 @@
             <h4>Industry</h4>
             <v-text-field
               v-model="input.industry"
-              :rules="rules.industryRules"
               label="Type Industry Name"
               variant="outlined"
               density="compact"

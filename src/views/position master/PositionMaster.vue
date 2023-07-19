@@ -11,7 +11,6 @@
             <h4>Position</h4>
             <v-text-field
               v-model="input.position"
-              :rules="rules.positionRules"
               label="Type Position"
               variant="outlined"
               density="compact"

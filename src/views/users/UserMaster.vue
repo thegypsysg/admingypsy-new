@@ -8,7 +8,6 @@
           <v-col cols="12" md="3">
             <v-text-field
               v-model="input.username"
-              :rules="rules.nameRules"
               :counter="20"
               label="Enter Username"
               variant="outlined"
@@ -20,7 +19,6 @@
           <v-col cols="12" md="3">
             <v-text-field
               v-model="input.email"
-              :rules="rules.emailRules"
               label="Enter Email"
               type="email"
               density="compact"
@@ -33,7 +31,6 @@
             <v-select
               clearable
               density="compact"
-              :rules="rules.countryRules"
               label="Select Country"
               :items="resource.country"
               item-title="name"
@@ -47,7 +44,6 @@
             <v-select
               density="compact"
               clearable
-              :rules="rules.roleRules"
               :items="resource.role"
               item-title="name"
               item-value="value"

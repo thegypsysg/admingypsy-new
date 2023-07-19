@@ -21,7 +21,6 @@
           <v-col cols="12" md="3">
             <v-text-field
               v-model="input.contact"
-              :rules="rules.contactRules"
               label="Contact"
               variant="outlined"
               density="compact"
