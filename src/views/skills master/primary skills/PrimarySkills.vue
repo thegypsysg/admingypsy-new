@@ -237,7 +237,14 @@
                     <div class="d-flex justify-center" style="gap: 20px">
                       <v-table class="text-left">
                         <tr>
-                          <td>App Name: {{ item.app }}</td>
+                          <td>
+                            <span class="text-black font-weight-black"
+                              >App Name: </span
+                            ><span
+                              class="text-blue-darken-4 font-weight-bold"
+                              >{{ item.app }}</span
+                            >
+                          </td>
                         </tr>
                       </v-table>
                     </div>
@@ -349,10 +356,12 @@ export default {
     tableHeaders: [{ text: 'Gambar', value: 'image' }],
     imageFile: [],
     primarySkillsDataToImage: {
-      id: 1,
-      sgm_id: 1,
-      name: '',
-      description: '',
+      id: 0,
+      primary: null,
+      group: null,
+      app: null,
+      desc: null,
+      slug: null,
     },
     isOpenImage: false,
     successMessage: '',
@@ -483,7 +492,8 @@ export default {
         id: item.id,
         sgm_id: item.sgm_id,
         name: item.primary,
-        description: item.desc,
+        desc: item.desc,
+        app: item.app,
       };
       this.imageFile =
         item.image != null
@@ -503,10 +513,12 @@ export default {
       this.isOpenImage = false;
       this.imageFile = [];
       this.primarySkillsDataToImage = {
-        id: 1,
-        sgm_id: 1,
-        name: '',
-        description: '',
+        id: 0,
+        primary: null,
+        group: null,
+        app: null,
+        desc: null,
+        slug: null,
       };
     },
     saveImage() {
@@ -516,6 +528,7 @@ export default {
         sgm_id: this.primarySkillsDataToImage.sgm_id,
         name: this.primarySkillsDataToImage.name,
         description: this.primarySkillsDataToImage.description,
+        app_id: this.primarySkillsDataToImage.app,
         image: this.imageFile[0],
       };
 
@@ -542,10 +555,12 @@ export default {
           this.isEdit = false;
           this.isSending = false;
           this.primarySkillsDataToImage = {
-            id: 1,
-            sgm_id: 1,
-            name: '',
-            description: '',
+            id: 0,
+            primary: null,
+            group: null,
+            app: null,
+            desc: null,
+            slug: null,
           };
           this.isOpenImage = false;
           this.imageFile = [];
@@ -557,6 +572,7 @@ export default {
         id: skill.id,
         primary: skill.primary,
         group: skill.sgm_id,
+        app: skill.app,
         desc: skill.desc,
         slug: skill.slug,
       };
@@ -565,10 +581,11 @@ export default {
       this.isEdit = false;
       this.input = {
         id: 0,
-        primary: '',
+        primary: null,
         group: null,
-        desc: '',
-        slug: '',
+        app: null,
+        desc: null,
+        slug: null,
         image: null,
       };
     },
@@ -580,6 +597,7 @@ export default {
           sgm_id: this.input.group,
           name: this.input.primary,
           description: this.input.desc,
+          app_id: this.input.app,
           slug: this.input.slug,
         };
         if (this.input.image !== null) {
@@ -594,10 +612,11 @@ export default {
             this.getPrimarySkillData();
             this.input = {
               id: 0,
-              primary: '',
+              primary: null,
               group: null,
-              desc: '',
-              slug: '',
+              app: null,
+              desc: null,
+              slug: null,
               image: null,
             };
           })
@@ -623,6 +642,7 @@ export default {
         const payload = {
           name: this.input.primary,
           description: this.input.desc,
+          app_id: this.input.app,
           sgm_id: this.input.group,
           slug: this.input.slug,
         };
@@ -635,10 +655,11 @@ export default {
             this.getPrimarySkillData();
             this.input = {
               id: 0,
-              primary: '',
+              primary: null,
               group: null,
-              desc: '',
-              slug: '',
+              app: null,
+              desc: null,
+              slug: null,
               image: null,
             };
           })
@@ -706,7 +727,7 @@ export default {
           // console.log(data);
 
           this.items = data
-            .sort((a, b) => a.skills_id - b.skills_id)
+            .sort((a, b) => a.skills_id > b.skills_id)
             .map((item) => {
               return {
                 id: item.skills_id || 1,
@@ -726,6 +747,12 @@ export default {
         .catch((error) => {
           // eslint-disable-next-line
           console.log(error);
+          const message =
+            error.response.data.message === ''
+              ? 'Something Wrong!!!'
+              : error.response.data.message;
+          this.errorMessage = message;
+          this.isError = true;
         })
         .finally(() => {
           this.isLoading = false;
@@ -748,6 +775,12 @@ export default {
         .catch((error) => {
           // eslint-disable-next-line
           console.log(error);
+          const message =
+            error.response.data.message === ''
+              ? 'Something Wrong!!!'
+              : error.response.data.message;
+          this.errorMessage = message;
+          this.isError = true;
         })
         .finally(() => {
           this.isLoading = false;
@@ -794,6 +827,12 @@ export default {
         .catch((error) => {
           // eslint-disable-next-line
           console.log(error);
+          const message =
+            error.response.data.message === ''
+              ? 'Something Wrong!!!'
+              : error.response.data.message;
+          this.errorMessage = message;
+          this.isError = true;
         })
         .finally(() => {
           this.isSending = false;
