@@ -18,8 +18,8 @@
     <v-form v-model="valid" @submit.prevent>
       <v-container>
         <v-row>
-          <v-col cols="12" md="3">
-            <v-combobox
+          <v-col cols="12" md="4">
+            <!-- <v-combobox
               density="compact"
               label="Employer Type"
               placeholder="Type Employer Type"
@@ -28,7 +28,7 @@
               item-value="id"
               v-model="input.type"
               variant="outlined"
-            ></v-combobox>
+            ></v-combobox> -->
             <v-textarea
               density="compact"
               v-model="input.address"
@@ -38,23 +38,6 @@
               required
             ></v-textarea>
             <v-text-field
-              v-model="input.postalCode"
-              label="Postal Code"
-              class="mt-2"
-              variant="outlined"
-              density="compact"
-              required
-            ></v-text-field>
-            <v-text-field
-              v-model="input.website"
-              label="Website"
-              variant="outlined"
-              density="compact"
-              required
-            ></v-text-field>
-          </v-col>
-          <v-col cols="12" md="3">
-            <v-text-field
               v-model="input.telephone"
               label="Telephone"
               type="phone"
@@ -62,7 +45,60 @@
               density="compact"
               required
             ></v-text-field>
-            <v-combobox
+            <v-text-field
+              v-model="input.whatsapp"
+              label="What'sApp"
+              type="phone"
+              variant="outlined"
+              density="compact"
+              required
+            ></v-text-field>
+            <v-textarea
+              density="compact"
+              v-model="input.open"
+              label="Opening Hours"
+              rows="3"
+              variant="outlined"
+              required
+            ></v-textarea>
+          </v-col>
+          <v-col cols="12" md="4">
+            <v-textarea
+              density="compact"
+              v-model="input.about"
+              label="About Us"
+              rows="3"
+              variant="outlined"
+              required
+            ></v-textarea>
+            <v-text-field
+              v-model="input.website"
+              label="Website"
+              variant="outlined"
+              density="compact"
+              required
+            ></v-text-field
+            ><v-text-field
+              v-model="input.email"
+              :rules="emailRules"
+              label="Official Email"
+              type="email"
+              density="compact"
+              variant="outlined"
+              required
+            ></v-text-field
+            ><v-autocomplete
+              v-model="input.manage"
+              :items="partnerName"
+              item-title="name"
+              item-value="id"
+              label="Managed by"
+              placeholder="Type Managed by"
+              variant="outlined"
+              density="compact"
+              required
+            ></v-autocomplete>
+            <!-- <v-combobox
               density="compact"
               label="Select Country"
               placeholder="Type Country"
@@ -81,73 +117,20 @@
               item-value="id"
               v-model="input.town"
               variant="outlined"
-            ></v-combobox>
-            <v-text-field
-              v-model="input.latitude"
-              label="Latitude"
-              variant="outlined"
-              density="compact"
-              required
-            ></v-text-field>
-          </v-col>
-          <v-col cols="12" md="3">
-            <v-text-field
-              v-model="input.whatsapp"
-              label="What'sApp"
-              type="phone"
-              variant="outlined"
-              density="compact"
-              required
-            ></v-text-field>
-            <v-combobox
-              density="compact"
-              label="Select City"
-              placeholder="Type City"
-              :items="resource.city"
-              item-title="name"
-              item-value="id"
-              v-model="input.city"
-              variant="outlined"
-            ></v-combobox>
-            <v-combobox
-              density="compact"
-              label="Select Zone"
-              placeholder="Type Zone"
-              :items="resource.zone"
-              item-title="name"
-              item-value="id"
-              v-model="input.zone"
-              variant="outlined"
-            ></v-combobox>
-            <v-text-field
-              v-model="input.longitude"
-              label="Longitude"
-              variant="outlined"
-              density="compact"
-              required
-            ></v-text-field>
+            ></v-combobox> -->
           </v-col>
           <v-col class="ml-4" cols="12" md="2">
             <v-btn
-              :prepend-icon="
-                isEdit
-                  ? 'mdi-account-multiple-check'
-                  : 'mdi-account-multiple-plus'
-              "
               color="indigo-accent-2"
               style="text-transform: none"
               type="submit"
               variant="flat"
               class="w-100"
-              @click="isEdit ? saveEdit() : saveData()"
+              @click="saveData()"
               :disabled="isSending"
               :loading="isSending"
             >
-              <template v-slot:prepend>
-                <v-icon color="white"></v-icon>
-              </template>
-
-              {{ isEdit ? 'Save' : 'Add' }}
+              Save
             </v-btn>
           </v-col>
         </v-row>
@@ -167,6 +150,16 @@
         </v-btn>
       </template>
     </v-snackbar>
+
+    <v-snackbar location="top" color="red" v-model="isError" :timeout="3000">
+      {{ errorMessage }}
+
+      <template v-slot:actions>
+        <v-btn color="white" variant="text" @click="isError = false">
+          <v-icon>mdi-close</v-icon>
+        </v-btn>
+      </template>
+    </v-snackbar>
   </v-container>
 </template>
 
@@ -180,9 +173,12 @@ export default {
   name: 'MainInfo',
   data: () => ({
     // fileURL: 'https://admin1.the-gypsy.sg/img/app/',
+    idPartner: null,
+    partnerName: [],
     valid: false,
     isLoading: false,
     isSending: false,
+    isError: false,
     isEdit: false,
     isSuccess: false,
     isDelete: false,
@@ -193,20 +189,17 @@ export default {
     userIdToImage: null,
     isOpenImage: false,
     successMessage: '',
+    errorMessage: '',
     input: {
       id: 0,
-      type: null,
-      address: '',
-      postalCode: '',
-      website: '',
-      telephone: '',
-      country: null,
-      town: null,
-      latitude: '',
-      whatsapp: '',
-      city: null,
-      zone: null,
-      longitude: '',
+      address: null,
+      telephone: null,
+      whatsapp: null,
+      open: null,
+      about: null,
+      website: null,
+      email: null,
+      manage: null,
     },
     resource: {
       type: [
@@ -272,443 +265,96 @@ export default {
         },
       ],
     },
-    rules: {
-      typeRules: [
-        (value) => {
-          if (value) return true;
-          return 'Employer type is required.';
-        },
-      ],
-      addressRules: [
-        (value) => {
-          if (value) return true;
-          return 'Address is required.';
-        },
-      ],
-      postalCodeRules: [
-        (value) => {
-          if (value) return true;
-          return 'Postal Code is required.';
-        },
-      ],
-      websiteRules: [
-        (value) => !!value || 'Required.',
-        (value) => {
-          const regex =
-            /(www\.)?[-a-zA-Z0-9@:%._\\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}/gm;
-          return regex.test(value) || 'Invalid Url Format!!';
-        },
-      ],
-      telephoneRules: [
-        (value) => {
-          if (value) return true;
-          return 'Telephone is required.';
-        },
-      ],
-      countryRules: [
-        (value) => {
-          if (value) return true;
-          return 'Country is required.';
-        },
-      ],
-      townRules: [
-        (value) => {
-          if (value) return true;
-          return 'Town is required.';
-        },
-      ],
-      latitudeRules: [
-        (value) => {
-          if (value) return true;
-          return 'Latitude is required.';
-        },
-      ],
-      whatsappRules: [
-        (value) => {
-          if (value) return true;
-          return "What'sApp is required.";
-        },
-      ],
-      cityRules: [
-        (value) => {
-          if (value) return true;
-          return 'City is required.';
-        },
-      ],
-      zoneRules: [
-        (value) => {
-          if (value) return true;
-          return 'Zone is required.';
-        },
-      ],
-      longitudeRules: [
-        (value) => {
-          if (value) return true;
-          return 'Lotitude is required.';
-        },
-      ],
-    },
-    search: '',
-    items: [],
-    itemsTry: [
-      {
-        id: 1,
-        logo: '@/assets/logo-img.jpeg',
-        image: '@/assets/other-voucher-5.jpeg',
-        name: 'Changi General Hospital',
-        type: 'Admin',
-        country: 'Singapore',
-        city: 'Singapore',
-        town: 'Woodlands',
-        zone: 'North',
-        isActive: true,
-        isFav: true,
-      },
-      {
-        id: 2,
-        logo: '@/assets/logo-img.jpeg',
-        image: '@/assets/other-voucher-5.jpeg',
-        name: 'Changi General Hospital',
-        type: 'Admin',
-        country: 'Singapore',
-        city: 'Singapore',
-        town: 'Woodlands',
-        zone: 'North',
-        isActive: true,
-        isFav: true,
+    emailRules: [
+      (value) => {
+        if (/.+@.+\..+/.test(value)) return true;
+        return 'E-mail must be valid.';
       },
     ],
+    search: '',
+    items: [],
   }),
   created() {
     const token = JSON.parse(localStorage.getItem('token'));
     setAuthHeader(token);
   },
   mounted() {
-    // this.getUserData();
-    this.getCountry();
-  },
-  computed: {
-    filteredItems() {
-      if (!this.search) {
-        return this.itemsTry;
-      }
-      const searchTextLower = this.search.toLowerCase();
-      return this.itemsTry.filter(
-        (item) =>
-          item.name.toLowerCase().includes(searchTextLower) ||
-          item.country.toLowerCase().includes(searchTextLower) ||
-          item.city.toLowerCase().includes(searchTextLower) ||
-          item.town.toLowerCase().includes(searchTextLower)
-      );
-    },
+    this.idPartner = this.$route.params.id;
+    this.getPartnerData();
   },
   methods: {
-    updateImageFile(newImageFile) {
-      this.imageFile.push(newImageFile);
-    },
-    deleteImageFile() {
-      this.isSending = true;
-      const payload = {
-        id: this.userIdToImage,
-      };
-      setTimeout(() => {
-        console.log(payload);
-        this.isEdit = false;
-        this.isSending = false;
-        this.userIdToImage = null;
-        this.imageFile = [];
-      }, 2000);
-      // axios
-      //   .post(`/user/deleteImage`, payload, {})
-      //   .then((response) => {
-      //     const data = response.data;
-      //     this.successMessage = data.message;
-      //     this.isSuccess = true;
-      //     this.getUserData();
-      //     // app.config.globalProperties.$eventBus.$emit('update-image');
-      //   })
-      //   .catch((error) => {
-      //     // eslint-disable-next-line
-      //     console.log(error);
-      //   })
-      //   .finally(() => {
-      //     this.isEdit = false;
-      //     this.isSending = false;
-      //     this.userIdToImage = null;
-      //     this.imageFile = [];
-      //   });
-    },
-    openImage(image, id) {
-      this.isOpenImage = true;
-      this.userIdToImage = id;
-      this.imageFile =
-        image != null
-          ? [
-              {
-                file: {
-                  name: image,
-                  size: '',
-                  base64: '',
-                  format: '',
-                },
-              },
-            ]
-          : [];
-    },
-    closeImage() {
-      this.isOpenImage = false;
-      this.imageFile = [];
-      this.userIdToImage = null;
-    },
-    saveImage() {
-      this.isSending = true;
-      const payload = {
-        id: this.userIdToImage,
-        file: this.imageFile[0],
-      };
-      setTimeout(() => {
-        console.log(payload);
-        this.isEdit = false;
-        this.isSending = false;
-        this.userIdToImage = null;
-        this.isOpenImage = false;
-        this.imageFile = [];
-      }, 2000);
-      // http
-      //   .post(`/user/update`, payload, {
-      //     headers: {
-      //       'Content-Type': 'multipart/form-data',
-      //     },
-      //   })
-      //   .then((response) => {
-      //     const data = response.data;
-      //     this.successMessage = data.message;
-      //     this.isSuccess = true;
-      //     this.getUserData();
-      //     // app.config.globalProperties.$eventBus.$emit('update-image');
-      //   })
-      //   .catch((error) => {
-      //     // eslint-disable-next-line
-      //     console.log(error);
-      //   })
-      //   .finally(() => {
-      //     this.isEdit = false;
-      //     this.isSending = false;
-      //     this.userIdToImage = null;
-      //     this.isOpenImage = false;
-      //     this.imageFile = [];
-      //   });
-    },
-    editUser(user) {
-      this.isEdit = true;
-      this.input = {
-        id: user.id,
-        name: user.name,
-        type: user.type,
-        country: user.country,
-        city: user.city,
-        town: user.town,
-        zone: user.zone,
-      };
-    },
-    cancelEdit() {
-      this.isEdit = false;
-      this.input = {
-        id: 0,
-        name: '',
-        type: null,
-        country: null,
-        city: null,
-        town: null,
-        zone: null,
-      };
-    },
-    saveEdit() {
-      if (this.valid) {
-        this.isSending = true;
-        const payload = {
-          id: this.input.id,
-          name: this.input.username,
-          email: this.input.email,
-          role: this.input.role,
-          country_id: this.input.country,
-        };
-        if (this.input.image !== null) {
-          payload['file'] = this.input.image;
-        }
-        setTimeout(() => {
-          console.log(payload);
-          this.isSending = false;
-          this.isEdit = false;
-        }, 2000);
-        // axios
-        //   .post(`/user/update`, payload)
-        //   .then((response) => {
-        //     const data = response.data;
-        //     this.successMessage = data.message;
-        //     this.isSuccess = true;
-        //     this.getUserData();
-        //     this.input = {
-        //       id: 0,
-        //       name: '',
-        //       type: null,
-        //       country: null,
-        //       city: null,
-        //       town: null,
-        //       zone: null,
-        //     };
-        //   })
-        //   .catch((error) => {
-        //     // eslint-disable-next-line
-        //     console.log(error);
-        //   })
-        //   .finally(() => {
-        //     this.isEdit = false;
-        //     this.isSending = false;
-        //   });
-      }
+    getPartnerData() {
+      axios
+        .get(`/partners`)
+        .then((response) => {
+          const data = response.data.data;
+          // console.log(data);
+          this.partnerName = data
+            .filter((i) => i.partner_id == this.idPartner)
+            .map((item) => {
+              return {
+                id: item.partner_id,
+                name: item.partner_name,
+              };
+            });
+        })
+        .catch((error) => {
+          // eslint-disable-next-line
+          console.log(error);
+          const message =
+            error.response.data.message === ''
+              ? 'Something Wrong!!!'
+              : error.response.data.message;
+          this.errorMessage = message;
+          this.isError = true;
+        });
     },
     saveData() {
       if (this.valid) {
         this.isSending = true;
         const payload = {
-          name: this.input.username,
-          email: this.input.email,
-          role: this.input.role,
-          country_id: this.input.country,
+          partner_id: this.idPartner,
+          address: this.input.address,
+          about_us: this.input.about,
+          telephone: this.input.telephone,
+          whats_app: this.input.whatsapp,
+          official_email: this.input.email,
+          opening_hours: this.input.open,
+          website: this.input.website,
+          managed_by: this.input.manage,
         };
-        if (this.input.image !== null) {
-          payload['file'] = this.input.image;
-        }
-        setTimeout(() => {
-          console.log(payload);
-          this.isSending = false;
-        }, 2000);
-        // axios
-        //   .post(`/register`, payload)
-        //   .then((response) => {
-        //     const data = response.data;
-        //     this.successMessage = data.message;
-        //     this.isSuccess = true;
-        //     this.getUserData();
-        //     this.input = {
-        //       id: 0,
-        //       name: '',
-        //       type: null,
-        //       country: null,
-        //       city: null,
-        //       town: null,
-        //       zone: null,
-        //     };
-        //   })
-        //   .catch((error) => {
-        //     // eslint-disable-next-line
-        //     console.log(error);
-        //   })
-        //   .finally(() => {
-        //     this.isSending = false;
-        //   });
-      }
-    },
-    cancelDelete() {
-      this.userIdToDelete = null;
-      this.isDelete = false;
-    },
-    openDeleteConfirm(itemId) {
-      this.userIdToDelete = itemId;
-      this.isDelete = true;
-    },
-    cancelConfirmation() {
-      this.userIdToDelete = null;
-      this.isDelete = false;
-    },
-    deleteUser() {
-      this.isDeleteLoading = true;
-      setTimeout(() => {
-        console.log(this.userIdToDelete);
-        this.isDeleteLoading = false;
-        this.userIdToDelete = null;
-        this.isDelete = false;
-      }, 2000);
-      // axios
-      //   .post(`/user/delete`, {
-      //     id: this.userIdToDelete,
-      //   })
-      //   .then((response) => {
-      //     const data = response.data;
-      //     this.successMessage = data.message;
-      //     this.isSuccess = true;
-      //     this.getUserData();
-      //   })
-      //   .catch((error) => {
-      //     // eslint-disable-next-line
-      //     console.log(error);
-      //   })
-      //   .finally(() => {
-      //     this.isDeleteLoading = false;
-      //     this.userIdToDelete = null;
-      //     this.isDelete = false;
-      //   });
-    },
-    getUserData() {
-      this.isLoading = true;
-      setTimeout(() => {
-        console.log('OK');
-        this.isLoading = false;
-      }, 2000);
-      // axios
-      //   .get(`/user`)
-      //   .then((response) => {
-      //     const data = response.data.data;
-      //     // console.log(data);
-      //     this.items = data.map((item) => {
-      //       return {
-      //         id: item.id || 1,
-      //         name: item.name || '',
-      //         email: item.email || '',
-      //         registered_on: item.registered_on || '',
-      //         role: item.role || '',
-      //         roleName:
-      //           item.role == 'S'
-      //             ? 'Superadmin'
-      //             : item.role == 'A'
-      //             ? 'Admin'
-      //             : '',
-      //         image: item.image || null,
-      //         country_id: item.country_id || 1,
-      //         country_name: item.country_name || '',
-      //       };
-      //     });
-
-      //     app.config.globalProperties.$eventBus.$emit(
-      //       'update-image',
-      //       this.items
-      //     );
-      //   })
-      //   .catch((error) => {
-      //     // eslint-disable-next-line
-      //     console.log(error);
-      //   })
-      //   .finally(() => {
-      //     this.isLoading = false;
-      //   });
-    },
-    getCountry() {
-      axios
-        .get(`/country`)
-        .then((response) => {
-          const data = response.data.data;
-          this.resource.country = data.map((country) => {
-            return {
-              id: country.country_id,
-              name: country.country_name,
+        axios
+          .post(`/partners/update`, payload)
+          .then((response) => {
+            const data = response.data;
+            this.successMessage = data.message;
+            this.isSuccess = true;
+            this.input = {
+              id: 0,
+              address: null,
+              telephone: null,
+              whatsapp: null,
+              open: null,
+              about: null,
+              website: null,
+              email: null,
+              manage: null,
             };
+          })
+          .catch((error) => {
+            // eslint-disable-next-line
+            console.log(error);
+            const message =
+              error.response.data.message === ''
+                ? 'Something Wrong!!!'
+                : error.response.data.message;
+            this.errorMessage = message;
+            this.isError = true;
+          })
+          .finally(() => {
+            this.isSending = false;
           });
-        })
-        .catch((error) => {
-          // eslint-disable-next-line
-          console.log(error);
-        });
+      }
     },
   },
 };

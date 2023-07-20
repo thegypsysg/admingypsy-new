@@ -18,53 +18,47 @@
     <v-form v-model="valid" @submit.prevent>
       <v-container>
         <v-row>
-          <v-col cols="12" md="3">
+          <v-col cols="12" md="5">
             <v-text-field
-              v-model="input.contact"
-              label="Contact"
+              v-model="input.facebook"
+              label="Facebook"
               variant="outlined"
               density="compact"
               required
             ></v-text-field>
             <v-text-field
-              v-model="input.telephone"
-              label="Telephone"
-              variant="outlined"
-              type="phone"
-              density="compact"
-              required
-            ></v-text-field>
-          </v-col>
-          <v-col cols="12" md="3">
-            <v-text-field
-              v-model="input.position"
-              label="Position Held"
+              v-model="input.linkedin"
+              label="Linkedin"
               variant="outlined"
               density="compact"
               required
             ></v-text-field>
             <v-text-field
-              v-model="input.mobile"
-              label="Mobile"
-              type="phone"
+              v-model="input.twitter"
+              label="Twitter"
               variant="outlined"
               density="compact"
               required
             ></v-text-field>
           </v-col>
-          <v-col cols="12" md="3">
+          <v-col cols="12" md="5">
             <v-text-field
-              v-model="input.email"
-              label="Enter Email"
-              type="email"
-              density="compact"
+              v-model="input.facebook"
+              label="Facebook"
               variant="outlined"
+              density="compact"
               required
             ></v-text-field>
             <v-text-field
-              v-model="input.whatsapp"
-              label="What'sApp"
-              type="phone"
+              v-model="input.linkedin"
+              label="Linkedin"
+              variant="outlined"
+              density="compact"
+              required
+            ></v-text-field>
+            <v-text-field
+              v-model="input.twitter"
+              label="Twitter"
               variant="outlined"
               density="compact"
               required
@@ -72,34 +66,8 @@
           </v-col>
         </v-row>
         <v-row class="mt-n5">
-          <v-col cols="12" md="3">
-            <v-text-field
-              v-model="input.contactedOn"
-              label="Contacted on"
-              type="date"
-              @input="changeFormatDate"
-              variant="outlined"
-              density="compact"
-              required
-            ></v-text-field>
-          </v-col>
-          <v-col cols="12" md="4">
-            <v-textarea
-              v-model="input.remarks"
-              label="Remarks"
-              rows="2"
-              variant="outlined"
-              density="compact"
-              required
-            ></v-textarea>
-          </v-col>
           <v-col cols="12" md="2">
             <v-btn
-              :prepend-icon="
-                isEdit
-                  ? 'mdi-account-multiple-check'
-                  : 'mdi-account-multiple-plus'
-              "
               color="indigo-accent-2"
               style="text-transform: none"
               type="submit"
@@ -109,11 +77,7 @@
               :disabled="isSending"
               :loading="isSending"
             >
-              <template v-slot:prepend>
-                <v-icon color="white"></v-icon>
-              </template>
-
-              {{ isEdit ? 'Save' : 'Add' }}
+              {{ isEdit ? 'Save' : 'Save' }}
             </v-btn>
             <v-btn
               v-if="isEdit"
