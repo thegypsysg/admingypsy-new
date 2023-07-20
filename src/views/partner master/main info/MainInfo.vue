@@ -279,7 +279,7 @@ export default {
     setAuthHeader(token);
   },
   mounted() {
-    this.idPartner = this.$route.params.id;
+    this.idPartner = parseInt(this.$route.params.id);
     this.getPartnerData();
   },
   methods: {

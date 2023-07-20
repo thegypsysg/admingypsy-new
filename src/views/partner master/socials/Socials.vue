@@ -18,7 +18,7 @@
     <v-form v-model="valid" @submit.prevent>
       <v-container>
         <v-row>
-          <v-col cols="12" md="3">
+          <v-col cols="12" md="5">
             <v-text-field
               v-model="input.facebook"
               label="Facebook"
@@ -28,22 +28,11 @@
             ></v-text-field>
             <v-text-field
               v-model="input.linkedin"
-              label="Linked In"
+              label="Linkedin"
               variant="outlined"
               density="compact"
               required
             ></v-text-field>
-          </v-col>
-          <v-col cols="12" md="3">
-            <v-text-field
-              v-model="input.instagram"
-              label="Instagram"
-              type="phone"
-              variant="outlined"
-              density="compact"
-              required
-            ></v-text-field>
-
             <v-text-field
               v-model="input.twitter"
               label="Twitter"
@@ -52,7 +41,14 @@
               required
             ></v-text-field>
           </v-col>
-          <v-col cols="12" md="3">
+          <v-col cols="12" md="5">
+            <v-text-field
+              v-model="input.instagram"
+              label="Instagram"
+              variant="outlined"
+              density="compact"
+              required
+            ></v-text-field>
             <v-text-field
               v-model="input.tiktok"
               label="Tiktok"
@@ -62,35 +58,42 @@
             ></v-text-field>
             <v-text-field
               v-model="input.youtube"
-              label="YouTube"
+              label="Youtube"
               variant="outlined"
               density="compact"
               required
             ></v-text-field>
           </v-col>
         </v-row>
-        <v-row>
+        <v-row class="mt-n5">
           <v-col cols="12" md="2">
             <v-btn
-              :prepend-icon="
-                isEdit
-                  ? 'mdi-account-multiple-check'
-                  : 'mdi-account-multiple-plus'
-              "
               color="indigo-accent-2"
               style="text-transform: none"
               type="submit"
               variant="flat"
               class="w-100"
-              @click="isEdit ? saveEdit() : saveData()"
+              @click="saveData()"
               :disabled="isSending"
               :loading="isSending"
+            >
+              Save
+            </v-btn>
+            <v-btn
+              v-if="isEdit"
+              prepend-icon="mdi-account-multiple-remove"
+              color="red"
+              style="text-transform: none"
+              variant="flat"
+              class="w-100 mt-2"
+              @click="cancelEdit"
+              :disabled="isSending"
             >
               <template v-slot:prepend>
                 <v-icon color="white"></v-icon>
               </template>
 
-              {{ isEdit ? 'Save' : 'Add' }}
+              CANCEL
             </v-btn>
           </v-col>
         </v-row>
@@ -110,6 +113,15 @@
         </v-btn>
       </template>
     </v-snackbar>
+    <v-snackbar location="top" color="red" v-model="isError" :timeout="3000">
+      {{ errorMessage }}
+
+      <template v-slot:actions>
+        <v-btn color="white" variant="text" @click="isError = false">
+          <v-icon>mdi-close</v-icon>
+        </v-btn>
+      </template>
+    </v-snackbar>
   </v-container>
 </template>
 
@@ -123,11 +135,13 @@ export default {
   name: 'SocialsVue',
   data: () => ({
     // fileURL: 'https://admin1.the-gypsy.sg/img/app/',
+    idPartner: null,
     valid: false,
     isLoading: false,
     isSending: false,
     isEdit: false,
     isSuccess: false,
+    isError: false,
     isDelete: false,
     isDeleteLoading: false,
     userIdToDelete: null,
@@ -136,416 +150,69 @@ export default {
     userIdToImage: null,
     isOpenImage: false,
     successMessage: '',
+    errorMessage: '',
     input: {
       id: 0,
-      facebook: '',
-      linkedin: '',
-      instagram: '',
-      twitter: '',
-      tiktok: '',
-      youtube: '',
-    },
-    rules: {
-      facebookRules: [
-        (value) => {
-          if (value) return true;
-          return 'Facebook is required.';
-        },
-      ],
-
-      linkedinRules: [
-        (value) => {
-          if (value) return true;
-          return 'Linked In is required.';
-        },
-      ],
-      instagramRules: [
-        (value) => {
-          if (value) return true;
-          return 'Instagram is required.';
-        },
-      ],
-      twitterRules: [
-        (value) => {
-          if (value) return true;
-          return 'Twitter is required.';
-        },
-      ],
-      tiktokRules: [
-        (value) => {
-          if (value) return true;
-          return 'Tiktok is required.';
-        },
-      ],
-
-      youtubeRules: [
-        (value) => {
-          if (value) return true;
-          return 'YouTube is required.';
-        },
-      ],
+      facebook: null,
+      linkedin: null,
+      instagram: null,
+      twitter: null,
+      tiktok: null,
+      youtube: null,
     },
     search: '',
     items: [],
-    itemsTry: [
-      {
-        id: 1,
-        logo: '@/assets/logo-img.jpeg',
-        image: '@/assets/other-voucher-5.jpeg',
-        name: 'Changi General Hospital',
-        type: 'Admin',
-        country: 'Singapore',
-        city: 'Singapore',
-        town: 'Woodlands',
-        zone: 'North',
-        isActive: true,
-        isFav: true,
-      },
-      {
-        id: 2,
-        logo: '@/assets/logo-img.jpeg',
-        image: '@/assets/other-voucher-5.jpeg',
-        name: 'Changi General Hospital',
-        type: 'Admin',
-        country: 'Singapore',
-        city: 'Singapore',
-        town: 'Woodlands',
-        zone: 'North',
-        isActive: true,
-        isFav: true,
-      },
-    ],
   }),
   created() {
     const token = JSON.parse(localStorage.getItem('token'));
     setAuthHeader(token);
   },
   mounted() {
-    // this.getUserData();
-    this.getCountry();
-  },
-  computed: {
-    filteredItems() {
-      if (!this.search) {
-        return this.itemsTry;
-      }
-      const searchTextLower = this.search.toLowerCase();
-      return this.itemsTry.filter(
-        (item) =>
-          item.name.toLowerCase().includes(searchTextLower) ||
-          item.country.toLowerCase().includes(searchTextLower) ||
-          item.city.toLowerCase().includes(searchTextLower) ||
-          item.town.toLowerCase().includes(searchTextLower)
-      );
-    },
+    this.idPartner = parseInt(this.$route.params.id);
   },
   methods: {
-    updateImageFile(newImageFile) {
-      this.imageFile.push(newImageFile);
-    },
-    deleteImageFile() {
-      this.isSending = true;
-      const payload = {
-        id: this.userIdToImage,
-      };
-      setTimeout(() => {
-        console.log(payload);
-        this.isEdit = false;
-        this.isSending = false;
-        this.userIdToImage = null;
-        this.imageFile = [];
-      }, 2000);
-      // axios
-      //   .post(`/user/deleteImage`, payload, {})
-      //   .then((response) => {
-      //     const data = response.data;
-      //     this.successMessage = data.message;
-      //     this.isSuccess = true;
-      //     this.getUserData();
-      //     // app.config.globalProperties.$eventBus.$emit('update-image');
-      //   })
-      //   .catch((error) => {
-      //     // eslint-disable-next-line
-      //     console.log(error);
-      //   })
-      //   .finally(() => {
-      //     this.isEdit = false;
-      //     this.isSending = false;
-      //     this.userIdToImage = null;
-      //     this.imageFile = [];
-      //   });
-    },
-    openImage(image, id) {
-      this.isOpenImage = true;
-      this.userIdToImage = id;
-      this.imageFile =
-        image != null
-          ? [
-              {
-                file: {
-                  name: image,
-                  size: '',
-                  base64: '',
-                  format: '',
-                },
-              },
-            ]
-          : [];
-    },
-    closeImage() {
-      this.isOpenImage = false;
-      this.imageFile = [];
-      this.userIdToImage = null;
-    },
-    saveImage() {
-      this.isSending = true;
-      const payload = {
-        id: this.userIdToImage,
-        file: this.imageFile[0],
-      };
-      setTimeout(() => {
-        console.log(payload);
-        this.isEdit = false;
-        this.isSending = false;
-        this.userIdToImage = null;
-        this.isOpenImage = false;
-        this.imageFile = [];
-      }, 2000);
-      // http
-      //   .post(`/user/update`, payload, {
-      //     headers: {
-      //       'Content-Type': 'multipart/form-data',
-      //     },
-      //   })
-      //   .then((response) => {
-      //     const data = response.data;
-      //     this.successMessage = data.message;
-      //     this.isSuccess = true;
-      //     this.getUserData();
-      //     // app.config.globalProperties.$eventBus.$emit('update-image');
-      //   })
-      //   .catch((error) => {
-      //     // eslint-disable-next-line
-      //     console.log(error);
-      //   })
-      //   .finally(() => {
-      //     this.isEdit = false;
-      //     this.isSending = false;
-      //     this.userIdToImage = null;
-      //     this.isOpenImage = false;
-      //     this.imageFile = [];
-      //   });
-    },
-    editUser(user) {
-      this.isEdit = true;
-      this.input = {
-        id: user.id,
-        name: user.name,
-        type: user.type,
-        country: user.country,
-        city: user.city,
-        town: user.town,
-        zone: user.zone,
-      };
-    },
-    cancelEdit() {
-      this.isEdit = false;
-      this.input = {
-        id: 0,
-        name: '',
-        type: null,
-        country: null,
-        city: null,
-        town: null,
-        zone: null,
-      };
-    },
-    saveEdit() {
-      if (this.valid) {
-        this.isSending = true;
-        const payload = {
-          id: this.input.id,
-          name: this.input.username,
-          email: this.input.email,
-          role: this.input.role,
-          country_id: this.input.country,
-        };
-        if (this.input.image !== null) {
-          payload['file'] = this.input.image;
-        }
-        setTimeout(() => {
-          console.log(payload);
-          this.isSending = false;
-          this.isEdit = false;
-        }, 2000);
-        // axios
-        //   .post(`/user/update`, payload)
-        //   .then((response) => {
-        //     const data = response.data;
-        //     this.successMessage = data.message;
-        //     this.isSuccess = true;
-        //     this.getUserData();
-        //     this.input = {
-        //       id: 0,
-        //       name: '',
-        //       type: null,
-        //       country: null,
-        //       city: null,
-        //       town: null,
-        //       zone: null,
-        //     };
-        //   })
-        //   .catch((error) => {
-        //     // eslint-disable-next-line
-        //     console.log(error);
-        //   })
-        //   .finally(() => {
-        //     this.isEdit = false;
-        //     this.isSending = false;
-        //   });
-      }
-    },
     saveData() {
       if (this.valid) {
         this.isSending = true;
         const payload = {
-          name: this.input.username,
-          email: this.input.email,
-          role: this.input.role,
-          country_id: this.input.country,
+          partner_id: this.idPartner,
+          facebook: this.input.facebook,
+          instagram: this.input.instagram,
+          youtube: this.input.youtube,
+          linkedin: this.input.linkedin,
+          tiktok: this.input.tiktok,
+          twitter: this.input.twitter,
         };
-        if (this.input.image !== null) {
-          payload['file'] = this.input.image;
-        }
-        setTimeout(() => {
-          console.log(payload);
-          this.isSending = false;
-        }, 2000);
-        // axios
-        //   .post(`/register`, payload)
-        //   .then((response) => {
-        //     const data = response.data;
-        //     this.successMessage = data.message;
-        //     this.isSuccess = true;
-        //     this.getUserData();
-        //     this.input = {
-        //       id: 0,
-        //       name: '',
-        //       type: null,
-        //       country: null,
-        //       city: null,
-        //       town: null,
-        //       zone: null,
-        //     };
-        //   })
-        //   .catch((error) => {
-        //     // eslint-disable-next-line
-        //     console.log(error);
-        //   })
-        //   .finally(() => {
-        //     this.isSending = false;
-        //   });
-      }
-    },
-    cancelDelete() {
-      this.userIdToDelete = null;
-      this.isDelete = false;
-    },
-    openDeleteConfirm(itemId) {
-      this.userIdToDelete = itemId;
-      this.isDelete = true;
-    },
-    cancelConfirmation() {
-      this.userIdToDelete = null;
-      this.isDelete = false;
-    },
-    deleteUser() {
-      this.isDeleteLoading = true;
-      setTimeout(() => {
-        console.log(this.userIdToDelete);
-        this.isDeleteLoading = false;
-        this.userIdToDelete = null;
-        this.isDelete = false;
-      }, 2000);
-      // axios
-      //   .post(`/user/delete`, {
-      //     id: this.userIdToDelete,
-      //   })
-      //   .then((response) => {
-      //     const data = response.data;
-      //     this.successMessage = data.message;
-      //     this.isSuccess = true;
-      //     this.getUserData();
-      //   })
-      //   .catch((error) => {
-      //     // eslint-disable-next-line
-      //     console.log(error);
-      //   })
-      //   .finally(() => {
-      //     this.isDeleteLoading = false;
-      //     this.userIdToDelete = null;
-      //     this.isDelete = false;
-      //   });
-    },
-    getUserData() {
-      this.isLoading = true;
-      setTimeout(() => {
-        console.log('OK');
-        this.isLoading = false;
-      }, 2000);
-      // axios
-      //   .get(`/user`)
-      //   .then((response) => {
-      //     const data = response.data.data;
-      //     // console.log(data);
-      //     this.items = data.map((item) => {
-      //       return {
-      //         id: item.id || 1,
-      //         name: item.name || '',
-      //         email: item.email || '',
-      //         registered_on: item.registered_on || '',
-      //         role: item.role || '',
-      //         roleName:
-      //           item.role == 'S'
-      //             ? 'Superadmin'
-      //             : item.role == 'A'
-      //             ? 'Admin'
-      //             : '',
-      //         image: item.image || null,
-      //         country_id: item.country_id || 1,
-      //         country_name: item.country_name || '',
-      //       };
-      //     });
-
-      //     app.config.globalProperties.$eventBus.$emit(
-      //       'update-image',
-      //       this.items
-      //     );
-      //   })
-      //   .catch((error) => {
-      //     // eslint-disable-next-line
-      //     console.log(error);
-      //   })
-      //   .finally(() => {
-      //     this.isLoading = false;
-      //   });
-    },
-    getCountry() {
-      axios
-        .get(`/country`)
-        .then((response) => {
-          const data = response.data.data;
-          this.resource.country = data.map((country) => {
-            return {
-              id: country.country_id,
-              name: country.country_name,
+        axios
+          .post(`/partners/update`, payload)
+          .then((response) => {
+            const data = response.data;
+            this.successMessage = data.message;
+            this.isSuccess = true;
+            this.input = {
+              id: 0,
+              facebook: null,
+              linkedin: null,
+              instagram: null,
+              twitter: null,
+              tiktok: null,
+              youtube: null,
             };
+          })
+          .catch((error) => {
+            // eslint-disable-next-line
+            console.log(error);
+            const message =
+              error.response.data.message === ''
+                ? 'Something Wrong!!!'
+                : error.response.data.message;
+            this.errorMessage = message;
+            this.isError = true;
+          })
+          .finally(() => {
+            this.isSending = false;
           });
-        })
-        .catch((error) => {
-          // eslint-disable-next-line
-          console.log(error);
-        });
+      }
     },
   },
 };
