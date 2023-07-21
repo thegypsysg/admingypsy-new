@@ -433,6 +433,8 @@ export default {
   name: 'LocationsVue',
   data: () => ({
     // fileURL: 'https://admin1.the-gypsy.sg/img/app/',
+    idPartnerContact: null,
+    partnerName: null,
     valid: false,
     isLoading: false,
     isSending: false,
@@ -542,7 +544,9 @@ export default {
     setAuthHeader(token);
   },
   mounted() {
-    // this.getUserData();
+    this.idPartnerContact = this.$route.params.id;
+    // this.getPartnerLocationsData();
+    this.getPartnerData();
     this.getCountry();
     this.getCityData();
     this.getTownData();
@@ -585,7 +589,7 @@ export default {
       //     const data = response.data;
       //     this.successMessage = data.message;
       //     this.isSuccess = true;
-      //     this.getUserData();
+      //     this.getPartnerLocationsData();
       //     // app.config.globalProperties.$eventBus.$emit('update-image');
       //   })
       //   .catch((error) => {
@@ -645,7 +649,7 @@ export default {
       //     const data = response.data;
       //     this.successMessage = data.message;
       //     this.isSuccess = true;
-      //     this.getUserData();
+      //     this.getPartnerLocationsData();
       //     // app.config.globalProperties.$eventBus.$emit('update-image');
       //   })
       //   .catch((error) => {
@@ -712,7 +716,7 @@ export default {
         //     const data = response.data;
         //     this.successMessage = data.message;
         //     this.isSuccess = true;
-        //     this.getUserData();
+        //     this.getPartnerLocationsData();
         //     this.input = {
         //       id: 0,
         // country: null,
@@ -757,7 +761,7 @@ export default {
         //     const data = response.data;
         //     this.successMessage = data.message;
         //     this.isSuccess = true;
-        //     this.getUserData();
+        //     this.getPartnerLocationsData();
         //     this.input = {
         //       id: 0,
         // country: null,
@@ -807,7 +811,7 @@ export default {
       //     const data = response.data;
       //     this.successMessage = data.message;
       //     this.isSuccess = true;
-      //     this.getUserData();
+      //     this.getPartnerLocationsData();
       //   })
       //   .catch((error) => {
       //     // eslint-disable-next-line
@@ -819,7 +823,7 @@ export default {
       //     this.isDelete = false;
       //   });
     },
-    getUserData() {
+    getPartnerLocationsData() {
       this.isLoading = true;
       setTimeout(() => {
         console.log('OK');
@@ -861,6 +865,27 @@ export default {
       //   .finally(() => {
       //     this.isLoading = false;
       //   });
+    },
+    getPartnerData() {
+      axios
+        .get(`/partners`)
+        .then((response) => {
+          const data = response.data.data;
+          // console.log(data);
+          this.partnerName = data
+            .filter((i) => i.partner_id == this.idPartnerContact)
+            .map((item) => item.partner_name || '')[0];
+        })
+        .catch((error) => {
+          // eslint-disable-next-line
+          console.log(error);
+          const message =
+            error.response.data.message === ''
+              ? 'Something Wrong!!!'
+              : error.response.data.message;
+          this.errorMessage = message;
+          this.isError = true;
+        });
     },
     getCountry() {
       axios

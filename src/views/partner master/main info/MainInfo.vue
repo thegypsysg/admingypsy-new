@@ -1,7 +1,12 @@
 <!-- eslint-disable vue/multi-word-component-names -->
 <!-- eslint-disable vue/no-deprecated-v-bind-sync -->
 <template>
-  <v-container>
+  <v-container v-if="isLoading">
+    <div class="h-100 d-flex justify-center align-center">
+      <p>Loading...</p>
+    </div>
+  </v-container>
+  <v-container v-else>
     <div class="d-flex ml-4 mb-6" style="gap: 50px">
       <router-link
         style="color: #293fb8; font-size: 13px"
@@ -284,19 +289,30 @@ export default {
   },
   methods: {
     getPartnerData() {
+      this.isLoading = true;
       axios
         .get(`/partners`)
         .then((response) => {
           const data = response.data.data;
           // console.log(data);
-          this.partnerName = data
-            .filter((i) => i.partner_id == this.idPartner)
-            .map((item) => {
-              return {
-                id: item.partner_id,
-                name: item.partner_name,
-              };
-            });
+          const dataItem = data.filter((i) => i.partner_id == this.idPartner);
+          this.partnerName = dataItem.map((item) => {
+            return {
+              id: item.partner_id,
+              name: item.partner_name,
+            };
+          });
+          this.input = {
+            id: dataItem[0].partner_id,
+            address: dataItem[0].address,
+            telephone: dataItem[0].telephone,
+            whatsapp: dataItem[0].whats_app,
+            open: dataItem[0].opening_hours,
+            about: dataItem[0].about_us,
+            website: dataItem[0].website,
+            email: dataItem[0].official_email,
+            manage: dataItem[0].managed_by,
+          };
         })
         .catch((error) => {
           // eslint-disable-next-line
@@ -307,6 +323,9 @@ export default {
               : error.response.data.message;
           this.errorMessage = message;
           this.isError = true;
+        })
+        .finally(() => {
+          this.isLoading = false;
         });
     },
     saveData() {

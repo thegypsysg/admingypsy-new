@@ -1,7 +1,12 @@
 <!-- eslint-disable vue/multi-word-component-names -->
 <!-- eslint-disable vue/no-deprecated-v-bind-sync -->
 <template>
-  <v-container>
+  <v-container v-if="isLoading">
+    <div class="h-100 d-flex justify-center align-center">
+      <p>Loading...</p>
+    </div>
+  </v-container>
+  <v-container v-else>
     <div class="d-flex ml-4 mb-6" style="gap: 50px">
       <router-link
         style="color: #293fb8; font-size: 13px"
@@ -174,14 +179,24 @@ export default {
   },
   methods: {
     getPartnerData() {
+      this.isLoading = true;
       axios
         .get(`/partners`)
         .then((response) => {
           const data = response.data.data;
           // console.log(data);
-          this.partnerName = data
-            .filter((i) => i.partner_id == this.idPartner)
-            .map((item) => item.partner_name || '')[0];
+          const dataItem = data.filter((i) => i.partner_id == this.idPartner);
+          console.log(dataItem);
+          this.partnerName = dataItem.map((item) => item.partner_name || '')[0];
+          this.input = {
+            id: dataItem[0].partner_id,
+            facebook: dataItem[0].facebook,
+            linkedin: dataItem[0].linkedin,
+            instagram: dataItem[0].instagram,
+            twitter: dataItem[0].twitter,
+            tiktok: dataItem[0].tiktok,
+            youtube: dataItem[0].youtube,
+          };
         })
         .catch((error) => {
           // eslint-disable-next-line
@@ -192,6 +207,9 @@ export default {
               : error.response.data.message;
           this.errorMessage = message;
           this.isError = true;
+        })
+        .finally(() => {
+          this.isLoading = false;
         });
     },
     saveData() {
