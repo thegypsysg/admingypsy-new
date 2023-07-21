@@ -13,7 +13,7 @@
     </div>
     <h3 class="ml-4 mb-6">Socials</h3>
     <h4 class="ml-4 mb-6" style="color: #293fb8; font-weight: 400">
-      Woodlands Health Care
+      {{ partnerName || '' }}
     </h4>
     <v-form v-model="valid" @submit.prevent>
       <v-container>
@@ -136,6 +136,7 @@ export default {
   data: () => ({
     // fileURL: 'https://admin1.the-gypsy.sg/img/app/',
     idPartner: null,
+    partnerName: null,
     valid: false,
     isLoading: false,
     isSending: false,
@@ -169,8 +170,30 @@ export default {
   },
   mounted() {
     this.idPartner = parseInt(this.$route.params.id);
+    this.getPartnerData();
   },
   methods: {
+    getPartnerData() {
+      axios
+        .get(`/partners`)
+        .then((response) => {
+          const data = response.data.data;
+          // console.log(data);
+          this.partnerName = data
+            .filter((i) => i.partner_id == this.idPartner)
+            .map((item) => item.partner_name || '')[0];
+        })
+        .catch((error) => {
+          // eslint-disable-next-line
+          console.log(error);
+          const message =
+            error.response.data.message === ''
+              ? 'Something Wrong!!!'
+              : error.response.data.message;
+          this.errorMessage = message;
+          this.isError = true;
+        });
+    },
     saveData() {
       if (this.valid) {
         this.isSending = true;
@@ -189,15 +212,6 @@ export default {
             const data = response.data;
             this.successMessage = data.message;
             this.isSuccess = true;
-            this.input = {
-              id: 0,
-              facebook: null,
-              linkedin: null,
-              instagram: null,
-              twitter: null,
-              tiktok: null,
-              youtube: null,
-            };
           })
           .catch((error) => {
             // eslint-disable-next-line

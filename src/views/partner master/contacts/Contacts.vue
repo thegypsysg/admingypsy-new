@@ -13,52 +13,59 @@
     </div>
     <h3 class="ml-4 mb-6">Contacts</h3>
     <h4 class="ml-4 mb-6" style="color: #293fb8; font-weight: 400">
-      Woodlands Health Care
+      {{ partnerName || '' }}
     </h4>
     <v-form v-model="valid" @submit.prevent>
       <v-container>
         <v-row>
-          <v-col cols="12" md="5">
+          <v-col cols="12" md="3">
             <v-text-field
-              v-model="input.facebook"
-              label="Facebook"
+              v-model="input.contact"
+              label="Contact"
               variant="outlined"
               density="compact"
               required
             ></v-text-field>
             <v-text-field
-              v-model="input.linkedin"
-              label="Linkedin"
+              v-model="input.telephone"
+              label="Telephone"
               variant="outlined"
-              density="compact"
-              required
-            ></v-text-field>
-            <v-text-field
-              v-model="input.twitter"
-              label="Twitter"
-              variant="outlined"
+              type="phone"
               density="compact"
               required
             ></v-text-field>
           </v-col>
-          <v-col cols="12" md="5">
+          <v-col cols="12" md="3">
             <v-text-field
-              v-model="input.facebook"
-              label="Facebook"
+              v-model="input.position"
+              label="Position Held"
               variant="outlined"
               density="compact"
               required
             ></v-text-field>
             <v-text-field
-              v-model="input.linkedin"
-              label="Linkedin"
+              v-model="input.mobile"
+              label="Mobile"
+              type="phone"
               variant="outlined"
               density="compact"
               required
+            ></v-text-field
+          ></v-col>
+          <v-col cols="12" md="3">
+            <v-text-field
+              v-model="input.email"
+              :rules="rules.emailRules"
+              label="Enter Email"
+              type="email"
+              density="compact"
+              variant="outlined"
+              required
             ></v-text-field>
             <v-text-field
-              v-model="input.twitter"
-              label="Twitter"
+              v-model="input.whatsapp"
+              label="What'sApp"
+              type="phone"
               variant="outlined"
               density="compact"
               required
@@ -66,8 +73,34 @@
           </v-col>
         </v-row>
         <v-row class="mt-n5">
+          <v-col cols="12" md="3">
+            <v-text-field
+              v-model="input.contactedOn"
+              label="Contacted on"
+              type="date"
+              @input="changeFormatDate"
+              variant="outlined"
+              density="compact"
+              required
+            ></v-text-field>
+          </v-col>
+          <v-col cols="12" md="4">
+            <v-textarea
+              v-model="input.remarks"
+              label="Remarks"
+              rows="2"
+              variant="outlined"
+              density="compact"
+              required
+            ></v-textarea>
+          </v-col>
           <v-col cols="12" md="2">
             <v-btn
+              :prepend-icon="
+                isEdit
+                  ? 'mdi-account-multiple-check'
+                  : 'mdi-account-multiple-plus'
+              "
               color="indigo-accent-2"
               style="text-transform: none"
               type="submit"
@@ -77,7 +110,11 @@
               :disabled="isSending"
               :loading="isSending"
             >
-              {{ isEdit ? 'Save' : 'Save' }}
+              <template v-slot:prepend>
+                <v-icon color="white"></v-icon>
+              </template>
+
+              {{ isEdit ? 'Save' : 'Add' }}
             </v-btn>
             <v-btn
               v-if="isEdit"
@@ -296,6 +333,7 @@ export default {
   data: () => ({
     // fileURL: 'https://admin1.the-gypsy.sg/img/app/',
     idPartnerContact: null,
+    partnerName: null,
     valid: false,
     isLoading: false,
     isSending: false,
@@ -361,10 +399,6 @@ export default {
       ],
       emailRules: [
         (value) => {
-          if (value) return true;
-          return 'E-mail is requred.';
-        },
-        (value) => {
           if (/.+@.+\..+/.test(value)) return true;
           return 'E-mail must be valid.';
         },
@@ -406,6 +440,7 @@ export default {
   mounted() {
     this.idPartnerContact = this.$route.params.id;
     this.getPartnerContactData();
+    this.getPartnerData();
   },
   computed: {
     filteredItems() {
@@ -425,6 +460,27 @@ export default {
     },
   },
   methods: {
+    getPartnerData() {
+      axios
+        .get(`/partners`)
+        .then((response) => {
+          const data = response.data.data;
+          // console.log(data);
+          this.partnerName = data
+            .filter((i) => i.partner_id == this.idPartnerContact)
+            .map((item) => item.partner_name || '')[0];
+        })
+        .catch((error) => {
+          // eslint-disable-next-line
+          console.log(error);
+          const message =
+            error.response.data.message === ''
+              ? 'Something Wrong!!!'
+              : error.response.data.message;
+          this.errorMessage = message;
+          this.isError = true;
+        });
+    },
     reverseFormatDate(date) {
       const arrayDate = date.split('/');
       const formattedDate = `${arrayDate[2]}-${arrayDate[1]}-${arrayDate[0]}`;

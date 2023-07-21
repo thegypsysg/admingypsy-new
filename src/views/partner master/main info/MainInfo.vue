@@ -13,7 +13,7 @@
     </div>
     <h3 class="ml-4 mb-6">Main Info</h3>
     <h4 class="ml-4 mb-6" style="color: #293fb8; font-weight: 400">
-      Woodlands Health Care
+      {{ partnerName[0]?.name || '' }}
     </h4>
     <v-form v-model="valid" @submit.prevent>
       <v-container>
@@ -329,17 +329,6 @@ export default {
             const data = response.data;
             this.successMessage = data.message;
             this.isSuccess = true;
-            this.input = {
-              id: 0,
-              address: null,
-              telephone: null,
-              whatsapp: null,
-              open: null,
-              about: null,
-              website: null,
-              email: null,
-              manage: null,
-            };
           })
           .catch((error) => {
             // eslint-disable-next-line
