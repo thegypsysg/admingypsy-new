@@ -13,7 +13,7 @@
     </div>
     <h3 class="ml-4 mb-6">Locations</h3>
     <h4 class="ml-4 mb-6" style="color: #293fb8; font-weight: 400">
-      Woodlands Health Care
+      {{ partnerName || '' }}
     </h4>
     <v-form v-model="valid" @submit.prevent>
       <v-container>
@@ -194,6 +194,7 @@
                           "
                           class="d-flex align-center"
                           v-model="item.isPrimary"
+                          @click="primaryLocation(item.id)"
                           rounded="5"
                         >
                           <v-btn size="27" :value="true"> Yes </v-btn>
@@ -236,6 +237,7 @@
                           "
                           class="d-flex align-center"
                           v-model="item.isFavorite"
+                          @click="favoriteLocation(item.id)"
                           rounded="5"
                         >
                           <v-btn size="27" :value="true"> Yes </v-btn>
@@ -318,7 +320,7 @@
                           color="green"
                           variant="text"
                           v-bind="props"
-                          @click="editUser(item)"
+                          @click="editLocation(item)"
                           icon="mdi-pencil-outline"
                         ></v-btn>
                       </template>
@@ -379,11 +381,13 @@
     <v-dialog persistent width="500" v-model="isDelete">
       <v-card>
         <v-card-title>Confirmation</v-card-title>
-        <v-card-text> Are you sure want to delete this app? </v-card-text>
+        <v-card-text>
+          Are you sure want to delete this partner location?
+        </v-card-text>
         <v-card-actions>
           <v-spacer></v-spacer>
           <v-btn color="error" text @click="cancelDelete">No</v-btn>
-          <v-btn color="success" text @click="deleteApp">{{
+          <v-btn color="success" text @click="deleteLocation">{{
             isDeleteLoading ? 'Deleting...' : 'Yes'
           }}</v-btn>
         </v-card-actions>
@@ -392,7 +396,7 @@
     <v-dialog persistent width="auto" v-model="isOpenImage">
       <v-card width="750">
         <v-card-title class="upload-title px-6 py-4">
-          Upload Image - User</v-card-title
+          Upload Image - Partner Location</v-card-title
         >
         <v-card-text>
           <image-upload
@@ -425,7 +429,7 @@
 <script>
 import ImageUpload from '@/components/ImageUpload.vue';
 import axios from '@/util/axios';
-// import http from 'axios';
+import http from 'axios';
 import { setAuthHeader } from '@/util/axios';
 // import app from '@/util/eventBus';
 
@@ -433,7 +437,7 @@ export default {
   name: 'LocationsVue',
   data: () => ({
     // fileURL: 'https://admin1.the-gypsy.sg/img/app/',
-    idPartnerContact: null,
+    idPartnerLocations: null,
     partnerName: null,
     valid: false,
     isLoading: false,
@@ -443,13 +447,23 @@ export default {
     isSuccess: false,
     isDelete: false,
     isDeleteLoading: false,
-    userIdToDelete: null,
+    locationIdToDelete: null,
     tableHeaders: [{ text: 'Gambar', value: 'image' }],
-    imageFile: [],
-    userIdToImage: null,
     isOpenImage: false,
     successMessage: '',
     errorMessage: '',
+    imageFile: [],
+    partnerLocationDataToImage: {
+      id: 0,
+      country: null,
+      town: null,
+      city: null,
+      zone: null,
+      location: null,
+      latitude: null,
+      longitude: null,
+      address: null,
+    },
     input: {
       id: 0,
       country: null,
@@ -461,7 +475,6 @@ export default {
       longitude: null,
       address: null,
     },
-
     rules: {
       countryRules: [
         (value) => {
@@ -523,19 +536,19 @@ export default {
     },
     itemsTry: [
       {
-        id: 1,
-        image: null,
-        location: 'Headquarters',
-        latitude: 0.927336,
-        longitude: 0.53383,
-        address:
-          '320 North Bridge Road # 09-17 Peninsular Plaza Singapore - 760887',
-        country: 'Singapore',
-        city: 'Singapore',
-        town: 'Woodlands',
-        zone: 'North',
-        isPrimary: false,
-        isFavorite: false,
+        //  id: 1,
+        //  image: null,
+        //  location: 'Headquarters',
+        //  latitude: 0.927336,
+        //  longitude: 0.53383,
+        //  address:
+        //    '320 North Bridge Road # 09-17 Peninsular Plaza Singapore - 760887',
+        //  country: 'Singapore',
+        //  city: 'Singapore',
+        //  town: 'Woodlands',
+        //  zone: 'North',
+        //  isPrimary: false,
+        //  isFavorite: false,
       },
     ],
   }),
@@ -544,8 +557,8 @@ export default {
     setAuthHeader(token);
   },
   mounted() {
-    this.idPartnerContact = this.$route.params.id;
-    // this.getPartnerLocationsData();
+    this.idPartnerLocations = this.$route.params.id;
+    this.getPartnerLocationsData();
     this.getPartnerData();
     this.getCountry();
     this.getCityData();
@@ -555,10 +568,10 @@ export default {
   computed: {
     filteredItems() {
       if (!this.search) {
-        return this.itemsTry;
+        return this.items;
       }
       const searchTextLower = this.search.toLowerCase();
-      return this.itemsTry.filter(
+      return this.items.filter(
         (item) =>
           item.name.toLowerCase().includes(searchTextLower) ||
           item.country.toLowerCase().includes(searchTextLower) ||
@@ -573,39 +586,45 @@ export default {
     },
     deleteImageFile() {
       this.isSending = true;
-      const payload = {
-        id: this.userIdToImage,
-      };
-      setTimeout(() => {
-        console.log(payload);
-        this.isEdit = false;
-        this.isSending = false;
-        this.userIdToImage = null;
-        this.imageFile = [];
-      }, 2000);
-      // axios
-      //   .post(`/user/deleteImage`, payload, {})
-      //   .then((response) => {
-      //     const data = response.data;
-      //     this.successMessage = data.message;
-      //     this.isSuccess = true;
-      //     this.getPartnerLocationsData();
-      //     // app.config.globalProperties.$eventBus.$emit('update-image');
-      //   })
-      //   .catch((error) => {
-      //     // eslint-disable-next-line
-      //     console.log(error);
-      //   })
-      //   .finally(() => {
-      //     this.isEdit = false;
-      //     this.isSending = false;
-      //     this.userIdToImage = null;
-      //     this.imageFile = [];
-      //   });
+      axios
+        .delete(
+          `/partner-locations/${this.partnerLocationDataToImage.id}/location-image`
+        )
+        .then((response) => {
+          const data = response.data;
+          this.successMessage = data.message;
+          this.isSuccess = true;
+          this.getPartnerLocationsData();
+        })
+        .catch((error) => {
+          // eslint-disable-next-line
+          console.log(error);
+          const message =
+            error.response.data.message === ''
+              ? 'Something Wrong!!!'
+              : error.response.data.message;
+          this.errorMessage = message;
+          this.isError = true;
+        })
+        .finally(() => {
+          this.isEdit = false;
+          this.isSending = false;
+          this.imageFile = [];
+        });
     },
     openImage(item) {
       this.isOpenImage = true;
-      this.userIdToImage = item.id;
+      this.partnerLocationDataToImage = {
+        id: item.id,
+        country: item.country_id,
+        town: item.town_id,
+        city: item.city_id,
+        zone: item.zone_id,
+        location: item.location,
+        latitude: item.latitude,
+        longitude: item.longitude,
+        address: item.address,
+      };
       this.imageFile =
         item.image != null
           ? [
@@ -623,59 +642,85 @@ export default {
     closeImage() {
       this.isOpenImage = false;
       this.imageFile = [];
-      this.userIdToImage = null;
+      this.partnerLocationDataToImage = {
+        id: 0,
+        country: null,
+        town: null,
+        city: null,
+        zone: null,
+        location: null,
+        latitude: null,
+        longitude: null,
+        address: null,
+      };
     },
     saveImage() {
       this.isSending = true;
       const payload = {
-        id: this.userIdToImage,
-        file: this.imageFile[0],
+        pl_id: this.partnerLocationDataToImage.id,
+        country_id: this.partnerLocationDataToImage.country,
+        city_id: this.partnerLocationDataToImage.city,
+        town_id: this.partnerLocationDataToImage.town,
+        zone_id: this.partnerLocationDataToImage.zone,
+        location_name: this.partnerLocationDataToImage.location,
+        latitude: this.partnerLocationDataToImage.latitude,
+        longitude: this.partnerLocationDataToImage.longitude,
+        location_address: this.partnerLocationDataToImage.address,
+        location_image: this.imageFile[0],
       };
-      setTimeout(() => {
-        console.log(payload);
-        this.isEdit = false;
-        this.isSending = false;
-        this.userIdToImage = null;
-        this.isOpenImage = false;
-        this.imageFile = [];
-      }, 2000);
-      // http
-      //   .post(`/user/update`, payload, {
-      //     headers: {
-      //       'Content-Type': 'multipart/form-data',
-      //     },
-      //   })
-      //   .then((response) => {
-      //     const data = response.data;
-      //     this.successMessage = data.message;
-      //     this.isSuccess = true;
-      //     this.getPartnerLocationsData();
-      //     // app.config.globalProperties.$eventBus.$emit('update-image');
-      //   })
-      //   .catch((error) => {
-      //     // eslint-disable-next-line
-      //     console.log(error);
-      //   })
-      //   .finally(() => {
-      //     this.isEdit = false;
-      //     this.isSending = false;
-      //     this.userIdToImage = null;
-      //     this.isOpenImage = false;
-      //     this.imageFile = [];
-      //   });
+      http
+        .post(`/partner-locations/update`, payload, {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+        })
+        .then((response) => {
+          const data = response.data;
+          this.successMessage = data.message;
+          this.isSuccess = true;
+          this.getPartnerLocationsData();
+          // app.config.globalProperties.$eventBus.$emit('update-image');
+        })
+        .catch((error) => {
+          // eslint-disable-next-line
+          console.log(error);
+          const message =
+            error.response.data.message === ''
+              ? 'Something Wrong!!!'
+              : error.response.data.message;
+          this.errorMessage = message;
+          this.isError = true;
+        })
+        .finally(() => {
+          this.isEdit = false;
+          this.isSending = false;
+          this.partnerLocationDataToImage = {
+            id: 0,
+            country: null,
+            town: null,
+            city: null,
+            zone: null,
+            location: null,
+            latitude: null,
+            longitude: null,
+            address: null,
+          };
+          this.isOpenImage = false;
+          this.imageFile = [];
+        });
     },
-    editUser(user) {
+    editLocation(item) {
       this.isEdit = true;
       this.input = {
-        id: user.id,
-        country: user.country,
-        town: user.town,
-        city: user.city,
-        zone: user.zone,
-        location: user.location,
-        latitude: user.latitude,
-        longitude: user.longitude,
-        address: user.address,
+        id: item.id,
+        country: item.country_id,
+        town: item.town_id,
+        city: item.city_id,
+        zone: item.zone_id,
+        location: item.location,
+        latitude: item.latitude,
+        longitude: item.longitude,
+        address: item.address,
       };
     },
     cancelEdit() {
@@ -696,175 +741,187 @@ export default {
       if (this.valid) {
         this.isSending = true;
         const payload = {
-          id: this.input.id,
-          name: this.input.username,
-          email: this.input.email,
-          role: this.input.role,
+          pl_id: this.input.id,
           country_id: this.input.country,
+          city_id: this.input.city,
+          town_id: this.input.town,
+          zone_id: this.input.zone,
+          location_name: this.input.location,
+          latitude: this.input.latitude,
+          longitude: this.input.longitude,
+          location_address: this.input.address,
         };
         if (this.input.image !== null) {
-          payload['file'] = this.input.image;
+          payload['location_image'] = this.input.image;
         }
-        setTimeout(() => {
-          console.log(payload);
-          this.isSending = false;
-          this.isEdit = false;
-        }, 2000);
-        // axios
-        //   .post(`/user/update`, payload)
-        //   .then((response) => {
-        //     const data = response.data;
-        //     this.successMessage = data.message;
-        //     this.isSuccess = true;
-        //     this.getPartnerLocationsData();
-        //     this.input = {
-        //       id: 0,
-        // country: null,
-        // town: null,
-        // city: null,
-        // zone: null,
-        // location: null,
-        // latitude: null,
-        // longitude: null,
-        // address: null,
-        //     };
-        //   })
-        //   .catch((error) => {
-        //     // eslint-disable-next-line
-        //     console.log(error);
-        //   })
-        //   .finally(() => {
-        //     this.isEdit = false;
-        //     this.isSending = false;
-        //   });
+        axios
+          .post(`/partner-locations/update`, payload)
+          .then((response) => {
+            const data = response.data;
+            this.successMessage = data.message;
+            this.isSuccess = true;
+            this.getPartnerLocationsData();
+            this.input = {
+              id: 0,
+              country: null,
+              town: null,
+              city: null,
+              zone: null,
+              location: null,
+              latitude: null,
+              longitude: null,
+              address: null,
+            };
+          })
+          .catch((error) => {
+            // eslint-disable-next-line
+            console.log(error);
+            const message =
+              error.response.data.message === ''
+                ? 'Something Wrong!!!'
+                : error.response.data.message;
+            this.errorMessage = message;
+            this.isError = true;
+          })
+          .finally(() => {
+            this.isEdit = false;
+            this.isSending = false;
+          });
       }
     },
     saveData() {
       if (this.valid) {
         this.isSending = true;
         const payload = {
-          name: this.input.username,
-          email: this.input.email,
-          role: this.input.role,
+          partner_id: this.idPartnerLocations,
           country_id: this.input.country,
+          city_id: this.input.city,
+          town_id: this.input.town,
+          zone_id: this.input.zone,
+          location_name: this.input.location,
+          latitude: this.input.latitude,
+          longitude: this.input.longitude,
+          location_address: this.input.address,
         };
-        if (this.input.image !== null) {
-          payload['file'] = this.input.image;
-        }
-        setTimeout(() => {
-          console.log(payload);
-          this.isSending = false;
-        }, 2000);
-        // axios
-        //   .post(`/register`, payload)
-        //   .then((response) => {
-        //     const data = response.data;
-        //     this.successMessage = data.message;
-        //     this.isSuccess = true;
-        //     this.getPartnerLocationsData();
-        //     this.input = {
-        //       id: 0,
-        // country: null,
-        // town: null,
-        // city: null,
-        // zone: null,
-        // location: null,
-        // latitude: null,
-        // longitude: null,
-        // address: null,
-        //     };
-        //   })
-        //   .catch((error) => {
-        //     // eslint-disable-next-line
-        //     console.log(error);
-        //   })
-        //   .finally(() => {
-        //     this.isSending = false;
-        //   });
+        axios
+          .post(`/partner-locations`, payload)
+          .then((response) => {
+            const data = response.data;
+            this.successMessage = data.message;
+            this.isSuccess = true;
+            this.getPartnerLocationsData();
+            this.input = {
+              id: 0,
+              country: null,
+              town: null,
+              city: null,
+              zone: null,
+              location: null,
+              latitude: null,
+              longitude: null,
+              address: null,
+            };
+          })
+          .catch((error) => {
+            // eslint-disable-next-line
+            console.log(error);
+            const message =
+              error.response.data.message === ''
+                ? 'Something Wrong!!!'
+                : error.response.data.message;
+            this.errorMessage = message;
+            this.isError = true;
+          })
+          .finally(() => {
+            this.isSending = false;
+          });
       }
     },
     cancelDelete() {
-      this.userIdToDelete = null;
+      this.locationIdToDelete = null;
       this.isDelete = false;
     },
     openDeleteConfirm(itemId) {
-      this.userIdToDelete = itemId;
+      this.locationIdToDelete = itemId;
       this.isDelete = true;
     },
     cancelConfirmation() {
-      this.userIdToDelete = null;
+      this.locationIdToDelete = null;
       this.isDelete = false;
     },
-    deleteUser() {
+    deleteLocation() {
       this.isDeleteLoading = true;
-      setTimeout(() => {
-        console.log(this.userIdToDelete);
-        this.isDeleteLoading = false;
-        this.userIdToDelete = null;
-        this.isDelete = false;
-      }, 2000);
-      // axios
-      //   .post(`/user/delete`, {
-      //     id: this.userIdToDelete,
-      //   })
-      //   .then((response) => {
-      //     const data = response.data;
-      //     this.successMessage = data.message;
-      //     this.isSuccess = true;
-      //     this.getPartnerLocationsData();
-      //   })
-      //   .catch((error) => {
-      //     // eslint-disable-next-line
-      //     console.log(error);
-      //   })
-      //   .finally(() => {
-      //     this.isDeleteLoading = false;
-      //     this.userIdToDelete = null;
-      //     this.isDelete = false;
-      //   });
+      axios
+        .delete(`/partner-locations/${this.locationIdToDelete}`)
+        .then((response) => {
+          const data = response.data;
+          this.successMessage = data.message;
+          this.isSuccess = true;
+          this.getPartnerLocationsData();
+        })
+        .catch((error) => {
+          // eslint-disable-next-line
+          console.log(error);
+          const message =
+            error.response.data.message === ''
+              ? 'Something Wrong!!!'
+              : error.response.data.message;
+          this.errorMessage = message;
+          this.isError = true;
+        })
+        .finally(() => {
+          this.isDeleteLoading = false;
+          this.locationIdToDelete = null;
+          this.isDelete = false;
+        });
     },
     getPartnerLocationsData() {
       this.isLoading = true;
-      setTimeout(() => {
-        console.log('OK');
-        this.isLoading = false;
-      }, 2000);
-      // axios
-      //   .get(`/user`)
-      //   .then((response) => {
-      //     const data = response.data.data;
-      //     // console.log(data);
-      //     this.items = data.map((item) => {
-      //       return {
-      //         id: item.id || 1,
-      //         name: item.name || '',
-      //         email: item.email || '',
-      //         registered_on: item.registered_on || '',
-      //         role: item.role || '',
-      //         roleName:
-      //           item.role == 'S'
-      //             ? 'Superadmin'
-      //             : item.role == 'A'
-      //             ? 'Admin'
-      //             : '',
-      //         image: item.image || null,
-      //         country_id: item.country_id || 1,
-      //         country_name: item.country_name || '',
-      //       };
-      //     });
-
-      //     app.config.globalProperties.$eventBus.$emit(
-      //       'update-image',
-      //       this.items
-      //     );
-      //   })
-      //   .catch((error) => {
-      //     // eslint-disable-next-line
-      //     console.log(error);
-      //   })
-      //   .finally(() => {
-      //     this.isLoading = false;
-      //   });
+      axios
+        .get(`/partner-locations/${this.idPartnerLocations}`)
+        .then((response) => {
+          const data = response.data.data;
+          console.log(data);
+          this.items = data.map((item) => {
+            return {
+              id: item.pl_id || 1,
+              image: item.location_image || null,
+              location: item.location_name || '',
+              latitude: item.latitude || '',
+              longitude: item.longitude || '',
+              address: item.location_address || '',
+              country: item.country.country_name || '',
+              country_id: item.country_id || 1,
+              city: item.city.city_name || '',
+              city_id: item.city_id || 1,
+              town: item.town.town_name || '',
+              town_id: item.town_id || 1,
+              zone: item.zone.zone_name || '',
+              zone_id: item.zone_id || 1,
+              isPrimary:
+                item.primary == 'N' ? false : item.primary == 'Y' ? true : null,
+              isFavorite:
+                item.favorite == 'N'
+                  ? false
+                  : item.favorite == 'Y'
+                  ? true
+                  : null,
+            };
+          });
+        })
+        .catch((error) => {
+          // eslint-disable-next-line
+          console.log(error);
+          const message =
+            error.response.data.message === ''
+              ? 'Something Wrong!!!'
+              : error.response.data.message;
+          this.errorMessage = message;
+          this.isError = true;
+        })
+        .finally(() => {
+          this.isLoading = false;
+        });
     },
     getPartnerData() {
       axios
@@ -873,7 +930,7 @@ export default {
           const data = response.data.data;
           // console.log(data);
           this.partnerName = data
-            .filter((i) => i.partner_id == this.idPartnerContact)
+            .filter((i) => i.partner_id == this.idPartnerLocations)
             .map((item) => item.partner_name || '')[0];
         })
         .catch((error) => {
@@ -904,6 +961,12 @@ export default {
         .catch((error) => {
           // eslint-disable-next-line
           console.log(error);
+          const message =
+            error.response.data.message === ''
+              ? 'Something Wrong!!!'
+              : error.response.data.message;
+          this.errorMessage = message;
+          this.isError = true;
         });
     },
     getCityData() {
@@ -999,16 +1062,22 @@ export default {
     primaryLocation(id) {
       this.isSending = true;
       axios
-        .get(`/app/active/${id}`)
+        .get(`/partner-locations/toggle-primary/${id}`)
         .then((response) => {
           const data = response.data;
           this.successMessage = data.message;
           this.isSuccess = true;
-          this.getAppData();
+          this.getPartnerLocationsData();
         })
         .catch((error) => {
           // eslint-disable-next-line
           console.log(error);
+          const message =
+            error.response.data.message === ''
+              ? 'Something Wrong!!!'
+              : error.response.data.message;
+          this.errorMessage = message;
+          this.isError = true;
         })
         .finally(() => {
           this.isSending = false;
@@ -1017,16 +1086,22 @@ export default {
     favoriteLocation(id) {
       this.isSending = true;
       axios
-        .get(`/app/favorite/${id}`)
+        .get(`/partner-locations/toggle-favorite/${id}`)
         .then((response) => {
           const data = response.data;
           this.successMessage = data.message;
           this.isSuccess = true;
-          this.getAppData();
+          this.getPartnerLocationsData();
         })
         .catch((error) => {
           // eslint-disable-next-line
           console.log(error);
+          const message =
+            error.response.data.message === ''
+              ? 'Something Wrong!!!'
+              : error.response.data.message;
+          this.errorMessage = message;
+          this.isError = true;
         })
         .finally(() => {
           this.isSending = false;
