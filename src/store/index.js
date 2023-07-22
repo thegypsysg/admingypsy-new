@@ -39,6 +39,10 @@ export default createStore({
             path: '/category_master',
           },
           {
+            title: 'Jobs Master',
+            path: '/jobs-master',
+          },
+          {
             title: 'Manage Countries',
             path: '/country-master',
           },

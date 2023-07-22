@@ -2,69 +2,43 @@
 <!-- eslint-disable vue/no-deprecated-v-bind-sync -->
 <template>
   <v-container>
-    <div class="d-flex ml-4 mb-6" style="gap: 50px">
-      <router-link
-        style="color: #293fb8; font-weight: 500"
-        class="text-decoration-none"
-        to="/healthcare-settings"
-      >
-        <p>Healthcare Settings</p>
-      </router-link>
-      <router-link
-        style="color: #000; font-weight: 500"
-        class="text-decoration-none"
-        to="/job-master"
-      >
-        <p>Job Master</p>
-      </router-link>
-    </div>
     <v-form v-model="valid" @submit.prevent>
       <v-container>
         <v-row>
-          <v-col cols="12" md="5">
-            <v-text-field
-              v-model="input.position"
-              label="Type Position"
-              variant="outlined"
+          <v-col cols="12" md="4">
+            <v-autocomplete
               density="compact"
+              label="Select Position"
+              placeholder="Type Position"
+              :items="resource.position"
+              item-title="name"
+              item-value="id"
+              v-model="input.position"
+              variant="outlined"
               required
-            ></v-text-field>
+            ></v-autocomplete>
           </v-col>
           <v-col cols="12" md="4">
             <v-autocomplete
               density="compact"
               label="Select Skills Page"
               placeholder="Type Skills Page"
-              :items="resource.subIndustry"
+              :items="resource.skills"
               item-title="name"
               item-value="id"
               v-model="input.skills"
               variant="outlined"
             ></v-autocomplete>
           </v-col>
-        </v-row>
-        <v-row class="mt-n4">
-          <v-col cols="12" md="5">
-            <v-autocomplete
-              density="compact"
-              label="Selact Company"
-              placeholder="Type Company"
-              :items="resource.company"
-              item-title="name"
-              item-value="id"
-              v-model="input.company"
-              variant="outlined"
-            ></v-autocomplete>
-          </v-col>
           <v-col cols="12" md="4">
             <v-autocomplete
               density="compact"
-              label="Select Country"
-              placeholder="Type Country"
-              :items="resource.country"
+              label="---Select Partner---"
+              placeholder="Type Partner"
+              :items="resource.partner"
               item-title="name"
               item-value="id"
-              v-model="input.country"
+              v-model="input.partner"
               variant="outlined"
             ></v-autocomplete>
           </v-col>
@@ -153,7 +127,13 @@
                   <td class="text-black text-bold">
                     {{ item.country }}
                   </td>
-                  <td class="text-green text-bold">
+                  <td
+                    class="text-bold"
+                    :class="{
+                      'text-green': item.status == 'Completed',
+                      'text-red': item.status == 'Pending',
+                    }"
+                  >
                     {{ item.status }}
                   </td>
 
@@ -178,7 +158,7 @@
                             v-bind="props"
                             variant="text"
                             :disabled="isDeleteLoading"
-                            @click="openDeleteConfirm(item.id)"
+                            @click="openDeleteConfirm(item.job_id)"
                             icon="mdi-trash-can-outline"
                           ></v-btn>
                         </template>
@@ -189,18 +169,24 @@
                 </tr>
 
                 <tr>
-                  <td colspan="5">
-                    <div class="d-flex justify-center" style="gap: 20px">
+                  <td colspan="7">
+                    <div>
                       <v-table class="text-left">
                         <tr>
+                          <th class="pt-2">Job Posted on</th>
                           <th class="pt-2">Active</th>
                           <th class="pt-2">Live</th>
                           <th class="pt-2">Favorite</th>
-                          <th class="pt-2"></th>
+                          <th class="pt-2 text-blue-darken-4">App Name</th>
+                          <th class="pt-2 text-blue-darken-4">Skills Group</th>
+                          <th class="pt-2 text-blue-darken-4">Skills Page</th>
                           <th class="pt-2"></th>
                         </tr>
                         <tr>
-                          <td class="pr-8 pt-2 pb-4">
+                          <td class="pt-2 pb-4 text-bold">
+                            {{ item.postedOn }}
+                          </td>
+                          <td class="pt-2 pb-4">
                             <v-btn-toggle
                               style="
                                 font-size: 10px !important;
@@ -210,6 +196,7 @@
                               "
                               class="d-flex align-center"
                               v-model="item.isActive"
+                              @click="activeJob(item.job_id)"
                               rounded="5"
                             >
                               <v-btn size="27" :value="true"> Yes </v-btn>
@@ -217,7 +204,7 @@
                               <v-btn size="27" :value="false"> No </v-btn>
                             </v-btn-toggle>
                           </td>
-                          <td class="pr-8 pt-2 pb-4">
+                          <td class="pt-2 pb-4">
                             <v-btn-toggle
                               style="
                                 font-size: 10px !important;
@@ -227,6 +214,7 @@
                               "
                               class="d-flex align-center"
                               v-model="item.isLive"
+                              @click="liveJob(item.job_id)"
                               rounded="5"
                             >
                               <v-btn size="27" :value="true"> Yes </v-btn>
@@ -234,7 +222,7 @@
                               <v-btn size="27" :value="false"> No </v-btn>
                             </v-btn-toggle>
                           </td>
-                          <td class="pr-8 pt-2 pb-4">
+                          <td class="pt-2 pb-4">
                             <v-btn-toggle
                               style="
                                 font-size: 10px !important;
@@ -244,6 +232,7 @@
                               "
                               class="d-flex align-center"
                               v-model="item.isFav"
+                              @click="favoriteJob(item.job_id)"
                               rounded="5"
                             >
                               <v-btn size="27" :value="true"> Yes </v-btn>
@@ -251,19 +240,24 @@
                               <v-btn size="27" :value="false"> No </v-btn>
                             </v-btn-toggle>
                           </td>
-                          <td class="pr-16 pt-2 pb-4"></td>
-                          <td class="pr-8 pt-2 pb-4">
-                            <div
-                              class="d-flex justify-center"
-                              style="gap: 20px"
+                          <td class="pt-2 pb-4 text-purple text-bold">
+                            {{ item.app }}
+                          </td>
+                          <td class="pt-2 pb-4 text-purple text-bold">
+                            {{ item.skillsGroup }}
+                          </td>
+                          <td class="pt-2 pb-4 text-purple text-bold">
+                            {{ item.skills }}
+                          </td>
+                          <td class="pb-4 d-flex justify-end">
+                            <v-btn
+                              color="indigo-accent-2"
+                              style="text-transform: none"
+                              variant="flat"
+                              class="mt-n3 px-2 py-1"
                             >
-                              <router-link
-                                class="text-decoration-none"
-                                :to="`partner_master/locations/${item.id}`"
-                              >
-                                <span>Job Locations</span>
-                              </router-link>
-                            </div>
+                              View Details
+                            </v-btn>
                           </td>
                         </tr>
                       </v-table>
@@ -347,21 +341,15 @@ export default {
     successMessage: '',
     errorMessage: '',
     input: {
-      id: 0,
+      id: null,
       position: null,
-      company: null,
       skills: null,
-      country: null,
+      partner: null,
     },
     resource: {
-      company: [
-        {
-          id: 1,
-          name: 'BMJ Therapy Pte Ltd',
-        },
-      ],
-      subIndustry: [],
-      country: [],
+      position: [],
+      skills: [],
+      partner: [],
     },
     rules: {
       positionRules: [
@@ -391,37 +379,42 @@ export default {
     },
     search: '',
     items: [],
-    itemsTry: [
-      {
-        id: '05-SG-2023-07-1',
-        position: 'Senior Physioterapist',
-        client: 'BMJ Therapy Pte Ltd',
-        subIndustry: 'Private Clinic',
-        sub_industry_id: 1,
-        country: 'Singapore',
-        status: 'Completed',
-        isActive: true,
-        isFav: true,
-        isLive: true,
-      },
-    ],
+    //   itemsTry: [
+    //     {
+    //       id: '05-SG-2023-07-1',
+    //       position: 'Senior Physioterapist',
+    //       client: 'BMJ Therapy Pte Ltd',
+    //       subIndustry: 'Private Clinic',
+    //       sub_industry_id: 1,
+    //       country: 'Singapore',
+    //       status: 'Completed',
+    //       postedOn: '16/07/2023',
+    //       app: 'The Syringe',
+    //       skillsGroup: 'Nusrsing',
+    //       skills: 'Physioterapist',
+    //       isActive: true,
+    //       isFav: true,
+    //       isLive: true,
+    //     },
+    //   ],
   }),
   created() {
     const token = JSON.parse(localStorage.getItem('token'));
     setAuthHeader(token);
   },
   mounted() {
-    // this.getJobData();
-    this.getCountry();
-    this.getSubIndustryData();
+    this.getJobData();
+    this.getPositionData();
+    this.getPrimarySkillData();
+    this.getPartnerData();
   },
   computed: {
     filteredItems() {
       if (!this.search) {
-        return this.itemsTry;
+        return this.items;
       }
       const searchTextLower = this.search.toLowerCase();
-      return this.itemsTry.filter(
+      return this.items.filter(
         (item) =>
           item.position.toLowerCase().includes(searchTextLower) ||
           item.client.toLowerCase().includes(searchTextLower) ||
@@ -434,104 +427,101 @@ export default {
     editJob(job) {
       this.isEdit = true;
       this.input = {
-        id: job.id,
-        position: job.position,
-        company: job.client,
-        skills: job.subIndustry,
-        country: job.country,
+        id: job.job_id,
+        position: job.position_id,
+        skills: job.skills_id,
+        partner: job.partner_id,
       };
     },
     cancelEdit() {
       this.isEdit = false;
       this.input = {
-        id: 0,
+        id: null,
         position: null,
-        company: null,
         skills: null,
-        country: null,
+        partner: null,
       };
     },
     saveEdit() {
       if (this.valid) {
         this.isSending = true;
         const payload = {
-          id: this.input.id,
-          name: this.input.username,
-          email: this.input.email,
-          role: this.input.role,
-          country_id: this.input.country,
+          job_id: this.input.id,
+          position_id: this.input.position,
+          skills_id: this.input.skills,
+          partner_id: this.input.partner,
         };
-        if (this.input.image !== null) {
-          payload['file'] = this.input.image;
-        }
-        setTimeout(() => {
-          console.log(payload);
-          this.isSending = false;
-          this.isEdit = false;
-        }, 2000);
-        // axios
-        //   .post(`/user/update`, payload)
-        //   .then((response) => {
-        //     const data = response.data;
-        //     this.successMessage = data.message;
-        //     this.isSuccess = true;
-        //     this.getJobData();
-        //     this.input = {
-        //     id: 0,
-        // position: null,
-        // company: null,
-        // skills: null,
-        // country: null,
-        //     };
-        //   })
-        //   .catch((error) => {
-        //     // eslint-disable-next-line
-        //     console.log(error);
-        //   })
-        //   .finally(() => {
-        //     this.isEdit = false;
-        //     this.isSending = false;
-        //   });
+        axios
+          .post(`/jobs/update`, payload)
+          .then((response) => {
+            const data = response.data;
+            this.successMessage = data.message;
+            this.isSuccess = true;
+            this.getJobData();
+            this.input = {
+              id: null,
+              position: null,
+              skills: null,
+              partner: null,
+            };
+          })
+          .catch((error) => {
+            // eslint-disable-next-line
+            console.log(error);
+            const message =
+              error.response.data.message === ''
+                ? 'Something Wrong!!!'
+                : error.response.data.message;
+            this.errorMessage = message;
+            this.isError = true;
+            this.input = {
+              id: null,
+              position: null,
+              skills: null,
+              partner: null,
+            };
+          })
+          .finally(() => {
+            this.isEdit = false;
+            this.isSending = false;
+          });
       }
     },
     saveData() {
       if (this.valid) {
         this.isSending = true;
         const payload = {
-          name: this.input.username,
-          email: this.input.email,
-          role: this.input.role,
-          country_id: this.input.country,
+          position_id: this.input.position,
+          skills_id: this.input.skills,
+          partner_id: this.input.partner,
         };
-        if (this.input.image !== null) {
-          payload['file'] = this.input.image;
-        }
-        setTimeout(() => {
-          console.log(payload);
-          this.isSending = false;
-        }, 2000);
-        // axios
-        //   .post(`/register`, payload)
-        //   .then((response) => {
-        //     const data = response.data;
-        //     this.successMessage = data.message;
-        //     this.isSuccess = true;
-        //     this.getJobData();
-        //     this.input = {
-        //     id: 0,
-        // position: null,
-        // company: null,
-        // skills: null,
-        // country: null,
-        //     };
-        //   })
-        //   .catch((error) => {
-        //     // eslint-disable-next-line
-        //     console.log(error);
-        //   })
-        //   .finally(() => {
-        //     this.isSending = false;
-        //   });
+        axios
+          .post(`/jobs`, payload)
+          .then((response) => {
+            const data = response.data;
+            this.successMessage = data.message;
+            this.isSuccess = true;
+            this.getJobData();
+            this.input = {
+              id: null,
+              position: null,
+              skills: null,
+              partner: null,
+            };
+          })
+          .catch((error) => {
+            // eslint-disable-next-line
+            console.log(error);
+            const message =
+              error.response.data.message === ''
+                ? 'Something Wrong!!!'
+                : error.response.data.message;
+            this.errorMessage = message;
+            this.isError = true;
+          })
+          .finally(() => {
+            this.isSending = false;
+          });
       }
     },
     cancelDelete() {
@@ -548,103 +538,155 @@ export default {
     },
     deleteJob() {
       this.isDeleteLoading = true;
-      setTimeout(() => {
-        console.log(this.jobIdToDelete);
-        this.isDeleteLoading = false;
-        this.jobIdToDelete = null;
-        this.isDelete = false;
-      }, 2000);
-      // axios
-      //   .post(`/user/delete`, {
-      //     id: this.jobIdToDelete,
-      //   })
-      //   .then((response) => {
-      //     const data = response.data;
-      //     this.successMessage = data.message;
-      //     this.isSuccess = true;
-      //     this.getJobData();
-      //   })
-      //   .catch((error) => {
-      //     // eslint-disable-next-line
-      //     console.log(error);
-      //   })
-      //   .finally(() => {
-      //     this.isDeleteLoading = false;
-      //     this.jobIdToDelete = null;
-      //     this.isDelete = false;
-      //   });
+      axios
+        .delete(`/jobs/${this.jobIdToDelete}`)
+        .then((response) => {
+          const data = response.data;
+          this.successMessage = data.message;
+          this.isSuccess = true;
+          this.getJobData();
+        })
+        .catch((error) => {
+          // eslint-disable-next-line
+          console.log(error);
+          const message =
+            error.response.data.message === ''
+              ? 'Something Wrong!!!'
+              : error.response.data.message;
+          this.errorMessage = message;
+          this.isError = true;
+        })
+        .finally(() => {
+          this.isDeleteLoading = false;
+          this.jobIdToDelete = null;
+          this.isDelete = false;
+        });
     },
     getJobData() {
       this.isLoading = true;
-      setTimeout(() => {
-        console.log('OK');
-        this.isLoading = false;
-      }, 2000);
-      // axios
-      //   .get(`/user`)
-      //   .then((response) => {
-      //     const data = response.data.data;
-      //     // console.log(data);
-      //     this.items = data.map((item) => {
-      //       return {
-      //         id: item.id || 1,
-      //         name: item.name || '',
-      //         email: item.email || '',
-      //         registered_on: item.registered_on || '',
-      //         role: item.role || '',
-      //         roleName:
-      //           item.role == 'S'
-      //             ? 'Superadmin'
-      //             : item.role == 'A'
-      //             ? 'Admin'
-      //             : '',
-      //         image: item.image || null,
-      //         country_id: item.country_id || 1,
-      //         country_name: item.country_name || '',
-      //       };
-      //     });
+      axios
+        .get(`/jobs`)
+        .then((response) => {
+          const data = response.data.data;
+          this.items = data.map((item) => {
+            return {
+              //       app: 'The Syringe',
+              //       skillsGroup: 'Nusrsing',
+              //       skills: 'Physioterapist',
+              id: item.job_reference_no || '',
+              job_id: item.job_id || 1,
+              position: item.position.position_name || '',
+              position_id: item.position_id || 1,
+              client: item.partner.partner_name || '',
+              partner_id: item.partner_id || 1,
+              subIndustry: item.partner.sub_industry.sub_industry_name || '',
+              skills_id: item.skills_id || 1,
+              country: item.partner.country.country_name || '',
+              status:
+                item.status == 'P'
+                  ? 'Pending'
+                  : item.status == 'C'
+                  ? 'Completed'
+                  : '',
+              postedOn: item.job_dated || '',
+              isActive:
+                item.active == 'N' ? false : item.active == 'Y' ? true : null,
+              isFav:
+                item.favorite == 'N'
+                  ? false
+                  : item.favorite == 'Y'
+                  ? true
+                  : null,
+              isLive: item.live == 'N' ? false : item.live == 'Y' ? true : null,
+              app: item.skill.skill_group.app.app_name || '',
+              skillsGroup: item.skill.skill_group.group_name || '',
+              skills: item.skill.skills_name || '',
+            };
+          });
+        })
+        .catch((error) => {
+          // eslint-disable-next-line
+          console.log(error);
+          const message =
+            error.response.data.message === ''
+              ? 'Something Wrong!!!'
+              : error.response.data.message;
+          this.errorMessage = message;
+          this.isError = true;
+        })
+        .finally(() => {
+          this.isLoading = false;
+        });
+    },
+    getPositionData() {
+      this.isLoading = true;
+      axios
+        .get(`/positions`)
+        .then((response) => {
+          const data = response.data.data;
+          this.resource.position = data.map((item) => {
+            return {
+              id: item.position_id || 1,
+              name: item.position_name || '',
+            };
+          });
+        })
+        .catch((error) => {
+          // eslint-disable-next-line
+          console.log(error);
+          const message =
+            error.response.data.message === ''
+              ? 'Something Wrong!!!'
+              : error.response.data.message;
+          this.errorMessage = message;
+          this.isError = true;
+        })
+        .finally(() => {
+          this.isLoading = false;
+        });
+    },
+    getPrimarySkillData() {
+      this.isLoading = true;
+      axios
+        .get(`/skills`)
+        .then((response) => {
+          const data = response.data.data;
+          // console.log(data);
 
-      //     app.config.globalProperties.$eventBus.$emit(
-      //       'update-image',
-      //       this.items
-      //     );
-      //   })
-      //   .catch((error) => {
-      //     // eslint-disable-next-line
-      //     console.log(error);
-      //   })
-      //   .finally(() => {
-      //     this.isLoading = false;
-      //   });
-    },
-    getCountry() {
-      axios
-        .get(`/country`)
-        .then((response) => {
-          const data = response.data.data;
-          this.resource.country = data.map((country) => {
-            return {
-              id: country.country_id,
-              name: country.country_name,
-            };
-          });
+          this.resource.skills = data
+            .sort((a, b) => a.skills_id > b.skills_id)
+            .map((item) => {
+              return {
+                id: item.skills_id || 1,
+                name: item.skills_name || '',
+              };
+            });
         })
         .catch((error) => {
           // eslint-disable-next-line
           console.log(error);
+          const message =
+            error.response.data.message === ''
+              ? 'Something Wrong!!!'
+              : error.response.data.message;
+          this.errorMessage = message;
+          this.isError = true;
+        })
+        .finally(() => {
+          this.isLoading = false;
         });
     },
-    getIndustryData() {
+    getPartnerData() {
       this.isLoading = true;
       axios
-        .get(`/industries`)
+        .get(`/partners`)
         .then((response) => {
           const data = response.data.data;
-          console.log(data);
-          this.resource.industry = data.map((item) => {
+          // console.log(data);
+          this.resource.partner = data.map((item) => {
             return {
-              id: item.industry_id || 1,
-              name: item.industry_name || '',
+              id: item.partner_id || 1,
+              name: item.partner_name || '',
             };
           });
         })
@@ -662,19 +704,15 @@ export default {
           this.isLoading = false;
         });
     },
-    getSubIndustryData() {
-      this.isLoading = true;
+    activeJob(id) {
+      this.isSending = true;
       axios
-        .get(`/sub-industries`)
+        .get(`/jobs/toggle-active/${id}`)
         .then((response) => {
-          const data = response.data.data;
-          console.log(data);
-          this.resource.subIndustry = data.map((item) => {
-            return {
-              id: item.sub_industry_id || 1,
-              name: item.sub_industry_name || '',
-            };
-          });
+          const data = response.data;
+          this.successMessage = data.message;
+          this.isSuccess = true;
+          this.getJobData();
         })
         .catch((error) => {
           // eslint-disable-next-line
@@ -687,7 +725,55 @@ export default {
           this.isError = true;
         })
         .finally(() => {
-          this.isLoading = false;
+          this.isSending = false;
+        });
+    },
+    favoriteJob(id) {
+      this.isSending = true;
+      axios
+        .get(`/jobs/toggle-favorite/${id}`)
+        .then((response) => {
+          const data = response.data;
+          this.successMessage = data.message;
+          this.isSuccess = true;
+          this.getJobData();
+        })
+        .catch((error) => {
+          // eslint-disable-next-line
+          console.log(error);
+          const message =
+            error.response.data.message === ''
+              ? 'Something Wrong!!!'
+              : error.response.data.message;
+          this.errorMessage = message;
+          this.isError = true;
+        })
+        .finally(() => {
+          this.isSending = false;
+        });
+    },
+    liveJob(id) {
+      this.isSending = true;
+      axios
+        .get(`/jobs/toggle-live/${id}`)
+        .then((response) => {
+          const data = response.data;
+          this.successMessage = data.message;
+          this.isSuccess = true;
+          this.getJobData();
+        })
+        .catch((error) => {
+          // eslint-disable-next-line
+          console.log(error);
+          const message =
+            error.response.data.message === ''
+              ? 'Something Wrong!!!'
+              : error.response.data.message;
+          this.errorMessage = message;
+          this.isError = true;
+        })
+        .finally(() => {
+          this.isSending = false;
         });
     },
   },

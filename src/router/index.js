@@ -203,10 +203,9 @@ const routes = [
     },
   },
   {
-    name: 'job master',
-    path: '/job-master',
-    component: () =>
-      import('@/views/the syringe/job master/JobMasterContainer.vue'),
+    name: 'jobs master',
+    path: '/jobs-master',
+    component: () => import('@/views/job master/JobMasterContainer.vue'),
     beforeEnter: (to, from, next) => {
       // Pengecekan status login sebelum masuk ke halaman beranda
       if (localStorage.getItem('token') == null) {
