@@ -43,6 +43,10 @@ export default createStore({
             path: '/jobs-master',
           },
           {
+            title: 'Qualification Master',
+            path: '/qualification_master',
+          },
+          {
             title: 'Manage Countries',
             path: '/country-master',
           },
