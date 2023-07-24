@@ -370,23 +370,16 @@ export default {
     getQualificationData() {
       this.isLoading = true;
       axios
-        .get(`/positions`)
+        .get(`/qualifications`)
         .then((response) => {
           const data = response.data.data;
           console.log(data);
-          const dataItem = [
-            {
-              qualification_id: 1,
-              qualification_name: 'Bachelor of Applied Science (Physiotherapy)',
-              user_name: 'Charlton',
-              dated: '18/07/2023',
-            },
-          ];
-          this.items = dataItem.map((item) => {
+          this.items = data.map((item) => {
             return {
               id: item.qualification_id || 1,
               qualification: item.qualification_name || '',
-              user: item.user_name || '',
+              user: item.user.name || '',
+              user_id: item.user_id || 1,
               dated: item.dated || '',
             };
           });
