@@ -85,7 +85,6 @@
             ></v-text-field
             ><v-text-field
               v-model="input.email"
-              :rules="emailRules"
               label="Official Email"
               type="email"
               density="compact"

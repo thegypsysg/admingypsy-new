@@ -55,7 +55,6 @@
           <v-col cols="12" md="3">
             <v-text-field
               v-model="input.email"
-              :rules="rules.emailRules"
               label="Enter Email"
               type="email"
               density="compact"
