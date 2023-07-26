@@ -251,6 +251,7 @@
                           </td>
                           <td class="pb-4 d-flex justify-end">
                             <v-btn
+                              :to="`/jobs-master/${item.job_id}`"
                               color="indigo-accent-2"
                               style="text-transform: none"
                               variant="flat"
