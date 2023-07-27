@@ -231,15 +231,48 @@
                   <td colspan="8">
                     <div class="d-flex" style="gap: 20px">
                       <v-table class="text-left">
-                        <tr>
-                          <td><div style="width: 170px"></div></td>
-                          <td>
+                        <tr class="d-flex align-start" style="gap: 65px">
+                          <td><div style="width: 95px"></div></td>
+                          <td class="pt-2">
                             <span class="text-black font-weight-black"
                               >App Name: </span
                             ><span
                               class="text-blue-darken-4 font-weight-bold"
                               >{{ item.app }}</span
                             >
+                          </td>
+                          <td>
+                            <tr>
+                              <th class="pt-2">Registrable</th>
+                            </tr>
+                            <tr>
+                              <td class="pt-4 pb-1">
+                                <v-btn-toggle
+                                  style="
+                                    font-size: 10px !important;
+                                    font-weight: 200 !important;
+                                    height: 22px !important;
+                                    width: 54px !important;
+                                  "
+                                  class="d-flex align-center"
+                                  v-model="item.isRegistrable"
+                                  @click="registrableSkill(item.id)"
+                                  rounded="5"
+                                >
+                                  <v-btn size="27" :value="true"> Yes </v-btn>
+
+                                  <v-btn size="27" :value="false"> No </v-btn>
+                                </v-btn-toggle>
+                              </td>
+                            </tr>
+                          </td>
+                          <td class="pt-2">
+                            <router-link
+                              class="text-decoration-none text-blue-darken-4"
+                              :to="`/primary-skills/regu-assoc/${item.id}`"
+                            >
+                              <span>Regulation / Association</span>
+                            </router-link>
                           </td>
                         </tr>
                       </v-table>
@@ -720,7 +753,7 @@ export default {
         .get(`/skills`)
         .then((response) => {
           const data = response.data.data;
-          // console.log(data);
+          //console.log(data);
 
           this.items = data
             .sort((a, b) => a.skills_id > b.skills_id)
@@ -737,6 +770,12 @@ export default {
                 app_id: item.app_id || 0,
                 isActive:
                   item.active == 'N' ? false : item.active == 'Y' ? true : null,
+                isRegistrable:
+                  item.registrable == 'N'
+                    ? false
+                    : item.registrable == 'Y'
+                    ? true
+                    : null,
               };
             });
         })
@@ -814,6 +853,30 @@ export default {
       this.isSending = true;
       axios
         .get(`/skills/active/${id}`)
+        .then((response) => {
+          const data = response.data;
+          this.successMessage = data.message;
+          this.isSuccess = true;
+          this.getPrimarySkillData();
+        })
+        .catch((error) => {
+          // eslint-disable-next-line
+          console.log(error);
+          const message =
+            error.response.data.message === ''
+              ? 'Something Wrong!!!'
+              : error.response.data.message;
+          this.errorMessage = message;
+          this.isError = true;
+        })
+        .finally(() => {
+          this.isSending = false;
+        });
+    },
+    registrableSkill(id) {
+      this.isSending = true;
+      axios
+        .get(`/skills/toggle-registrable/${id}`)
         .then((response) => {
           const data = response.data;
           this.successMessage = data.message;
