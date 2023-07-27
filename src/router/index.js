@@ -246,6 +246,20 @@ const routes = [
     },
   },
   {
+    name: 'jobs master description',
+    path: '/jobs-master/desc/:id',
+    component: () =>
+      import('@/views/job master/description/JobMasterDescContainer.vue'),
+    beforeEnter: (to, from, next) => {
+      // Pengecekan status login sebelum masuk ke halaman beranda
+      if (localStorage.getItem('token') == null) {
+        next('/auth/login'); // Alihkan ke halaman login jika belum masuk
+      } else {
+        next(); // Lanjutkan ke halaman beranda jika sudah masuk
+      }
+    },
+  },
+  {
     name: 'partner master',
     path: '/partner_master',
     component: () =>

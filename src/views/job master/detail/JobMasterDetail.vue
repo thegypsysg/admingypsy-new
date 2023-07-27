@@ -24,7 +24,22 @@
         {{ itemData?.position || '' }}
       </h2>
     </div>
-    <h2 class="ml-4 mb-6 text-grey">Main Info</h2>
+    <div class="d-flex ml-4 mb-4" style="gap: 50px">
+      <router-link
+        style="font-weight: 500; font-size: 13px"
+        class="text-grey text-decoration-none"
+        :to="`/jobs-master/${idJob}`"
+      >
+        <h2>Main Info</h2>
+      </router-link>
+      <router-link
+        style="color: black; font-weight: 500; font-size: 13px"
+        class="text-decoration-none"
+        :to="`/jobs-master/desc/${idJob}`"
+      >
+        <h2>Job Description</h2>
+      </router-link>
+    </div>
     <v-form v-model="valid" @submit.prevent>
       <v-container>
         <v-row>
@@ -249,6 +264,7 @@ export default {
   data: () => ({
     // fileURL: 'https://admin1.the-gypsy.sg/img/app/',
     valid: false,
+    idJob: null,
     isLoading: false,
     isSending: false,
     isError: false,
@@ -299,6 +315,7 @@ export default {
     setAuthHeader(token);
   },
   mounted() {
+    this.idJob = this.$route.params.id;
     this.getJobData();
     this.getJobType();
     this.getWorkingOptions();
