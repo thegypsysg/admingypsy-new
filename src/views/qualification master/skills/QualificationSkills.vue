@@ -1,16 +1,25 @@
 <!-- eslint-disable vue/no-deprecated-v-bind-sync -->
 <template>
   <v-container>
-    <div class="d-flex ml-4 mb-4" style="gap: 40px">
-      <h2 class="text-blue-darken-2">Qualification Master</h2>
+    <div class="d-flex ml-4 mb-6" style="gap: 50px">
+      <router-link
+        style="color: #293fb8; font-size: 13px"
+        class="text-decoration-none"
+        to="/qualification_master"
+      >
+        <p>Back</p>
+      </router-link>
     </div>
+    <h2 class="ml-4 mb-6" style="color: #293fb8; font-weight: 400">
+      {{ qualificationName[0] || '' }}
+    </h2>
     <v-form v-model="valid" @submit.prevent>
       <v-container>
         <v-row>
-          <v-col cols="12" md="5">
+          <v-col cols="12" md="4">
             <v-text-field
-              v-model="input.qualification"
-              label="Enter Qualification Name"
+              v-model="input.zone"
+              label="Primary Skills"
               variant="outlined"
               density="compact"
               required
@@ -61,97 +70,66 @@
     </v-form>
     <v-sheet class="py-6 px-4 mt-6" border rounded width="100%">
       <v-row>
-        <v-col cols="12" md="4">
-          <v-text-field
-            density="compact"
-            v-model="search"
-            label="Search"
-            variant="outlined"
-            hide-details
-          ></v-text-field>
-        </v-col>
-      </v-row>
-      <v-row>
         <v-col cols="12">
           <v-table class="country-table">
             <thead>
               <tr>
                 <th class="text-left">Id</th>
-                <th class="text-left">Qualification Name</th>
+                <th class="text-left">Skills</th>
                 <th class="text-left">User</th>
                 <th class="text-left">Dated</th>
                 <th class="text-left">Actions</th>
               </tr>
             </thead>
             <tbody>
-              <template v-for="item in filteredItems" :key="item.id">
-                <tr class="country-table-body">
-                  <td style="font-weight: 500 !important">
-                    {{ item.id }}
-                  </td>
-                  <td style="font-weight: 500 !important">
-                    {{ item.qualification }}
-                  </td>
-                  <td style="font-weight: 500 !important">
-                    {{ item.user }}
-                  </td>
-                  <td style="font-weight: 500 !important">
-                    {{ item.dated }}
-                  </td>
+              <tr
+                class="country-table-body"
+                v-for="item in filteredItems"
+                :key="item.id"
+              >
+                <td style="font-weight: 500 !important">
+                  {{ item.id }}
+                </td>
+                <td style="font-weight: 500 !important">
+                  {{ item.skills }}
+                </td>
+                <td style="font-weight: 500 !important">
+                  {{ item.user }}
+                </td>
+                <td style="font-weight: 500 !important">
+                  {{ item.dated }}
+                </td>
 
-                  <td>
-                    <div class="d-flex">
-                      <v-tooltip location="top">
-                        <template v-slot:activator="{ props }">
-                          <v-btn
-                            color="green"
-                            variant="text"
-                            v-bind="props"
-                            @click="editQualification(item)"
-                            icon="mdi-pencil-outline"
-                          ></v-btn>
-                        </template>
-                        <span>Edit</span>
-                      </v-tooltip>
-                      <v-tooltip location="top">
-                        <template v-slot:activator="{ props }">
-                          <v-btn
-                            color="red"
-                            variant="text"
-                            v-bind="props"
-                            :disabled="isDeleteLoading"
-                            @click="openDeleteConfirm(item.id)"
-                            icon="mdi-trash-can-outline"
-                          ></v-btn>
-                        </template>
-                        <span>Delete</span>
-                      </v-tooltip>
-                    </div>
-                  </td>
-                </tr>
-
-                <tr>
-                  <td colspan="5">
-                    <div class="d-flex justify-start" style="gap: 20px">
-                      <v-table class="text-left">
-                        <tr>
-                          <td style="width: 70px"></td>
-                          <td class="pr-6 pt-2 pb-4">
-                            <div class="d-flex justify-start" style="gap: 20px">
-                              <router-link
-                                class="text-decoration-none"
-                                :to="`/qualification_master/skills/${item.id}`"
-                              >
-                                <span>Skills</span>
-                              </router-link>
-                            </div>
-                          </td>
-                        </tr>
-                      </v-table>
-                    </div>
-                  </td>
-                </tr>
-              </template>
+                <td>
+                  <div class="d-flex">
+                    <v-tooltip location="top">
+                      <template v-slot:activator="{ props }">
+                        <v-btn
+                          color="green"
+                          variant="text"
+                          v-bind="props"
+                          @click="editZone(item)"
+                          icon="mdi-pencil-outline"
+                        ></v-btn>
+                      </template>
+                      <span>Edit</span>
+                    </v-tooltip>
+                    <v-tooltip location="top">
+                      <template v-slot:activator="{ props }">
+                        <v-btn
+                          color="red"
+                          variant="text"
+                          v-bind="props"
+                          :disabled="isDeleteLoading"
+                          @click="openDeleteConfirm(item.id)"
+                          icon="mdi-trash-can-outline"
+                        ></v-btn>
+                      </template>
+                      <span>Delete</span>
+                    </v-tooltip>
+                  </div>
+                </td>
+              </tr>
               <tr v-if="isLoading">
                 <td :colspan="6" class="text-center">
                   <v-progress-circular
@@ -191,13 +169,11 @@
     <v-dialog persistent width="500" v-model="isDelete">
       <v-card>
         <v-card-title>Confirmation</v-card-title>
-        <v-card-text>
-          Are you sure want to delete this qualification?
-        </v-card-text>
+        <v-card-text> Are you sure want to delete this zone? </v-card-text>
         <v-card-actions>
           <v-spacer></v-spacer>
           <v-btn color="error" text @click="cancelDelete">No</v-btn>
-          <v-btn color="success" text @click="deleteQualification">Yes</v-btn>
+          <v-btn color="success" text @click="deleteZone">Yes</v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
@@ -211,10 +187,11 @@ import { setAuthHeader } from '@/util/axios';
 // import app from '@/util/eventBus';
 
 export default {
-  name: 'QualificationMaster',
+  name: 'ZoneMaster',
   data: () => ({
     // fileURL: 'https://admin1.the-gypsy.sg/img/app/',
     valid: false,
+    qualificationName: '',
     isLoading: false,
     isSending: false,
     isError: false,
@@ -222,7 +199,7 @@ export default {
     isSuccess: false,
     isDelete: false,
     isDeleteLoading: false,
-    qualificationIdToDelete: null,
+    zoneIdToDelete: null,
     tableHeaders: [{ text: 'Gambar', value: 'image' }],
     imageFile: [],
     isOpenImage: false,
@@ -230,18 +207,32 @@ export default {
     errorMessage: '',
     input: {
       id: 0,
-      qualification: null,
+      skills: null,
     },
     rules: {
-      qualificationRules: [
+      zoneRules: [
         (value) => {
           if (value) return true;
-          return 'Qualification is requred.';
+          return 'Country code is requred.';
         },
       ],
     },
     search: '',
     items: [],
+    itemsTry: [
+      {
+        id: 1,
+        skills: 'Physioterapist',
+        user: 'Charlton',
+        dated: '27/07/2023',
+      },
+      {
+        id: 2,
+        skills: 'Physioterapist Assistant',
+        user: 'Charlton',
+        dated: '27/07/2023',
+      },
+    ],
   }),
   created() {
     const token = JSON.parse(localStorage.getItem('token'));
@@ -253,56 +244,53 @@ export default {
   computed: {
     filteredItems() {
       if (!this.search) {
-        return this.items;
+        return this.itemsTry;
       }
       const searchTextLower = this.search.toLowerCase();
-      return this.items.filter(
-        (item) =>
-          item.qualification.toLowerCase().includes(searchTextLower) ||
-          item.user.toLowerCase().includes(searchTextLower) ||
-          item.dated.toLowerCase().includes(searchTextLower)
+      return this.itemsTry.filter((item) =>
+        item.zone.toLowerCase().includes(searchTextLower)
       );
     },
   },
   methods: {
-    editQualification(qualification) {
+    editZone(zone) {
       this.isEdit = true;
       this.input = {
-        id: qualification.id,
-        qualification: qualification.qualification,
+        id: zone.id,
+        zone: zone.zone,
       };
     },
     cancelEdit() {
       this.isEdit = false;
       this.input = {
         id: 0,
-        qualification: null,
+        zone: null,
       };
     },
     saveEdit() {
       if (this.valid) {
         this.isSending = true;
         const payload = {
-          qualification_id: this.input.id,
-          qualification_name: this.input.qualification,
+          zone_id: this.input.id,
+          zone_name: this.input.zone,
         };
         axios
-          .post(`/qualifications/update`, payload)
+          .post(`/zones/update`, payload)
           .then((response) => {
             const data = response.data;
             this.successMessage = data.message;
             this.isSuccess = true;
-            this.getQualificationData();
+            this.getZoneData();
             this.input = {
               id: 0,
-              qualification: null,
+              zone: null,
             };
           })
           .catch((error) => {
             // eslint-disable-next-line
             console.log(error);
-            const message = error.response.data.qualification_name
-              ? error.response.data.qualification_name[0]
+            const message = error.response.data.zone_name
+              ? error.response.data.zone_name[0]
               : error.response.data.message
               ? error.response.data.message
               : 'Something Wrong!!!';
@@ -319,25 +307,25 @@ export default {
       if (this.valid) {
         this.isSending = true;
         const payload = {
-          qualification_name: this.input.qualification,
+          zone_name: this.input.zone,
         };
         axios
-          .post(`/qualifications`, payload)
+          .post(`/zones`, payload)
           .then((response) => {
             const data = response.data;
             this.successMessage = data.message;
             this.isSuccess = true;
-            this.getQualificationData();
+            this.getZoneData();
             this.input = {
               id: 0,
-              qualification: null,
+              zone: null,
             };
           })
           .catch((error) => {
             // eslint-disable-next-line
             console.log(error);
-            const message = error.response.data.qualification_name
-              ? error.response.data.qualification_name[0]
+            const message = error.response.data.zone_name
+              ? error.response.data.zone_name[0]
               : error.response.data.message
               ? error.response.data.message
               : 'Something Wrong!!!';
@@ -350,26 +338,26 @@ export default {
       }
     },
     cancelDelete() {
-      this.qualificationIdToDelete = null;
+      this.zoneIdToDelete = null;
       this.isDelete = false;
     },
     openDeleteConfirm(itemId) {
-      this.qualificationIdToDelete = itemId;
+      this.zoneIdToDelete = itemId;
       this.isDelete = true;
     },
     cancelConfirmation() {
-      this.qualificationIdToDelete = null;
+      this.zoneIdToDelete = null;
       this.isDelete = false;
     },
-    deleteQualification() {
+    deleteZone() {
       this.isDeleteLoading = true;
       axios
-        .delete(`/qualifications/${this.qualificationIdToDelete}`)
+        .delete(`/zones/${this.zoneIdToDelete}`)
         .then((response) => {
           const data = response.data;
           this.successMessage = data.message;
           this.isSuccess = true;
-          this.getQualificationData();
+          this.getZoneData();
         })
         .catch((error) => {
           // eslint-disable-next-line
@@ -383,26 +371,21 @@ export default {
         })
         .finally(() => {
           this.isDeleteLoading = false;
-          this.qualificationIdToDelete = null;
+          this.zoneIdToDelete = null;
           this.isDelete = false;
         });
     },
     getQualificationData() {
+      const id = this.$route.params.id;
       this.isLoading = true;
       axios
         .get(`/qualifications`)
         .then((response) => {
           const data = response.data.data;
           console.log(data);
-          this.items = data.map((item) => {
-            return {
-              id: item.qualification_id || 1,
-              qualification: item.qualification_name || '',
-              user: item.user.name || '',
-              user_id: item.user_id || 1,
-              dated: item.dated || '',
-            };
-          });
+          this.qualificationName = data
+            .filter((i) => i.qualification_id == id)
+            .map((item) => item.qualification_name || '');
         })
         .catch((error) => {
           // eslint-disable-next-line
