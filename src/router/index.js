@@ -345,6 +345,20 @@ const routes = [
     },
   },
   {
+    name: 'product master',
+    path: '/product_master',
+    component: () =>
+      import('@/views/product master/ProductMasterContainer.vue'),
+    beforeEnter: (to, from, next) => {
+      // Pengecekan status login sebelum masuk ke halaman beranda
+      if (localStorage.getItem('token') == null) {
+        next('/auth/login'); // Alihkan ke halaman login jika belum masuk
+      } else {
+        next(); // Lanjutkan ke halaman beranda jika sudah masuk
+      }
+    },
+  },
+  {
     name: 'brands master',
     path: '/brands_master',
     component: () =>

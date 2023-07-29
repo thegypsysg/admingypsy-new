@@ -39,6 +39,14 @@ export default createStore({
             path: '/category_master',
           },
           {
+            title: 'Product Master',
+            path: '/product_master',
+          },
+          {
+            title: 'Category Master',
+            path: '/category_master',
+          },
+          {
             title: 'Jobs Master',
             path: '/jobs-master',
           },

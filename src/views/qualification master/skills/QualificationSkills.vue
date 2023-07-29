@@ -91,7 +91,7 @@
                 :key="item.id"
               >
                 <td style="font-weight: 500 !important">
-                  {{ item.qualification_id }}
+                  {{ item.id }}
                 </td>
                 <td style="font-weight: 500 !important">
                   {{ item.skills }}
