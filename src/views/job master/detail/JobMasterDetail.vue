@@ -208,7 +208,27 @@
               required
             ></v-autocomplete>
           </v-col>
-          <v-col cols="4"><v-spacer></v-spacer></v-col>
+          <v-col class="pt-8" cols="12" md="2"
+            ><label>Foreigners</label>
+            <v-btn-toggle
+              mandatory
+              style="
+                font-size: 10px !important;
+                font-weight: 200 !important;
+                height: 35px !important;
+                width: 70px !important;
+              "
+              class="d-flex align-center mt-1"
+              v-model="input.isForeigners"
+              @click="foreignersJob(input.id)"
+              rounded="5"
+            >
+              <v-btn size="35" :value="true"> Yes </v-btn>
+
+              <v-btn size="35" :value="false"> No </v-btn>
+            </v-btn-toggle>
+          </v-col>
+          <v-col cols="12" md="2"><v-spacer></v-spacer></v-col>
           <v-col class="pt-15" cols="12" md="2">
             <v-btn
               color="indigo-accent-2"
@@ -290,6 +310,7 @@ export default {
       workOptions: null,
       numPosition: null,
       status: null,
+      isForeigners: null,
     },
     resource: {
       jobType: [],
@@ -346,6 +367,7 @@ export default {
           pl_id: this.input.jobLocation,
           status: this.input.status,
           show_in_country: this.input.showCountry,
+          foreigners: this.input.isForeigners,
           // country: this.input.country,
           // postedOn: this.input.postedOn,
           // days: this.input.days,
@@ -415,6 +437,12 @@ export default {
             country: data.partner.country_id || null,
             showCountry: data.show_in_country || null,
             status: data.status || null,
+            isForeigners:
+              data.foreigners == 'N'
+                ? false
+                : data.foreigners == 'Y'
+                ? true
+                : null,
           };
           // console.log(this.input);
           this.getJobLocations();
@@ -530,6 +558,31 @@ export default {
           this.errorMessage = message;
           this.isError = true;
         });
+    },
+    foreignersJob(id) {
+      console.log(id);
+      // this.isSending = true;
+      // axios
+      //   .get(`/app/active/${id}`)
+      //   .then((response) => {
+      //     const data = response.data;
+      //     this.successMessage = data.message;
+      //     this.isSuccess = true;
+      //     this.getJobData();
+      //   })
+      //   .catch((error) => {
+      //     // eslint-disable-next-line
+      //     console.log(error);
+      //     const message =
+      //       error.response.data.message === ''
+      //         ? 'Something Wrong!!!'
+      //         : error.response.data.message;
+      //     this.errorMessage = message;
+      //     this.isError = true;
+      //   })
+      //   .finally(() => {
+      //     this.isSending = false;
+      //   });
     },
   },
 };

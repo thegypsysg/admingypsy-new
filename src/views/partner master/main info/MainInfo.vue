@@ -60,8 +60,16 @@
             ></v-text-field>
             <v-textarea
               density="compact"
-              v-model="input.open"
-              label="Opening Hours"
+              v-model="input.hours"
+              label="Official Hours"
+              rows="3"
+              variant="outlined"
+              required
+            ></v-textarea>
+            <v-textarea
+              density="compact"
+              v-model="input.shift"
+              label="Shift Details"
               rows="3"
               variant="outlined"
               required
@@ -102,6 +110,15 @@
               density="compact"
               required
             ></v-autocomplete>
+            <v-textarea
+              density="compact"
+              v-model="input.benefits"
+              label="Benefits"
+              rows="3"
+              class="mt-13"
+              variant="outlined"
+              required
+            ></v-textarea>
             <!-- <v-combobox
               density="compact"
               label="Select Country"
@@ -199,11 +216,13 @@ export default {
       address: null,
       telephone: null,
       whatsapp: null,
-      open: null,
+      hours: null,
       about: null,
       website: null,
       email: null,
       manage: null,
+      shitf: null,
+      benefits: null,
     },
     resource: {
       type: [
@@ -306,11 +325,13 @@ export default {
             address: dataItem[0].address,
             telephone: dataItem[0].telephone,
             whatsapp: dataItem[0].whats_app,
-            open: dataItem[0].opening_hours,
+            hours: dataItem[0].official_hours || null,
             about: dataItem[0].about_us,
             website: dataItem[0].website,
             email: dataItem[0].official_email,
             manage: dataItem[0].managed_by,
+            shift: dataItem[0].shift,
+            benefits: dataItem[0].benefits,
           };
         })
         .catch((error) => {
@@ -337,9 +358,11 @@ export default {
           telephone: this.input.telephone,
           whats_app: this.input.whatsapp,
           official_email: this.input.email,
-          opening_hours: this.input.open,
+          official_hours: this.input.hours,
           website: this.input.website,
           managed_by: this.input.manage,
+          shift: this.input.shift,
+          benefits: this.input.benefits,
         };
         axios
           .post(`/partners/update`, payload)
