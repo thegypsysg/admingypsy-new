@@ -20,7 +20,7 @@
             <v-autocomplete
               density="compact"
               label="Primary Skills"
-              placeholder="Type Prrimary Skills"
+              placeholder="Type Primary Skills"
               :items="resource.skills"
               item-title="name"
               item-value="id"

@@ -1,20 +1,43 @@
 <!-- eslint-disable vue/no-deprecated-v-bind-sync -->
 <template>
   <v-container>
-    <div class="d-flex ml-4 mb-4" style="gap: 40px">
-      <h2 class="text-blue-darken-2">Qualification Master</h2>
+    <div class="d-flex ml-4 mb-6" style="gap: 50px">
+      <router-link
+        style="color: #293fb8; font-size: 13px"
+        class="text-decoration-none"
+        to="/course_master"
+      >
+        <p>Back</p>
+      </router-link>
+    </div>
+    <div class="mb-4">
+      <span class="ml-4 mb-6" style="color: #000; font-weight: 400">
+        {{ itemData.id || '' }}</span
+      >
+      <span class="ml-4 mb-6" style="color: #000; font-weight: 400">{{
+        itemData.university || ''
+      }}</span>
+      <span class="ml-4 mb-6" style="color: #000; font-weight: 400">{{
+        itemData.qualifications || ''
+      }}</span>
+      <span class="ml-4 mb-6" style="color: #000; font-weight: 400">{{
+        itemData.skills || ''
+      }}</span>
     </div>
     <v-form v-model="valid" @submit.prevent>
       <v-container>
         <v-row>
-          <v-col cols="12" md="5">
-            <v-text-field
-              v-model="input.qualification"
-              label="Enter Qualification Name"
-              variant="outlined"
+          <v-col cols="12" md="4">
+            <v-autocomplete
               density="compact"
-              required
-            ></v-text-field>
+              label="Country"
+              placeholder="Type Country"
+              :items="resource.country"
+              item-title="name"
+              item-value="id"
+              v-model="input.country"
+              variant="outlined"
+            ></v-autocomplete>
           </v-col>
           <v-col cols="12" md="2">
             <v-btn
@@ -61,102 +84,66 @@
     </v-form>
     <v-sheet class="py-6 px-4 mt-6" border rounded width="100%">
       <v-row>
-        <v-col cols="12" md="4">
-          <v-text-field
-            density="compact"
-            v-model="search"
-            label="Search"
-            variant="outlined"
-            hide-details
-          ></v-text-field>
-        </v-col>
-      </v-row>
-      <v-row>
         <v-col cols="12">
           <v-table class="country-table">
             <thead>
               <tr>
                 <th class="text-left">Id</th>
-                <th class="text-left">Qualification Name</th>
+                <th class="text-left">Country</th>
                 <th class="text-left">User</th>
                 <th class="text-left">Dated</th>
                 <th class="text-left">Actions</th>
               </tr>
             </thead>
             <tbody>
-              <template v-for="item in filteredItems" :key="item.id">
-                <tr class="country-table-body">
-                  <td style="font-weight: 500 !important">
-                    {{ item.id }}
-                  </td>
-                  <td style="font-weight: 500 !important">
-                    {{ item.qualification }}
-                  </td>
-                  <td style="font-weight: 500 !important">
-                    {{ item.user }}
-                  </td>
-                  <td style="font-weight: 500 !important">
-                    {{ item.dated }}
-                  </td>
+              <tr
+                class="country-table-body"
+                v-for="item in filteredItems"
+                :key="item.id"
+              >
+                <td style="font-weight: 500 !important">
+                  {{ item.id }}
+                </td>
+                <td style="font-weight: 500 !important">
+                  {{ item.country }}
+                </td>
+                <td style="font-weight: 500 !important">
+                  {{ item.user }}
+                </td>
+                <td style="font-weight: 500 !important">
+                  {{ item.dated }}
+                </td>
 
-                  <td>
-                    <div class="d-flex">
-                      <v-tooltip location="top">
-                        <template v-slot:activator="{ props }">
-                          <v-btn
-                            color="green"
-                            variant="text"
-                            v-bind="props"
-                            @click="editQualification(item)"
-                            icon="mdi-pencil-outline"
-                          ></v-btn>
-                        </template>
-                        <span>Edit</span>
-                      </v-tooltip>
-                      <v-tooltip location="top">
-                        <template v-slot:activator="{ props }">
-                          <v-btn
-                            color="red"
-                            variant="text"
-                            v-bind="props"
-                            :disabled="isDeleteLoading"
-                            @click="openDeleteConfirm(item.id)"
-                            icon="mdi-trash-can-outline"
-                          ></v-btn>
-                        </template>
-                        <span>Delete</span>
-                      </v-tooltip>
-                    </div>
-                  </td>
-                </tr>
-
-                <tr>
-                  <td
-                    style="
-                      border-bottom: 1px solid rgb(188, 188, 188) !important;
-                    "
-                    colspan="5"
-                  >
-                    <div class="d-flex justify-start" style="gap: 20px">
-                      <v-table class="text-left">
-                        <tr>
-                          <td style="width: 70px"></td>
-                          <td class="pr-6 pt-2 pb-4">
-                            <div class="d-flex justify-start" style="gap: 20px">
-                              <router-link
-                                class="text-decoration-none"
-                                :to="`/qualification_master/skills/${item.id}`"
-                              >
-                                <span>Skills</span>
-                              </router-link>
-                            </div>
-                          </td>
-                        </tr>
-                      </v-table>
-                    </div>
-                  </td>
-                </tr>
-              </template>
+                <td>
+                  <div class="d-flex">
+                    <v-tooltip location="top">
+                      <template v-slot:activator="{ props }">
+                        <v-btn
+                          color="green"
+                          variant="text"
+                          v-bind="props"
+                          @click="editCourseRegistrable(item)"
+                          icon="mdi-pencil-outline"
+                        ></v-btn>
+                      </template>
+                      <span>Edit</span>
+                    </v-tooltip>
+                    <v-tooltip location="top">
+                      <template v-slot:activator="{ props }">
+                        <v-btn
+                          color="red"
+                          variant="text"
+                          v-bind="props"
+                          :disabled="isDeleteLoading"
+                          @click="openDeleteConfirm(item.id)"
+                          icon="mdi-trash-can-outline"
+                        ></v-btn>
+                      </template>
+                      <span>Delete</span>
+                    </v-tooltip>
+                  </div>
+                </td>
+              </tr>
               <tr v-if="isLoading">
                 <td :colspan="6" class="text-center">
                   <v-progress-circular
@@ -197,12 +184,14 @@
       <v-card>
         <v-card-title>Confirmation</v-card-title>
         <v-card-text>
-          Are you sure want to delete this qualification?
+          Are you sure want to delete this course registrable?
         </v-card-text>
         <v-card-actions>
           <v-spacer></v-spacer>
           <v-btn color="error" text @click="cancelDelete">No</v-btn>
-          <v-btn color="success" text @click="deleteQualification">Yes</v-btn>
+          <v-btn color="success" text @click="deleteCourseRegistrable"
+            >Yes</v-btn
+          >
         </v-card-actions>
       </v-card>
     </v-dialog>
@@ -216,10 +205,11 @@ import { setAuthHeader } from '@/util/axios';
 // import app from '@/util/eventBus';
 
 export default {
-  name: 'QualificationMaster',
+  name: 'CourseRegistrable',
   data: () => ({
     // fileURL: 'https://admin1.the-gypsy.sg/img/app/',
     valid: false,
+    itemData: {},
     isLoading: false,
     isSending: false,
     isError: false,
@@ -227,7 +217,7 @@ export default {
     isSuccess: false,
     isDelete: false,
     isDeleteLoading: false,
-    qualificationIdToDelete: null,
+    cRegistrableIdToDelete: null,
     tableHeaders: [{ text: 'Gambar', value: 'image' }],
     imageFile: [],
     isOpenImage: false,
@@ -235,82 +225,93 @@ export default {
     errorMessage: '',
     input: {
       id: 0,
-      qualification: null,
+      country: null,
     },
-    rules: {
-      qualificationRules: [
-        (value) => {
-          if (value) return true;
-          return 'Qualification is requred.';
-        },
-      ],
+    resource: {
+      country: [],
     },
     search: '',
     items: [],
+    itemsTry: [
+      {
+        id: 1,
+        country: 'Singapore',
+        country_id: 1,
+        user: 'Charlton',
+        dated: '27/07/2023',
+      },
+      {
+        id: 1,
+        country: 'Australia',
+        country_id: 1,
+        user: 'Charlton',
+        dated: '27/07/2023',
+      },
+    ],
   }),
   created() {
     const token = JSON.parse(localStorage.getItem('token'));
     setAuthHeader(token);
   },
   mounted() {
-    this.getQualificationData();
+    this.getCourseData();
+    this.getCourseRegistrable();
+    this.getCountry();
   },
   computed: {
     filteredItems() {
       if (!this.search) {
-        return this.items;
+        return this.itemsTry;
       }
       const searchTextLower = this.search.toLowerCase();
-      return this.items.filter(
+      return this.itemsTry.filter(
         (item) =>
-          item.qualification.toLowerCase().includes(searchTextLower) ||
+          item.country.toLowerCase().includes(searchTextLower) ||
           item.user.toLowerCase().includes(searchTextLower) ||
           item.dated.toLowerCase().includes(searchTextLower)
       );
     },
   },
   methods: {
-    editQualification(qualification) {
+    editCourseRegistrable(country) {
       this.isEdit = true;
       this.input = {
-        id: qualification.id,
-        qualification: qualification.qualification,
+        id: country.id,
+        country: country.country_id,
       };
     },
     cancelEdit() {
       this.isEdit = false;
       this.input = {
         id: 0,
-        qualification: null,
+        country: null,
       };
     },
     saveEdit() {
       if (this.valid) {
         this.isSending = true;
         const payload = {
-          qualification_id: this.input.id,
-          qualification_name: this.input.qualification,
+          qs_id: this.input.id,
         };
         axios
-          .post(`/qualifications/update`, payload)
+          .post(`/qualification-skills/update`, payload)
           .then((response) => {
             const data = response.data;
             this.successMessage = data.message;
             this.isSuccess = true;
-            this.getQualificationData();
+            this.getCourseRegistrable();
             this.input = {
               id: 0,
-              qualification: null,
+              country: null,
             };
           })
           .catch((error) => {
             // eslint-disable-next-line
             console.log(error);
-            const message = error.response.data.qualification_name
-              ? error.response.data.qualification_name[0]
-              : error.response.data.message
-              ? error.response.data.message
-              : 'Something Wrong!!!';
+            const message =
+              error.response.data.error === ''
+                ? 'Something Wrong!!!'
+                : error.response.data.error;
             this.errorMessage = message;
             this.isError = true;
           })
@@ -324,28 +325,27 @@ export default {
       if (this.valid) {
         this.isSending = true;
         const payload = {
-          qualification_name: this.input.qualification,
+          qualification_id: this.$route.params.id,
         };
         axios
-          .post(`/qualifications`, payload)
+          .post(`/qualification-skills`, payload)
           .then((response) => {
             const data = response.data;
             this.successMessage = data.message;
             this.isSuccess = true;
-            this.getQualificationData();
+            this.getCourseRegistrable();
             this.input = {
               id: 0,
-              qualification: null,
+              country: null,
             };
           })
           .catch((error) => {
             // eslint-disable-next-line
             console.log(error);
-            const message = error.response.data.qualification_name
-              ? error.response.data.qualification_name[0]
-              : error.response.data.message
-              ? error.response.data.message
-              : 'Something Wrong!!!';
+            const message =
+              error.response.data.error === ''
+                ? 'Something Wrong!!!'
+                : error.response.data.error;
             this.errorMessage = message;
             this.isError = true;
           })
@@ -355,26 +355,26 @@ export default {
       }
     },
     cancelDelete() {
-      this.qualificationIdToDelete = null;
+      this.cRegistrableIdToDelete = null;
       this.isDelete = false;
     },
     openDeleteConfirm(itemId) {
-      this.qualificationIdToDelete = itemId;
+      this.cRegistrableIdToDelete = itemId;
       this.isDelete = true;
     },
     cancelConfirmation() {
-      this.qualificationIdToDelete = null;
+      this.cRegistrableIdToDelete = null;
       this.isDelete = false;
     },
-    deleteQualification() {
+    deleteCourseRegistrable() {
       this.isDeleteLoading = true;
       axios
-        .delete(`/qualifications/${this.qualificationIdToDelete}`)
+        .delete(`/qualification-skills/${this.cRegistrableIdToDelete}`)
         .then((response) => {
           const data = response.data;
           this.successMessage = data.message;
           this.isSuccess = true;
-          this.getQualificationData();
+          this.getCourseRegistrable();
         })
         .catch((error) => {
           // eslint-disable-next-line
@@ -388,23 +388,58 @@ export default {
         })
         .finally(() => {
           this.isDeleteLoading = false;
-          this.qualificationIdToDelete = null;
+          this.cRegistrableIdToDelete = null;
           this.isDelete = false;
         });
     },
-    getQualificationData() {
+    getCourseData() {
+      // const id = this.$route.params.id;
       this.isLoading = true;
       axios
         .get(`/qualifications`)
         .then((response) => {
           const data = response.data.data;
           console.log(data);
+          // this.itemdata = data
+          //   .filter((i) => i.qualification_id == id)
+          //   .map((item) => item.qualification_name || '');
+          this.itemData = {
+            id: 1,
+            university: 'Curtin University of Technology',
+            qualifications: 'Master of Physiotherapy',
+            skills: 'Physiotherapy',
+          };
+        })
+        .catch((error) => {
+          // eslint-disable-next-line
+          console.log(error);
+          const message =
+            error.response.data.message === ''
+              ? 'Something Wrong!!!'
+              : error.response.data.message;
+          this.errorMessage = message;
+          this.isError = true;
+        })
+        .finally(() => {
+          this.isLoading = false;
+        });
+    },
+    getCourseRegistrable() {
+      const id = this.$route.params.id;
+      this.isLoading = true;
+      axios
+        .get(`/qualification-skills/${id}/skills`)
+        .then((response) => {
+          const data = response.data.data;
+          // console.log(data);
           this.items = data.map((item) => {
             return {
-              id: item.qualification_id || 1,
-              qualification: item.qualification_name || '',
-              user: item.user.name || '',
-              user_id: item.user_id || 1,
+              id: item.qs_id || 0,
+              skills_id: item.skills_id || 0,
+              qualification_id: item.qualification_id || 0,
+              skills: item.skills_name || '',
+              user: item.name || '',
+              user_id: item.user_id || 0,
               dated: item.dated || '',
             };
           });
@@ -423,6 +458,29 @@ export default {
           this.isLoading = false;
         });
     },
+    getCountry() {
+      axios
+        .get(`/country`)
+        .then((response) => {
+          const data = response.data.data;
+          this.resource.country = data.map((country) => {
+            return {
+              id: country.country_id,
+              name: country.country_name,
+            };
+          });
+        })
+        .catch((error) => {
+          // eslint-disable-next-line
+          console.log(error);
+          const message =
+            error.response.data.message === ''
+              ? 'Something Wrong!!!'
+              : error.response.data.message;
+          this.errorMessage = message;
+          this.isError = true;
+        });
+    },
   },
 };
 </script>
@@ -436,10 +494,6 @@ export default {
 .country-table-body {
   margin-top: 50px !important;
   margin-bottom: 50px !important;
-}
-
-.country-table-body td {
-  border-bottom: none !important;
 }
 
 .upload-title {
