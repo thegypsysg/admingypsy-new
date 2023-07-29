@@ -17,13 +17,16 @@
       <v-container>
         <v-row>
           <v-col cols="12" md="4">
-            <v-text-field
-              v-model="input.zone"
-              label="Primary Skills"
-              variant="outlined"
+            <v-autocomplete
               density="compact"
-              required
-            ></v-text-field>
+              label="Primary Skills"
+              placeholder="Type Prrimary Skills"
+              :items="resource.skills"
+              item-title="name"
+              item-value="id"
+              v-model="input.skills"
+              variant="outlined"
+            ></v-autocomplete>
           </v-col>
           <v-col cols="12" md="2">
             <v-btn
@@ -108,7 +111,7 @@
                           color="green"
                           variant="text"
                           v-bind="props"
-                          @click="editZone(item)"
+                          @click="editQualificationSkills(item)"
                           icon="mdi-pencil-outline"
                         ></v-btn>
                       </template>
@@ -169,11 +172,15 @@
     <v-dialog persistent width="500" v-model="isDelete">
       <v-card>
         <v-card-title>Confirmation</v-card-title>
-        <v-card-text> Are you sure want to delete this zone? </v-card-text>
+        <v-card-text>
+          Are you sure want to delete this qualification skills?
+        </v-card-text>
         <v-card-actions>
           <v-spacer></v-spacer>
           <v-btn color="error" text @click="cancelDelete">No</v-btn>
-          <v-btn color="success" text @click="deleteZone">Yes</v-btn>
+          <v-btn color="success" text @click="deleteQualificationSkills"
+            >Yes</v-btn
+          >
         </v-card-actions>
       </v-card>
     </v-dialog>
@@ -187,7 +194,7 @@ import { setAuthHeader } from '@/util/axios';
 // import app from '@/util/eventBus';
 
 export default {
-  name: 'ZoneMaster',
+  name: 'QualificationSkills',
   data: () => ({
     // fileURL: 'https://admin1.the-gypsy.sg/img/app/',
     valid: false,
@@ -199,7 +206,7 @@ export default {
     isSuccess: false,
     isDelete: false,
     isDeleteLoading: false,
-    zoneIdToDelete: null,
+    qSkillsIdToDelete: null,
     tableHeaders: [{ text: 'Gambar', value: 'image' }],
     imageFile: [],
     isOpenImage: false,
@@ -208,31 +215,21 @@ export default {
     input: {
       id: 0,
       skills: null,
+      qualification_id: null,
     },
-    rules: {
-      zoneRules: [
-        (value) => {
-          if (value) return true;
-          return 'Country code is requred.';
-        },
-      ],
+    resource: {
+      skills: [],
     },
     search: '',
     items: [],
-    itemsTry: [
-      {
-        id: 1,
-        skills: 'Physioterapist',
-        user: 'Charlton',
-        dated: '27/07/2023',
-      },
-      {
-        id: 2,
-        skills: 'Physioterapist Assistant',
-        user: 'Charlton',
-        dated: '27/07/2023',
-      },
-    ],
+    // itemsTry: [
+    //   {
+    //     id: 1,
+    //     skills: 'Physioterapist',
+    //     user: 'Charlton',
+    //     dated: '27/07/2023',
+    //   },
+    // ],
   }),
   created() {
     const token = JSON.parse(localStorage.getItem('token'));
@@ -240,60 +237,68 @@ export default {
   },
   mounted() {
     this.getQualificationData();
+    this.getQualificationSkills();
+    this.getPrimarySkillData();
   },
   computed: {
     filteredItems() {
       if (!this.search) {
-        return this.itemsTry;
+        return this.items;
       }
       const searchTextLower = this.search.toLowerCase();
-      return this.itemsTry.filter((item) =>
-        item.zone.toLowerCase().includes(searchTextLower)
+      return this.items.filter(
+        (item) =>
+          item.skills.toLowerCase().includes(searchTextLower) ||
+          item.user.toLowerCase().includes(searchTextLower) ||
+          item.dated.toLowerCase().includes(searchTextLower)
       );
     },
   },
   methods: {
-    editZone(zone) {
+    editQualificationSkills(skills) {
       this.isEdit = true;
       this.input = {
-        id: zone.id,
-        zone: zone.zone,
+        id: skills.id,
+        skills: skills.skills_id,
+        qualification_id: skills.qualification_id,
       };
     },
     cancelEdit() {
       this.isEdit = false;
       this.input = {
         id: 0,
-        zone: null,
+        skills: null,
+        qualification_id: null,
       };
     },
     saveEdit() {
       if (this.valid) {
         this.isSending = true;
         const payload = {
-          zone_id: this.input.id,
-          zone_name: this.input.zone,
+          qs_id: this.input.id,
+          skills_id: this.input.skills,
+          qualification_id: this.input.qualification_id,
         };
         axios
-          .post(`/zones/update`, payload)
+          .post(`/qualification-skills/update`, payload)
           .then((response) => {
             const data = response.data;
             this.successMessage = data.message;
             this.isSuccess = true;
-            this.getZoneData();
+            this.getQualificationSkills();
             this.input = {
               id: 0,
-              zone: null,
+              skills: null,
+              qualification_id: null,
             };
           })
           .catch((error) => {
             // eslint-disable-next-line
             console.log(error);
-            const message = error.response.data.zone_name
-              ? error.response.data.zone_name[0]
-              : error.response.data.message
-              ? error.response.data.message
-              : 'Something Wrong!!!';
+            const message =
+              error.response.data.error === ''
+                ? 'Something Wrong!!!'
+                : error.response.data.error;
             this.errorMessage = message;
             this.isError = true;
           })
@@ -307,28 +312,29 @@ export default {
       if (this.valid) {
         this.isSending = true;
         const payload = {
-          zone_name: this.input.zone,
+          skills_id: this.input.skills,
+          qualification_id: this.$route.params.id,
         };
         axios
-          .post(`/zones`, payload)
+          .post(`/qualification-skills`, payload)
           .then((response) => {
             const data = response.data;
             this.successMessage = data.message;
             this.isSuccess = true;
-            this.getZoneData();
+            this.getQualificationSkills();
             this.input = {
               id: 0,
-              zone: null,
+              skills: null,
+              qualification_id: null,
             };
           })
           .catch((error) => {
             // eslint-disable-next-line
             console.log(error);
-            const message = error.response.data.zone_name
-              ? error.response.data.zone_name[0]
-              : error.response.data.message
-              ? error.response.data.message
-              : 'Something Wrong!!!';
+            const message =
+              error.response.data.error === ''
+                ? 'Something Wrong!!!'
+                : error.response.data.error;
             this.errorMessage = message;
             this.isError = true;
           })
@@ -338,26 +344,26 @@ export default {
       }
     },
     cancelDelete() {
-      this.zoneIdToDelete = null;
+      this.qSkillsIdToDelete = null;
       this.isDelete = false;
     },
     openDeleteConfirm(itemId) {
-      this.zoneIdToDelete = itemId;
+      this.qSkillsIdToDelete = itemId;
       this.isDelete = true;
     },
     cancelConfirmation() {
-      this.zoneIdToDelete = null;
+      this.qSkillsIdToDelete = null;
       this.isDelete = false;
     },
-    deleteZone() {
+    deleteQualificationSkills() {
       this.isDeleteLoading = true;
       axios
-        .delete(`/zones/${this.zoneIdToDelete}`)
+        .delete(`/qualification-skills/${this.qSkillsIdToDelete}`)
         .then((response) => {
           const data = response.data;
           this.successMessage = data.message;
           this.isSuccess = true;
-          this.getZoneData();
+          this.getQualificationSkills();
         })
         .catch((error) => {
           // eslint-disable-next-line
@@ -371,7 +377,7 @@ export default {
         })
         .finally(() => {
           this.isDeleteLoading = false;
-          this.zoneIdToDelete = null;
+          this.qSkillsIdToDelete = null;
           this.isDelete = false;
         });
     },
@@ -382,10 +388,75 @@ export default {
         .get(`/qualifications`)
         .then((response) => {
           const data = response.data.data;
-          console.log(data);
           this.qualificationName = data
             .filter((i) => i.qualification_id == id)
             .map((item) => item.qualification_name || '');
+        })
+        .catch((error) => {
+          // eslint-disable-next-line
+          console.log(error);
+          const message =
+            error.response.data.message === ''
+              ? 'Something Wrong!!!'
+              : error.response.data.message;
+          this.errorMessage = message;
+          this.isError = true;
+        })
+        .finally(() => {
+          this.isLoading = false;
+        });
+    },
+    getQualificationSkills() {
+      const id = this.$route.params.id;
+      this.isLoading = true;
+      axios
+        .get(`/qualification-skills/${id}/skills`)
+        .then((response) => {
+          const data = response.data.data;
+          // console.log(data);
+          this.items = data.map((item) => {
+            return {
+              id: item.qs_id || 0,
+              skills_id: item.skills_id || 0,
+              qualification_id: item.qualification_id || 0,
+              skills: item.skills_name || '',
+              user: item.name || '',
+              user_id: item.user_id || 0,
+              dated: item.dated || '',
+            };
+          });
+        })
+        .catch((error) => {
+          // eslint-disable-next-line
+          console.log(error);
+          const message =
+            error.response.data.message === ''
+              ? 'Something Wrong!!!'
+              : error.response.data.message;
+          this.errorMessage = message;
+          this.isError = true;
+        })
+        .finally(() => {
+          this.isLoading = false;
+        });
+    },
+
+    getPrimarySkillData() {
+      this.isLoading = true;
+      axios
+        .get(`/skills`)
+        .then((response) => {
+          const data = response.data.data;
+          // console.log(data);
+
+          this.resource.skills = data
+            .sort((a, b) => a.skills_id > b.skills_id)
+            .map((item) => {
+              return {
+                id: item.skills_id || 1,
+                name: item.skills_name || '',
+              };
+            });
         })
         .catch((error) => {
           // eslint-disable-next-line
