@@ -38,6 +38,7 @@
               :items="resource.city"
               item-title="name"
               item-value="id"
+              :rules="rules.cityRules"
               v-model="input.city"
               variant="outlined"
             ></v-autocomplete>
@@ -890,14 +891,14 @@ export default {
               latitude: item.latitude || '',
               longitude: item.longitude || '',
               address: item.location_address || '',
-              country: item.country.country_name || '',
-              country_id: item.country_id || 1,
-              city: item.city.city_name || '',
-              city_id: item.city_id || 1,
-              town: item.town.town_name || '',
-              town_id: item.town_id || 1,
-              zone: item.zone.zone_name || '',
-              zone_id: item.zone_id || 1,
+              country: item?.country?.country_name || '',
+              country_id: item?.country?.country_id || null,
+              city: item?.city?.city_name || '',
+              city_id: item?.city?.city_id || null,
+              town: item?.town?.town_name || '',
+              town_id: item?.town?.town_id || null,
+              zone: item?.zone?.zone_name || '',
+              zone_id: item?.zone?.zone_id || null,
               isPrimary:
                 item.primary == 'N' ? false : item.primary == 'Y' ? true : null,
               isFavorite:
