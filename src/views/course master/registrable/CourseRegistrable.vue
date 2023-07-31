@@ -12,16 +12,16 @@
     </div>
     <div class="mb-4">
       <span class="ml-4 mb-6" style="color: #000; font-weight: 400">
-        {{ itemData.id || '' }}</span
+        {{ itemData?.id || '' }}</span
       >
       <span class="ml-4 mb-6" style="color: #000; font-weight: 400">{{
-        itemData.university || ''
+        itemData?.university || ''
       }}</span>
       <span class="ml-4 mb-6" style="color: #000; font-weight: 400">{{
-        itemData.qualifications || ''
+        itemData?.qualifications || ''
       }}</span>
       <span class="ml-4 mb-6" style="color: #000; font-weight: 400">{{
-        itemData.skills || ''
+        itemData?.skills || ''
       }}</span>
     </div>
     <v-form v-model="valid" @submit.prevent>
@@ -209,7 +209,13 @@ export default {
   data: () => ({
     // fileURL: 'https://admin1.the-gypsy.sg/img/app/',
     valid: false,
-    itemData: {},
+    itemData: {
+      id: null,
+      university: '',
+      location: '',
+      qualifications: '',
+      skills: '',
+    },
     isLoading: false,
     isSending: false,
     isError: false,
@@ -225,6 +231,7 @@ export default {
     errorMessage: '',
     input: {
       id: 0,
+      course_id: null,
       country: null,
     },
     resource: {
@@ -232,22 +239,15 @@ export default {
     },
     search: '',
     items: [],
-    itemsTry: [
-      {
-        id: 1,
-        country: 'Singapore',
-        country_id: 1,
-        user: 'Charlton',
-        dated: '27/07/2023',
-      },
-      {
-        id: 1,
-        country: 'Australia',
-        country_id: 1,
-        user: 'Charlton',
-        dated: '27/07/2023',
-      },
-    ],
+    // itemsTry: [
+    //   {
+    //     id: 1,
+    //     country: 'Singapore',
+    //     country_id: 1,
+    //     user: 'Charlton',
+    //     dated: '27/07/2023',
+    //   },
+    // ],
   }),
   created() {
     const token = JSON.parse(localStorage.getItem('token'));
@@ -261,10 +261,10 @@ export default {
   computed: {
     filteredItems() {
       if (!this.search) {
-        return this.itemsTry;
+        return this.items;
       }
       const searchTextLower = this.search.toLowerCase();
-      return this.itemsTry.filter(
+      return this.items.filter(
         (item) =>
           item.country.toLowerCase().includes(searchTextLower) ||
           item.user.toLowerCase().includes(searchTextLower) ||
@@ -277,6 +277,7 @@ export default {
       this.isEdit = true;
       this.input = {
         id: country.id,
+        course_id: country.course_id,
         country: country.country_id,
       };
     },
@@ -284,6 +285,7 @@ export default {
       this.isEdit = false;
       this.input = {
         id: 0,
+        course_id: null,
         country: null,
       };
     },
@@ -291,10 +293,12 @@ export default {
       if (this.valid) {
         this.isSending = true;
         const payload = {
-          qs_id: this.input.id,
+          cr_id: this.input.id,
+          course_id: this.input.course_id,
+          country_id: this.input.country,
         };
         axios
-          .post(`/qualification-skills/update`, payload)
+          .post(`/course-registrable/update`, payload)
           .then((response) => {
             const data = response.data;
             this.successMessage = data.message;
@@ -302,6 +306,7 @@ export default {
             this.getCourseRegistrable();
             this.input = {
               id: 0,
+              course_id: null,
               country: null,
             };
           })
@@ -325,10 +330,11 @@ export default {
       if (this.valid) {
         this.isSending = true;
         const payload = {
-          qualification_id: this.$route.params.id,
+          course_id: this.$route.params.id,
+          country_id: this.input.country,
         };
         axios
-          .post(`/qualification-skills`, payload)
+          .post(`/course-registrable`, payload)
           .then((response) => {
             const data = response.data;
             this.successMessage = data.message;
@@ -336,6 +342,7 @@ export default {
             this.getCourseRegistrable();
             this.input = {
               id: 0,
+              course_id: null,
               country: null,
             };
           })
@@ -369,7 +376,7 @@ export default {
     deleteCourseRegistrable() {
       this.isDeleteLoading = true;
       axios
-        .delete(`/qualification-skills/${this.cRegistrableIdToDelete}`)
+        .delete(`/course-registrable/${this.cRegistrableIdToDelete}`)
         .then((response) => {
           const data = response.data;
           this.successMessage = data.message;
@@ -393,22 +400,23 @@ export default {
         });
     },
     getCourseData() {
-      // const id = this.$route.params.id;
       this.isLoading = true;
       axios
-        .get(`/qualifications`)
+        .get(`/courses`)
         .then((response) => {
+          const id = this.$route.params.id;
           const data = response.data.data;
-          console.log(data);
-          // this.itemdata = data
-          //   .filter((i) => i.qualification_id == id)
-          //   .map((item) => item.qualification_name || '');
-          this.itemData = {
-            id: 1,
-            university: 'Curtin University of Technology',
-            qualifications: 'Master of Physiotherapy',
-            skills: 'Physiotherapy',
-          };
+          this.itemData = data
+            .map((item) => {
+              return {
+                id: item.course_id || null,
+                university: item.partner_name || '',
+                location: item.location_name || '',
+                qualifications: item.qualification_name || '',
+                skills: item.skills_name || '',
+              };
+            })
+            .filter((i) => i.id == id)[0];
         })
         .catch((error) => {
           // eslint-disable-next-line
@@ -428,16 +436,16 @@ export default {
       const id = this.$route.params.id;
       this.isLoading = true;
       axios
-        .get(`/qualification-skills/${id}/skills`)
+        .get(`/course-registrable/${id}/countries`)
         .then((response) => {
           const data = response.data.data;
           // console.log(data);
           this.items = data.map((item) => {
             return {
-              id: item.qs_id || 0,
-              skills_id: item.skills_id || 0,
-              qualification_id: item.qualification_id || 0,
-              skills: item.skills_name || '',
+              id: item.cr_id || 0,
+              course_id: item.course_id || 0,
+              country: item.country_name || '',
+              country_id: item.country_id || null,
               user: item.name || '',
               user_id: item.user_id || 0,
               dated: item.dated || '',

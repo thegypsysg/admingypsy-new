@@ -307,17 +307,17 @@ export default {
     },
     search: '',
     items: [],
-    itemsTry: [
-      {
-        id: 1,
-        university: 'Curtin University of Technology',
-        location: 'Sydney, Australia',
-        qualifications: 'Master of Physiotherapy',
-        skills: 'Physiotherapy',
-        user: 'Charlton',
-        dated: '27/07/2023',
-      },
-    ],
+    // itemsTry: [
+    //   {
+    //     id: 1,
+    //     university: 'Curtin University of Technology',
+    //     location: 'Sydney, Australia',
+    //     qualifications: 'Master of Physiotherapy',
+    //     skills: 'Physiotherapy',
+    //     user: 'Charlton',
+    //     dated: '27/07/2023',
+    //   },
+    // ],
   }),
   created() {
     const token = JSON.parse(localStorage.getItem('token'));
@@ -327,16 +327,26 @@ export default {
     this.getCourseData();
     this.getQualificationData();
     this.getPartnerData();
-    this.getCityData();
-    this.getPrimarySkillData();
+    // this.getLocationData();
+    this.getQualificationSkillData();
+  },
+  watch: {
+    'input.university': function () {
+      this.input.location = null;
+      this.getLocationData();
+    },
+    'input.qualifications': function () {
+      this.input.skills = null;
+      this.getQualificationSkillData();
+    },
   },
   computed: {
     filteredItems() {
       if (!this.search) {
-        return this.itemsTry;
+        return this.items;
       }
       const searchTextLower = this.search.toLowerCase();
-      return this.itemsTry.filter(
+      return this.items.filter(
         (item) =>
           item.university.toLowerCase().includes(searchTextLower) ||
           item.location.toLowerCase().includes(searchTextLower) ||
@@ -352,10 +362,10 @@ export default {
       this.isEdit = true;
       this.input = {
         id: course.id,
-        university: course.university,
-        qualifications: course.qualifications,
-        location: course.location,
-        skills: course.skills,
+        university: course.university_id,
+        qualifications: course.qualification_id,
+        location: course.pl_id,
+        skills: course.skills_id,
       };
     },
     cancelEdit() {
@@ -372,11 +382,14 @@ export default {
       if (this.valid) {
         this.isSending = true;
         const payload = {
-          qualification_id: this.input.id,
-          qualification_name: this.input.qualification,
+          course_id: this.input.id,
+          university_id: this.input.university,
+          pl_id: this.input.location,
+          qualification_id: this.input.qualifications,
+          skills_id: this.input.skills,
         };
         axios
-          .post(`/qualifications/update`, payload)
+          .post(`/courses/update`, payload)
           .then((response) => {
             const data = response.data;
             this.successMessage = data.message;
@@ -393,13 +406,20 @@ export default {
           .catch((error) => {
             // eslint-disable-next-line
             console.log(error);
-            const message = error.response.data.qualification_name
-              ? error.response.data.qualification_name[0]
+            const message = error.response.data.course_name
+              ? error.response.data.course_name[0]
               : error.response.data.message
               ? error.response.data.message
               : 'Something Wrong!!!';
             this.errorMessage = message;
             this.isError = true;
+            this.input = {
+              id: 0,
+              university: null,
+              qualifications: null,
+              location: null,
+              skills: null,
+            };
           })
           .finally(() => {
             this.isEdit = false;
@@ -411,10 +431,13 @@ export default {
       if (this.valid) {
         this.isSending = true;
         const payload = {
-          qualification_name: this.input.qualification,
+          university_id: this.input.university,
+          pl_id: this.input.location,
+          qualification_id: this.input.qualifications,
+          skills_id: this.input.skills,
         };
         axios
-          .post(`/qualifications`, payload)
+          .post(`/courses`, payload)
           .then((response) => {
             const data = response.data;
             this.successMessage = data.message;
@@ -431,8 +454,8 @@ export default {
           .catch((error) => {
             // eslint-disable-next-line
             console.log(error);
-            const message = error.response.data.qualification_name
-              ? error.response.data.qualification_name[0]
+            const message = error.response.data.course_name
+              ? error.response.data.course_name[0]
               : error.response.data.message
               ? error.response.data.message
               : 'Something Wrong!!!';
@@ -459,7 +482,7 @@ export default {
     deleteCourse() {
       this.isDeleteLoading = true;
       axios
-        .delete(`/qualifications/${this.courseIdToDelete}`)
+        .delete(`/courses/${this.courseIdToDelete}`)
         .then((response) => {
           const data = response.data;
           this.successMessage = data.message;
@@ -485,16 +508,23 @@ export default {
     getCourseData() {
       this.isLoading = true;
       axios
-        .get(`/qualifications`)
+        .get(`/courses`)
         .then((response) => {
           const data = response.data.data;
           // console.log(data);
           this.items = data.map((item) => {
             return {
-              id: item.qualification_id || 1,
-              qualification: item.qualification_name || '',
-              user: item.user.name || '',
-              user_id: item.user_id || 1,
+              id: item.course_id || null,
+              university: item.partner_name || '',
+              university_id: item.university_id || null,
+              location: item.location_name || '',
+              pl_id: item.pl_id || null,
+              qualifications: item.qualification_name || '',
+              qualification_id: item.qualification_id || null,
+              skills: item.skills_name || '',
+              skills_id: item.skills_id || null,
+              user: item.name || '',
+              user_id: item.user_id || null,
               dated: item.dated || '',
             };
           });
@@ -519,7 +549,6 @@ export default {
         .get(`/qualifications`)
         .then((response) => {
           const data = response.data.data;
-          console.log(data);
           this.resource.qualifications = data.map((item) => {
             return {
               id: item.qualification_id || 1,
@@ -569,19 +598,18 @@ export default {
           this.isLoading = false;
         });
     },
-    getCityData() {
+    getLocationData() {
       this.isLoading = true;
       axios
-        .get(`/cities`)
+        .get(`/partner-locations/${this.input.university}`)
         .then((response) => {
           const data = response.data.data;
-          // console.log(data);
           this.resource.location = data
-            .sort((a, b) => a.city_name.localeCompare(b.city_name))
+            .sort((a, b) => a.city.city_name.localeCompare(b.city.city_name))
             .map((item) => {
               return {
-                id: item.city_id || 1,
-                name: item.city_name || '',
+                id: item.pl_id || 1,
+                name: `${item.town.town_name} ${item.city.city_name}` || '',
               };
             });
         })
@@ -599,10 +627,10 @@ export default {
           this.isLoading = false;
         });
     },
-    getPrimarySkillData() {
+    getQualificationSkillData() {
       this.isLoading = true;
       axios
-        .get(`/skills`)
+        .get(`/qualification-skills/${this.input.qualifications}/skills`)
         .then((response) => {
           const data = response.data.data;
           // console.log(data);
