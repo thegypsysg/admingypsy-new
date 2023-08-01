@@ -2,6 +2,18 @@
 <!-- eslint-disable vue/no-deprecated-v-bind-sync -->
 <template>
   <v-container>
+    <div class="d-flex align-center ml-4 mb-4" style="gap: 30px">
+      <router-link class="text-decoration-none text-black" to="/product_master">
+        <h1>Product Master</h1>
+      </router-link>
+      <h1 style="font-size: 35px">|</h1>
+      <router-link
+        class="text-decoration-none text-black"
+        to="/quantity_master"
+      >
+        <h1>Quantity Master</h1>
+      </router-link>
+    </div>
     <v-form v-model="valid" @submit.prevent>
       <v-container>
         <v-row>
@@ -647,7 +659,6 @@ export default {
         .get(`/products`)
         .then((response) => {
           const data = response.data.data;
-          console.log(data);
           this.items = data.map((item) => {
             return {
               id: item.product_id || 1,
