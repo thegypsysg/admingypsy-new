@@ -108,7 +108,11 @@
                       width="65"
                       @click="openImage(item)"
                       style="cursor: pointer"
-                      src="@\assets\other-voucher-img-5.png"
+                      :src="
+                        item.image != null
+                          ? $fileURL + item.image
+                          : 'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png'
+                      "
                       ><template #placeholder>
                         <div class="skeleton" /> </template
                     ></v-img>
@@ -337,10 +341,8 @@ export default {
     logoFile: [],
     productDataToImage: {
       id: 0,
-      name: null,
-      industry: null,
-      subIndustry: null,
-      country: null,
+      product: null,
+      brand: null,
     },
     isOpenImage: false,
     isOpenLogo: false,
@@ -356,20 +358,20 @@ export default {
     },
     search: '',
     items: [],
-    itemsTry: [
-      {
-        id: 1,
-        image: '',
-        product: 'Monkey Shoulder Blended Malt Scotch Whisky',
-        isActive: false,
-        isFavorite: false,
-        user: 'Charlton',
-        dated: '27/07/2023',
-        app: 'Boozards',
-        brand: 'Chivas Regal',
-        category: 'Whisky',
-      },
-    ],
+    //itemsTry: [
+    //  {
+    //    id: 1,
+    //    image: '',
+    //    product: 'Monkey Shoulder Blended Malt Scotch Whisky',
+    //    isActive: false,
+    //    isFavorite: false,
+    //    user: 'Charlton',
+    //    dated: '27/07/2023',
+    //    app: 'Boozards',
+    //    brand: 'Chivas Regal',
+    //    category: 'Whisky',
+    //  },
+    //],
   }),
   created() {
     const token = JSON.parse(localStorage.getItem('token'));
@@ -382,10 +384,10 @@ export default {
   computed: {
     filteredItems() {
       if (!this.search) {
-        return this.itemsTry;
+        return this.items;
       }
       const searchTextLower = this.search.toLowerCase();
-      return this.itemsTry.filter(
+      return this.items.filter(
         (item) =>
           item.product.toLowerCase().includes(searchTextLower) ||
           item.user.toLowerCase().includes(searchTextLower) ||
@@ -403,7 +405,7 @@ export default {
     deleteImageFile() {
       this.isSending = true;
       axios
-        .delete(`/partners/${this.productDataToImage.id}/main-image`)
+        .delete(`/products/${this.productDataToImage.id}/image`)
         .then((response) => {
           const data = response.data;
           this.successMessage = data.message;
@@ -437,10 +439,8 @@ export default {
       this.isOpenImage = true;
       this.productDataToImage = {
         id: item.id,
-        name: item.name,
-        country: item.country_id,
-        industry: item.industry_id,
-        subIndustry: item.sub_industry_id,
+        product: item.product,
+        brand: item.brand_id,
       };
       this.imageFile =
         item.image != null
@@ -461,25 +461,21 @@ export default {
       this.imageFile = [];
       this.productDataToImage = {
         id: 0,
-        name: null,
-        industry: null,
-        subIndustry: null,
-        country: null,
+        product: null,
+        brand: null,
       };
     },
     saveImage() {
       this.isSending = true;
       const payload = {
-        partner_id: this.productDataToImage.id,
-        partner_name: this.productDataToImage.name,
-        country_id: this.productDataToImage.country,
-        sub_industry_id: this.productDataToImage.subIndustry,
-        industry_id: this.productDataToImage.industry,
-        main_image: this.imageFile[0],
+        product_id: this.productDataToImage.id,
+        product_name: this.productDataToImage.product,
+        brand_id: this.productDataToImage.brand,
+        image: this.imageFile[0],
       };
 
       http
-        .post(`/partners/update`, payload, {
+        .post(`/products/update`, payload, {
           headers: {
             'Content-Type': 'multipart/form-data',
           },
@@ -505,10 +501,8 @@ export default {
           this.isSending = false;
           this.productDataToImage = {
             id: 0,
-            name: null,
-            industry: null,
-            subIndustry: null,
-            country: null,
+            product: null,
+            brand: null,
           };
           this.isOpenImage = false;
           this.imageFile = [];
@@ -519,38 +513,27 @@ export default {
       this.input = {
         id: product.id,
         product: product.product,
-        brand: product.brand,
+        brand: product.brand_id,
       };
     },
     cancelEdit() {
       this.isEdit = false;
       this.input = {
         id: 0,
-        name: null,
-        industry: null,
-        subIndustry: null,
-        country: null,
-        logo: null,
-        image: null,
+        product: null,
+        brand: null,
       };
     },
     saveEdit() {
       if (this.valid) {
         this.isSending = true;
         const payload = {
-          partner_id: this.input.id,
-          partner_name: this.input.name,
-          country_id: this.input.country,
-          sub_industry_id: this.input.subIndustry,
-          industry_id: this.input.industry,
+          product_id: this.input.id,
+          product_name: this.input.product,
+          brand_id: this.input.brand,
         };
-        if (this.input.logo !== null) {
-          payload['logo'] = this.input.logo;
-        } else if (this.input.image !== null) {
-          payload['main_image'] = this.input.image;
-        }
         axios
-          .post(`/partners/update`, payload)
+          .post(`/products/update`, payload)
           .then((response) => {
             const data = response.data;
             this.successMessage = data.message;
@@ -558,19 +541,15 @@ export default {
             this.getProductData();
             this.input = {
               id: 0,
-              name: null,
-              industry: null,
-              subIndustry: null,
-              country: null,
-              logo: null,
-              image: null,
+              product: null,
+              brand: null,
             };
           })
           .catch((error) => {
             // eslint-disable-next-line
             console.log(error);
-            const message = error.response.data.partner_name
-              ? error.response.data.partner_name[0]
+            const message = error.response.data.product_name
+              ? error.response.data.product_name[0]
               : error.response.data.message
               ? error.response.data.message
               : 'Something Wrong!!!';
@@ -578,12 +557,8 @@ export default {
             this.isError = true;
             this.input = {
               id: 0,
-              name: null,
-              industry: null,
-              subIndustry: null,
-              country: null,
-              logo: null,
-              image: null,
+              product: null,
+              brand: null,
             };
           })
           .finally(() => {
@@ -596,13 +571,11 @@ export default {
       if (this.valid) {
         this.isSending = true;
         const payload = {
-          partner_name: this.input.name,
-          country_id: this.input.country,
-          sub_industry_id: this.input.subIndustry,
-          industry_id: this.input.industry,
+          product_name: this.input.product,
+          brand_id: this.input.brand,
         };
         axios
-          .post(`/partners`, payload)
+          .post(`/products`, payload)
           .then((response) => {
             const data = response.data;
             this.successMessage = data.message;
@@ -610,19 +583,15 @@ export default {
             this.getProductData();
             this.input = {
               id: 0,
-              name: null,
-              industry: null,
-              subIndustry: null,
-              country: null,
-              logo: null,
-              image: null,
+              product: null,
+              brand: null,
             };
           })
           .catch((error) => {
             // eslint-disable-next-line
             console.log(error);
-            const message = error.response.data.partner_name
-              ? error.response.data.partner_name[0]
+            const message = error.response.data.product_name
+              ? error.response.data.product_name[0]
               : error.response.data.message
               ? error.response.data.message
               : 'Something Wrong!!!';
@@ -649,7 +618,7 @@ export default {
     deleteProduct() {
       this.isDeleteLoading = true;
       axios
-        .delete(`/partners/${this.productIdToDelete}`)
+        .delete(`/products/${this.productIdToDelete}`)
         .then((response) => {
           const data = response.data;
           this.successMessage = data.message;
@@ -675,84 +644,32 @@ export default {
     getProductData() {
       this.isLoading = true;
       axios
-        .get(`/partners`)
+        .get(`/products`)
         .then((response) => {
           const data = response.data.data;
-          // console.log(data);
+          console.log(data);
           this.items = data.map((item) => {
             return {
-              id: item.partner_id || 1,
-              logo: item.logo || null,
-              image: item.main_image || null,
-              name: item.partner_name || '',
-              country: item.country.country_name || '',
-              country_id: item.country_id || 1,
-              industry: item.industry.industry_name || '',
-              industry_id: item.industry_id || 1,
-              subIndustry: item.sub_industry.sub_industry_name || '',
-              sub_industry_id: item.sub_industry_id || 1,
+              id: item.product_id || 1,
+              image: item.image || null,
+              product: item.product_name || '',
               isActive:
                 item.active == 'N' ? false : item.active == 'Y' ? true : null,
-              isFav:
+              isFavorite:
                 item.favorite == 'N'
                   ? false
                   : item.favorite == 'Y'
                   ? true
                   : null,
+              user: item.user.name || '',
+              dated: item.dated || '',
+              app: item.brand.category.app.app_name || '',
+              brand: item.brand.brand_name || '',
+              brand_id: item.brand_id || null,
+              category: item.brand.category.category_name || '',
             };
           });
           this.resource.name = data.map((item) => item.partner_name || '');
-        })
-        .catch((error) => {
-          // eslint-disable-next-line
-          console.log(error);
-          const message =
-            error.response.data.message === ''
-              ? 'Something Wrong!!!'
-              : error.response.data.message;
-          this.errorMessage = message;
-          this.isError = true;
-        })
-        .finally(() => {
-          this.isLoading = false;
-        });
-    },
-    getCountry() {
-      axios
-        .get(`/country`)
-        .then((response) => {
-          const data = response.data.data;
-          this.resource.country = data.map((country) => {
-            return {
-              id: country.country_id,
-              name: country.country_name,
-            };
-          });
-        })
-        .catch((error) => {
-          // eslint-disable-next-line
-          console.log(error);
-          const message =
-            error.response.data.message === ''
-              ? 'Something Wrong!!!'
-              : error.response.data.message;
-          this.errorMessage = message;
-          this.isError = true;
-        });
-    },
-    getIndustryData() {
-      this.isLoading = true;
-      axios
-        .get(`/industries`)
-        .then((response) => {
-          const data = response.data.data;
-          //console.log(data);
-          this.resource.industry = data.map((item) => {
-            return {
-              id: item.industry_id || 1,
-              name: item.industry_name || '',
-            };
-          });
         })
         .catch((error) => {
           // eslint-disable-next-line
@@ -798,19 +715,15 @@ export default {
           this.isLoading = false;
         });
     },
-    getSubIndustryData() {
-      this.isLoading = true;
+    activeProduct(id) {
+      this.isSending = true;
       axios
-        .get(`/sub-industries`)
+        .get(`/products/toggle-active/${id}`)
         .then((response) => {
-          const data = response.data.data;
-          // console.log(data);
-          this.resource.subIndustry = data.map((item) => {
-            return {
-              id: item.sub_industry_id || 1,
-              name: item.sub_industry_name || '',
-            };
-          });
+          const data = response.data;
+          this.successMessage = data.message;
+          this.isSuccess = true;
+          this.getProductData();
         })
         .catch((error) => {
           // eslint-disable-next-line
@@ -823,58 +736,32 @@ export default {
           this.isError = true;
         })
         .finally(() => {
-          this.isLoading = false;
+          this.isSending = false;
         });
     },
-    activeProduct(id) {
-      console.log(id);
-      //this.isSending = true;
-      //axios
-      //  .get(`/partners/toggle-active/${id}`)
-      //  .then((response) => {
-      //    const data = response.data;
-      //    this.successMessage = data.message;
-      //    this.isSuccess = true;
-      //    this.getProductData();
-      //  })
-      //  .catch((error) => {
-      //    // eslint-disable-next-line
-      //    console.log(error);
-      //    const message =
-      //      error.response.data.message === ''
-      //        ? 'Something Wrong!!!'
-      //        : error.response.data.message;
-      //    this.errorMessage = message;
-      //    this.isError = true;
-      //  })
-      //  .finally(() => {
-      //    this.isSending = false;
-      //  });
-    },
     favoriteProduct(id) {
-      console.log(id);
-      //this.isSending = true;
-      //axios
-      //  .get(`/partners/toggle-favorite/${id}`)
-      //  .then((response) => {
-      //    const data = response.data;
-      //    this.successMessage = data.message;
-      //    this.isSuccess = true;
-      //    this.getProductData();
-      //  })
-      //  .catch((error) => {
-      //    // eslint-disable-next-line
-      //    console.log(error);
-      //    const message =
-      //      error.response.data.message === ''
-      //        ? 'Something Wrong!!!'
-      //        : error.response.data.message;
-      //    this.errorMessage = message;
-      //    this.isError = true;
-      //  })
-      //  .finally(() => {
-      //    this.isSending = false;
-      //  });
+      this.isSending = true;
+      axios
+        .get(`/products/toggle-favorite/${id}`)
+        .then((response) => {
+          const data = response.data;
+          this.successMessage = data.message;
+          this.isSuccess = true;
+          this.getProductData();
+        })
+        .catch((error) => {
+          // eslint-disable-next-line
+          console.log(error);
+          const message =
+            error.response.data.message === ''
+              ? 'Something Wrong!!!'
+              : error.response.data.message;
+          this.errorMessage = message;
+          this.isError = true;
+        })
+        .finally(() => {
+          this.isSending = false;
+        });
     },
   },
   components: { ImageUpload },

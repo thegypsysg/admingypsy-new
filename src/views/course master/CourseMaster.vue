@@ -609,7 +609,7 @@ export default {
             .map((item) => {
               return {
                 id: item.pl_id || 1,
-                name: `${item.town.town_name} ${item.city.city_name}` || '',
+                name: `${item.town.town_name} (${item.city.city_name})` || '',
               };
             });
         })
