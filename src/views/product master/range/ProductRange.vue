@@ -265,10 +265,36 @@
           Upload Image - Product</v-card-title
         >
         <v-card-text>
-          <image-upload
+          <!-- <Image-multi-video
             :image-file="imageFile"
             @update-image-file="updateImageFile"
             @delete-image-file="deleteImageFile"
+          /> -->
+          <handy-uploader
+            :documentAttachment.sync="imageFile"
+            :fileUploaderType="'table'"
+            :maxFileCount="4"
+            :badgeCounter="true"
+            :thumb="true"
+            :lang="'custom'"
+            :customLang="customLang"
+            :tableFixedHeader="true"
+            :tableHeight="400"
+            :tableThumbColumn="true"
+            :tableNameColumn="false"
+            :changeFileName="false"
+            :editPermission="false"
+          >
+          </handy-uploader>
+        </v-card-text>
+        <v-card-title class="upload-title px-6 py-4">
+          Upload Video - Product</v-card-title
+        >
+        <v-card-text>
+          <video-upload
+            :video-file="videoFile"
+            @update-video-file="updateVideoFile"
+            @delete-video-file="deleteVideoFile"
           />
         </v-card-text>
         <v-card-actions class="mt-16">
@@ -293,7 +319,8 @@
 </template>
 
 <script>
-import ImageUpload from '@/components/ImageUpload.vue';
+import VideoUpload from '@/components/VideoUpload.vue';
+import handyUploader from 'handy-uploader/src/components/handyUploader';
 import axios from '@/util/axios';
 import http from 'axios';
 import { setAuthHeader } from '@/util/axios';
@@ -301,6 +328,7 @@ import { setAuthHeader } from '@/util/axios';
 
 export default {
   name: 'ProductMaster',
+  components: { handyUploader, VideoUpload },
   data: () => ({
     // fileURL: 'https://admin1.the-gypsy.sg/img/app/',
     valid: false,
@@ -311,10 +339,43 @@ export default {
     isError: false,
     isDelete: false,
     isDeleteLoading: false,
+    customLang: {
+      custom: {
+        insertFile: 'Insert Image',
+        insertNewFile: 'Insert New Image',
+        add: 'Add',
+        delete: 'Delete',
+        edit: 'Edit',
+        deleteDialog: {
+          message: 'Are you sure you want to delete the image?',
+          cancel: 'cancel',
+        },
+        table: {
+          thumb: ' Thumb    ',
+          name: 'Image Name',
+          size: 'Image Size',
+          tags: 'Image tags',
+          action: {
+            action: 'Actions',
+            deleteTooltip: 'Delete',
+          },
+        },
+        size: {
+          kb: 'KB',
+          mb: 'MB',
+        },
+        maxFileSizeAlert: 'Max file Size is',
+        maxFileCountAlert: 'Max file Count is',
+        fileName: 'File Name',
+        fileDescription: 'File Description',
+        fileTags: 'File Tags',
+      },
+    },
     productIdToDelete: null,
     tableHeaders: [{ text: 'Gambar', value: 'image' }],
     imageFile: [],
-    logoFile: [],
+    videoFile: [],
+    video: null,
     productDataToImage: {
       id: 0,
       product: null,
@@ -381,6 +442,42 @@ export default {
       this.imageFile.push(newImageFile);
     },
     deleteImageFile() {
+      this.isSending = true;
+      axios
+        .delete(`/products/${this.productDataToImage.id}/image`)
+        .then((response) => {
+          const data = response.data;
+          this.successMessage = data.message;
+          this.isSuccess = true;
+          this.getProductData();
+        })
+        .catch((error) => {
+          // eslint-disable-next-line
+          console.log(error);
+          const message =
+            error.response.data.message === ''
+              ? 'Something Wrong!!!'
+              : error.response.data.message;
+          this.errorMessage = message;
+          this.isError = true;
+        })
+        .finally(() => {
+          this.isEdit = false;
+          this.isSending = false;
+          // this.productDataToImage = {
+          //   app_id: 1,
+          //   app_group_id: 1,
+          //   app_name: '',
+          //   app_description: '',
+          //   app_detail: '',
+          // };
+          this.imageFile = [];
+        });
+    },
+    updateVideoFile(newVideoFile) {
+      this.videoFile.push(newVideoFile);
+    },
+    deleteVideoFile() {
       this.isSending = true;
       axios
         .delete(`/products/${this.productDataToImage.id}/image`)
@@ -775,7 +872,6 @@ export default {
         });
     },
   },
-  components: { ImageUpload },
 };
 </script>
 
