@@ -2,41 +2,61 @@
 <!-- eslint-disable vue/no-deprecated-v-bind-sync -->
 <template>
   <v-container>
-    <div class="d-flex align-center ml-4 mb-4" style="gap: 30px">
-      <router-link class="text-decoration-none text-black" to="/product_master">
-        <h1>Product Master</h1>
-      </router-link>
-      <h1 style="font-size: 35px">|</h1>
+    <div class="d-flex ml-4 mb-6" style="gap: 50px">
       <router-link
-        class="text-decoration-none text-black"
-        to="/quantity_master"
+        style="color: #293fb8; font-size: 13px"
+        class="text-decoration-none"
+        to="/product_master"
       >
-        <h1>Quantity Master</h1>
+        <p>Back</p>
       </router-link>
+    </div>
+    <div class="d-flex align-start w-100" style="gap: 40px">
+      <div class="d-flex" style="width: 45%">
+        <h2 class="ml-4 mb-6 text-blue" style="min-width: 45px">
+          {{ itemData?.id || '' }} -
+        </h2>
+        <h2 class="mb-6 text-blue">
+          {{ itemData?.product || '' }}
+        </h2>
+      </div>
+      <div
+        v-if="itemData"
+        class="d-flex font-weight-bold pt-1"
+        style="width: 55%"
+      >
+        App:
+        <span class="text-red mr-4 ml-2">{{ itemData?.app || '' }}</span>
+        Brand:
+        <span class="text-red mr-4 ml-2">{{ itemData?.brand || '' }}</span>
+        Category:
+        <span class="text-red mr-4 ml-2">{{ itemData?.category || '' }}</span>
+      </div>
     </div>
     <v-form v-model="valid" @submit.prevent>
       <v-container>
         <v-row>
+          <v-col cols="12" md="3">
+            <v-autocomplete
+              density="compact"
+              placeholder="Type Quantity"
+              :items="resource.quantity"
+              item-title="name"
+              item-value="id"
+              v-model="input.quantity"
+              label="---Quantity---"
+              variant="outlined"
+            ></v-autocomplete>
+          </v-col>
           <v-col cols="12" md="4">
             <v-text-field
-              v-model="input.product"
-              label="Enter Product Name"
+              v-model="input.desc"
+              label="Additional Description"
+              placeholder="Type Additional Description"
               variant="outlined"
               density="compact"
               required
             ></v-text-field>
-          </v-col>
-          <v-col cols="12" md="4">
-            <v-autocomplete
-              density="compact"
-              label="---Select Brand---"
-              placeholder="Type Brand"
-              :items="resource.brand"
-              item-title="name"
-              item-value="id"
-              v-model="input.brand"
-              variant="outlined"
-            ></v-autocomplete>
           </v-col>
         </v-row>
         <v-row class="mt-n4">
@@ -85,17 +105,6 @@
     </v-form>
     <v-sheet class="py-6 px-4 mt-10" border rounded width="100%">
       <v-row>
-        <v-col cols="12" md="4">
-          <v-text-field
-            density="compact"
-            v-model="search"
-            label="Search"
-            variant="outlined"
-            hide-details
-          ></v-text-field>
-        </v-col>
-      </v-row>
-      <v-row>
         <v-col cols="12">
           <v-table class="country-table">
             <thead>
@@ -103,8 +112,8 @@
                 <th class="text-left">Id</th>
                 <th class="text-left">Image</th>
                 <th class="text-left">Product Name</th>
-                <th class="text-left">Active</th>
-                <th class="text-left">Favorite</th>
+                <th class="text-left">Size</th>
+                <th class="text-left">Percentage</th>
                 <th class="text-left">User</th>
                 <th class="text-left">Dated</th>
                 <th class="text-left">Actions</th>
@@ -132,41 +141,17 @@
                   <td>
                     {{ item.product }}
                   </td>
-                  <td>
-                    <v-btn-toggle
-                      style="
-                        font-size: 10px !important;
-                        font-weight: 200 !important;
-                        height: 22px !important;
-                        width: 54px !important;
-                      "
-                      class="d-flex align-center"
-                      v-model="item.isActive"
-                      rounded="5"
-                      @click="activeProduct(item.id)"
-                    >
-                      <v-btn size="27" :value="true"> Yes </v-btn>
-
-                      <v-btn size="27" :value="false"> No </v-btn>
-                    </v-btn-toggle>
-                  </td>
-                  <td>
-                    <v-btn-toggle
-                      style="
-                        font-size: 10px !important;
-                        font-weight: 200 !important;
-                        height: 22px !important;
-                        width: 54px !important;
-                      "
-                      class="d-flex align-center"
-                      v-model="item.isFavorite"
-                      rounded="5"
-                      @click="favoriteProduct(item.id)"
-                    >
-                      <v-btn size="27" :value="true"> Yes </v-btn>
-
-                      <v-btn size="27" :value="false"> No </v-btn>
-                    </v-btn-toggle>
+                  <td>{{ item.size }}</td>
+                  <!-- <td class="pt-2">
+                    {{ item.percentage }} %
+                  </td> -->
+                  <td class="pt-2">
+                    <v-text-field
+                      prepend-inner-icon="mdi-percent-outline"
+                      variant="outlined"
+                      density="compact"
+                      v-model="item.percentage"
+                    ></v-text-field>
                   </td>
                   <td>
                     {{ item.user }}
@@ -216,30 +201,9 @@
                     <div class="d-flex justify-start" style="gap: 20px">
                       <v-table class="text-left font-weight-bold">
                         <tr>
-                          <td style="width: 50px"></td>
-                          <td class="pr-6 pt-2 pb-4">
-                            <div
-                              class="d-flex justify-center"
-                              style="gap: 20px"
-                            >
-                              <router-link
-                                class="text-decoration-none"
-                                :to="`/product_range/${item.id}`"
-                              >
-                                <span>Add Range</span>
-                              </router-link>
-                            </div>
-                          </td>
-                          <td class="pr-10 pt-2 pb-4">
-                            App: <span class="text-red">{{ item.app }}</span>
-                          </td>
-                          <td class="pr-10 pt-2 pb-4">
-                            Brand:
-                            <span class="text-red">{{ item.brand }}</span>
-                          </td>
-                          <td class="pr-10 pt-2 pb-4">
-                            Category:
-                            <span class="text-red">{{ item.category }}</span>
+                          <td style="width: 170px"></td>
+                          <td class="pt-2 pb-4 text-grey">
+                            {{ item.desc }}
                           </td>
                         </tr>
                       </v-table>
@@ -362,13 +326,14 @@ export default {
     errorMessage: '',
     input: {
       id: 0,
-      product: null,
-      brand: null,
+      quantity: null,
+      desc: null,
     },
     resource: {
-      brand: [],
+      quantity: [],
     },
     search: '',
+    itemData: null,
     items: [],
     //itemsTry: [
     //  {
@@ -391,7 +356,8 @@ export default {
   },
   mounted() {
     this.getProductData();
-    this.getBrands();
+    this.getProductRange();
+    this.getQuantityData();
   },
   computed: {
     filteredItems() {
@@ -402,11 +368,11 @@ export default {
       return this.items.filter(
         (item) =>
           item.product.toLowerCase().includes(searchTextLower) ||
+          item.desc.toLowerCase().includes(searchTextLower) ||
+          item.size.toLowerCase().includes(searchTextLower) ||
+          item.percentage.toLowerCase().includes(searchTextLower) ||
           item.user.toLowerCase().includes(searchTextLower) ||
-          item.dated.toLowerCase().includes(searchTextLower) ||
-          item.app.toLowerCase().includes(searchTextLower) ||
-          item.brand.toLowerCase().includes(searchTextLower) ||
-          item.category.toLowerCase().includes(searchTextLower)
+          item.dated.toLowerCase().includes(searchTextLower)
       );
     },
   },
@@ -654,33 +620,23 @@ export default {
         });
     },
     getProductData() {
+      const id = this.$route.params.id;
       this.isLoading = true;
       axios
         .get(`/products`)
         .then((response) => {
           const data = response.data.data;
-          this.items = data.map((item) => {
-            return {
-              id: item.product_id || 1,
-              image: item.image || null,
-              product: item.product_name || '',
-              isActive:
-                item.active == 'N' ? false : item.active == 'Y' ? true : null,
-              isFavorite:
-                item.favorite == 'N'
-                  ? false
-                  : item.favorite == 'Y'
-                  ? true
-                  : null,
-              user: item.user.name || '',
-              dated: item.dated || '',
-              app: item.brand.category.app.app_name || '',
-              brand: item.brand.brand_name || '',
-              brand_id: item.brand_id || null,
-              category: item.brand.category.category_name || '',
-            };
-          });
-          this.resource.name = data.map((item) => item.partner_name || '');
+          this.itemData = data
+            .map((item) => {
+              return {
+                id: item.product_id || 1,
+                product: item.product_name || '',
+                app: item.brand.category.app.app_name || '',
+                brand: item.brand.brand_name || '',
+                category: item.brand.category.category_name || '',
+              };
+            })
+            .filter((i) => i.id == id)[0];
         })
         .catch((error) => {
           // eslint-disable-next-line
@@ -696,21 +652,65 @@ export default {
           this.isLoading = false;
         });
     },
-    getBrands() {
+    getProductRange() {
+      this.items = [
+        {
+          id: 1,
+          image: null,
+          product: 'Monkey Shoulder Blended Malt Scotch Whisky',
+          desc: 'Additional Description',
+          size: '700 ML',
+          percentage: 40,
+          user: 'Charlton',
+          dated: '27/8/2023',
+        },
+      ];
+      // const id = this.$route.params.id;
+      // this.isLoading = true;
+      // axios
+      //   .get(`/products`)
+      //   .then((response) => {
+      //     const data = response.data.data;
+      //     this.itemData = data
+      //       .map((item) => {
+      //         return {
+      //           id: item.product_id || 1,
+      //           product: item.product_name || '',
+      //           app: item.brand.category.app.app_name || '',
+      //           brand: item.brand.brand_name || '',
+      //           category: item.brand.category.category_name || '',
+      //         };
+      //       })
+      //       .filter((i) => i.id == id)[0];
+      //     console.log(this.itemData);
+      //   })
+      //   .catch((error) => {
+      //     // eslint-disable-next-line
+      //     console.log(error);
+      //     const message =
+      //       error.response.data.message === ''
+      //         ? 'Something Wrong!!!'
+      //         : error.response.data.message;
+      //     this.errorMessage = message;
+      //     this.isError = true;
+      //   })
+      //   .finally(() => {
+      //     this.isLoading = false;
+      //   });
+    },
+    getQuantityData() {
       this.isLoading = true;
       axios
-        .get(`/brands`)
+        .get(`/product-quantities`)
         .then((response) => {
           const data = response.data.data;
           // console.log(data);
-          this.resource.brand = data
-            .sort((a, b) => a.brand_id > b.brand_id)
-            .map((item) => {
-              return {
-                id: item.brand_id || 1,
-                name: item.brand_name || '',
-              };
-            });
+          this.resource.quantity = data.map((item) => {
+            return {
+              id: item.pq_id || 1,
+              name: item.quantity_name || '',
+            };
+          });
         })
         .catch((error) => {
           // eslint-disable-next-line
@@ -788,6 +788,7 @@ export default {
 .country-table-body {
   margin-top: 50px !important;
   margin-bottom: 50px !important;
+  color: #000 !important;
 }
 
 .country-table-body td {

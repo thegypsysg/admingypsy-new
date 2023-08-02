@@ -359,6 +359,20 @@ const routes = [
     },
   },
   {
+    name: 'product range',
+    path: '/product_range/:id',
+    component: () =>
+      import('@/views/product master/range/ProductRangeContainer.vue'),
+    beforeEnter: (to, from, next) => {
+      // Pengecekan status login sebelum masuk ke halaman beranda
+      if (localStorage.getItem('token') == null) {
+        next('/auth/login'); // Alihkan ke halaman login jika belum masuk
+      } else {
+        next(); // Lanjutkan ke halaman beranda jika sudah masuk
+      }
+    },
+  },
+  {
     name: 'quantity master',
     path: '/quantity_master',
     component: () =>
