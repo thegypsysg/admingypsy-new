@@ -113,7 +113,9 @@
                 <th class="text-left">Image</th>
                 <th class="text-left">Product Name</th>
                 <th class="text-left">Size</th>
-                <th class="text-left">Percentage</th>
+                <th v-if="itemData?.app_id == '3'" class="text-left">
+                  Percentage
+                </th>
                 <th class="text-left">User</th>
                 <th class="text-left">Dated</th>
                 <th class="text-left">Actions</th>
@@ -142,15 +144,12 @@
                     {{ item.product }}
                   </td>
                   <td>{{ item.size }}</td>
-                  <!-- <td class="pt-2">
-                    {{ item.percentage }} %
-                  </td> -->
-                  <td class="pt-2">
+                  <td v-if="itemData?.app_id == '3'" class="pt-2">
                     <v-text-field
                       prepend-inner-icon="mdi-percent-outline"
                       variant="outlined"
                       density="compact"
-                      v-model="item.percentage"
+                      v-model="item.percentageNum"
                     ></v-text-field>
                   </td>
                   <td>
@@ -251,7 +250,9 @@
     <v-dialog persistent width="500" v-model="isDelete">
       <v-card>
         <v-card-title>Confirmation</v-card-title>
-        <v-card-text> Are you sure want to delete this product? </v-card-text>
+        <v-card-text>
+          Are you sure want to delete this product range?
+        </v-card-text>
         <v-card-actions>
           <v-spacer></v-spacer>
           <v-btn color="error" text @click="cancelDelete">No</v-btn>
@@ -265,12 +266,12 @@
           Upload Image - Product</v-card-title
         >
         <v-card-text>
-          <!-- <Image-multi-video
+          <image-upload
             :image-file="imageFile"
             @update-image-file="updateImageFile"
             @delete-image-file="deleteImageFile"
-          /> -->
-          <handy-uploader
+          />
+          <!-- <handy-uploader
             :documentAttachment.sync="imageFile"
             :fileUploaderType="'table'"
             :maxFileCount="4"
@@ -285,7 +286,7 @@
             :changeFileName="false"
             :editPermission="false"
           >
-          </handy-uploader>
+          </handy-uploader> -->
         </v-card-text>
         <v-card-title class="upload-title px-6 py-4">
           Upload Video - Product</v-card-title
@@ -320,7 +321,8 @@
 
 <script>
 import VideoUpload from '@/components/VideoUpload.vue';
-import handyUploader from 'handy-uploader/src/components/handyUploader';
+import ImageUpload from '@/components/ImageUpload.vue';
+//import handyUploader from 'handy-uploader/src/components/handyUploader';
 import axios from '@/util/axios';
 import http from 'axios';
 import { setAuthHeader } from '@/util/axios';
@@ -328,7 +330,7 @@ import { setAuthHeader } from '@/util/axios';
 
 export default {
   name: 'ProductMaster',
-  components: { handyUploader, VideoUpload },
+  components: { VideoUpload, ImageUpload },
   data: () => ({
     // fileURL: 'https://admin1.the-gypsy.sg/img/app/',
     valid: false,
@@ -374,7 +376,9 @@ export default {
     productIdToDelete: null,
     tableHeaders: [{ text: 'Gambar', value: 'image' }],
     imageFile: [],
+    isNotSaveImage: false,
     videoFile: [],
+    isNotSaveVideo: false,
     video: null,
     productDataToImage: {
       id: 0,
@@ -441,15 +445,18 @@ export default {
     updateImageFile(newImageFile) {
       this.imageFile.push(newImageFile);
     },
+    updateVideoFile(newVideoFile) {
+      this.videoFile.push(newVideoFile);
+    },
     deleteImageFile() {
       this.isSending = true;
       axios
-        .delete(`/products/${this.productDataToImage.id}/image`)
+        .delete(`/product-ranges/${this.productDataToImage.id}/image_1/image`)
         .then((response) => {
           const data = response.data;
           this.successMessage = data.message;
           this.isSuccess = true;
-          this.getProductData();
+          this.getProductRange();
         })
         .catch((error) => {
           // eslint-disable-next-line
@@ -464,28 +471,18 @@ export default {
         .finally(() => {
           this.isEdit = false;
           this.isSending = false;
-          // this.productDataToImage = {
-          //   app_id: 1,
-          //   app_group_id: 1,
-          //   app_name: '',
-          //   app_description: '',
-          //   app_detail: '',
-          // };
           this.imageFile = [];
         });
-    },
-    updateVideoFile(newVideoFile) {
-      this.videoFile.push(newVideoFile);
     },
     deleteVideoFile() {
       this.isSending = true;
       axios
-        .delete(`/products/${this.productDataToImage.id}/image`)
+        .delete(`/product-ranges/${this.productDataToImage.id}/video`)
         .then((response) => {
           const data = response.data;
           this.successMessage = data.message;
           this.isSuccess = true;
-          this.getProductData();
+          this.getProductRange();
         })
         .catch((error) => {
           // eslint-disable-next-line
@@ -500,47 +497,153 @@ export default {
         .finally(() => {
           this.isEdit = false;
           this.isSending = false;
-          // this.productDataToImage = {
-          //   app_id: 1,
-          //   app_group_id: 1,
-          //   app_name: '',
-          //   app_description: '',
-          //   app_detail: '',
-          // };
-          this.imageFile = [];
+          this.videoFile = [];
         });
     },
     openImage(item) {
       this.isOpenImage = true;
       this.productDataToImage = {
         id: item.id,
-        product: item.product,
-        brand: item.brand_id,
+        quantity: item.pq_id,
+        desc: item.desc,
       };
-      this.imageFile =
-        item.image != null
-          ? [
-              {
-                file: {
-                  name: item.image,
-                  size: '',
-                  base64: '',
-                  format: '',
-                },
-              },
-            ]
-          : [];
+
+      if (item.image != null) {
+        this.isNotSaveImage = true;
+        this.imageFile = [
+          {
+            file: {
+              name: item.image,
+              size: '',
+              base64: '',
+              format: '',
+            },
+          },
+        ];
+      } else {
+        this.imageFile = [];
+      }
+
+      if (item.video != null) {
+        this.isNotSaveVideo = true;
+        this.videoFile = [
+          {
+            file: {
+              name: item.video,
+              size: '',
+              base64: '',
+              format: '',
+            },
+          },
+        ];
+      } else {
+        this.videoFile = [];
+      }
+
+      //const itemData = {
+      //  image_1: item.image,
+      //  image_2: item.image2,
+      //  image_3: item.image3,
+      //  image_4: item.image4,
+      //};
+      //
+      //if (item.image != null) {
+      //  this.imageFile = [];
+      //} else {
+      //  for (const key in itemData) {
+      //    const imageValue = itemData[key];
+      //
+      //    if (imageValue !== null) {
+      //      this.imageFile.push({
+      //        file: {
+      //          name: imageValue,
+      //          size: '',
+      //          base64: '',
+      //          format: '',
+      //        },
+      //      });
+      //    }
+      //  }
+      //}
     },
     closeImage() {
       this.isOpenImage = false;
       this.imageFile = [];
+      this.videoFile = [];
       this.productDataToImage = {
         id: 0,
-        product: null,
-        brand: null,
+        quantity: null,
+        desc: null,
       };
+      this.isNotSaveImage = false;
+      this.isNotSaveVideo = false;
     },
     saveImage() {
+      this.isSending = true;
+      const payload = {
+        range_id: this.productDataToImage.id,
+        product_id: this.itemData.id,
+        pq_id: this.productDataToImage.quantity,
+        description: this.productDataToImage.desc,
+      };
+      if (this.imageFile.length > 0 && this.isNotSaveImage == false) {
+        payload.image_1 = this.imageFile[0];
+      }
+
+      if (this.imageFile.length > 1 && this.imageFile[1].file.name !== null) {
+        payload.image_2 = this.imageFile[1];
+      }
+
+      if (this.imageFile.length > 2 && this.imageFile[2].file.name !== null) {
+        payload.image_3 = this.imageFile[2];
+      }
+
+      if (this.imageFile.length > 3 && this.imageFile[3].file.name !== null) {
+        payload.image_4 = this.imageFile[3];
+      }
+
+      if (this.videoFile.length > 0 && this.isNotSaveVideo == false) {
+        payload.video_1 = this.videoFile[0];
+      }
+
+      http
+        .post(`/product-ranges/update`, payload, {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+        })
+        .then((response) => {
+          const data = response.data;
+          this.successMessage = data.message;
+          this.isSuccess = true;
+          this.getProductRange();
+        })
+        .catch((error) => {
+          // eslint-disable-next-line
+          console.log(error);
+          const message =
+            error.response.data.message === ''
+              ? 'Something Wrong!!!'
+              : error.response.data.message;
+          this.errorMessage = message;
+          this.isError = true;
+        })
+        .finally(() => {
+          this.isEdit = false;
+          this.isSending = false;
+          this.productDataToImage = {
+            id: 0,
+            quantity: null,
+            desc: null,
+          };
+          this.isNotSaveImage = false;
+          this.isNotSaveVideo = false;
+          this.isOpenImage = false;
+          this.imageFile = [];
+          this.videoFile = [];
+        });
+    },
+    savePercentage() {
       this.isSending = true;
       const payload = {
         product_id: this.productDataToImage.id,
@@ -587,54 +690,46 @@ export default {
       this.isEdit = true;
       this.input = {
         id: product.id,
-        product: product.product,
-        brand: product.brand_id,
+        quantity: product.pq_id,
+        desc: product.desc,
       };
     },
     cancelEdit() {
       this.isEdit = false;
       this.input = {
         id: 0,
-        product: null,
-        brand: null,
+        quantity: null,
+        desc: null,
       };
     },
     saveEdit() {
       if (this.valid) {
         this.isSending = true;
         const payload = {
-          product_id: this.input.id,
-          product_name: this.input.product,
-          brand_id: this.input.brand,
+          range_id: this.input.id,
+          product_id: this.itemData.id,
+          pq_id: this.input.quantity,
+          description: this.input.desc,
         };
         axios
-          .post(`/products/update`, payload)
+          .post(`/product-ranges/update`, payload)
           .then((response) => {
             const data = response.data;
             this.successMessage = data.message;
             this.isSuccess = true;
-            this.getProductData();
-            this.input = {
-              id: 0,
-              product: null,
-              brand: null,
-            };
+            this.getProductRange();
+            this.input = { id: 0, quantity: null, desc: null };
           })
           .catch((error) => {
             // eslint-disable-next-line
             console.log(error);
-            const message = error.response.data.product_name
-              ? error.response.data.product_name[0]
-              : error.response.data.message
-              ? error.response.data.message
-              : 'Something Wrong!!!';
+            const message =
+              error.response.data.error === ''
+                ? 'Something Wrong!!!'
+                : error.response.data.error;
             this.errorMessage = message;
             this.isError = true;
-            this.input = {
-              id: 0,
-              product: null,
-              brand: null,
-            };
+            this.input = { id: 0, quantity: null, desc: null };
           })
           .finally(() => {
             this.isEdit = false;
@@ -646,30 +741,26 @@ export default {
       if (this.valid) {
         this.isSending = true;
         const payload = {
-          product_name: this.input.product,
-          brand_id: this.input.brand,
+          product_id: this.itemData.id,
+          pq_id: this.input.quantity,
+          description: this.input.desc,
         };
         axios
-          .post(`/products`, payload)
+          .post(`/product-ranges`, payload)
           .then((response) => {
             const data = response.data;
             this.successMessage = data.message;
             this.isSuccess = true;
-            this.getProductData();
-            this.input = {
-              id: 0,
-              product: null,
-              brand: null,
-            };
+            this.getProductRange();
+            this.input = { id: 0, quantity: null, desc: null };
           })
           .catch((error) => {
             // eslint-disable-next-line
             console.log(error);
-            const message = error.response.data.product_name
-              ? error.response.data.product_name[0]
-              : error.response.data.message
-              ? error.response.data.message
-              : 'Something Wrong!!!';
+            const message =
+              error.response.data.error === ''
+                ? 'Something Wrong!!!'
+                : error.response.data.error;
             this.errorMessage = message;
             this.isError = true;
           })
@@ -693,12 +784,12 @@ export default {
     deleteProduct() {
       this.isDeleteLoading = true;
       axios
-        .delete(`/products/${this.productIdToDelete}`)
+        .delete(`/product-ranges/${this.productIdToDelete}`)
         .then((response) => {
           const data = response.data;
           this.successMessage = data.message;
           this.isSuccess = true;
-          this.getProductData();
+          this.getProductRange();
         })
         .catch((error) => {
           // eslint-disable-next-line
@@ -729,6 +820,7 @@ export default {
                 id: item.product_id || 1,
                 product: item.product_name || '',
                 app: item.brand.category.app.app_name || '',
+                app_id: item.brand.category.app_id || null,
                 brand: item.brand.brand_name || '',
                 category: item.brand.category.category_name || '',
               };
@@ -750,50 +842,47 @@ export default {
         });
     },
     getProductRange() {
-      this.items = [
-        {
-          id: 1,
-          image: null,
-          product: 'Monkey Shoulder Blended Malt Scotch Whisky',
-          desc: 'Additional Description',
-          size: '700 ML',
-          percentage: 40,
-          user: 'Charlton',
-          dated: '27/8/2023',
-        },
-      ];
-      // const id = this.$route.params.id;
-      // this.isLoading = true;
-      // axios
-      //   .get(`/products`)
-      //   .then((response) => {
-      //     const data = response.data.data;
-      //     this.itemData = data
-      //       .map((item) => {
-      //         return {
-      //           id: item.product_id || 1,
-      //           product: item.product_name || '',
-      //           app: item.brand.category.app.app_name || '',
-      //           brand: item.brand.brand_name || '',
-      //           category: item.brand.category.category_name || '',
-      //         };
-      //       })
-      //       .filter((i) => i.id == id)[0];
-      //     console.log(this.itemData);
-      //   })
-      //   .catch((error) => {
-      //     // eslint-disable-next-line
-      //     console.log(error);
-      //     const message =
-      //       error.response.data.message === ''
-      //         ? 'Something Wrong!!!'
-      //         : error.response.data.message;
-      //     this.errorMessage = message;
-      //     this.isError = true;
-      //   })
-      //   .finally(() => {
-      //     this.isLoading = false;
-      //   });
+      const id = this.$route.params.id;
+      this.isLoading = true;
+      axios
+        .get(`/product-ranges/${id}/ranges`)
+        .then((response) => {
+          const data = response.data.data;
+          this.items = data.map((item) => {
+            return {
+              id: item.range_id || 1,
+              product_id: item.product_id || null,
+              pq_id: item.pq_id || null,
+              image: item.image_1 || null,
+              image2: item.image_2 || null,
+              image3: item.image_3 || null,
+              image4: item.image_4 || null,
+              video: item.video_1 || null,
+              product: item.product_name || '',
+              desc: item.description || '',
+              size: item.quantity_name || '',
+              percentage: item.alcohol_percentage || '',
+              percentageNum: item.alcohol_percentage
+                ? item.alcohol_percentage.split('%')[0]
+                : '',
+              user: item.name || '',
+              dated: item.dated || '',
+            };
+          });
+        })
+        .catch((error) => {
+          // eslint-disable-next-line
+          console.log(error);
+          const message =
+            error.response.data.message === ''
+              ? 'Something Wrong!!!'
+              : error.response.data.message;
+          this.errorMessage = message;
+          this.isError = true;
+        })
+        .finally(() => {
+          this.isLoading = false;
+        });
     },
     getQuantityData() {
       this.isLoading = true;
@@ -821,54 +910,6 @@ export default {
         })
         .finally(() => {
           this.isLoading = false;
-        });
-    },
-    activeProduct(id) {
-      this.isSending = true;
-      axios
-        .get(`/products/toggle-active/${id}`)
-        .then((response) => {
-          const data = response.data;
-          this.successMessage = data.message;
-          this.isSuccess = true;
-          this.getProductData();
-        })
-        .catch((error) => {
-          // eslint-disable-next-line
-          console.log(error);
-          const message =
-            error.response.data.message === ''
-              ? 'Something Wrong!!!'
-              : error.response.data.message;
-          this.errorMessage = message;
-          this.isError = true;
-        })
-        .finally(() => {
-          this.isSending = false;
-        });
-    },
-    favoriteProduct(id) {
-      this.isSending = true;
-      axios
-        .get(`/products/toggle-favorite/${id}`)
-        .then((response) => {
-          const data = response.data;
-          this.successMessage = data.message;
-          this.isSuccess = true;
-          this.getProductData();
-        })
-        .catch((error) => {
-          // eslint-disable-next-line
-          console.log(error);
-          const message =
-            error.response.data.message === ''
-              ? 'Something Wrong!!!'
-              : error.response.data.message;
-          this.errorMessage = message;
-          this.isError = true;
-        })
-        .finally(() => {
-          this.isSending = false;
         });
     },
   },

@@ -11,13 +11,11 @@
           <span class="text-white">INSERT VIDEO</span>
         </v-btn>
         <v-row>
-          <v-col cols="10">
+          <v-col cols="12">
             <v-table>
               <thead>
                 <tr>
-                  <th class="text-left text-black font-weight-bold">
-                    Video Name
-                  </th>
+                  <th class="text-left text-black font-weight-bold">Thumb</th>
                   <th class="text-left text-black font-weight-bold">
                     Video Size
                   </th>
@@ -29,7 +27,124 @@
                   v-for="(attachment, index) in tempAttachment"
                   :key="`attachment-${index}`"
                 >
-                  <td>{{ attachment.file.name }}</td>
+                  <td>
+                    <v-icon
+                      v-if="
+                        attachment.file.name.split('.').pop().toLowerCase() ===
+                        'pdf'
+                      "
+                      style="margin-left: 10px"
+                      size="50"
+                      file-word-outline
+                      color="red darken-1"
+                      >mdi-file-pdf-outline</v-icon
+                    >
+                    <v-icon
+                      v-else-if="
+                        attachment.file.name.split('.').pop().toLowerCase() ===
+                          'doc' ||
+                        attachment.file.name.split('.').pop().toLowerCase() ===
+                          'docx' ||
+                        attachment.file.name.split('.').pop().toLowerCase() ===
+                          'odt'
+                      "
+                      style="margin-left: 10px"
+                      size="50"
+                      file-word-outline
+                      color="blue darken-1"
+                      >mdi-file-word-outline</v-icon
+                    >
+                    <v-icon
+                      v-else-if="
+                        attachment.file.name.split('.').pop().toLowerCase() ===
+                          'xls' ||
+                        attachment.file.name.split('.').pop().toLowerCase() ===
+                          'xlsx'
+                      "
+                      style="margin-left: 10px"
+                      size="50"
+                      file-word-outline
+                      color="teal darken-1"
+                      >mdi-file-excel-outline</v-icon
+                    >
+                    <v-icon
+                      v-else-if="
+                        attachment.file.name.split('.').pop().toLowerCase() ===
+                          'pptx' ||
+                        attachment.file.name.split('.').pop().toLowerCase() ===
+                          'pptm' ||
+                        attachment.file.name.split('.').pop().toLowerCase() ===
+                          'ppt'
+                      "
+                      style="margin-left: 10px"
+                      size="50"
+                      file-word-outline
+                      color="orange darken-3"
+                      >mdi-file-powerpoint-outline</v-icon
+                    >
+                    <v-icon
+                      v-else-if="
+                        attachment.file.name.split('.').pop().toLowerCase() ===
+                          'mp4' ||
+                        attachment.file.name.split('.').pop().toLowerCase() ===
+                          'mov' ||
+                        attachment.file.name.split('.').pop().toLowerCase() ===
+                          'flv' ||
+                        attachment.file.name.split('.').pop().toLowerCase() ===
+                          'wmv' ||
+                        attachment.file.name.split('.').pop().toLowerCase() ===
+                          'avi'
+                      "
+                      style="margin-left: 10px"
+                      size="50"
+                      file-word-outline
+                      color="red lighten-1"
+                      >mdi-file-video-outline</v-icon
+                    >
+                    <v-icon
+                      v-else-if="
+                        attachment.file.name.split('.').pop().toLowerCase() ===
+                        'dwg'
+                      "
+                      style="margin-left: 10px"
+                      size="50"
+                      file-word-outline
+                      color="indigo lighten-2"
+                      >mdi-file-cad</v-icon
+                    >
+                    <v-icon
+                      v-else-if="
+                        attachment.file.name.split('.').pop().toLowerCase() ===
+                          'zip' ||
+                        attachment.file.name.split('.').pop().toLowerCase() ===
+                          'rar' ||
+                        attachment.file.name.split('.').pop().toLowerCase() ===
+                          '7-zip'
+                      "
+                      size="120"
+                      file-word-outline
+                      color="lime lighten-1"
+                      >mdi-folder-zip-outline</v-icon
+                    >
+                    <v-icon
+                      v-else-if="
+                        attachment.file.name.split('.').pop().toLowerCase() ===
+                        'txt'
+                      "
+                      style="margin-left: 10px"
+                      size="50"
+                      file-word-outline
+                      color="light-green darken-3"
+                      >mdi-script-text-outline</v-icon
+                    >
+                    <v-icon
+                      v-else
+                      x-large
+                      file-word-outline
+                      color="indigo lighten-1"
+                      >mdi-file-question-outline</v-icon
+                    >
+                  </td>
                   <td>
                     <v-card-subtitle
                       v-if="
