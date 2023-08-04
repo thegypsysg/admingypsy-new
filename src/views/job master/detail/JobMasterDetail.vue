@@ -367,7 +367,7 @@ export default {
           pl_id: this.input.jobLocation,
           status: this.input.status,
           show_in_country: this.input.showCountry,
-          foreigners: this.input.isForeigners,
+          // foreigners: this.input.isForeigners,
           // country: this.input.country,
           // postedOn: this.input.postedOn,
           // days: this.input.days,
@@ -442,7 +442,7 @@ export default {
                 ? false
                 : data.foreigners == 'Y'
                 ? true
-                : null,
+                : false,
           };
           // console.log(this.input);
           this.getJobLocations();
@@ -560,29 +560,28 @@ export default {
         });
     },
     foreignersJob(id) {
-      console.log(id);
       // this.isSending = true;
-      // axios
-      //   .get(`/app/active/${id}`)
-      //   .then((response) => {
-      //     const data = response.data;
-      //     this.successMessage = data.message;
-      //     this.isSuccess = true;
-      //     this.getJobData();
-      //   })
-      //   .catch((error) => {
-      //     // eslint-disable-next-line
-      //     console.log(error);
-      //     const message =
-      //       error.response.data.message === ''
-      //         ? 'Something Wrong!!!'
-      //         : error.response.data.message;
-      //     this.errorMessage = message;
-      //     this.isError = true;
-      //   })
-      //   .finally(() => {
-      //     this.isSending = false;
-      //   });
+      axios
+        .get(`/jobs/toggle-foreigners/${id}`)
+        .then((response) => {
+          const data = response.data;
+          this.successMessage = data.message;
+          this.isSuccess = true;
+          this.getJobData();
+        })
+        .catch((error) => {
+          // eslint-disable-next-line
+          console.log(error);
+          const message =
+            error.response.data.message === ''
+              ? 'Something Wrong!!!'
+              : error.response.data.message;
+          this.errorMessage = message;
+          this.isError = true;
+        });
+      // .finally(() => {
+      //   this.isSending = false;
+      // });
     },
   },
 };
