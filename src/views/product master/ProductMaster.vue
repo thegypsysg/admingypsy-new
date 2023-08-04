@@ -38,8 +38,6 @@
               variant="outlined"
             ></v-autocomplete>
           </v-col>
-        </v-row>
-        <v-row class="mt-n4">
           <v-col cols="12" md="2">
             <v-btn
               :prepend-icon="
@@ -79,6 +77,25 @@
 
               Cancel
             </v-btn>
+          </v-col>
+        </v-row>
+        <v-row class="mt-n4">
+          <v-col cols="12" md="4">
+            <v-textarea
+              v-model="input.desc"
+              label="Additional Description"
+              rows="3"
+              variant="outlined"
+              required
+            ></v-textarea>
+          </v-col>
+          <v-col cols="12" md="2">
+            <v-text-field
+              prepend-inner-icon="mdi-percent-outline"
+              variant="outlined"
+              density="compact"
+              v-model="input.percentage"
+            ></v-text-field>
           </v-col>
         </v-row>
       </v-container>
@@ -130,7 +147,12 @@
                     ></v-img>
                   </td>
                   <td>
-                    {{ item.product }}
+                    <div>
+                      <p>{{ item.product }}</p>
+                      <p class="text-deep-purple-darken-4 font-weight-bold">
+                        {{ item.desc }}
+                      </p>
+                    </div>
                   </td>
                   <td>
                     <v-btn-toggle
@@ -208,9 +230,10 @@
 
                 <tr>
                   <td
-                    style="
-                      border-bottom: 1px solid rgb(188, 188, 188) !important;
-                    "
+                    :class="{
+                      'not-border': item.quantity.length > 0,
+                      'has-border': item.quantity.length == 0,
+                    }"
                     colspan="8"
                   >
                     <div class="d-flex justify-start" style="gap: 20px">
@@ -240,6 +263,42 @@
                           <td class="pr-10 pt-2 pb-4">
                             Category:
                             <span class="text-red">{{ item.category }}</span>
+                          </td>
+                          <td class="pr-10 pt-2 pb-4">
+                            Made In:
+                            <span class="text-red">{{ item.madeIn }}</span>
+                          </td>
+                          <td class="pr-10 pt-2 pb-4">
+                            Alcohol %:
+                            <span class="text-red">{{ item.percentage }}</span>
+                          </td>
+                        </tr>
+                      </v-table>
+                    </div>
+                  </td>
+                </tr>
+                <tr v-if="item.quantity.length > 0" class="mt-n4">
+                  <td
+                    :class="{
+                      'has-border': item.quantity.length > 0,
+                      'not-border': item.quantity.length == 0,
+                    }"
+                    colspan="8"
+                  >
+                    <div class="d-flex justify-start" style="gap: 20px">
+                      <v-table class="text-left font-weight-bold">
+                        <tr>
+                          <td style="width: 130px"></td>
+                          <td class="pr-10 pb-4">
+                            <div>
+                              <p
+                                v-for="(q, index) in item.quantity"
+                                :key="index"
+                                class="text-deep-purple-darken-4 font-weight-bold"
+                              >
+                                {{ `${item.product} ${q}` }}
+                              </p>
+                            </div>
                           </td>
                         </tr>
                       </v-table>
@@ -274,7 +333,6 @@
         </v-btn>
       </template>
     </v-snackbar>
-
     <v-snackbar location="top" color="red" v-model="isError" :timeout="3000">
       {{ errorMessage }}
 
@@ -355,6 +413,8 @@ export default {
       id: 0,
       product: null,
       brand: null,
+      desc: null,
+      percentage: null,
     },
     isOpenImage: false,
     isOpenLogo: false,
@@ -364,6 +424,8 @@ export default {
       id: 0,
       product: null,
       brand: null,
+      desc: null,
+      percentage: null,
     },
     resource: {
       brand: [],
@@ -453,6 +515,8 @@ export default {
         id: item.id,
         product: item.product,
         brand: item.brand_id,
+        desc: item.desc,
+        percentage: item.percentage,
       };
       this.imageFile =
         item.image != null
@@ -475,6 +539,8 @@ export default {
         id: 0,
         product: null,
         brand: null,
+        desc: null,
+        percentage: null,
       };
     },
     saveImage() {
@@ -483,6 +549,8 @@ export default {
         product_id: this.productDataToImage.id,
         product_name: this.productDataToImage.product,
         brand_id: this.productDataToImage.brand,
+        additional_description: this.productDataToImage.desc,
+        percentage: this.productDataToImage.percentage,
         image: this.imageFile[0],
       };
 
@@ -515,6 +583,8 @@ export default {
             id: 0,
             product: null,
             brand: null,
+            desc: null,
+            percentage: null,
           };
           this.isOpenImage = false;
           this.imageFile = [];
@@ -526,6 +596,8 @@ export default {
         id: product.id,
         product: product.product,
         brand: product.brand_id,
+        desc: product.desc,
+        percentage: product.percentage,
       };
     },
     cancelEdit() {
@@ -534,6 +606,8 @@ export default {
         id: 0,
         product: null,
         brand: null,
+        desc: null,
+        percentage: null,
       };
     },
     saveEdit() {
@@ -543,6 +617,8 @@ export default {
           product_id: this.input.id,
           product_name: this.input.product,
           brand_id: this.input.brand,
+          additional_description: this.input.desc,
+          percentage: this.input.percentage,
         };
         axios
           .post(`/products/update`, payload)
@@ -555,6 +631,8 @@ export default {
               id: 0,
               product: null,
               brand: null,
+              desc: null,
+              percentage: null,
             };
           })
           .catch((error) => {
@@ -571,6 +649,8 @@ export default {
               id: 0,
               product: null,
               brand: null,
+              desc: null,
+              percentage: null,
             };
           })
           .finally(() => {
@@ -585,6 +665,8 @@ export default {
         const payload = {
           product_name: this.input.product,
           brand_id: this.input.brand,
+          additional_description: this.input.desc,
+          percentage: this.input.percentage,
         };
         axios
           .post(`/products`, payload)
@@ -597,6 +679,8 @@ export default {
               id: 0,
               product: null,
               brand: null,
+              desc: null,
+              percentage: null,
             };
           })
           .catch((error) => {
@@ -678,6 +762,10 @@ export default {
               brand: item.brand.brand_name || '',
               brand_id: item.brand_id || null,
               category: item.brand.category.category_name || '',
+              desc: item.additional_description || '',
+              percentage: item.percentage || '',
+              madeIn: item.brand.country?.country_name || '',
+              quantity: item.quantity.map((i) => i.quantity_name),
             };
           });
           this.resource.name = data.map((item) => item.partner_name || '');
@@ -822,5 +910,13 @@ export default {
   background-size: 400% 400%;
   animation: skeleton 1.6s ease infinite;
   margin: 0 auto;
+}
+
+.has-border {
+  border-bottom: 1px solid rgb(188, 188, 188) !important;
+}
+
+.not-border {
+  border-bottom: none !important;
 }
 </style>
