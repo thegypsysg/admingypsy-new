@@ -266,7 +266,7 @@
           Upload Image - Product</v-card-title
         >
         <v-card-text>
-          <image-upload
+          <image-multi-upload
             :image-file="imageFile"
             @update-image-file="updateImageFile"
             @delete-image-file="deleteImageFile"
@@ -321,7 +321,7 @@
 
 <script>
 import VideoUpload from '@/components/VideoUpload.vue';
-import ImageUpload from '@/components/ImageUpload.vue';
+import ImageMultiUpload from '@/components/ImageMultiUpload.vue';
 //import handyUploader from 'handy-uploader/src/components/handyUploader';
 import axios from '@/util/axios';
 import http from 'axios';
@@ -330,7 +330,7 @@ import { setAuthHeader } from '@/util/axios';
 
 export default {
   name: 'ProductMaster',
-  components: { VideoUpload, ImageUpload },
+  components: { VideoUpload, ImageMultiUpload },
   data: () => ({
     // fileURL: 'https://admin1.the-gypsy.sg/img/app/',
     valid: false,
@@ -376,7 +376,7 @@ export default {
     productIdToDelete: null,
     tableHeaders: [{ text: 'Gambar', value: 'image' }],
     imageFile: [],
-    isNotSaveImage: false,
+    isNotSaveImage: [false, false, false, false],
     videoFile: [],
     isNotSaveVideo: false,
     video: null,
@@ -443,15 +443,29 @@ export default {
   },
   methods: {
     updateImageFile(newImageFile) {
-      this.imageFile.push(newImageFile);
+      const newImage = newImageFile;
+      this.imageFile = [];
+      this.imageFile = newImage;
     },
     updateVideoFile(newVideoFile) {
       this.videoFile.push(newVideoFile);
     },
-    deleteImageFile() {
+    deleteImageFile(index) {
+      let indexDelete = '';
+      if (index == 0) {
+        indexDelete = 'image_1';
+      } else if (index == 1) {
+        indexDelete = 'image_2';
+      } else if (index == 2) {
+        indexDelete = 'image_3';
+      } else if (index == 3) {
+        indexDelete = 'image_4';
+      }
       this.isSending = true;
       axios
-        .delete(`/product-ranges/${this.productDataToImage.id}/image_1/image`)
+        .delete(
+          `/product-ranges/${this.productDataToImage.id}/${indexDelete}/image`
+        )
         .then((response) => {
           const data = response.data;
           this.successMessage = data.message;
@@ -508,22 +522,6 @@ export default {
         desc: item.desc,
       };
 
-      if (item.image != null) {
-        this.isNotSaveImage = true;
-        this.imageFile = [
-          {
-            file: {
-              name: item.image,
-              size: '',
-              base64: '',
-              format: '',
-            },
-          },
-        ];
-      } else {
-        this.imageFile = [];
-      }
-
       if (item.video != null) {
         this.isNotSaveVideo = true;
         this.videoFile = [
@@ -540,31 +538,39 @@ export default {
         this.videoFile = [];
       }
 
-      //const itemData = {
-      //  image_1: item.image,
-      //  image_2: item.image2,
-      //  image_3: item.image3,
-      //  image_4: item.image4,
-      //};
-      //
-      //if (item.image != null) {
-      //  this.imageFile = [];
-      //} else {
-      //  for (const key in itemData) {
-      //    const imageValue = itemData[key];
-      //
-      //    if (imageValue !== null) {
-      //      this.imageFile.push({
-      //        file: {
-      //          name: imageValue,
-      //          size: '',
-      //          base64: '',
-      //          format: '',
-      //        },
-      //      });
-      //    }
-      //  }
-      //}
+      const itemData = {
+        image_1: item.image,
+        image_2: item.image2,
+        image_3: item.image3,
+        image_4: item.image4,
+      };
+
+      const itemKey = [];
+
+      if (itemData.image_1 == null) {
+        this.imageFile = [];
+      } else {
+        for (const key in itemData) {
+          const imageValue = itemData[key];
+
+          if (imageValue !== null) {
+            itemKey.push(key);
+            this.imageFile.push({
+              file: {
+                name: imageValue,
+                size: '',
+                base64: '',
+                format: '',
+              },
+            });
+          }
+        }
+      }
+      for (let i = 0; i <= this.isNotSaveImage.length; i++) {
+        if (itemKey[i]) {
+          this.isNotSaveImage[i] = true;
+        }
+      }
     },
     closeImage() {
       this.isOpenImage = false;
@@ -575,7 +581,7 @@ export default {
         quantity: null,
         desc: null,
       };
-      this.isNotSaveImage = false;
+      this.isNotSaveImage = [false, false, false, false];
       this.isNotSaveVideo = false;
     },
     saveImage() {
@@ -586,19 +592,19 @@ export default {
         pq_id: this.productDataToImage.quantity,
         description: this.productDataToImage.desc,
       };
-      if (this.imageFile.length > 0 && this.isNotSaveImage == false) {
+      if (this.imageFile.length > 0 && this.isNotSaveImage[0] == false) {
         payload.image_1 = this.imageFile[0];
       }
 
-      if (this.imageFile.length > 1 && this.imageFile[1].file.name !== null) {
+      if (this.imageFile.length > 1 && this.isNotSaveImage[1] == false) {
         payload.image_2 = this.imageFile[1];
       }
 
-      if (this.imageFile.length > 2 && this.imageFile[2].file.name !== null) {
+      if (this.imageFile.length > 2 && this.isNotSaveImage[2] == false) {
         payload.image_3 = this.imageFile[2];
       }
 
-      if (this.imageFile.length > 3 && this.imageFile[3].file.name !== null) {
+      if (this.imageFile.length > 3 && this.isNotSaveImage[3] == false) {
         payload.image_4 = this.imageFile[3];
       }
 
@@ -636,7 +642,7 @@ export default {
             quantity: null,
             desc: null,
           };
-          this.isNotSaveImage = false;
+          this.isNotSaveImage = [false, false, false, false];
           this.isNotSaveVideo = false;
           this.isOpenImage = false;
           this.imageFile = [];
