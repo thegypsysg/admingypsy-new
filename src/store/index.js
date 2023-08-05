@@ -9,6 +9,14 @@ export default createStore({
         subnav: [
           { title: 'Users', path: '/users' },
           {
+            title: 'Gypsy Registrations',
+            open: false,
+            subnav: [
+              { title: 'Invite Users', path: '/invite_users' },
+              { title: 'Registered Users', path: '' },
+            ],
+          },
+          {
             title: 'App Master',
             open: false,
             subnav: [

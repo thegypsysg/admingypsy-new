@@ -144,14 +144,17 @@
                     {{ item.product }}
                   </td>
                   <td>{{ item.size }}</td>
-                  <td v-if="itemData?.app_id == '3'" class="pt-2">
+                  <td v-if="itemData?.app_id == '3'">
+                    {{ item.percentage }}
+                  </td>
+                  <!-- <td v-if="itemData?.app_id == '3'" class="pt-2">
                     <v-text-field
                       prepend-inner-icon="mdi-percent-outline"
                       variant="outlined"
                       density="compact"
                       v-model="item.percentageNum"
                     ></v-text-field>
-                  </td>
+                  </td> -->
                   <td>
                     {{ item.user }}
                   </td>
