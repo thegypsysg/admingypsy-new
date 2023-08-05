@@ -515,7 +515,7 @@ export default {
           this.resource.jobLocation = data.map((job) => {
             return {
               id: job.pl_id,
-              name: `${job.town_name} (${job.zone_name})`,
+              name: `${job.town_name} (${job.city_name})`,
             };
           });
         })
