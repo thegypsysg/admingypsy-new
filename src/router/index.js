@@ -57,6 +57,20 @@ const routes = [
     },
   },
   {
+    name: 'registered users',
+    path: '/registered_users',
+    component: () =>
+      import('@/views/registration/registered/RegisteredContainer.vue'),
+    beforeEnter: (to, from, next) => {
+      // Pengecekan status login sebelum masuk ke halaman beranda
+      if (localStorage.getItem('token') == null) {
+        next('/auth/login'); // Alihkan ke halaman login jika belum masuk
+      } else {
+        next(); // Lanjutkan ke halaman beranda jika sudah masuk
+      }
+    },
+  },
+  {
     name: 'app new',
     path: '/app-new',
     component: () => import('@/views/app master/app new/AppNewContainer.vue'),

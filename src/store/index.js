@@ -13,7 +13,7 @@ export default createStore({
             open: false,
             subnav: [
               { title: 'Invite Users', path: '/invite_users' },
-              { title: 'Registered Users', path: '' },
+              { title: 'Registered Users', path: '/registered_users' },
             ],
           },
           {
