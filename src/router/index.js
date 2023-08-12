@@ -232,6 +232,23 @@ const routes = [
     },
   },
   {
+    name: 'primary skills regurable association',
+    path: '/primary-skills/country/:id',
+    component: () =>
+      import(
+        '@/views/skills master/primary skills/country/CountryContainer.vue'
+      ),
+    beforeEnter: (to, from, next) => {
+      // Pengecekan status login sebelum masuk ke halaman beranda
+      if (localStorage.getItem('token') == null) {
+        next('/auth/login'); // Alihkan ke halaman login jika belum masuk
+      } else {
+        next(); // Lanjutkan ke halaman beranda jika sudah masuk
+      }
+    },
+  },
+
+  {
     name: 'jobs master',
     path: '/jobs-master',
     component: () => import('@/views/job master/JobMasterContainer.vue'),

@@ -273,6 +273,12 @@
                             >
                               <span>Regulation / Association</span>
                             </router-link>
+                            <router-link
+                              class="text-decoration-none text-red-darken-4 ml-8"
+                              :to="`/primary-skills/country/${item.id}`"
+                            >
+                              <span>Country</span>
+                            </router-link>
                           </td>
                         </tr>
                       </v-table>
