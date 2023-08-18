@@ -227,7 +227,13 @@
                     {{ item.gender }}
                   </td>
                   <td>
-                    {{ item.code + item.phone }}
+                    {{ item.code + item.phone
+                    }}<v-icon
+                      v-if="item.phone"
+                      color="#4EC053"
+                      size="20"
+                      class="ml-2 fab fa-whatsapp"
+                    ></v-icon>
                   </td>
                   <td>{{ item.country_name }}</td>
                   <td>{{ item.registered_on }}</td>
