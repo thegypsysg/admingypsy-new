@@ -65,23 +65,11 @@
                       <v-tooltip location="top">
                         <template v-slot:activator="{ props }">
                           <v-btn
-                            color="green"
-                            variant="text"
-                            v-bind="props"
-                            @click="editPartner(item)"
-                            icon="mdi-pencil-outline"
-                          ></v-btn>
-                        </template>
-                        <span>Edit</span>
-                      </v-tooltip>
-                      <v-tooltip location="top">
-                        <template v-slot:activator="{ props }">
-                          <v-btn
                             color="red"
                             v-bind="props"
                             variant="text"
                             :disabled="isDeleteLoading"
-                            @click="openDeleteConfirm(item.id)"
+                            @click="openDeleteConfirm(item.gypsy_id)"
                             icon="mdi-trash-can-outline"
                           ></v-btn>
                         </template>
@@ -119,7 +107,7 @@
                               class="d-flex align-center"
                               v-model="item.isActive"
                               rounded="5"
-                              @click="activePartner(item.id)"
+                              @click="activeUser(item.gypsy_id)"
                             >
                               <v-btn size="27" :value="true"> Yes </v-btn>
 
@@ -137,7 +125,7 @@
                               class="d-flex align-center"
                               v-model="item.isBlock"
                               rounded="5"
-                              @click="favoritePartner(item.id)"
+                              @click="blockUser(item.gypsy_id)"
                             >
                               <v-btn size="27" :value="true"> Yes </v-btn>
 
@@ -213,14 +201,14 @@
         <v-card-actions>
           <v-spacer></v-spacer>
           <v-btn color="error" text @click="cancelDelete">No</v-btn>
-          <v-btn color="success" text @click="deletePartner">Yes</v-btn>
+          <v-btn color="success" text @click="deleteUser">Yes</v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
     <v-dialog persistent width="auto" v-model="isOpenImage">
       <v-card width="750">
         <v-card-title class="upload-title px-6 py-4">
-          Upload Image - Partner</v-card-title
+          Upload Image - Registered User</v-card-title
         >
         <v-card-text>
           <image-upload
@@ -247,37 +235,6 @@
         </v-card-actions>
       </v-card>
     </v-dialog>
-
-    <v-dialog persistent width="auto" v-model="isOpenLogo">
-      <v-card width="750">
-        <v-card-title class="upload-title px-6 py-4">
-          Upload Logo - Partner</v-card-title
-        >
-        <v-card-text>
-          <image-upload
-            :image-file="logoFile"
-            @update-image-file="updateLogoFile"
-            @delete-image-file="deleteLogoFile"
-          />
-        </v-card-text>
-        <v-card-actions class="mt-16">
-          <v-spacer></v-spacer>
-          <v-btn
-            style="text-transform: none"
-            color="error"
-            text
-            @click="closeLogo"
-            >Cancel</v-btn
-          >
-          <v-btn
-            style="background-color: #9ddcff; text-transform: none"
-            color="black"
-            @click="saveLogo()"
-            >Save</v-btn
-          >
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
   </v-container>
 </template>
 
@@ -289,7 +246,7 @@ import { setAuthHeader } from '@/util/axios';
 // import app from '@/util/eventBus';
 
 export default {
-  name: 'PartnerMaster',
+  name: 'RegisteredUser',
   data: () => ({
     // fileURL: 'https://admin1.the-gypsy.sg/img/app/',
     valid: false,
@@ -300,23 +257,12 @@ export default {
     isError: false,
     isDelete: false,
     isDeleteLoading: false,
-    partnerIdToDelete: null,
+    userIdToDelete: null,
     tableHeaders: [{ text: 'Gambar', value: 'image' }],
     imageFile: [],
     logoFile: [],
-    partnerDataToImage: {
+    userDataToImage: {
       id: 0,
-      name: null,
-      industry: null,
-      subIndustry: null,
-      country: null,
-    },
-    partnerDataToLogo: {
-      id: 0,
-      name: null,
-      industry: null,
-      subIndustry: null,
-      country: null,
     },
     isOpenImage: false,
     isOpenLogo: false,
@@ -389,7 +335,7 @@ export default {
     setAuthHeader(token);
   },
   mounted() {
-    this.getPartnerData();
+    this.getUserData();
   },
   computed: {
     filteredItems() {
@@ -399,62 +345,29 @@ export default {
       const searchTextLower = this.search.toLowerCase();
       return this.items.filter(
         (item) =>
+          item.id.toLowerCase().includes(searchTextLower) ||
           item.name.toLowerCase().includes(searchTextLower) ||
+          item.email.toLowerCase().includes(searchTextLower) ||
           item.country.toLowerCase().includes(searchTextLower) ||
-          item.industry.toLowerCase().includes(searchTextLower) ||
-          item.subIndustry.toLowerCase().includes(searchTextLower)
+          item.mobile.toLowerCase().includes(searchTextLower) ||
+          item.gender.toLowerCase().includes(searchTextLower) ||
+          item.registered.toLowerCase().includes(searchTextLower)
       );
     },
   },
   methods: {
-    updateLogoFile(newImageFile) {
-      this.logoFile.push(newImageFile);
-    },
     updateImageFile(newImageFile) {
       this.imageFile.push(newImageFile);
-    },
-    deleteLogoFile() {
-      this.isSending = true;
-      axios
-        .delete(`/partners/${this.partnerDataToLogo.id}/logo`)
-        .then((response) => {
-          const data = response.data;
-          this.successMessage = data.message;
-          this.isSuccess = true;
-          this.getPartnerData();
-        })
-        .catch((error) => {
-          // eslint-disable-next-line
-          console.log(error);
-          const message =
-            error.response.data.message === ''
-              ? 'Something Wrong!!!'
-              : error.response.data.message;
-          this.errorMessage = message;
-          this.isError = true;
-        })
-        .finally(() => {
-          this.isEdit = false;
-          this.isSending = false;
-          // this.partnerDataToLogo = {
-          //   app_id: 1,
-          //   app_group_id: 1,
-          //   app_name: '',
-          //   app_description: '',
-          //   app_detail: '',
-          // };
-          this.logoFile = [];
-        });
     },
     deleteImageFile() {
       this.isSending = true;
       axios
-        .delete(`/partners/${this.partnerDataToImage.id}/main-image`)
+        .delete(`/gypsy-registration/${this.userDataToImage.id}/image`)
         .then((response) => {
           const data = response.data;
           this.successMessage = data.message;
           this.isSuccess = true;
-          this.getPartnerData();
+          this.getUserData();
         })
         .catch((error) => {
           // eslint-disable-next-line
@@ -469,7 +382,7 @@ export default {
         .finally(() => {
           this.isEdit = false;
           this.isSending = false;
-          // this.partnerDataToImage = {
+          // this.userDataToImage = {
           //   app_id: 1,
           //   app_group_id: 1,
           //   app_name: '',
@@ -479,37 +392,10 @@ export default {
           this.imageFile = [];
         });
     },
-    openLogo(item) {
-      this.isOpenLogo = true;
-      this.partnerDataToLogo = {
-        id: item.id,
-        name: item.name,
-        country: item.country_id,
-        industry: item.industry_id,
-        subIndustry: item.sub_industry_id,
-      };
-      this.logoFile =
-        item.logo != null
-          ? [
-              {
-                file: {
-                  name: item.logo,
-                  size: '',
-                  base64: '',
-                  format: '',
-                },
-              },
-            ]
-          : [];
-    },
     openImage(item) {
       this.isOpenImage = true;
-      this.partnerDataToImage = {
-        id: item.id,
-        name: item.name,
-        country: item.country_id,
-        industry: item.industry_id,
-        subIndustry: item.sub_industry_id,
+      this.userDataToImage = {
+        id: item.gypsy_id,
       };
       this.imageFile =
         item.image != null
@@ -525,88 +411,22 @@ export default {
             ]
           : [];
     },
-    closeLogo() {
-      this.isOpenLogo = false;
-      this.logoFile = [];
-      this.partnerDataToLogo = {
-        id: 0,
-        name: null,
-        industry: null,
-        subIndustry: null,
-        country: null,
-      };
-    },
     closeImage() {
       this.isOpenImage = false;
       this.imageFile = [];
-      this.partnerDataToImage = {
+      this.userDataToImage = {
         id: 0,
-        name: null,
-        industry: null,
-        subIndustry: null,
-        country: null,
       };
-    },
-    saveLogo() {
-      this.isSending = true;
-      const payload = {
-        partner_id: this.partnerDataToLogo.id,
-        partner_name: this.partnerDataToLogo.name,
-        country_id: this.partnerDataToLogo.country,
-        sub_industry_id: this.partnerDataToLogo.subIndustry,
-        industry_id: this.partnerDataToLogo.industry,
-        logo: this.logoFile[0],
-      };
-
-      http
-        .post(`/partners/update`, payload, {
-          headers: {
-            'Content-Type': 'multipart/form-data',
-          },
-        })
-        .then((response) => {
-          const data = response.data;
-          this.successMessage = data.message;
-          this.isSuccess = true;
-          this.getPartnerData();
-        })
-        .catch((error) => {
-          // eslint-disable-next-line
-          console.log(error);
-          const message =
-            error.response.data.message === ''
-              ? 'Something Wrong!!!'
-              : error.response.data.message;
-          this.errorMessage = message;
-          this.isError = true;
-        })
-        .finally(() => {
-          this.isEdit = false;
-          this.isSending = false;
-          this.partnerDataToLogo = {
-            id: 0,
-            name: null,
-            industry: null,
-            subIndustry: null,
-            country: null,
-          };
-          this.isOpenLogo = false;
-          this.logoFile = [];
-        });
     },
     saveImage() {
       this.isSending = true;
       const payload = {
-        partner_id: this.partnerDataToImage.id,
-        partner_name: this.partnerDataToImage.name,
-        country_id: this.partnerDataToImage.country,
-        sub_industry_id: this.partnerDataToImage.subIndustry,
-        industry_id: this.partnerDataToImage.industry,
-        main_image: this.imageFile[0],
+        gypsy_id: this.userDataToImage.id,
+        image: this.imageFile[0],
       };
 
       http
-        .post(`/partners/update`, payload, {
+        .post(`/gypsy-registration/update`, payload, {
           headers: {
             'Content-Type': 'multipart/form-data',
           },
@@ -615,7 +435,7 @@ export default {
           const data = response.data;
           this.successMessage = data.message;
           this.isSuccess = true;
-          this.getPartnerData();
+          this.getUserData();
         })
         .catch((error) => {
           // eslint-disable-next-line
@@ -630,160 +450,34 @@ export default {
         .finally(() => {
           this.isEdit = false;
           this.isSending = false;
-          this.partnerDataToImage = {
+          this.userDataToImage = {
             id: 0,
-            name: null,
-            industry: null,
-            subIndustry: null,
-            country: null,
           };
           this.isOpenImage = false;
           this.imageFile = [];
         });
     },
-    editPartner(partner) {
-      this.isEdit = true;
-      this.input = {
-        id: partner.id,
-        name: partner.name,
-        country: partner.country_id,
-        industry: partner.industry_id,
-        subIndustry: partner.sub_industry_id,
-      };
-    },
-    cancelEdit() {
-      this.isEdit = false;
-      this.input = {
-        id: 0,
-        name: null,
-        industry: null,
-        subIndustry: null,
-        country: null,
-        logo: null,
-        image: null,
-      };
-    },
-    saveEdit() {
-      if (this.valid) {
-        this.isSending = true;
-        const payload = {
-          partner_id: this.input.id,
-          partner_name: this.input.name,
-          country_id: this.input.country,
-          sub_industry_id: this.input.subIndustry,
-          industry_id: this.input.industry,
-        };
-        if (this.input.logo !== null) {
-          payload['logo'] = this.input.logo;
-        } else if (this.input.image !== null) {
-          payload['main_image'] = this.input.image;
-        }
-        axios
-          .post(`/partners/update`, payload)
-          .then((response) => {
-            const data = response.data;
-            this.successMessage = data.message;
-            this.isSuccess = true;
-            this.getPartnerData();
-            this.input = {
-              id: 0,
-              name: null,
-              industry: null,
-              subIndustry: null,
-              country: null,
-              logo: null,
-              image: null,
-            };
-          })
-          .catch((error) => {
-            // eslint-disable-next-line
-            console.log(error);
-            const message = error.response.data.partner_name
-              ? error.response.data.partner_name[0]
-              : error.response.data.message
-              ? error.response.data.message
-              : 'Something Wrong!!!';
-            this.errorMessage = message;
-            this.isError = true;
-            this.input = {
-              id: 0,
-              name: null,
-              industry: null,
-              subIndustry: null,
-              country: null,
-              logo: null,
-              image: null,
-            };
-          })
-          .finally(() => {
-            this.isEdit = false;
-            this.isSending = false;
-          });
-      }
-    },
-    saveData() {
-      if (this.valid) {
-        this.isSending = true;
-        const payload = {
-          partner_name: this.input.name,
-          country_id: this.input.country,
-          sub_industry_id: this.input.subIndustry,
-          industry_id: this.input.industry,
-        };
-        axios
-          .post(`/partners`, payload)
-          .then((response) => {
-            const data = response.data;
-            this.successMessage = data.message;
-            this.isSuccess = true;
-            this.getPartnerData();
-            this.input = {
-              id: 0,
-              name: null,
-              industry: null,
-              subIndustry: null,
-              country: null,
-              logo: null,
-              image: null,
-            };
-          })
-          .catch((error) => {
-            // eslint-disable-next-line
-            console.log(error);
-            const message = error.response.data.partner_name
-              ? error.response.data.partner_name[0]
-              : error.response.data.message
-              ? error.response.data.message
-              : 'Something Wrong!!!';
-            this.errorMessage = message;
-            this.isError = true;
-          })
-          .finally(() => {
-            this.isSending = false;
-          });
-      }
-    },
     cancelDelete() {
-      this.partnerIdToDelete = null;
+      this.userIdToDelete = null;
       this.isDelete = false;
     },
     openDeleteConfirm(itemId) {
-      this.partnerIdToDelete = itemId;
+      this.userIdToDelete = itemId;
       this.isDelete = true;
     },
     cancelConfirmation() {
-      this.partnerIdToDelete = null;
+      this.userIdToDelete = null;
       this.isDelete = false;
     },
-    deletePartner() {
+    deleteUser() {
       this.isDeleteLoading = true;
       axios
-        .delete(`/partners/${this.partnerIdToDelete}`)
+        .delete(`/gypsy-registration/${this.userIdToDelete}`)
         .then((response) => {
           const data = response.data;
           this.successMessage = data.message;
           this.isSuccess = true;
-          this.getPartnerData();
+          this.getUserData();
         })
         .catch((error) => {
           // eslint-disable-next-line
@@ -797,35 +491,65 @@ export default {
         })
         .finally(() => {
           this.isDeleteLoading = false;
-          this.partnerIdToDelete = null;
+          this.userIdToDelete = null;
           this.isDelete = false;
         });
     },
-    getPartnerData() {
-      this.items = [
-        {
-          image: null,
-          id: 'SG-01-2023-08-01',
-          name: 'Charlton Mendes',
-          email: 'charltonmendes@gmail.com',
-          country: 'Singapore',
-          mobile: '+6591992000',
-          gender: 'Male',
-          registered: '07/08/2023',
-          isActive: true,
-          isBlock: true,
-        },
-      ];
+    getUserData() {
+      this.isLoading = true;
+      axios
+        .get(`/gypsy-registration`)
+        .then((response) => {
+          const data = response.data.data;
+          console.log(data);
+          this.items = data.map((item) => {
+            return {
+              image: item.image || null,
+              gypsy_id: item.gypsy_id || 0,
+              id: item.gypsy_ref_no || '',
+              name: item.name || '',
+              email: item.email_id || '',
+              country_id: item.country_current || null,
+              country: item.country?.country_name || '',
+              mobile: item.mobile_number || '',
+              gender:
+                item.gender == 'M'
+                  ? 'Male'
+                  : item.gender == 'F'
+                  ? 'Female'
+                  : '',
+              genderCode: item.gender || '',
+              registered: item.registered_on || '',
+              isActive:
+                item.active == 'N' ? false : item.active == 'Y' ? true : null,
+              isBlock:
+                item.block == 'N' ? false : item.block == 'Y' ? true : null,
+            };
+          });
+        })
+        .catch((error) => {
+          // eslint-disable-next-line
+          console.log(error);
+          const message =
+            error.response.data.message === ''
+              ? 'Something Wrong!!!'
+              : error.response.data.message;
+          this.errorMessage = message;
+          this.isError = true;
+        })
+        .finally(() => {
+          this.isLoading = false;
+        });
     },
-    activePartner(id) {
+    activeUser(id) {
       this.isSending = true;
       axios
-        .get(`/partners/toggle-active/${id}`)
+        .get(`/gypsy-registration/toggle-active/${id}`)
         .then((response) => {
           const data = response.data;
           this.successMessage = data.message;
           this.isSuccess = true;
-          this.getPartnerData();
+          this.getUserData();
         })
         .catch((error) => {
           // eslint-disable-next-line
@@ -841,15 +565,15 @@ export default {
           this.isSending = false;
         });
     },
-    favoritePartner(id) {
+    blockUser(id) {
       this.isSending = true;
       axios
-        .get(`/partners/toggle-favorite/${id}`)
+        .get(`/gypsy-registration/toggle-block/${id}`)
         .then((response) => {
           const data = response.data;
           this.successMessage = data.message;
           this.isSuccess = true;
-          this.getPartnerData();
+          this.getUserData();
         })
         .catch((error) => {
           // eslint-disable-next-line
