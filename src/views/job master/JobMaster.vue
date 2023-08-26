@@ -167,7 +167,6 @@
                     </div>
                   </td>
                 </tr>
-
                 <tr>
                   <td colspan="7">
                     <div>
@@ -176,7 +175,8 @@
                           <th class="pt-2">Job Posted on</th>
                           <th class="pt-2">Active</th>
                           <th class="pt-2">Live</th>
-                          <th class="pt-2">Favorite</th>
+                          <th class="pt-2">Featured</th>
+                          <th class="pt-2">Platinum</th>
                           <th class="pt-2 text-blue-darken-4">App Name</th>
                           <th class="pt-2 text-blue-darken-4">Skills Group</th>
                           <th class="pt-2 text-blue-darken-4">Skills Page</th>
@@ -231,8 +231,26 @@
                                 width: 54px !important;
                               "
                               class="d-flex align-center"
-                              v-model="item.isFav"
-                              @click="favoriteJob(item.job_id)"
+                              v-model="item.isFeatured"
+                              @click="featuredJob(item.job_id)"
+                              rounded="5"
+                            >
+                              <v-btn size="27" :value="true"> Yes </v-btn>
+
+                              <v-btn size="27" :value="false"> No </v-btn>
+                            </v-btn-toggle>
+                          </td>
+                          <td class="pt-2 pb-4">
+                            <v-btn-toggle
+                              style="
+                                font-size: 10px !important;
+                                font-weight: 200 !important;
+                                height: 22px !important;
+                                width: 54px !important;
+                              "
+                              class="d-flex align-center"
+                              v-model="item.isPlatinum"
+                              @click="platinumJob(item.job_id)"
                               rounded="5"
                             >
                               <v-btn size="27" :value="true"> Yes </v-btn>
@@ -259,6 +277,25 @@
                             >
                               View Details
                             </v-btn>
+                          </td>
+                        </tr>
+                        <tr>
+                          <td class="pb-4 font-weight-bold">
+                            <router-link
+                              class="text-decoration-none text-blue-darken-4"
+                              :to="`/jobs-master/show-in-country/${item.job_id}`"
+                            >
+                              <span>Show in Country</span>
+                            </router-link>
+                          </td>
+                          <td
+                            colspan="5"
+                            class="pb-4 ml-6 font-weight-bold text-red-darken-4"
+                          >
+                            <span
+                              >Singapore | Malaysia | India | United
+                              Kingdom</span
+                            >
                           </td>
                         </tr>
                       </v-table>
@@ -394,7 +431,7 @@ export default {
     //       skillsGroup: 'Nusrsing',
     //       skills: 'Physioterapist',
     //       isActive: true,
-    //       isFav: true,
+    //       isFeatured: true,
     //       isLive: true,
     //     },
     //   ],
@@ -592,7 +629,13 @@ export default {
               postedOn: item.job_dated || '',
               isActive:
                 item.active == 'N' ? false : item.active == 'Y' ? true : null,
-              isFav:
+              isFeatured:
+                item.favorite == 'N'
+                  ? false
+                  : item.favorite == 'Y'
+                  ? true
+                  : null,
+              isPlatinum:
                 item.favorite == 'N'
                   ? false
                   : item.favorite == 'Y'
@@ -729,7 +772,7 @@ export default {
           this.isSending = false;
         });
     },
-    favoriteJob(id) {
+    featuredJob(id) {
       this.isSending = true;
       axios
         .get(`/jobs/toggle-favorite/${id}`)

@@ -304,6 +304,19 @@ const routes = [
     },
   },
   {
+    name: 'jobs master country',
+    path: '/jobs-master/show-in-country/:id',
+    component: () => import('@/views/job master/country/CountryContainer.vue'),
+    beforeEnter: (to, from, next) => {
+      // Pengecekan status login sebelum masuk ke halaman beranda
+      if (localStorage.getItem('token') == null) {
+        next('/auth/login'); // Alihkan ke halaman login jika belum masuk
+      } else {
+        next(); // Lanjutkan ke halaman beranda jika sudah masuk
+      }
+    },
+  },
+  {
     name: 'partner master',
     path: '/partner_master',
     component: () =>
