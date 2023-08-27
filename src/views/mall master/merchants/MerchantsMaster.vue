@@ -44,7 +44,7 @@
               class="mt-8"
               density="compact"
               label="Type Mall Name"
-              placeholder="Type Mall Name"
+              placeholder="Type Merchant / Brand Name"
               :items="resource.mall"
               item-title="name"
               item-value="id"
@@ -66,43 +66,13 @@
               variant="outlined"
             ></v-autocomplete>
           </v-col>
-          <v-col cols="12" md="2">
-            <label>City</label>
+          <v-col cols="12" md="3">
+            <label>Merchant Type</label>
             <v-autocomplete
               class="mt-2"
               density="compact"
-              label="Type City"
-              placeholder="Type City"
-              :items="resource.city"
-              item-title="name"
-              item-value="id"
-              v-model="input.city"
-              variant="outlined"
-            ></v-autocomplete>
-          </v-col>
-          <v-col cols="12" md="2">
-            <label>Town</label>
-            <v-autocomplete
-              class="mt-2"
-              density="compact"
-              label="Type Town"
-              placeholder="Type Town"
-              :items="resource.town"
-              item-title="name"
-              item-value="id"
-              v-model="input.town"
-              variant="outlined"
-            ></v-autocomplete>
-          </v-col>
-        </v-row>
-        <v-row class="mt-n4">
-          <v-col cols="12" md="4">
-            <label>Mall Type</label>
-            <v-autocomplete
-              class="mt-2"
-              density="compact"
-              label="Type Mall Type"
-              placeholder="Type Mall Type"
+              label="Type Merchant Type"
+              placeholder="Type Merchant Type"
               :items="resource.subIndustry"
               item-title="name"
               item-value="id"
@@ -111,65 +81,45 @@
             ></v-autocomplete>
           </v-col>
           <v-col cols="12" md="2">
-            <v-text-field
-              class="mt-8"
-              v-model="input.latitude"
-              label="Latitude"
-              variant="outlined"
-              density="compact"
-              required
-            ></v-text-field>
-          </v-col>
-          <v-col cols="12" md="2">
-            <v-text-field
-              class="mt-8"
-              v-model="input.longitude"
-              label="Longitude"
-              variant="outlined"
-              density="compact"
-              required
-            ></v-text-field>
-          </v-col>
-          <v-col cols="12" md="2">
-            <v-btn
-              :prepend-icon="
-                isEdit
-                  ? 'mdi-account-multiple-check'
-                  : 'mdi-account-multiple-plus'
-              "
-              color="indigo-accent-2"
-              style="text-transform: none"
-              type="submit"
-              variant="flat"
-              class="w-100 mt-8"
-              @click="isEdit ? saveEdit() : saveData()"
-              :disabled="isSending"
-              :loading="isSending"
-            >
-              <template v-slot:prepend>
-                <v-icon color="white"></v-icon>
-              </template>
+            <div>
+              <v-btn
+                :prepend-icon="
+                  isEdit
+                    ? 'mdi-account-multiple-check'
+                    : 'mdi-account-multiple-plus'
+                "
+                color="indigo-accent-2"
+                style="text-transform: none"
+                type="submit"
+                variant="flat"
+                class="w-100 mt-8"
+                @click="isEdit ? saveEdit() : saveData()"
+                :disabled="isSending"
+                :loading="isSending"
+              >
+                <template v-slot:prepend>
+                  <v-icon color="white"></v-icon>
+                </template>
 
-              {{ isEdit ? 'Save' : 'Add' }}
-            </v-btn>
-          </v-col>
-          <v-col cols="12" md="2">
-            <v-btn
-              v-if="isEdit"
-              prepend-icon="mdi-account-multiple-remove"
-              color="red"
-              style="text-transform: none"
-              variant="flat"
-              class="w-100 mt-8"
-              @click="cancelEdit"
-              :disabled="isSending"
-            >
-              <template v-slot:prepend>
-                <v-icon color="white"></v-icon>
-              </template>
+                {{ isEdit ? 'Save' : 'Add' }}
+              </v-btn>
+              <v-btn
+                v-if="isEdit"
+                prepend-icon="mdi-account-multiple-remove"
+                color="red"
+                style="text-transform: none"
+                variant="flat"
+                class="w-100 mt-2"
+                @click="cancelEdit"
+                :disabled="isSending"
+              >
+                <template v-slot:prepend>
+                  <v-icon color="white"></v-icon>
+                </template>
 
-              CANCEL
-            </v-btn>
+                CANCEL
+              </v-btn>
+            </div>
           </v-col>
         </v-row>
       </v-container>
@@ -193,8 +143,6 @@
               <tr>
                 <th class="text-left font-weight-bold text-black">Mall id</th>
                 <th class="text-left font-weight-bold text-black">Name</th>
-                <th class="text-left font-weight-bold text-black">Town</th>
-                <th class="text-left font-weight-bold text-black">City</th>
                 <th class="text-left font-weight-bold text-black">Country</th>
                 <th class="text-left font-weight-bold text-black">Active</th>
                 <th class="text-left font-weight-bold text-black">Featured</th>
@@ -208,8 +156,6 @@
                 <tr class="country-table-body">
                   <td>{{ item.id }}</td>
                   <td>{{ item.name }}</td>
-                  <td>{{ item.town }}</td>
-                  <td>{{ item.city }}</td>
                   <td>{{ item.country }}</td>
                   <td>
                     <v-btn-toggle
@@ -285,30 +231,20 @@
                 </tr>
 
                 <tr>
-                  <td colspan="10">
+                  <td colspan="8">
                     <div class="d-flex flex-column justify-start">
                       <v-table class="text-left pl-16">
                         <tr>
+                          <td class="pt-2 pr-1"></td>
                           <td class="pt-2 pr-8">
                             (<span class="text-red">{{ item.type }}</span
                             >)
-                          </td>
-                          <td class="pt-2">
-                            Latitude :
-                            <span class="text-red">{{ item.latitude }}</span>
-                          </td>
-                          <td class="pt-2">
-                            Longitude :
-                            <span class="text-red">{{ item.longitude }}</span>
-                          </td>
-                          <td class="pt-2">
-                            Managed By :
-                            <span class="text-red">{{ item.managed }}</span>
                           </td>
                         </tr>
                       </v-table>
                       <v-table class="text-left pl-16 mt-2">
                         <tr>
+                          <td class="pt-2 pr-3"></td>
                           <td class="pr-6 pt-2 pb-4">
                             <div class="d-flex justify-start" style="gap: 20px">
                               <router-link
@@ -325,33 +261,15 @@
                               </router-link>
                               <router-link
                                 class="text-decoration-none"
-                                :to="`partner_master/socials/${item.id}`"
+                                :to="`partner_master/locations/${item.id}`"
                               >
-                                <span>Levels</span>
+                                <span>Outlets ({{ item.outlets }})</span>
                               </router-link>
                               <router-link
                                 class="text-decoration-none"
                                 :to="`partner_master/locations/${item.id}`"
                               >
-                                <span>Events ({{ item.events }})</span>
-                              </router-link>
-                              <router-link
-                                class="text-decoration-none"
-                                :to="`partner_master/socials/${item.id}`"
-                              >
-                                <span>Parking Info</span>
-                              </router-link>
-                              <router-link
-                                class="text-decoration-none"
-                                :to="`partner_master/locations/${item.id}`"
-                              >
-                                <span>Mall Offers ({{ item.events }})</span>
-                              </router-link>
-                              <router-link
-                                class="text-decoration-none"
-                                :to="`partner_master/locations/${item.id}`"
-                              >
-                                <span>Merchants ({{ item.events }})</span>
+                                <span>Malls ({{ item.malls }})</span>
                               </router-link>
                             </div>
                           </td>
@@ -545,39 +463,27 @@ export default {
     itemsTry: [
       {
         id: 1,
-        name: 'Parkway Parade',
-        town: 'Marine Parade',
-        city: 'Singapore',
+        name: 'Pappa Rich',
         country: 'Singapore',
         isActive: false,
         isFeatured: false,
         user: 'Charlton',
         dated: '15/08/2023',
-        type: 'Mall',
-        latitude: 1.3019,
-        longitude: 103.9028,
-        managed: 'Lendlease Pte Ltd',
-        events: 4,
-        offers: 2,
-        merchants: 14,
+        type: 'Restaurant',
+        outlets: 5,
+        malls: 2,
       },
       {
-        id: 2,
-        name: 'Parkway Parade',
-        town: 'Marine Parade',
-        city: 'Singapore',
+        id: 1,
+        name: 'Pappa Rich',
         country: 'Singapore',
         isActive: false,
         isFeatured: false,
         user: 'Charlton',
         dated: '15/08/2023',
-        type: 'Mall',
-        latitude: 1.3019,
-        longitude: 103.9028,
-        managed: 'Lendlease Pte Ltd',
-        events: 4,
-        offers: 2,
-        merchants: 14,
+        type: 'Restaurant',
+        outlets: 5,
+        malls: 2,
       },
     ],
   }),
