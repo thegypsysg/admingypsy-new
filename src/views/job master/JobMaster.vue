@@ -630,15 +630,15 @@ export default {
               isActive:
                 item.active == 'N' ? false : item.active == 'Y' ? true : null,
               isFeatured:
-                item.favorite == 'N'
+                item.featured == 'N'
                   ? false
-                  : item.favorite == 'Y'
+                  : item.featured == 'Y'
                   ? true
                   : null,
               isPlatinum:
-                item.favorite == 'N'
+                item.platinum == 'N'
                   ? false
-                  : item.favorite == 'Y'
+                  : item.platinum == 'Y'
                   ? true
                   : null,
               isLive: item.live == 'N' ? false : item.live == 'Y' ? true : null,
@@ -772,10 +772,10 @@ export default {
           this.isSending = false;
         });
     },
-    featuredJob(id) {
+    liveJob(id) {
       this.isSending = true;
       axios
-        .get(`/jobs/toggle-favorite/${id}`)
+        .get(`/jobs/toggle-live/${id}`)
         .then((response) => {
           const data = response.data;
           this.successMessage = data.message;
@@ -796,10 +796,34 @@ export default {
           this.isSending = false;
         });
     },
-    liveJob(id) {
+    featuredJob(id) {
       this.isSending = true;
       axios
-        .get(`/jobs/toggle-live/${id}`)
+        .get(`/jobs/toggle-featured/${id}`)
+        .then((response) => {
+          const data = response.data;
+          this.successMessage = data.message;
+          this.isSuccess = true;
+          this.getJobData();
+        })
+        .catch((error) => {
+          // eslint-disable-next-line
+          console.log(error);
+          const message =
+            error.response.data.message === ''
+              ? 'Something Wrong!!!'
+              : error.response.data.message;
+          this.errorMessage = message;
+          this.isError = true;
+        })
+        .finally(() => {
+          this.isSending = false;
+        });
+    },
+    platinumJob(id) {
+      this.isSending = true;
+      axios
+        .get(`/jobs/toggle-platinum/${id}`)
         .then((response) => {
           const data = response.data;
           this.successMessage = data.message;
