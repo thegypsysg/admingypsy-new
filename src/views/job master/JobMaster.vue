@@ -293,9 +293,15 @@
                             class="pb-4 ml-6 font-weight-bold text-red-darken-4"
                           >
                             <span
-                              >Singapore | Malaysia | India | United
-                              Kingdom</span
-                            >
+                              v-for="(inter, index) in item.international"
+                              :key="index"
+                              >{{ inter }}
+                              <span
+                                v-if="index < item.international.length - 1"
+                              >
+                                |
+                              </span>
+                            </span>
                           </td>
                         </tr>
                       </v-table>
@@ -645,6 +651,7 @@ export default {
               app: item.skill.skill_group.app.app_name || '',
               skillsGroup: item.skill.skill_group.group_name || '',
               skills: item.skill.skills_name || '',
+              international: item.job_international.map((inter) => inter),
             };
           });
         })

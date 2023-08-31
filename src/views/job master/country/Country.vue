@@ -187,7 +187,7 @@
       <v-card>
         <v-card-title>Confirmation</v-card-title>
         <v-card-text>
-          Are you sure want to delete this primary skills country?
+          Are you sure want to delete this job master country?
         </v-card-text>
         <v-card-actions>
           <v-spacer></v-spacer>
@@ -226,8 +226,6 @@ export default {
     input: {
       id: 0,
       country: null,
-      regulator: null,
-      association: null,
     },
 
     resource: {
@@ -366,14 +364,12 @@ export default {
       if (this.valid) {
         this.isSending = true;
         const payload = {
-          rc_id: this.input.id,
-          skills_id: this.idJobCountry,
+          jmi_id: this.input.id,
+          job_id: this.idJobCountry,
           country_id: this.input.country,
-          regulator_id: this.input.regulator,
-          association_id: this.input.association,
         };
         axios
-          .post(`/registrable_countries/update`, payload)
+          .post(`/job-international/update`, payload)
           .then((response) => {
             const data = response.data;
             this.successMessage = data.message;
@@ -382,8 +378,6 @@ export default {
             this.input = {
               id: 0,
               country: null,
-              regulator: null,
-              association: null,
             };
           })
           .catch((error) => {
@@ -406,13 +400,11 @@ export default {
       if (this.valid) {
         this.isSending = true;
         const payload = {
-          skills_id: this.idJobCountry,
+          job_id: this.idJobCountry,
           country_id: this.input.country,
-          regulator_id: this.input.regulator,
-          association_id: this.input.association,
         };
         axios
-          .post(`/registrable_countries`, payload)
+          .post(`/job-international`, payload)
           .then((response) => {
             const data = response.data;
             this.successMessage = data.message;
@@ -421,8 +413,6 @@ export default {
             this.input = {
               id: 0,
               country: null,
-              regulator: null,
-              association: null,
             };
           })
           .catch((error) => {
@@ -455,7 +445,7 @@ export default {
     deletePrimaryCountry() {
       this.isDeleteLoading = true;
       axios
-        .delete(`/registrable_countries/${this.primaryCountryIdToDelete}`)
+        .delete(`/job-international/${this.primaryCountryIdToDelete}`)
         .then((response) => {
           const data = response.data;
           this.successMessage = data.message;
@@ -481,48 +471,25 @@ export default {
     getJobCountryData() {
       this.isLoading = true;
       axios
-        .get(`/registrable_countries/${this.idJobCountry}/countries`)
+        .get(`/job-international/${this.idJobCountry}/countries`)
         .then((response) => {
           const data = response.data.data;
           console.log(data);
-          this.items = [
-            {
-              id: 3,
-              country: 'Japan',
-              country_id: 6,
-              user: 'Aji Prasetyo',
-              dated: '12/08/2023',
-            },
-            {
-              id: 4,
-              country: 'Scotland',
-              country_id: 5,
-              user: 'Aji Prasetyo',
-              dated: '12/08/2023',
-            },
-          ];
-          //this.items = data.map((item) => {
-          //  return {
-          //    id: item.rc_id || 0,
-          //    skills_id: item.skills_id || null,
-          //    country: item.country_name || '',
-          //    country_id: item.country_id || null,
-          //    registrable:
-          //      item.registrable == 'N'
-          //        ? false
-          //        : item.registrable == 'Y'
-          //        ? true
-          //        : null,
-          //    regulator_id: item.regulator_id || null,
-          //    association_id: item.association_id || null,
-          //    user_id: item.user_id || null,
-          //    dated: item.dated || '',
-          //    skills: item.skills_name || '',
-          //    regulator: item.regulator || '',
-          //    association: item.association || '',
-          //    user: item.name || '',
-          //  };
-          //});
+          // this.items = [
+          //   {
+          //     user: 'Aji Prasetyo',
+          //     dated: '12/08/2023',
+          //   },
+          // ];
+          this.items = data.map((item) => {
+            return {
+              id: item.jmi_id || 0,
+              country: item.country_name || '',
+              country_id: item.country_id || null,
+              user: item.name || '',
+              dated: item.dated || '',
+            };
+          });
         })
         .catch((error) => {
           // eslint-disable-next-line
@@ -559,58 +526,6 @@ export default {
               : error.response.data.message;
           this.errorMessage = message;
           this.isError = true;
-        });
-    },
-    getPartnerData() {
-      this.isLoading = true;
-      axios
-        .get(`/partners`)
-        .then((response) => {
-          const data = response.data.data;
-          // console.log(data);
-          this.resource.partner = data.map((item) => {
-            return {
-              id: item.partner_id || 1,
-              name: item.partner_name || '',
-            };
-          });
-        })
-        .catch((error) => {
-          // eslint-disable-next-line
-          console.log(error);
-          const message =
-            error.response.data.message === ''
-              ? 'Something Wrong!!!'
-              : error.response.data.message;
-          this.errorMessage = message;
-          this.isError = true;
-        })
-        .finally(() => {
-          this.isLoading = false;
-        });
-    },
-    registrableCountry(id) {
-      this.isSending = true;
-      axios
-        .get(`/registrable_countries/toggle-registrable/${id}`)
-        .then((response) => {
-          const data = response.data;
-          this.successMessage = data.message;
-          this.isSuccess = true;
-          this.getJobCountryData();
-        })
-        .catch((error) => {
-          // eslint-disable-next-line
-          console.log(error);
-          const message =
-            error.response.data.message === ''
-              ? 'Something Wrong!!!'
-              : error.response.data.message;
-          this.errorMessage = message;
-          this.isError = true;
-        })
-        .finally(() => {
-          this.isSending = false;
         });
     },
   },
