@@ -9,7 +9,7 @@
         class="text-decoration-none"
         to="/mall_master"
       >
-        <h3>On-Board Master</h3>
+        <h3>On-Board Mall</h3>
       </router-link>
       <router-link
         active-class="text-blue-accent-4"

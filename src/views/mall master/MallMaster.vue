@@ -9,7 +9,7 @@
         class="text-decoration-none"
         to="/mall_master"
       >
-        <h3>On-Board Master</h3>
+        <h3>On-Board Mall</h3>
       </router-link>
       <router-link
         active-class="text-blue-accent-4"
@@ -68,7 +68,20 @@
           </v-col>
           <v-col cols="12" md="2">
             <label>City</label>
+            <v-combobox
+              v-if="!isEdit"
+              class="mt-2"
+              density="compact"
+              label="Type City"
+              placeholder="Type City"
+              :items="resource.city"
+              item-title="name"
+              item-value="id"
+              v-model="input.city"
+              variant="outlined"
+            ></v-combobox>
             <v-autocomplete
+              v-if="isEdit"
               class="mt-2"
               density="compact"
               label="Type City"
@@ -82,7 +95,20 @@
           </v-col>
           <v-col cols="12" md="2">
             <label>Town</label>
+            <v-combobox
+              v-if="!isEdit"
+              class="mt-2"
+              density="compact"
+              label="Type Town"
+              placeholder="Type Town"
+              :items="resource.town"
+              item-title="name"
+              item-value="id"
+              v-model="input.town"
+              variant="outlined"
+            ></v-combobox>
             <v-autocomplete
+              v-if="isEdit"
               class="mt-2"
               density="compact"
               label="Type Town"
@@ -222,7 +248,7 @@
                       class="d-flex align-center"
                       v-model="item.isActive"
                       rounded="5"
-                      @click="activePartner(item.id)"
+                      @click="activeMall(item.id)"
                     >
                       <v-btn size="27" :value="true"> Yes </v-btn>
 
@@ -240,7 +266,7 @@
                       class="d-flex align-center"
                       v-model="item.isFeatured"
                       rounded="5"
-                      @click="favoritePartner(item.id)"
+                      @click="featuredMall(item.id)"
                     >
                       <v-btn size="27" :value="true"> Yes </v-btn>
 
@@ -261,7 +287,7 @@
                             color="green"
                             variant="text"
                             v-bind="props"
-                            @click="editPartner(item)"
+                            @click="editLocation(item)"
                             icon="mdi-pencil-outline"
                           ></v-btn>
                         </template>
@@ -400,9 +426,7 @@
     <v-dialog persistent width="500" v-model="isDelete">
       <v-card>
         <v-card-title>Confirmation</v-card-title>
-        <v-card-text>
-          Are you sure want to delete this partner location?
-        </v-card-text>
+        <v-card-text> Are you sure want to delete this mall? </v-card-text>
         <v-card-actions>
           <v-spacer></v-spacer>
           <v-btn color="error" text @click="cancelDelete">No</v-btn>
@@ -542,44 +566,26 @@ export default {
       town: [],
       subIndustry: [],
     },
-    itemsTry: [
-      {
-        id: 1,
-        name: 'Parkway Parade',
-        town: 'Marine Parade',
-        city: 'Singapore',
-        country: 'Singapore',
-        isActive: false,
-        isFeatured: false,
-        user: 'Charlton',
-        dated: '15/08/2023',
-        type: 'Mall',
-        latitude: 1.3019,
-        longitude: 103.9028,
-        managed: 'Lendlease Pte Ltd',
-        events: 4,
-        offers: 2,
-        merchants: 14,
-      },
-      {
-        id: 2,
-        name: 'Parkway Parade',
-        town: 'Marine Parade',
-        city: 'Singapore',
-        country: 'Singapore',
-        isActive: false,
-        isFeatured: false,
-        user: 'Charlton',
-        dated: '15/08/2023',
-        type: 'Mall',
-        latitude: 1.3019,
-        longitude: 103.9028,
-        managed: 'Lendlease Pte Ltd',
-        events: 4,
-        offers: 2,
-        merchants: 14,
-      },
-    ],
+    // itemsTry: [
+    //   {
+    //     id: 1,
+    //     name: 'Parkway Parade',
+    //     town: 'Marine Parade',
+    //     city: 'Singapore',
+    //     country: 'Singapore',
+    //     isActive: false,
+    //     isFeatured: false,
+    //     user: 'Charlton',
+    //     dated: '15/08/2023',
+    //     type: 'Mall',
+    //     latitude: 1.3019,
+    //     longitude: 103.9028,
+    //     managed: 'Lendlease Pte Ltd',
+    //     events: 4,
+    //     offers: 2,
+    //     merchants: 14,
+    //   },
+    // ],
   }),
   created() {
     const token = JSON.parse(localStorage.getItem('token'));
@@ -587,7 +593,7 @@ export default {
   },
   mounted() {
     this.idPartnerLocations = this.$route.params.id;
-    this.getPartnerLocationsData();
+    this.getMallData();
     this.getPartnerData();
     this.getCountry();
     this.getCityData();
@@ -597,10 +603,10 @@ export default {
   computed: {
     filteredItems() {
       if (!this.search) {
-        return this.itemsTry;
+        return this.items;
       }
       const searchTextLower = this.search.toLowerCase();
-      return this.itemsTry.filter(
+      return this.items.filter(
         (item) =>
           item.name.toLowerCase().includes(searchTextLower) ||
           item.country.toLowerCase().includes(searchTextLower) ||
@@ -614,75 +620,86 @@ export default {
       this.isEdit = true;
       this.input = {
         id: item.id,
+        mall: item.partner_id,
         country: item.country_id,
         town: item.town_id,
         city: item.city_id,
-        zone: item.zone_id,
-        location: item.location,
+        type: null,
         latitude: item.latitude,
         longitude: item.longitude,
-        address: item.address,
       };
     },
     cancelEdit() {
       this.isEdit = false;
       this.input = {
         id: 0,
+        mall: null,
         country: null,
         town: null,
         city: null,
-        zone: null,
-        location: null,
+        type: null,
         latitude: null,
         longitude: null,
-        address: null,
       };
     },
     saveEdit() {
       if (this.valid) {
         this.isSending = true;
+        console.log(this.input.city);
+        console.log(this.input.town);
         const payload = {
-          pl_id: this.input.id,
+          mall_id: this.input.id,
+          partner_id: this.input.mall,
           country_id: this.input.country,
           city_id: this.input.city,
           town_id: this.input.town,
-          zone_id: this.input.zone,
-          location_name: this.input.location,
+          new_city: '',
+          new_town: '',
           latitude: this.input.latitude,
           longitude: this.input.longitude,
-          location_address: this.input.address,
         };
-        if (this.input.image !== null) {
-          payload['location_image'] = this.input.image;
-        }
         axios
-          .post(`/partner-locations/update`, payload)
+          .post(`/mall/update`, payload)
           .then((response) => {
             const data = response.data;
             this.successMessage = data.message;
             this.isSuccess = true;
-            this.getPartnerLocationsData();
+            this.getMallData();
             this.input = {
               id: 0,
+              mall: null,
               country: null,
               town: null,
               city: null,
-              zone: null,
-              location: null,
+              type: null,
               latitude: null,
               longitude: null,
-              address: null,
             };
           })
           .catch((error) => {
             // eslint-disable-next-line
             console.log(error);
-            const message =
-              error.response.data.message === ''
-                ? 'Something Wrong!!!'
-                : error.response.data.message;
+            const message = error.response.data.partner_id
+              ? error.response.data.partner_id[0]
+              : error.response.data.new_city
+              ? error.response.data.new_city[0]
+              : error.response.data.new_town
+              ? error.response.data.new_town[0]
+              : error.response.data.message
+              ? error.response.data.message
+              : 'Something Wrong!!!';
             this.errorMessage = message;
             this.isError = true;
+            this.input = {
+              id: 0,
+              mall: null,
+              country: null,
+              town: null,
+              city: null,
+              type: null,
+              latitude: null,
+              longitude: null,
+            };
           })
           .finally(() => {
             this.isEdit = false;
@@ -693,43 +710,48 @@ export default {
     saveData() {
       if (this.valid) {
         this.isSending = true;
+        console.log(this.input.city);
+        console.log(this.input.town);
         const payload = {
-          partner_id: this.idPartnerLocations,
+          partner_id: this.input.mall,
           country_id: this.input.country,
-          city_id: this.input.city,
-          town_id: this.input.town,
-          zone_id: this.input.zone,
-          location_name: this.input.location,
+          city_id: this.input.city.id ? this.input.city.id : null,
+          town_id: this.input.town.id ? this.input.town.id : null,
+          new_city: !this.input.city.id ? this.input.city : '',
+          new_town: !this.input.town.id ? this.input.town : '',
           latitude: this.input.latitude,
           longitude: this.input.longitude,
-          location_address: this.input.address,
         };
         axios
-          .post(`/partner-locations`, payload)
+          .post(`/mall`, payload)
           .then((response) => {
             const data = response.data;
             this.successMessage = data.message;
             this.isSuccess = true;
-            this.getPartnerLocationsData();
+            this.getMallData();
             this.input = {
               id: 0,
+              mall: null,
               country: null,
               town: null,
               city: null,
-              zone: null,
-              location: null,
+              type: null,
               latitude: null,
               longitude: null,
-              address: null,
             };
           })
           .catch((error) => {
             // eslint-disable-next-line
             console.log(error);
-            const message =
-              error.response.data.message === ''
-                ? 'Something Wrong!!!'
-                : error.response.data.message;
+            const message = error.response.data.partner_id
+              ? error.response.data.partner_id[0]
+              : error.response.data.new_city
+              ? error.response.data.new_city[0]
+              : error.response.data.new_town
+              ? error.response.data.new_town[0]
+              : error.response.data.message
+              ? error.response.data.message
+              : 'Something Wrong!!!';
             this.errorMessage = message;
             this.isError = true;
           })
@@ -753,12 +775,12 @@ export default {
     deleteLocation() {
       this.isDeleteLoading = true;
       axios
-        .delete(`/partner-locations/${this.locationIdToDelete}`)
+        .delete(`/mall/${this.locationIdToDelete}`)
         .then((response) => {
           const data = response.data;
           this.successMessage = data.message;
           this.isSuccess = true;
-          this.getPartnerLocationsData();
+          this.getMallData();
         })
         .catch((error) => {
           // eslint-disable-next-line
@@ -776,37 +798,45 @@ export default {
           this.isDelete = false;
         });
     },
-    getPartnerLocationsData() {
+
+    getMallData() {
       this.isLoading = true;
       axios
-        .get(`/partner-locations/${this.idPartnerLocations}`)
+        .get(`/mall`)
         .then((response) => {
           const data = response.data.data;
           console.log(data);
           this.items = data.map((item) => {
             return {
-              id: item.pl_id || 1,
-              image: item.location_image || null,
-              location: item.location_name || '',
-              latitude: item.latitude || '',
-              longitude: item.longitude || '',
-              address: item.location_address || '',
-              country: item?.country?.country_name || '',
-              country_id: item?.country?.country_id || null,
-              city: item?.city?.city_name || '',
-              city_id: item?.city?.city_id || null,
-              town: item?.town?.town_name || '',
-              town_id: item?.town?.town_id || null,
-              zone: item?.zone?.zone_name || '',
-              zone_id: item?.zone?.zone_id || null,
-              isPrimary:
-                item.primary == 'N' ? false : item.primary == 'Y' ? true : null,
-              isFavorite:
-                item.favorite == 'N'
+              // type: 'Mall',
+
+              id: item.mall_id || 1,
+              name: item.partner_name || '',
+              partner_id: item.partner_id || null,
+              town: item.town_name || '',
+              city: item.city_name || '',
+              country: item.country_name || '',
+              isActive:
+                item.active == 'N' ? false : item.active == 'Y' ? true : null,
+              isFeatured:
+                item.featured == 'N'
                   ? false
-                  : item.favorite == 'Y'
+                  : item.featured == 'Y'
                   ? true
                   : null,
+              user: item.name || '',
+              dated: item.dated || '',
+              latitude: item.latitude || '',
+              longitude: item.longitude || '',
+              managed: item.managed_by || '',
+              country_id: item.country_id || null,
+              city_id: item.city_id || null,
+              town_id: item?.town_id || null,
+
+              type: 'Mall',
+              events: 4,
+              offers: 2,
+              merchants: 14,
             };
           });
         })
@@ -830,9 +860,6 @@ export default {
         .then((response) => {
           const data = response.data.data;
           // console.log(data);
-          this.partnerName = data
-            .filter((i) => i.partner_id == this.idPartnerLocations)
-            .map((item) => item.partner_name || '')[0];
           this.resource.mall = data.map((item) => {
             return {
               id: item.partner_id || 1,
@@ -853,7 +880,7 @@ export default {
     },
     getCountry() {
       axios
-        .get(`/countries`)
+        .get(`/country`)
         .then((response) => {
           const data = response.data.data;
           this.resource.country = data
@@ -964,15 +991,15 @@ export default {
           this.isLoading = false;
         });
     },
-    primaryLocation(id) {
+    featuredMall(id) {
       this.isSending = true;
       axios
-        .get(`/partner-locations/toggle-primary/${id}`)
+        .get(`/mall/toggle-featured/${id}`)
         .then((response) => {
           const data = response.data;
           this.successMessage = data.message;
           this.isSuccess = true;
-          this.getPartnerLocationsData();
+          this.getMallData();
         })
         .catch((error) => {
           // eslint-disable-next-line
@@ -988,15 +1015,15 @@ export default {
           this.isSending = false;
         });
     },
-    favoriteLocation(id) {
+    activeMall(id) {
       this.isSending = true;
       axios
-        .get(`/partner-locations/toggle-favorite/${id}`)
+        .get(`/mall/toggle-active/${id}`)
         .then((response) => {
           const data = response.data;
           this.successMessage = data.message;
           this.isSuccess = true;
-          this.getPartnerLocationsData();
+          this.getMallData();
         })
         .catch((error) => {
           // eslint-disable-next-line
