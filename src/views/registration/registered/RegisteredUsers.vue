@@ -23,8 +23,8 @@
                 <th class="text-left">Gypsy Id</th>
                 <th class="text-left">Full Name</th>
                 <th class="text-left">Email</th>
-                <th class="text-left">From Country</th>
-                <th class="text-left">Mobile $</th>
+                <th class="text-left">Mobile Number</th>
+                <th class="text-left">WhatsApp</th>
                 <th class="text-left">Actions</th>
               </tr>
             </thead>
@@ -34,7 +34,7 @@
                   <td>
                     <v-img
                       height="40"
-                      width="65"
+                      width="60"
                       @click="openImage(item)"
                       style="cursor: pointer"
                       :src="
@@ -45,19 +45,61 @@
                       ><template #placeholder>
                         <div class="skeleton" /> </template
                     ></v-img>
-                  </td>
-                  <td>{{ item.id }}</td>
-                  <td>
-                    {{ item.name }}
+                    <p class="text-blue-darken-4">{{ item.gender }}</p>
                   </td>
                   <td>
-                    {{ item.email }}
+                    <p>{{ item.id }}</p>
+                    <p class="text-blue-darken-4 mt-2">{{ item.country }}</p>
                   </td>
                   <td>
-                    {{ item.country }}
+                    <p>{{ item.name }}</p>
+                    <p class="text-blue-darken-4 mt-2">
+                      {{ item.nationality }}
+                    </p>
                   </td>
                   <td>
-                    {{ item.mobile }}
+                    <p>{{ item.email }}</p>
+                    <p
+                      class="mt-2"
+                      :class="{
+                        'text-green': item.verifiedEmail == 'verified',
+                        'text-red': item.verifiedEmail == 'Not verified',
+                      }"
+                    >
+                      ({{ item.verifiedEmail }})
+                    </p>
+                  </td>
+                  <td>
+                    <p>{{ item.mobile }}</p>
+                    <p
+                      class="mt-2"
+                      :class="{
+                        'text-green': item.verifiedMobile == 'verified',
+                        'text-red': item.verifiedMobile == 'Not verified',
+                      }"
+                    >
+                      ({{ item.verifiedMobile }})
+                    </p>
+                  </td>
+                  <td>
+                    <p>
+                      {{ item.whatsapp
+                      }}<v-icon
+                        v-if="item.whatsapp"
+                        color="#4EC053"
+                        size="20"
+                        class="ml-2 fab fa-whatsapp"
+                      ></v-icon>
+                    </p>
+                    <p
+                      class="mt-2"
+                      :class="{
+                        'text-green': item.verifiedWhatsApp == 'verified',
+                        'text-red': item.verifiedWhatsApp == 'Not verified',
+                      }"
+                    >
+                      ({{ item.verifiedWhatsApp }})
+                    </p>
                   </td>
 
                   <td>
@@ -80,22 +122,63 @@
                 </tr>
 
                 <tr>
-                  <td colspan="4">
+                  <td colspan="6" style="border-bottom: none">
                     <div class="d-flex justify-start">
-                      <span
+                      <!-- <span
                         class="ml-2 mt-2 mr-16 text-blue-darken-4"
                         style="width: 50px"
                         >{{ item.gender }}</span
-                      >
+                      > -->
                       <v-table class="text-left">
                         <tr>
+                          <th class="pt-2">Last Login</th>
                           <th class="pt-2">Registered</th>
+                          <th class="pt-2 pr-6">Registered By</th>
+                          <th class="pt-2 pr-6">Registered Type</th>
+                          <th class="pt-2 pr-6">Marital Status</th>
+                          <th class="pt-2">Date of Birth</th>
+                        </tr>
+                        <tr>
+                          <td class="pr-10 py-2 text-grey">
+                            {{ item.lastLogin }}
+                          </td>
+                          <td class="pr-6 py-2 text-grey">
+                            {{ item.registered }}
+                          </td>
+                          <td class="pr-6 py-2 text-grey">
+                            {{ item.registeredBy }}
+                          </td>
+                          <td class="pr-6 py-2 text-grey">
+                            {{ item.registeredType }}
+                          </td>
+                          <td class="pr-6 py-2 text-grey">
+                            {{ item.maritalStatus }}
+                          </td>
+                          <td class="pr-6 py-2">
+                            <span class="text-black">{{ item.date }}</span
+                            ><span v-if="item.date" class="text-grey">
+                              ({{ countAge(item.date) }} years)</span
+                            >
+                          </td>
+                        </tr>
+                      </v-table>
+                    </div>
+                  </td>
+                </tr>
+                <tr>
+                  <td colspan="7">
+                    <div class="d-flex justify-start">
+                      <v-table class="text-left">
+                        <tr>
+                          <th class="pt-2"></th>
                           <th class="pt-2">Active</th>
                           <th class="pt-2">Block</th>
                           <th class="pt-2"></th>
                         </tr>
                         <tr>
-                          <td class="pr-16">{{ item.registered }}</td>
+                          <td class="pr-16 pt-2 pb-4">
+                            <div style="width: 35px"></div>
+                          </td>
                           <td class="pr-6 pt-2 pb-4">
                             <v-btn-toggle
                               style="
@@ -356,6 +439,23 @@ export default {
     },
   },
   methods: {
+    countAge(date) {
+      if (!date) return null;
+
+      const today = new Date();
+      const birthDate = new Date(date);
+      let age = today.getFullYear() - birthDate.getFullYear();
+      const monthDiff = today.getMonth() - birthDate.getMonth();
+
+      if (
+        monthDiff < 0 ||
+        (monthDiff === 0 && today.getDate() < birthDate.getDate())
+      ) {
+        age--;
+      }
+
+      return age;
+    },
     updateImageFile(newImageFile) {
       this.imageFile.push(newImageFile);
     },
@@ -509,9 +609,17 @@ export default {
               id: item.gypsy_ref_no || '',
               name: item.name || '',
               email: item.email_id || '',
+              verifiedEmail:
+                item.email_verified == 'Y' ? 'verified' : 'Not verified',
               country_id: item.country_current || null,
               country: item.country?.country_name || '',
+              nationality: item.country?.nationality || '',
               mobile: item.mobile_number || '',
+              verifiedMobile:
+                item.mobile_verified == 'Y' ? 'verified' : 'Not verified',
+              whatsapp: item.whats_app || '',
+              verifiedWhatsApp:
+                item.whatsapp_verified == 'Y' ? 'verified' : 'Not verified',
               gender:
                 item.gender == 'M'
                   ? 'Male'
@@ -524,6 +632,32 @@ export default {
                 item.active == 'N' ? false : item.active == 'Y' ? true : null,
               isBlock:
                 item.block == 'N' ? false : item.block == 'Y' ? true : null,
+              lastLogin: item.last_login || '',
+              registeredBy:
+                item.social_type == 'G'
+                  ? 'Google'
+                  : item.social_type == 'L'
+                  ? 'LinkedIn'
+                  : item.social_type == 'T'
+                  ? 'Twitter'
+                  : item.social_type == 'F'
+                  ? 'Facebook'
+                  : item.social_type == 'T'
+                  ? 'Tiktok'
+                  : '',
+              registeredType:
+                item.registered_type == 'M'
+                  ? 'Mobile'
+                  : item.registered_type == 'W'
+                  ? 'Web'
+                  : '',
+              maritalStatus:
+                item.marital_status == 'M'
+                  ? 'Married'
+                  : item.marital_status == 'S'
+                  ? 'Single'
+                  : '',
+              date: item.date_of_birth || '',
             };
           });
         })
