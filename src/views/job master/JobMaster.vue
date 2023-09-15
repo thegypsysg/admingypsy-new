@@ -108,7 +108,7 @@
                 <th class="text-left">Position</th>
                 <th class="text-left">Client Name</th>
                 <th class="text-left">Sub Industry</th>
-                <th class="text-left">Country</th>
+                <th class="text-left"></th>
                 <th class="text-left">Status</th>
                 <th class="text-left">Actions</th>
               </tr>
@@ -125,7 +125,6 @@
                     {{ item.subIndustry }}
                   </td>
                   <td class="text-black text-bold">
-                    {{ item.country }}
                   </td>
                   <td
                     class="text-bold"
@@ -168,7 +167,7 @@
                   </td>
                 </tr>
                 <tr>
-                  <td colspan="7">
+                  <td style="border-bottom: none;" colspan="7">
                     <div>
                       <v-table class="text-left">
                         <tr>
@@ -177,6 +176,7 @@
                           <th class="pt-2">Live</th>
                           <th class="pt-2">Featured</th>
                           <th class="pt-2">Platinum</th>
+                          <th class="pt-2">Privileged</th>
                           <th class="pt-2 text-blue-darken-4">App Name</th>
                           <th class="pt-2 text-blue-darken-4">Skills Group</th>
                           <th class="pt-2 text-blue-darken-4">Skills Page</th>
@@ -258,6 +258,23 @@
                               <v-btn size="27" :value="false"> No </v-btn>
                             </v-btn-toggle>
                           </td>
+                          <td class="pt-2 pb-4">
+                            <v-btn-toggle
+                              style="
+                                font-size: 10px !important;
+                                font-weight: 200 !important;
+                                height: 22px !important;
+                                width: 54px !important;
+                              "
+                              class="d-flex align-center"
+                              v-model="item.isPlatinum"
+                              rounded="5"
+                            >
+                              <v-btn size="27" :value="true"> Yes </v-btn>
+
+                              <v-btn size="27" :value="false"> No </v-btn>
+                            </v-btn-toggle>
+                          </td>
                           <td class="pt-2 pb-4 text-purple text-bold">
                             {{ item.app }}
                           </td>
@@ -279,14 +296,54 @@
                             </v-btn>
                           </td>
                         </tr>
+                      </v-table>
+                    </div>
+                  </td>
+                </tr>
+                <tr>
+                  <td  colspan="7">
+                    <div>
+                      <v-table class="text-left">
+                        <tr>
+                          <th class="pt-2">Job Country</th>
+                          <th class="pt-2">Show in Country</th>
+                          <th class="pt-2">Job Location</th>
+                          <th class="pt-2"></th>
+                          <th class="pt-2"></th>
+                          <th class="pt-2"></th>
+                          <th class="pt-2"></th>
+                        </tr>
+                        <tr>
+                          <td class="pt-2 pb-4 text-blue-darken-4">
+                            {{ item.country }}
+                          </td>
+                          <td class="pt-2 pb-4 text-blue-darken-4">
+                            Singapore
+                          </td>
+                          <td class="pt-2 pb-4 text-blue-darken-4">
+                            Kallang (East), Singapore
+                          </td>
+                          <td class="pt-2 pb-4 text-blue-darken-4">
+                            <div style="width: 80px;"></div>
+                          </td>
+                          <td class="pt-2 pb-4 text-blue-darken-4">
+                            <div style="width: 80px;"></div>
+                          </td>
+                          <td class="pt-2 pb-4 text-blue-darken-4">
+                            <div style="width: 80px;"></div>
+                          </td>
+                          <td class="pt-2 pb-4 text-blue-darken-4">
+                            <div style="width: 80px;"></div>
+                          </td>
+                        </tr>
                         <tr>
                           <td class="pb-4 font-weight-bold">
-                            <router-link
+                            <!-- <router-link
                               class="text-decoration-none text-blue-darken-4"
                               :to="`/jobs-master/show-in-country/${item.job_id}`"
-                            >
-                              <span>Show in Country</span>
-                            </router-link>
+                            > -->
+                              <span>International : </span>
+                            <!-- </router-link> -->
                           </td>
                           <td
                             colspan="5"
