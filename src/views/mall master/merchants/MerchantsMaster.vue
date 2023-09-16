@@ -168,7 +168,7 @@
                       class="d-flex align-center"
                       v-model="item.isActive"
                       rounded="5"
-                      @click="activePartner(item.id)"
+                      @click="activeMerchants(item.id)"
                     >
                       <v-btn size="27" :value="true"> Yes </v-btn>
 
@@ -186,7 +186,7 @@
                       class="d-flex align-center"
                       v-model="item.isFeatured"
                       rounded="5"
-                      @click="favoritePartner(item.id)"
+                      @click="featuredMerchants(item.id)"
                     >
                       <v-btn size="27" :value="true"> Yes </v-btn>
 
@@ -207,7 +207,7 @@
                             color="green"
                             variant="text"
                             v-bind="props"
-                            @click="editPartner(item)"
+                            @click="editLocation(item)"
                             icon="mdi-pencil-outline"
                           ></v-btn>
                         </template>
@@ -263,13 +263,13 @@
                                 class="text-decoration-none"
                                 :to="`partner_master/locations/${item.id}`"
                               >
-                                <span>Outlets ({{ item.outlets }})</span>
+                                <span>Outlets (<span class="text-red">{{ item.outlets }}</span>)</span>
                               </router-link>
                               <router-link
                                 class="text-decoration-none"
                                 :to="`partner_master/locations/${item.id}`"
                               >
-                                <span>Malls ({{ item.malls }})</span>
+                                <span>Malls (<span class="text-red">{{ item.malls }}</span>)</span>
                               </router-link>
                             </div>
                           </td>
@@ -319,7 +319,7 @@
       <v-card>
         <v-card-title>Confirmation</v-card-title>
         <v-card-text>
-          Are you sure want to delete this partner location?
+          Are you sure want to delete this merchant?
         </v-card-text>
         <v-card-actions>
           <v-spacer></v-spacer>
@@ -373,7 +373,6 @@ export default {
   name: 'LocationsVue',
   data: () => ({
     // fileURL: 'https://admin1.the-gypsy.sg/img/app/',
-    idPartnerLocations: null,
     partnerName: null,
     valid: false,
     isLoading: false,
@@ -394,11 +393,7 @@ export default {
       id: 0,
       mall: null,
       country: null,
-      town: null,
-      city: null,
       type: null,
-      latitude: null,
-      longitude: null,
     },
     rules: {
       countryRules: [
@@ -460,53 +455,38 @@ export default {
       town: [],
       subIndustry: [],
     },
-    itemsTry: [
-      {
-        id: 1,
-        name: 'Pappa Rich',
-        country: 'Singapore',
-        isActive: false,
-        isFeatured: false,
-        user: 'Charlton',
-        dated: '15/08/2023',
-        type: 'Restaurant',
-        outlets: 5,
-        malls: 2,
-      },
-      {
-        id: 1,
-        name: 'Pappa Rich',
-        country: 'Singapore',
-        isActive: false,
-        isFeatured: false,
-        user: 'Charlton',
-        dated: '15/08/2023',
-        type: 'Restaurant',
-        outlets: 5,
-        malls: 2,
-      },
-    ],
+    // itemsTry: [
+    //   {
+    //     id: 1,
+    //     name: 'Pappa Rich',
+    //     country: 'Singapore',
+    //     isActive: false,
+    //     isFeatured: false,
+    //     user: 'Charlton',
+    //     dated: '15/08/2023',
+    //     type: 'Restaurant',
+    //     outlets: 5,
+    //     malls: 2,
+    //   },
+    // ],
   }),
   created() {
     const token = JSON.parse(localStorage.getItem('token'));
     setAuthHeader(token);
   },
   mounted() {
-    this.idPartnerLocations = this.$route.params.id;
-    this.getPartnerLocationsData();
+    this.getMerchantData();
     this.getPartnerData();
     this.getCountry();
-    this.getCityData();
-    this.getTownData();
     this.getSubIndustryData();
   },
   computed: {
     filteredItems() {
       if (!this.search) {
-        return this.itemsTry;
+        return this.items;
       }
       const searchTextLower = this.search.toLowerCase();
-      return this.itemsTry.filter(
+      return this.items.filter(
         (item) =>
           item.name.toLowerCase().includes(searchTextLower) ||
           item.country.toLowerCase().includes(searchTextLower) ||
@@ -520,75 +500,60 @@ export default {
       this.isEdit = true;
       this.input = {
         id: item.id,
+        mall: item.partner_id,
         country: item.country_id,
-        town: item.town_id,
-        city: item.city_id,
-        zone: item.zone_id,
-        location: item.location,
-        latitude: item.latitude,
-        longitude: item.longitude,
-        address: item.address,
+        type: item.sub_industry_id,
       };
     },
     cancelEdit() {
       this.isEdit = false;
       this.input = {
         id: 0,
-        country: null,
-        town: null,
-        city: null,
-        zone: null,
-        location: null,
-        latitude: null,
-        longitude: null,
-        address: null,
+      mall: null,
+      country: null,
+      type: null,
       };
     },
     saveEdit() {
       if (this.valid) {
         this.isSending = true;
         const payload = {
-          pl_id: this.input.id,
+          mm_id: this.input.id,
+          partner_id: this.input.mall,
           country_id: this.input.country,
-          city_id: this.input.city,
-          town_id: this.input.town,
-          zone_id: this.input.zone,
-          location_name: this.input.location,
-          latitude: this.input.latitude,
-          longitude: this.input.longitude,
-          location_address: this.input.address,
+          merchant_type: this.input.type,
         };
-        if (this.input.image !== null) {
-          payload['location_image'] = this.input.image;
-        }
         axios
-          .post(`/partner-locations/update`, payload)
+          .post(`/mall-merchants/update`, payload)
           .then((response) => {
             const data = response.data;
             this.successMessage = data.message;
             this.isSuccess = true;
-            this.getPartnerLocationsData();
+            this.getMerchantData();
             this.input = {
               id: 0,
-              country: null,
-              town: null,
-              city: null,
-              zone: null,
-              location: null,
-              latitude: null,
-              longitude: null,
-              address: null,
+      mall: null,
+      country: null,
+      type: null,
             };
           })
           .catch((error) => {
             // eslint-disable-next-line
             console.log(error);
             const message =
-              error.response.data.message === ''
+            error.response.data.partner_id
+              ? error.response.data.partner_id[0]
+              :error.response.data.message === ''
                 ? 'Something Wrong!!!'
                 : error.response.data.message;
             this.errorMessage = message;
             this.isError = true;
+            this.input = {
+        id: 0,
+      mall: null,
+      country: null,
+      type: null,
+      };
           })
           .finally(() => {
             this.isEdit = false;
@@ -600,40 +565,31 @@ export default {
       if (this.valid) {
         this.isSending = true;
         const payload = {
-          partner_id: this.idPartnerLocations,
+          partner_id: this.input.mall,
           country_id: this.input.country,
-          city_id: this.input.city,
-          town_id: this.input.town,
-          zone_id: this.input.zone,
-          location_name: this.input.location,
-          latitude: this.input.latitude,
-          longitude: this.input.longitude,
-          location_address: this.input.address,
+          merchant_type: this.input.type,
         };
         axios
-          .post(`/partner-locations`, payload)
+          .post(`/mall-merchants`, payload)
           .then((response) => {
             const data = response.data;
             this.successMessage = data.message;
             this.isSuccess = true;
-            this.getPartnerLocationsData();
+            this.getMerchantData();
             this.input = {
               id: 0,
-              country: null,
-              town: null,
-              city: null,
-              zone: null,
-              location: null,
-              latitude: null,
-              longitude: null,
-              address: null,
+      mall: null,
+      country: null,
+      type: null,
             };
           })
           .catch((error) => {
             // eslint-disable-next-line
             console.log(error);
             const message =
-              error.response.data.message === ''
+            error.response.data.partner_id
+              ? error.response.data.partner_id[0]
+              :error.response.data.message === ''
                 ? 'Something Wrong!!!'
                 : error.response.data.message;
             this.errorMessage = message;
@@ -659,12 +615,12 @@ export default {
     deleteLocation() {
       this.isDeleteLoading = true;
       axios
-        .delete(`/partner-locations/${this.locationIdToDelete}`)
+        .delete(`/mall-merchants/${this.locationIdToDelete}`)
         .then((response) => {
           const data = response.data;
           this.successMessage = data.message;
           this.isSuccess = true;
-          this.getPartnerLocationsData();
+          this.getMerchantData();
         })
         .catch((error) => {
           // eslint-disable-next-line
@@ -682,37 +638,34 @@ export default {
           this.isDelete = false;
         });
     },
-    getPartnerLocationsData() {
+    getMerchantData() {
       this.isLoading = true;
       axios
-        .get(`/partner-locations/${this.idPartnerLocations}`)
+        .get(`/mall-merchants`)
         .then((response) => {
           const data = response.data.data;
-          console.log(data);
           this.items = data.map((item) => {
             return {
-              id: item.pl_id || 1,
-              image: item.location_image || null,
-              location: item.location_name || '',
-              latitude: item.latitude || '',
-              longitude: item.longitude || '',
-              address: item.location_address || '',
-              country: item?.country?.country_name || '',
-              country_id: item?.country?.country_id || null,
-              city: item?.city?.city_name || '',
-              city_id: item?.city?.city_id || null,
-              town: item?.town?.town_name || '',
-              town_id: item?.town?.town_id || null,
-              zone: item?.zone?.zone_name || '',
-              zone_id: item?.zone?.zone_id || null,
-              isPrimary:
-                item.primary == 'N' ? false : item.primary == 'Y' ? true : null,
-              isFavorite:
-                item.favorite == 'N'
+              id: item.mm_id || 1,
+              name: item.partner_name || '',
+              partner_id: item.partner_id || null,
+              country: item.country_name || '',
+              country_id: item.country_id || null,
+              isActive:
+                item.active == 'N' ? false : item.active == 'Y' ? true : null,
+              isFeatured:
+                item.featured == 'N'
                   ? false
-                  : item.favorite == 'Y'
+                  : item.featured == 'Y'
                   ? true
                   : null,
+              user: item.name || '',
+              user_id: item.user_id || '',
+              dated: item.dated || '',
+              type: item.sub_industry_name || '',
+              sub_industry_id: item.sub_industry_id || null,
+              outlets: 5,
+              malls: 2,
             };
           });
         })
@@ -759,7 +712,7 @@ export default {
     },
     getCountry() {
       axios
-        .get(`/countries`)
+        .get(`/country`)
         .then((response) => {
           const data = response.data.data;
           this.resource.country = data
@@ -780,66 +733,6 @@ export default {
               : error.response.data.message;
           this.errorMessage = message;
           this.isError = true;
-        });
-    },
-    getCityData() {
-      this.isLoading = true;
-      axios
-        .get(`/cities`)
-        .then((response) => {
-          const data = response.data.data;
-          // console.log(data);
-          this.resource.city = data
-            .sort((a, b) => a.city_name.localeCompare(b.city_name))
-            .map((item) => {
-              return {
-                id: item.city_id || 1,
-                name: item.city_name || '',
-              };
-            });
-        })
-        .catch((error) => {
-          // eslint-disable-next-line
-          console.log(error);
-          const message =
-            error.response.data.message === ''
-              ? 'Something Wrong!!!'
-              : error.response.data.message;
-          this.errorMessage = message;
-          this.isError = true;
-        })
-        .finally(() => {
-          this.isLoading = false;
-        });
-    },
-    getTownData() {
-      this.isLoading = true;
-      axios
-        .get(`/towns`)
-        .then((response) => {
-          const data = response.data.data;
-          // console.log(data);
-          this.resource.town = data
-            .sort((a, b) => a.town_name.localeCompare(b.town_name))
-            .map((item) => {
-              return {
-                id: item.town_id || 1,
-                name: item.town_name || '',
-              };
-            });
-        })
-        .catch((error) => {
-          // eslint-disable-next-line
-          console.log(error);
-          const message =
-            error.response.data.message === ''
-              ? 'Something Wrong!!!'
-              : error.response.data.message;
-          this.errorMessage = message;
-          this.isError = true;
-        })
-        .finally(() => {
-          this.isLoading = false;
         });
     },
     getSubIndustryData() {
@@ -870,15 +763,15 @@ export default {
           this.isLoading = false;
         });
     },
-    primaryLocation(id) {
+    activeMerchants(id) {
       this.isSending = true;
       axios
-        .get(`/partner-locations/toggle-primary/${id}`)
+        .get(`/mall-merchants/toggle-active/${id}`)
         .then((response) => {
           const data = response.data;
           this.successMessage = data.message;
           this.isSuccess = true;
-          this.getPartnerLocationsData();
+          this.getMerchantData();
         })
         .catch((error) => {
           // eslint-disable-next-line
@@ -894,15 +787,15 @@ export default {
           this.isSending = false;
         });
     },
-    favoriteLocation(id) {
+    featuredMerchants(id) {
       this.isSending = true;
       axios
-        .get(`/partner-locations/toggle-favorite/${id}`)
+        .get(`/mall-merchants/toggle-featured/${id}`)
         .then((response) => {
           const data = response.data;
           this.successMessage = data.message;
           this.isSuccess = true;
-          this.getPartnerLocationsData();
+          this.getMerchantData();
         })
         .catch((error) => {
           // eslint-disable-next-line
