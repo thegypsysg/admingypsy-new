@@ -318,13 +318,10 @@
                             {{ item.country }}
                           </td>
                           <td class="pt-2 pb-4 text-blue-darken-4">
-                            Singapore
+                            {{ item.showInCountry }}
                           </td>
                           <td class="pt-2 pb-4 text-blue-darken-4">
-                            Kallang (East), Singapore
-                          </td>
-                          <td class="pt-2 pb-4 text-blue-darken-4">
-                            <div style="width: 80px;"></div>
+                            {{item.jobLocationCity == 'Singapore City' ? item.address2 : item.address}}
                           </td>
                           <td class="pt-2 pb-4 text-blue-darken-4">
                             <div style="width: 80px;"></div>
@@ -334,6 +331,17 @@
                           </td>
                           <td class="pt-2 pb-4 text-blue-darken-4">
                             <div style="width: 80px;"></div>
+                          </td>
+                          <td class="pb-4 d-flex justify-end">
+                            <v-btn
+                            @click="openTemplateConfirm(item)"
+                              color="pink"
+                              style="text-transform: none"
+                              variant="flat"
+                              class="mt-n3 px-5 py-1"
+                            >
+                              Template
+                            </v-btn>
                           </td>
                         </tr>
                         <tr>
@@ -414,6 +422,34 @@
         </v-card-actions>
       </v-card>
     </v-dialog>
+    <v-dialog persistent width="500" v-model="isTemplate">
+      <v-card>
+        <v-card-title>Template</v-card-title>
+        <v-card-text> 
+          <p>Do you wish make Template for</p>
+          <p class="text-blue-lighten-1 mt-2">{{`${templateData?.id} - ${templateData?.position} - ${templateData?.client}`}}</p>
+         </v-card-text>
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn color="error" text @click="cancelTemplate">No</v-btn>
+          <v-btn color="success" text @click="sendTemplate">Yes</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+    <v-dialog persistent width="500" v-model="isSuccessTemplate">
+      <v-card>
+        <v-card-text> 
+          <p class="mb-2">Template Successfully Created</p>
+          <div class="w-100 d-flex"><span class="w-25">Job Ref  : </span><span class="text-red w-75">{{templateData?.id}}</span></div>
+          <div class="w-100 d-flex"><span class="w-25">Position : </span><span class="text-red w-75">{{templateData?.position}}</span></div>
+          <div class="w-100 d-flex"><span class="w-25">Client   : </span><span class="text-red w-75">{{templateData?.client}}</span></div>
+         </v-card-text>
+        <v-card-actions>
+          <v-btn color="blue" text @click="closeTemplateSuccess">OK</v-btn>
+          <v-spacer></v-spacer>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
   </v-container>
 </template>
 
@@ -434,6 +470,9 @@ export default {
     isEdit: false,
     isSuccess: false,
     isDelete: false,
+    isTemplate: false,
+    isSuccessTemplate: false,
+    templateData: null,
     isDeleteLoading: false,
     jobIdToDelete: null,
     tableHeaders: [{ text: 'Gambar', value: 'image' }],
@@ -625,6 +664,51 @@ export default {
           });
       }
     },
+    cancelTemplate() {
+      this.templateData = null;
+      this.isTemplate = false;
+    },
+    openTemplateConfirm(item) {
+      this.templateData = item
+      this.isTemplate = true;
+    },
+    showTemplateSuccess() {
+            this.isTemplate = false;
+            this.isSuccessTemplate = true;
+    },
+    closeTemplateSuccess() {
+      this.isSuccessTemplate = false;
+      this.templateData = null;
+    },
+    sendTemplate() {
+        this.isSending = true;
+        const payload = {
+          job_id: this.templateData.job_id,
+        };
+        axios
+          .post(`/jobs/copy`, payload)
+          .then((response) => {
+            const data = response.data;
+            console.log(data);
+            this.getJobData();
+            this.showTemplateSuccess()
+          })
+          .catch((error) => {
+            // eslint-disable-next-line
+            console.log(error);
+            const message =
+              error.response.data.message === ''
+                ? 'Something Wrong!!!'
+                : error.response.data.message;
+            this.errorMessage = message;
+            this.isError = true;
+            this.templateData = null;
+      this.isTemplate = false;
+          })
+          .finally(() => {
+            this.isSending = false;
+          });
+      },
     cancelDelete() {
       this.jobIdToDelete = null;
       this.isDelete = false;
@@ -632,10 +716,6 @@ export default {
     openDeleteConfirm(itemId) {
       this.jobIdToDelete = itemId;
       this.isDelete = true;
-    },
-    cancelConfirmation() {
-      this.jobIdToDelete = null;
-      this.isDelete = false;
     },
     deleteJob() {
       this.isDeleteLoading = true;
@@ -669,7 +749,7 @@ export default {
         .get(`/jobs`)
         .then((response) => {
           const data = response.data.data;
-          this.items = data.map((item) => {
+          this.items = data.sort((a, b) => b.job_id - a.job_id).map((item) => {
             return {
               //       app: 'The Syringe',
               //       skillsGroup: 'Nusrsing',
@@ -682,7 +762,6 @@ export default {
               partner_id: item.partner_id || 1,
               subIndustry: item.partner.sub_industry.sub_industry_name || '',
               skills_id: item.skills_id || 1,
-              country: item.partner.country.country_name || '',
               status:
                 item.status == 'P'
                   ? 'Pending'
@@ -709,6 +788,37 @@ export default {
               skillsGroup: item.skill.skill_group.group_name || '',
               skills: item.skill.skills_name || '',
               international: item.job_international.map((inter) => inter),
+              country: item.job_country_name || '',
+              countryId: item.job_country || null,
+              showInCountry: item.show_in_country_name || '',
+              showInCountryId: item.show_in_country || null,
+              jobLocationCountry: item.job_location_country_name || '',
+              jobLocationCity: item.job_location_city_name || '',
+              jobLocationTown: item.job_location_town_name || '',
+              jobLocationZone: item.job_location_zone_name || '',
+              address: 
+              item.job_location_country_name && item.job_location_city_name && item.job_location_town_name && item.job_location_zone_name ? `${item.job_location_town_name} (${item.job_location_zone_name}), ${item.job_location_city_name}, ${item.job_location_country_name}` :
+              item.job_location_country_name == null && item.job_location_city_name && item.job_location_town_name && item.job_location_zone_name ? `${item.job_location_town_name} (${item.job_location_zone_name}), ${item.job_location_city_name}` :
+              item.job_location_country_name && item.job_location_city_name == null && item.job_location_town_name && item.job_location_zone_name ? `${item.job_location_town_name} (${item.job_location_zone_name}), ${item.job_location_country_name}` :
+              item.job_location_country_name && item.job_location_city_name && item.job_location_town_name == null && item.job_location_zone_name ? `${item.job_location_city_name} (${item.job_location_zone_name}), ${item.job_location_country_name}` :
+              item.job_location_country_name && item.job_location_city_name && item.job_location_town_name&& item.job_location_zone_name == null  ? `${item.job_location_town_name}, ${item.job_location_city_name}, ${item.job_location_country_name}` :
+              item.job_location_country_name == null && item.job_location_city_name == null && item.job_location_town_name && item.job_location_zone_name  ? `${item.job_location_town_name} (${item.job_location_zone_name})` :
+              item.job_location_country_name && item.job_location_city_name == null && item.job_location_town_name == null && item.job_location_zone_name  ? `${item.job_location_country_name} (${item.job_location_zone_name})` :
+              item.job_location_country_name && item.job_location_city_name && item.job_location_town_name == null && item.job_location_zone_name == null  ? `${item.job_location_city_name}, ${item.job_location_country_name}` :
+              item.job_location_country_name && item.job_location_city_name == null && item.job_location_town_name == null && item.job_location_zone_name == null  ? `${item.job_location_country_name}` :
+              item.job_location_country_name == null && item.job_location_city_name && item.job_location_town_name == null && item.job_location_zone_name == null  ? `${item.job_location_city_name}` :
+              item.job_location_country_name == null && item.job_location_city_name == null && item.job_location_town_name && item.job_location_zone_name == null  ? `${item.job_location_town_name}` :
+              item.job_location_country_name == null && item.job_location_city_name == null && item.job_location_town_name == null && item.job_location_zone_name  ? `${item.job_location_zone_name}` : '-',
+
+              address2: 
+              item.job_location_country_name  && item.job_location_town_name && item.job_location_zone_name ? `${item.job_location_town_name} (${item.job_location_zone_name}), ${item.job_location_country_name}` :
+              item.job_location_country_name == null  && item.job_location_town_name && item.job_location_zone_name ? `${item.job_location_town_name} (${item.job_location_zone_name})` :
+              item.job_location_country_name  && item.job_location_town_name == null && item.job_location_zone_name ? `${item.job_location_country_name}(${item.job_location_zone_name})` :
+              item.job_location_country_name  && item.job_location_town_name && item.job_location_zone_name == null  ? `${item.job_location_town_name}, ${item.job_location_country_name}` :
+              item.job_location_country_name  && item.job_location_town_name == null && item.job_location_zone_name == null  ? `${item.job_location_country_name}` :
+              item.job_location_country_name  == null && item.job_location_town_name && item.job_location_zone_name == null  ? `${item.job_location_town_name}` :
+              item.job_location_country_name == null  && item.job_location_town_name == null && item.job_location_zone_name  ? `${item.job_location_zone_name}` :
+              item.job_location_country_name == null   && item.job_location_town_name == null && item.job_location_zone_name == null  ? `${item.job_location_city_name}` : '-'
             };
           });
         })

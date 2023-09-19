@@ -24,6 +24,9 @@
         {{ itemData?.position || '' }}
       </h2>
     </div>
+    <h2 class="ml-4 mb-6" style="color: #ED1C24; font-weight: 600">
+      {{ itemData?.client || '' }}
+    </h2>
     <div class="d-flex ml-4 mb-4" style="gap: 50px">
       <router-link
         style="font-weight: 500; font-size: 13px"
@@ -367,11 +370,13 @@ export default {
           pl_id: this.input.jobLocation,
           status: this.input.status,
           show_in_country: this.input.showCountry,
+          job_dated:  moment(this.input.postedOn, 'yyyy-mm-DD').format(
+            'DD/mm/yyyy'
+          ),
+          shift_details: this.input.shift,
           // foreigners: this.input.isForeigners,
           // country: this.input.country,
-          // postedOn: this.input.postedOn,
           // days: this.input.days,
-          // shift: this.input.shift,
         };
         axios
           .post(`/jobs/update`, payload)
@@ -407,6 +412,7 @@ export default {
           this.itemData = {
             ...data,
             id: data.job_reference_no || '',
+            client: data.partner.partner_name || '',
             job_id: data.job_id || 1,
             position: data.position.position_name || '',
           };
@@ -426,7 +432,7 @@ export default {
             jobType: data.job_type_id || null,
             workOptions: data.working_options_id || null,
             salary: data.salary_range || '',
-            shift: data.partner.shift || '',
+            shift: data.shift_details || '',
             multiLocations:
               data.multiple_locations == 'N'
                 ? false
@@ -567,7 +573,6 @@ export default {
           const data = response.data;
           this.successMessage = data.message;
           this.isSuccess = true;
-          this.getJobData();
         })
         .catch((error) => {
           // eslint-disable-next-line
