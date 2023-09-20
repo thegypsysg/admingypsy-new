@@ -267,7 +267,8 @@
                                 width: 54px !important;
                               "
                               class="d-flex align-center"
-                              v-model="item.isPlatinum"
+                              v-model="item.isPrivileged"
+                              @click="privilegedJob(item.job_id)"
                               rounded="5"
                             >
                               <v-btn size="27" :value="true"> Yes </v-btn>
@@ -783,6 +784,12 @@ export default {
                   : item.platinum == 'Y'
                   ? true
                   : null,
+              isPrivileged:
+                item.privileged == 'N'
+                  ? false
+                  : item.privileged == 'Y'
+                  ? true
+                  : null,
               isLive: item.live == 'N' ? false : item.live == 'Y' ? true : null,
               app: item.skill.skill_group.app.app_name || '',
               skillsGroup: item.skill.skill_group.group_name || '',
@@ -998,6 +1005,30 @@ export default {
       this.isSending = true;
       axios
         .get(`/jobs/toggle-platinum/${id}`)
+        .then((response) => {
+          const data = response.data;
+          this.successMessage = data.message;
+          this.isSuccess = true;
+          this.getJobData();
+        })
+        .catch((error) => {
+          // eslint-disable-next-line
+          console.log(error);
+          const message =
+            error.response.data.message === ''
+              ? 'Something Wrong!!!'
+              : error.response.data.message;
+          this.errorMessage = message;
+          this.isError = true;
+        })
+        .finally(() => {
+          this.isSending = false;
+        });
+    },
+    privilegedJob(id) {
+      this.isSending = true;
+      axios
+        .get(`/jobs/toggle-privileged/${id}`)
         .then((response) => {
           const data = response.data;
           this.successMessage = data.message;
