@@ -136,7 +136,8 @@
                           <th class="pt-2 pr-6">Registered By</th>
                           <th class="pt-2 pr-6">Registered Type</th>
                           <th class="pt-2 pr-6">Marital Status</th>
-                          <th class="pt-2">Date of Birth</th>
+                          <th class="pt-2 pr-6">Date of Birth</th>
+                          <th class="pt-2">Registered Using</th>
                         </tr>
                         <tr>
                           <td class="pr-10 py-2 text-grey">
@@ -159,6 +160,9 @@
                             ><span v-if="item.date" class="text-grey">
                               ({{ countAge(item.date) }} years)</span
                             >
+                          </td>
+                          <td class="pr-6 py-2 text-red">
+                            Gypsy
                           </td>
                         </tr>
                       </v-table>
@@ -440,10 +444,30 @@ export default {
   },
   methods: {
     countAge(date) {
-      if (!date) return null;
+     // if (!date) return null;
+//
+     // const today = new Date();
+     // const birthDate = new Date(date);
+     // let age = today.getFullYear() - birthDate.getFullYear();
+     // const monthDiff = today.getMonth() - birthDate.getMonth();
+//
+     // if (
+     //   monthDiff < 0 ||
+     //   (monthDiff === 0 && today.getDate() < birthDate.getDate())
+     // ) {
+     //   age--;
+     // }
+//
+     // return age;
+
+            if (!date) return null;
+
+      const [day, month, year] = date.split("/").map(Number);
+      if (isNaN(day) || isNaN(month) || isNaN(year)) return null;
 
       const today = new Date();
-      const birthDate = new Date(date);
+      const birthDate = new Date(year, month - 1, day); // Month is 0-based in JavaScript
+
       let age = today.getFullYear() - birthDate.getFullYear();
       const monthDiff = today.getMonth() - birthDate.getMonth();
 
@@ -638,12 +662,14 @@ export default {
                   ? 'Google'
                   : item.social_type == 'L'
                   ? 'LinkedIn'
-                  : item.social_type == 'T'
+                  : item.social_type == 'X'
                   ? 'Twitter'
                   : item.social_type == 'F'
                   ? 'Facebook'
                   : item.social_type == 'T'
                   ? 'Tiktok'
+                  : item.social_type == 'E'
+                  ? 'Email'
                   : '',
               registeredType:
                 item.registered_type == 'M'
@@ -656,6 +682,8 @@ export default {
                   ? 'Married'
                   : item.marital_status == 'S'
                   ? 'Single'
+                  : item.marital_status == 'O'
+                  ? 'Others'
                   : '',
               date: item.date_of_birth || '',
             };
