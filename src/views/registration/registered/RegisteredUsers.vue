@@ -162,7 +162,7 @@
                             >
                           </td>
                           <td class="pr-6 py-2 text-red">
-                            Gypsy
+                            {{ item.appName }}
                           </td>
                         </tr>
                       </v-table>
@@ -629,6 +629,7 @@ export default {
           this.items = data.map((item) => {
             return {
               image: item.image || null,
+              appName: item.app_name || '',
               gypsy_id: item.gypsy_id || 0,
               id: item.gypsy_ref_no || '',
               name: item.name || '',
