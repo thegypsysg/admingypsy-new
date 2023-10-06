@@ -347,12 +347,12 @@
                         </tr>
                         <tr>
                           <td class="pb-4 font-weight-bold">
-                            <!-- <router-link
+                            <router-link
                               class="text-decoration-none text-blue-darken-4"
                               :to="`/jobs-master/show-in-country/${item.job_id}`"
-                            > -->
+                            >
                               <span>International : </span>
-                            <!-- </router-link> -->
+                            </router-link>
                           </td>
                           <td
                             colspan="5"
