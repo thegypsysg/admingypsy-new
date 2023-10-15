@@ -316,6 +316,19 @@ const routes = [
       }
     },
   },
+    {
+    name: 'Applicant master',
+    path: '/applicant-master',
+    component: () => import('@/views/applicant master/ApplicantMasterContainer.vue'),
+    beforeEnter: (to, from, next) => {
+      // Pengecekan status login sebelum masuk ke halaman beranda
+      if (localStorage.getItem('token') == null) {
+        next('/auth/login'); // Alihkan ke halaman login jika belum masuk
+      } else {
+        next(); // Lanjutkan ke halaman beranda jika sudah masuk
+      }
+    },
+  },
   {
     name: 'partner master',
     path: '/partner_master',

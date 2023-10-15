@@ -55,6 +55,10 @@ export default createStore({
             path: '/jobs-master',
           },
           {
+            title: 'Applicant Master',
+            path: '/applicant-master',
+          },
+          {
             title: 'Qualification Master',
             path: '/qualification_master',
           },
