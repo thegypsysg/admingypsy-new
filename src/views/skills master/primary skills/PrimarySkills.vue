@@ -243,7 +243,7 @@
                           </td>
                           <td>
                             <tr>
-                              <th class="pt-2">Registrable</th>
+                              <th class="pt-2 text-red-darken-4">Stand Alone</th>
                             </tr>
                             <tr>
                               <td class="pt-4 pb-1">
@@ -255,8 +255,8 @@
                                     width: 54px !important;
                                   "
                                   class="d-flex align-center"
-                                  v-model="item.isRegistrable"
-                                  @click="registrableSkill(item.id)"
+                                  v-model="item.isStandAlone"
+                                  @click="standAloneSkill(item.id)"
                                   rounded="5"
                                 >
                                   <v-btn size="27" :value="true"> Yes </v-btn>
@@ -776,10 +776,10 @@ export default {
                 app_id: item.app_id || 0,
                 isActive:
                   item.active == 'N' ? false : item.active == 'Y' ? true : null,
-                isRegistrable:
-                  item.registrable == 'N'
+                isStandAlone:
+                  item.stand_alone == 'N'
                     ? false
-                    : item.registrable == 'Y'
+                    : item.stand_alone == 'Y'
                     ? true
                     : null,
               };
@@ -879,10 +879,10 @@ export default {
           this.isSending = false;
         });
     },
-    registrableSkill(id) {
+    standAloneSkill(id) {
       this.isSending = true;
       axios
-        .get(`/skills/toggle-registrable/${id}`)
+        .get(`/skills/toggle-stand-alone/${id}`)
         .then((response) => {
           const data = response.data;
           this.successMessage = data.message;

@@ -2,7 +2,21 @@
 <template>
   <v-container>
     <div class="d-flex ml-4 mb-4" style="gap: 40px">
+      <router-link
+      active-class="text-black"
+      style="color: #3e4aaf"
+      class="text-decoration-none"
+      to="/course_master"
+    >
       <h2 class="text-blue-darken-2">Course Master</h2>
+      </router-link>
+      <router-link
+      style="color: #940F1B"
+      class="text-decoration-none"
+      to="/university_master"
+    >
+      <h2 >University Master</h2>
+      </router-link>
     </div>
     <v-form v-model="valid" @submit.prevent>
       <v-container>
