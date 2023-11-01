@@ -8,7 +8,7 @@
           <v-text-field
             density="compact"
             v-model="search"
-            label="Search by Full Name or Email or Mobile or What's App"
+            label="Search by Full Name or Email or Mobile or What's App or Job ID"
             variant="outlined"
             hide-details
             clearable
@@ -34,7 +34,7 @@
             placeholder="Type Primary Skills"
             :items="resource.skills"
             item-title="name"
-            item-value="id"
+            item-value="name"
             v-model="skills"
             variant="outlined"
           ></v-autocomplete>
@@ -46,10 +46,11 @@
             <thead>
               <tr>
                 <th class="text-left">Image</th>
-                <th class="text-left">Gypsy Id</th>
                 <th class="text-left">Full Name</th>
-                <th class="text-left">Email</th>
-                <th class="text-left">Mobile Number</th>
+                <th class="text-left">Born In</th>
+                <th class="text-left">Nationality</th>
+                <th class="text-left">Current Location</th>
+                <th class="text-left">Mobile #</th>
                 <th class="text-left">WhatsApp</th>
                 <!-- <th class="text-left">Actions</th> -->
               </tr>
@@ -71,21 +72,29 @@
                       ><template #placeholder>
                         <div class="skeleton" /> </template
                     ></v-img>
-                    <p class="text-blue-darken-4">{{ item.gender }}</p>
-                  </td>
-                  <td>
-                    <p>{{ item.id }}</p>
-                    <p class="text-blue-darken-4 mt-2">{{ item.country }}</p>
+                    <p class="text-blue-darken-4 text-center">{{ item.gender }}</p>
                   </td>
                   <td>
                     <p>{{ item.name }}</p>
+                    <p class="text-blue-darken-4 mt-2">{{ item.maritalStatus }}</p>
+                  </td>
+                  <td>
+                    <p>{{ item.country }}</p>
                     <p class="text-blue-darken-4 mt-2">
-                      {{ item.nationality }}
+                      <span class="text-blue-darken-4">{{ item.date }}</span
+                        ><span v-if="item.date" class="text-blue-darken-4">
+                          ({{ countAge(item.date) }} years)</span
+                        >
                     </p>
                   </td>
                   <td>
-                    <p>{{ item.email }}</p>
-                    <p
+                    <p>{{ item.nationality }}</p>
+                    
+                  </td>
+                  <td class="text-blue-darken-4">
+                    <p>{{  item.town ? item.town + ', ' + item.city : item.city }}</p>
+                    <p>{{ item.country}}</p>
+                    <!-- <p
                       class="mt-2"
                       :class="{
                         'text-green': item.verifiedEmail == 'verified',
@@ -93,7 +102,7 @@
                       }"
                     >
                       ({{ item.verifiedEmail }})
-                    </p>
+                    </p> -->
                   </td>
                   <td>
                     <p>{{ item.mobile }}</p>
@@ -148,7 +157,7 @@
                 </tr>
 
                 <tr>
-                  <td colspan="5" style="border-bottom: none">
+                  <td colspan="9" style="border-bottom: none">
                     <div class="d-flex justify-start">
                       <!-- <span
                         class="ml-2 mt-2 mr-16 text-blue-darken-4"
@@ -158,56 +167,45 @@
                       <v-table class="text-left">
                         <tr>
                           <th class="pt-2">Last Login</th>
-                          <th class="pt-2">Registered</th>
+                          <th class="pt-2">Email</th>
+                          <th class="pt-2">Gypsy ID</th>
+                          <th class="pt-2">Registered On</th>
                           <th class="pt-2 pr-6">Registered By</th>
                           <th class="pt-2 pr-6">Registered Type</th>
-                          <th class="pt-2 pr-6">Marital Status</th>
-                          <th class="pt-2 pr-6">Date of Birth</th>
-                          <th class="pt-2">Registered Using</th>
+                          <th class="pt-2 pr-6">Registered Using</th>
+                          <th class="pt-2 ">Active</th>
+                          <th class="pt-2"></th>
                         </tr>
                         <tr>
-                          <td class="pr-10 py-2 text-grey">
+                          <td class="pr-10 py-2">
                             {{ item.lastLogin }}
                           </td>
-                          <td class="pr-6 py-2 text-grey">
-                            {{ item.registered }}
-                          </td>
-                          <td class="pr-6 py-2 text-grey">
-                            {{ item.registeredBy }}
-                          </td>
-                          <td class="pr-6 py-2 text-grey">
-                            {{ item.registeredType }}
-                          </td>
-                          <td class="pr-6 py-2 text-grey">
-                            {{ item.maritalStatus }}
+                          <td class="pr-6 py-2">
+                           <p> {{ item.email }}</p>
+                            <p
+                      class="mt-2"
+                      :class="{
+                        'text-green': item.verifiedEmail == 'verified',
+                        'text-red': item.verifiedEmail == 'Not verified',
+                      }"
+                    >
+                      ({{ item.verifiedEmail }})
+                    </p>
                           </td>
                           <td class="pr-6 py-2">
-                            <span class="text-black">{{ item.date }}</span
-                            ><span v-if="item.date" class="text-grey">
-                              ({{ countAge(item.date) }} years)</span
-                            >
+                            {{ item.id }}
                           </td>
-                          <td class="pr-6 py-2 text-red">
+                          <td class="pr-6 py-2">
+                            {{ item.registered }}
+                          </td>
+                          <td class="pr-6 py-2">
+                            {{ item.registeredBy }}
+                          </td>
+                          <td class="pr-6 py-2">
+                            {{ item.registeredType }}
+                          </td>
+                          <td class="pr-6 py-2">
                             {{ item.appName }}
-                          </td>
-                        </tr>
-                      </v-table>
-                    </div>
-                  </td>
-                </tr>
-                <tr>
-                  <td colspan="6">
-                    <div class="d-flex justify-start">
-                      <v-table class="text-left">
-                        <tr>
-                          <th class="pt-2"></th>
-                          <th class="pt-2">Active</th>
-                          <th class="pt-2">Block</th>
-                          <th class="pt-2"></th>
-                        </tr>
-                        <tr>
-                          <td class="pr-16 pt-2 pb-4">
-                            <div style="width: 35px"></div>
                           </td>
                           <td class="pr-6 pt-2 pb-4">
                             <v-btn-toggle
@@ -227,6 +225,64 @@
                               <v-btn size="27" :value="false"> No </v-btn>
                             </v-btn-toggle>
                           </td>
+                        </tr>
+                      </v-table>
+                    </div>
+                  </td>
+                </tr>
+                <tr>
+                  <td colspan="9">
+                    <div class="d-flex justify-start">
+                      <v-table class="text-left">
+                        <tr>
+                          <th class="pt-2"></th>
+                          <th class="pt-2 pr-6">Applicant ID</th>
+                          <th class="pt-2">Employed</th>
+                          <th class="pt-2 pr-6">Main Skills</th>
+                          <th class="pt-2 pr-6">Current Position</th>
+                          <th class="pt-2 pr-6">Current Employer</th>
+                          <th class="pt-2 pr-6">Applications Made</th>
+                          <th class="pt-2">Block</th>
+                          <th class="pt-2"></th>
+                        </tr>
+                        <tr>
+                          <td class="pr-16 pt-2 pb-4">
+                            <div style="width: 35px"></div>
+                          </td>
+                          <td class="pr-6 py-2 text-blue-darken-4">
+                            {{ item.applicant_id }}
+                          </td>
+                          <td class="pr-6 pt-2 pb-4">
+                            <v-btn-toggle
+                              style="
+                                font-size: 10px !important;
+                                font-weight: 200 !important;
+                                height: 22px !important;
+                                width: 54px !important;
+                              "
+                              class="d-flex align-center"
+                              v-model="item.isEmployed"
+                              rounded="5"
+                              @click="employedUser(item.gypsy_id)"
+                            >
+                              <v-btn size="27" :value="true"> Yes </v-btn>
+
+                              <v-btn size="27" :value="false"> No </v-btn>
+                            </v-btn-toggle>
+                          </td>
+                          <td class="pr-6 py-2 text-blue-darken-4">
+                            {{ item.skills }}
+                          </td>
+                          <td class="pr-6 py-2">
+                            {{ item.position }}
+                          </td>
+                          <td class="pr-6 py-2">
+                          <p>{{ item.employer }}</p>
+                          <p>{{ item.country }}</p>
+                          </td>
+                          <td class="pr-6 py-2 text-blue-darken-4 text-center">
+                            10
+                          </td>
                           <td class="pr-6 pt-2 pb-4">
                             <v-btn-toggle
                               style="
@@ -244,25 +300,6 @@
 
                               <v-btn size="27" :value="false"> No </v-btn>
                             </v-btn-toggle>
-                          </td>
-                          <td class="pr-6 pt-2 pb-4">
-                            <div
-                              class="d-flex justify-center"
-                              style="gap: 20px"
-                            >
-                              <router-link
-                                class="text-decoration-none"
-                                :to="`registered_users/main-info/${item.id}`"
-                              >
-                                <span>Main Info</span>
-                              </router-link>
-                              <router-link
-                                class="text-decoration-none"
-                                :to="`registered_users/socials/${item.id}`"
-                              >
-                                <span>Socials</span>
-                              </router-link>
-                            </div>
                           </td>
                         </tr>
                       </v-table>
@@ -458,23 +495,63 @@ export default {
   },
   computed: {
     filteredItems() {
-      if (!this.search && this.app === null) {
+      if (!this.search && this.app === null && this.skills === null) {
         return this.items;
-      } else if (this.search && this.app === null) {
+      } else if (this.search && this.app === null && this.skills === null) {
       const searchTextLower = this.search.toLowerCase();
       return this.items.filter(
         (item) =>
+          item.id.toLowerCase().includes(searchTextLower) ||
+          item.applicant_id.toLowerCase().includes(searchTextLower) ||
           item.name.toLowerCase().includes(searchTextLower) ||
           item.email.toLowerCase().includes(searchTextLower) ||
           item.mobile.toLowerCase().includes(searchTextLower) ||
           item.whatsapp.toLowerCase().includes(searchTextLower)
       );
-      } else if (!this.search && this.app !== null) {
+      } else if (!this.search && this.app === null && this.skills !== null) {
+        const filteredData = this.items.filter((item) => {
+          return this.skills
+            ? item.skills.toLowerCase() ===
+                this.skills.toLowerCase()
+            : true;
+        });
+        return filteredData;
+      } else if (!this.search && this.app !== null && this.skills === null) {
         const filteredData = this.items.filter((item) => {
           return this.app
             ? item.appName.toLowerCase() ===
                 this.app.toLowerCase()
             : true;
+        });
+        return filteredData;
+      } else if (this.search && this.app !== null && this.skills === null) {
+        const searchTextLower = this.search.toLowerCase();
+        const filteredData = this.items.filter((item) => {
+          return (
+            (item.name.toLowerCase().includes(searchTextLower) ||
+            item.email.toLowerCase().includes(searchTextLower) ||
+            item.mobile.toLowerCase().includes(searchTextLower) ||
+            item.whatsapp.toLowerCase().includes(searchTextLower)) &&
+            (this.app
+            ? item.appName.toLowerCase() ===
+                this.app.toLowerCase()
+            : true)
+          );
+        });
+        return filteredData;
+      } else if (this.search && this.app === null && this.skills !== null) {
+        const searchTextLower = this.search.toLowerCase();
+        const filteredData = this.items.filter((item) => {
+          return (
+            (item.name.toLowerCase().includes(searchTextLower) ||
+            item.email.toLowerCase().includes(searchTextLower) ||
+            item.mobile.toLowerCase().includes(searchTextLower) ||
+            item.whatsapp.toLowerCase().includes(searchTextLower)) &&
+            (this.skills
+            ? item.skills.toLowerCase() ===
+                this.skills.toLowerCase()
+            : true)
+          );
         });
         return filteredData;
       } else {
@@ -485,6 +562,10 @@ export default {
             item.email.toLowerCase().includes(searchTextLower) ||
             item.mobile.toLowerCase().includes(searchTextLower) ||
             item.whatsapp.toLowerCase().includes(searchTextLower)) &&
+            (this.skills
+            ? item.skills.toLowerCase() ===
+                this.skills.toLowerCase()
+            : true) && 
             (this.app
             ? item.appName.toLowerCase() ===
                 this.app.toLowerCase()
@@ -509,59 +590,6 @@ export default {
     //},
   },
   methods: {
-    getAppActive() {
-      axios
-        .get(`/app/active`)
-        .then((response) => {
-          const data = response.data.data;
-          // console.log(data);
-          this.resource.app = data
-            .sort((a, b) => a.app_id < b.app_id)
-            .map((app) =>  app.app_name);
-          // console.log(this.items);
-        })
-        .catch((error) => {
-          // eslint-disable-next-line
-          console.log(error);
-          const message =
-            error.response.data.message === ''
-              ? 'Something Wrong!!!'
-              : error.response.data.message;
-          this.errorMessage = message;
-          this.isError = true;
-        });
-    },
-    getPrimarySkillData() {
-      this.isLoading = true;
-      axios
-        .get(`/skills`)
-        .then((response) => {
-          const data = response.data.data;
-          // console.log(data);
-
-          this.resource.skills = data
-            .sort((a, b) => a.skills_id > b.skills_id)
-            .map((item) => {
-              return {
-                id: item.skills_id || 1,
-                name: item.skills_name || '',
-              };
-            });
-        })
-        .catch((error) => {
-          // eslint-disable-next-line
-          console.log(error);
-          const message =
-            error.response.data.message === ''
-              ? 'Something Wrong!!!'
-              : error.response.data.message;
-          this.errorMessage = message;
-          this.isError = true;
-        })
-        .finally(() => {
-          this.isLoading = false;
-        });
-    },
     countAge(date) {
      // if (!date) return null;
 //
@@ -751,12 +779,15 @@ export default {
               appName: item.app_name || '',
               gypsy_id: item.gypsy_id || 0,
               id: item.gypsy_ref_no || '',
+              applicant_id: item.applicant_ref_no || '',
               name: item.name || '',
               email: item.email_id || '',
               verifiedEmail:
                 item.email_verified == 'Y' ? 'verified' : 'Not verified',
               country_id: item.country_current || null,
               country: item.country?.country_name || '',
+              city: item.city_name || '',
+              town: item.town_name || '',
               nationality: item.country?.nationality || '',
               mobile: item.mobile_number || '',
               verifiedMobile:
@@ -776,6 +807,8 @@ export default {
                 item.active == 'N' ? false : item.active == 'Y' ? true : null,
               isBlock:
                 item.block == 'N' ? false : item.block == 'Y' ? true : null,
+              isEmployed:
+                item.employed == 'N' ? false : item.employed == 'Y' ? true : null,
               lastLogin: item.last_login || '',
               registeredBy:
                 item.social_type == 'G'
@@ -806,6 +839,9 @@ export default {
                   ? 'Others'
                   : '',
               date: item.date_of_birth || '',
+              skills: item.skills_name || '',
+              position: item.position_name || '',
+              employer: item.employer_name || '',
             };
           });
         })
@@ -827,6 +863,30 @@ export default {
       this.isSending = true;
       axios
         .get(`/gypsy-registration/toggle-active/${id}`)
+        .then((response) => {
+          const data = response.data;
+          this.successMessage = data.message;
+          this.isSuccess = true;
+          this.getUserData();
+        })
+        .catch((error) => {
+          // eslint-disable-next-line
+          console.log(error);
+          const message =
+            error.response.data.message === ''
+              ? 'Something Wrong!!!'
+              : error.response.data.message;
+          this.errorMessage = message;
+          this.isError = true;
+        })
+        .finally(() => {
+          this.isSending = false;
+        });
+    },
+    employedUser(id) {
+      this.isSending = true;
+      axios
+        .get(`/gypsy-registration/toggle-employed/${id}`)
         .then((response) => {
           const data = response.data;
           this.successMessage = data.message;
@@ -869,6 +929,59 @@ export default {
         })
         .finally(() => {
           this.isSending = false;
+        });
+    },
+    getAppActive() {
+      axios
+        .get(`/app/active`)
+        .then((response) => {
+          const data = response.data.data;
+          // console.log(data);
+          this.resource.app = data
+            .sort((a, b) => a.app_id < b.app_id)
+            .map((app) =>  app.app_name);
+          // console.log(this.items);
+        })
+        .catch((error) => {
+          // eslint-disable-next-line
+          console.log(error);
+          const message =
+            error.response.data.message === ''
+              ? 'Something Wrong!!!'
+              : error.response.data.message;
+          this.errorMessage = message;
+          this.isError = true;
+        });
+    },
+    getPrimarySkillData() {
+      this.isLoading = true;
+      axios
+        .get(`/skills`)
+        .then((response) => {
+          const data = response.data.data;
+          // console.log(data);
+
+          this.resource.skills = data
+            .sort((a, b) => a.skills_id > b.skills_id)
+            .map((item) => {
+              return {
+                id: item.skills_id || 1,
+                name: item.skills_name || '',
+              };
+            });
+        })
+        .catch((error) => {
+          // eslint-disable-next-line
+          console.log(error);
+          const message =
+            error.response.data.message === ''
+              ? 'Something Wrong!!!'
+              : error.response.data.message;
+          this.errorMessage = message;
+          this.isError = true;
+        })
+        .finally(() => {
+          this.isLoading = false;
         });
     },
   },
