@@ -31,8 +31,8 @@
           <v-autocomplete
             density="compact"
             label="--- Primary Skills ---"
-            clearable
             placeholder="Type Primary Skills"
+            clearable
             :items="resource.skills"
             item-title="name"
             item-value="name"
@@ -47,12 +47,13 @@
             <thead>
               <tr>
                 <th class="text-left">Image</th>
-                <th class="text-left">Full Name</th>
-                <th class="text-left">Born In</th>
-                <th class="text-left">Nationality</th>
-                <th class="text-left">Current Location</th>
-                <th class="text-left">Mobile #</th>
-                <th class="text-left">WhatsApp</th>
+                <th class="text-left">Applicant Ref. #</th>
+                <th class="text-left">Applicant Name</th>
+                <th class="text-left">Employer Name</th>
+                <th class="text-left">Job Ref #</th>
+                <th class="text-left">Position</th>
+                <th class="text-left">Eligible to Apply</th>
+                <th class="text-left">Status</th>
                 <!-- <th class="text-left">Actions</th> -->
               </tr>
             </thead>
@@ -73,69 +74,51 @@
                       ><template #placeholder>
                         <div class="skeleton" /> </template
                     ></v-img>
-                    <p class="text-blue-darken-4 text-center">{{ item.gender }}</p>
-                  </td>
-                  <td>
-                    <p>{{ item.name }}</p>
-                    <p class="text-blue-darken-4 mt-2">{{ item.maritalStatus }}</p>
-                  </td>
-                  <td>
-                    <p>{{ item.country }}</p>
-                    <p class="text-blue-darken-4 mt-2">
-                      <span class="text-blue-darken-4">{{ item.date }}</span
-                        ><span v-if="item.date" class="text-blue-darken-4">
-                          ({{ countAge(item.date) }} years)</span
-                        >
-                    </p>
-                  </td>
-                  <td>
-                    <p>{{ item.nationality }}</p>
-                    
                   </td>
                   <td class="text-blue-darken-4">
-                    <p>{{  item.town ? item.town + ', ' + item.city : item.city }}</p>
-                    <p>{{ item.country}}</p>
-                    <!-- <p
-                      class="mt-2"
-                      :class="{
-                        'text-green': item.verifiedEmail == 'verified',
-                        'text-red': item.verifiedEmail == 'Not verified',
-                      }"
-                    >
-                      ({{ item.verifiedEmail }})
-                    </p> -->
+                    {{ item.id }}
                   </td>
                   <td>
-                    <p>{{ item.mobile }}</p>
-                    <p
-                      class="mt-2"
-                      :class="{
-                        'text-green': item.verifiedMobile == 'verified',
-                        'text-red': item.verifiedMobile == 'Not verified',
-                      }"
-                    >
-                      ({{ item.verifiedMobile }})
-                    </p>
+                    <p class="text-blue-darken-4">{{ item.name }}</p>
                   </td>
                   <td>
-                    <p>
-                      {{ item.whatsapp
-                      }}<v-icon
-                        v-if="item.whatsapp"
-                        color="#4EC053"
-                        size="20"
-                        class="ml-2 fab fa-whatsapp"
-                      ></v-icon>
-                    </p>
-                    <p
-                      class="mt-2"
-                      :class="{
-                        'text-green': item.verifiedWhatsApp == 'verified',
-                        'text-red': item.verifiedWhatsApp == 'Not verified',
-                      }"
-                    >
-                      ({{ item.verifiedWhatsApp }})
-                    </p>
+                    <p class="text-blue-darken-4">{{ item.employer }}</p>
+                  </td>
+                  <td>
+                    <p class="text-blue-darken-4">{{ item.applicant_id }}</p>
+                  </td>
+                  <td>
+                    <p class="text-blue-darken-4">{{ item.position }}</p>
+                  </td>
+                  <td>
+                    <v-btn-toggle
+                              style="
+                                font-size: 10px !important;
+                                font-weight: 200 !important;
+                                height: 22px !important;
+                                width: 54px !important;
+                              "
+                              class="d-flex align-center"
+                              v-model="item.isActive"
+                              rounded="5"
+                              @click="activeUser(item.gypsy_id)"
+                            >
+                              <v-btn size="27" :value="true"> Yes </v-btn>
+
+                              <v-btn size="27" :value="false"> No </v-btn>
+                            </v-btn-toggle>
+                  </td>
+                  <td>
+                    <v-select
+                    style="min-width: 120px !important;"
+                  density="compact"
+                  placeholder="status"
+                  item-value="value"
+                  item-title="label"
+                  :items="resource.status"
+                  v-model="item.status"
+                  variant="outlined"
+                ></v-select>
                   </td>
 
                   <!-- <td>
@@ -158,7 +141,7 @@
                 </tr>
 
                 <tr>
-                  <td colspan="9" style="border-bottom: none">
+                  <td colspan="8" >
                     <div class="d-flex justify-start">
                       <!-- <span
                         class="ml-2 mt-2 mr-16 text-blue-darken-4"
@@ -167,91 +150,25 @@
                       > -->
                       <v-table class="text-left">
                         <tr>
-                          <th class="pt-2">Last Login</th>
-                          <th class="pt-2">Email</th>
-                          <th class="pt-2">Gypsy ID</th>
-                          <th class="pt-2">Registered On</th>
-                          <th class="pt-2 pr-6">Registered By</th>
-                          <th class="pt-2 pr-6">Registered Type</th>
-                          <th class="pt-2 pr-6">Registered Using</th>
-                          <th class="pt-2 ">Active</th>
                           <th class="pt-2"></th>
-                        </tr>
-                        <tr>
-                          <td class="pr-10 py-2">
-                            {{ item.lastLogin }}
-                          </td>
-                          <td class="pr-6 py-2">
-                           <p> {{ item.email }}</p>
-                            <p
-                      class="mt-2"
-                      :class="{
-                        'text-green': item.verifiedEmail == 'verified',
-                        'text-red': item.verifiedEmail == 'Not verified',
-                      }"
-                    >
-                      ({{ item.verifiedEmail }})
-                    </p>
-                          </td>
-                          <td class="pr-6 py-2">
-                            {{ item.id }}
-                          </td>
-                          <td class="pr-6 py-2">
-                            {{ item.registered }}
-                          </td>
-                          <td class="pr-6 py-2">
-                            {{ item.registeredBy }}
-                          </td>
-                          <td class="pr-6 py-2">
-                            {{ item.registeredType }}
-                          </td>
-                          <td class="pr-6 py-2">
-                            {{ item.appName }}
-                          </td>
-                          <td class="pr-6 pt-2 pb-4">
-                            <v-btn-toggle
-                              style="
-                                font-size: 10px !important;
-                                font-weight: 200 !important;
-                                height: 22px !important;
-                                width: 54px !important;
-                              "
-                              class="d-flex align-center"
-                              v-model="item.isActive"
-                              rounded="5"
-                              @click="activeUser(item.gypsy_id)"
-                            >
-                              <v-btn size="27" :value="true"> Yes </v-btn>
-
-                              <v-btn size="27" :value="false"> No </v-btn>
-                            </v-btn-toggle>
-                          </td>
-                        </tr>
-                      </v-table>
-                    </div>
-                  </td>
-                </tr>
-                <tr>
-                  <td colspan="9">
-                    <div class="d-flex justify-start">
-                      <v-table class="text-left">
-                        <tr>
-                          <th class="pt-2"></th>
-                          <th class="pt-2 pr-6">Applicant ID</th>
-                          <th class="pt-2">Employed</th>
-                          <th class="pt-2 pr-6">Main Skills</th>
-                          <th class="pt-2 pr-6">Current Position</th>
-                          <th class="pt-2 pr-6">Current Employer</th>
-                          <th class="pt-2 pr-6">Applications Made</th>
-                          <th class="pt-2">Block</th>
+                          <th class="pt-2">Submitted On</th>
+                          <th class="pt-2">App ID</th>
+                          <th class="pt-2">Main Skills</th>
+                          <th class="pt-2 pr-6">Registrable</th>
                           <th class="pt-2"></th>
                         </tr>
                         <tr>
                           <td class="pr-16 pt-2 pb-4">
                             <div style="width: 35px"></div>
                           </td>
-                          <td class="pr-6 py-2 text-blue-darken-4">
-                            {{ item.applicant_id }}
+                          <td class="pr-10 py-2 text-blue-darken-4">
+                            {{ item.registered }}
+                          </td>
+                          <td class="pr-10 py-2 text-blue-darken-4">
+                            {{ item.appName }}
+                          </td>
+                          <td class="pr-10 py-2 text-blue-darken-4">
+                            {{ item.skills }}
                           </td>
                           <td class="pr-6 pt-2 pb-4">
                             <v-btn-toggle
@@ -271,36 +188,16 @@
                               <v-btn size="27" :value="false"> No </v-btn>
                             </v-btn-toggle>
                           </td>
-                          <td class="pr-6 py-2 text-blue-darken-4">
-                            {{ item.skills }}
-                          </td>
-                          <td class="pr-6 py-2">
-                            {{ item.position }}
-                          </td>
-                          <td class="pr-6 py-2">
-                          <p>{{ item.employer }}</p>
-                          <p>{{ item.country }}</p>
-                          </td>
-                          <td class="pr-6 py-2 text-blue-darken-4 text-center">
-                            10
-                          </td>
-                          <td class="pr-6 pt-2 pb-4">
-                            <v-btn-toggle
-                              style="
-                                font-size: 10px !important;
-                                font-weight: 200 !important;
-                                height: 22px !important;
-                                width: 54px !important;
-                              "
-                              class="d-flex align-center"
-                              v-model="item.isBlock"
-                              rounded="5"
-                              @click="blockUser(item.gypsy_id)"
+                          <td class="pb-4 w-100 d-flex justify-end">
+                            <div style="min-width: 200px;"></div>
+                            <v-btn
+                              color="indigo-accent-2"
+                              style="text-transform: none"
+                              variant="flat"
+                              class="mt-n3 px-2 py-1"
                             >
-                              <v-btn size="27" :value="true"> Yes </v-btn>
-
-                              <v-btn size="27" :value="false"> No </v-btn>
-                            </v-btn-toggle>
+                              View Details
+                            </v-btn>
                           </td>
                         </tr>
                       </v-table>
@@ -435,6 +332,16 @@ export default {
       country: [],
       skills: [],
       app: [],
+      status: [
+        {
+          value: 'P',
+          label: 'Pending'
+        },
+        {
+          value: 'R',
+          label: 'Rejected'
+        }
+      ]
     },
     rules: {
       nameRules: [
@@ -843,6 +750,7 @@ export default {
               skills: item.skills_name || '',
               position: item.position_name || '',
               employer: item.employer_name || '',
+              status: item.status || null,
             };
           });
         })

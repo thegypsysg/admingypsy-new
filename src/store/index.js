@@ -55,6 +55,10 @@ export default createStore({
             path: '/jobs-master',
           },
           {
+            title: 'Application Master',
+            path: '/application-master',
+          },
+          {
             title: 'Applicant Master',
             path: '/applicant-master',
           },
