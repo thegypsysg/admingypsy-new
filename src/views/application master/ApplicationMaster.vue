@@ -85,7 +85,7 @@
                     <p class="text-blue-darken-4">{{ item.employer }}</p>
                   </td>
                   <td>
-                    <p class="text-blue-darken-4">{{ item.applicant_id }}</p>
+                    <p class="text-blue-darken-4">{{ item.job_reference }}</p>
                   </td>
                   <td>
                     <p class="text-blue-darken-4">{{ item.position }}</p>
@@ -99,9 +99,9 @@
                                 width: 54px !important;
                               "
                               class="d-flex align-center"
-                              v-model="item.isActive"
+                              v-model="item.isEligible"
                               rounded="5"
-                              @click="activeUser(item.gypsy_id)"
+                              @click="eligibleUser(item.gypsy_id)"
                             >
                               <v-btn size="27" :value="true"> Yes </v-btn>
 
@@ -179,9 +179,9 @@
                                 width: 54px !important;
                               "
                               class="d-flex align-center"
-                              v-model="item.isEmployed"
+                              v-model="item.isRegistrable"
                               rounded="5"
-                              @click="employedUser(item.gypsy_id)"
+                              @click="registrableUser(item.gypsy_id)"
                             >
                               <v-btn size="27" :value="true"> Yes </v-btn>
 
@@ -677,7 +677,7 @@ export default {
     getUserData() {
       this.isLoading = true;
       axios
-        .get(`/gypsy-registration`)
+        .get(`/applications`)
         .then((response) => {
           const data = response.data.data;
           console.log(data);
@@ -686,7 +686,7 @@ export default {
               image: item.image || null,
               appName: item.app_name || '',
               gypsy_id: item.gypsy_id || 0,
-              id: item.gypsy_ref_no || '',
+              id: item.application_ref_no || '',
               applicant_id: item.applicant_ref_no || '',
               name: item.name || '',
               email: item.email_id || '',
@@ -710,13 +710,11 @@ export default {
                   ? 'Female'
                   : '',
               genderCode: item.gender || '',
-              registered: item.registered_on || '',
-              isActive:
-                item.active == 'N' ? false : item.active == 'Y' ? true : null,
-              isBlock:
-                item.block == 'N' ? false : item.block == 'Y' ? true : null,
-              isEmployed:
-                item.employed == 'N' ? false : item.employed == 'Y' ? true : null,
+              registered: item.dated || '',
+              isEligible:
+                item.eligible == 'N' ? false : item.eligible == 'Y' ? true : null,
+              isRegistrable:
+                item.registrable == 'N' ? false : item.registrable == 'Y' ? true : null,
               lastLogin: item.last_login || '',
               registeredBy:
                 item.social_type == 'G'
@@ -749,7 +747,8 @@ export default {
               date: item.date_of_birth || '',
               skills: item.skills_name || '',
               position: item.position_name || '',
-              employer: item.employer_name || '',
+              employer: item.employer || '',
+              job_reference: item.job_reference_no || '',
               status: item.status || null,
             };
           });
@@ -768,29 +767,30 @@ export default {
           this.isLoading = false;
         });
     },
-    activeUser(id) {
-      this.isSending = true;
-      axios
-        .get(`/gypsy-registration/toggle-active/${id}`)
-        .then((response) => {
-          const data = response.data;
-          this.successMessage = data.message;
-          this.isSuccess = true;
-          this.getUserData();
-        })
-        .catch((error) => {
-          // eslint-disable-next-line
-          console.log(error);
-          const message =
-            error.response.data.message === ''
-              ? 'Something Wrong!!!'
-              : error.response.data.message;
-          this.errorMessage = message;
-          this.isError = true;
-        })
-        .finally(() => {
-          this.isSending = false;
-        });
+    eligibleUser(id) {
+      console.log(id)
+      //this.isSending = true;
+      //axios
+      //  .get(`/gypsy-registration/toggle-active/${id}`)
+      //  .then((response) => {
+      //    const data = response.data;
+      //    this.successMessage = data.message;
+      //    this.isSuccess = true;
+      //    this.getUserData();
+      //  })
+      //  .catch((error) => {
+      //    // eslint-disable-next-line
+      //    console.log(error);
+      //    const message =
+      //      error.response.data.message === ''
+      //        ? 'Something Wrong!!!'
+      //        : error.response.data.message;
+      //    this.errorMessage = message;
+      //    this.isError = true;
+      //  })
+      //  .finally(() => {
+      //    this.isSending = false;
+      //  });
     },
     employedUser(id) {
       this.isSending = true;
