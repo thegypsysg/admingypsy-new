@@ -43,7 +43,7 @@
             <v-autocomplete
               class="mt-8"
               density="compact"
-              label="Type Mall Name"
+              label="Type Merchants Name"
               placeholder="Type Merchant / Brand Name"
               :items="resource.mall"
               item-title="name"
@@ -57,8 +57,8 @@
             <v-autocomplete
               class="mt-2"
               density="compact"
-              label="Type Country"
-              placeholder="Type Country"
+              label="Select Country"
+              placeholder="Select Country"
               :items="resource.country"
               item-title="name"
               item-value="id"
@@ -71,8 +71,8 @@
             <v-autocomplete
               class="mt-2"
               density="compact"
-              label="Type Merchant Type"
-              placeholder="Type Merchant Type"
+              label="Select - Merchant - Type"
+              placeholder="Select - Merchant - Type"
               :items="resource.subIndustry"
               item-title="name"
               item-value="id"
@@ -470,6 +470,12 @@ export default {
     //   },
     // ],
   }),
+  watch: {
+    'input.mall'() {
+      this.input.country = this.mallCountry?.country?.country_id
+      this.input.type = this.mallCountry?.sub_industry?.sub_industry_id
+    },
+  },
   created() {
     const token = JSON.parse(localStorage.getItem('token'));
     setAuthHeader(token);
@@ -494,6 +500,9 @@ export default {
           item.town.toLowerCase().includes(searchTextLower)
       );
     },
+    mallCountry() {
+      return this.resource?.mall.find(item => item.id === this.input.mall)
+    }
   },
   methods: {
     editLocation(item) {
@@ -696,6 +705,8 @@ export default {
             return {
               id: item.partner_id || 1,
               name: item.partner_name || '',
+              country: item?.country,
+              sub_industry: item?.sub_industry
             };
           });
         })
