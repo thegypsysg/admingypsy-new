@@ -106,6 +106,17 @@
             ></v-textarea>
           </v-col>
         </v-row>
+        <v-row class="mt-n4">
+          <v-col cols="12" md="3">
+            <v-text-field
+              v-model="input.unitNumber"
+              label="Unit Number"
+              variant="outlined"
+              density="compact"
+              required
+            ></v-text-field>
+          </v-col>
+        </v-row>
         <v-row class="mt-n6">
           <v-col cols="12" md="2">
             <v-btn
@@ -475,6 +486,7 @@ export default {
       latitude: null,
       longitude: null,
       address: null,
+      unitNumber:null,
     },
     rules: {
       countryRules: [
@@ -751,6 +763,7 @@ export default {
           latitude: this.input.latitude,
           longitude: this.input.longitude,
           location_address: this.input.address,
+          unit_number: this.input.unitNumber,
         };
         if (this.input.image !== null) {
           payload['location_image'] = this.input.image;
@@ -772,6 +785,7 @@ export default {
               latitude: null,
               longitude: null,
               address: null,
+              unitNumber: null,
             };
           })
           .catch((error) => {
@@ -803,6 +817,7 @@ export default {
           latitude: this.input.latitude,
           longitude: this.input.longitude,
           location_address: this.input.address,
+          unit_number: this.input.unitNumber,
         };
         axios
           .post(`/partner-locations`, payload)
@@ -821,6 +836,7 @@ export default {
               latitude: null,
               longitude: null,
               address: null,
+              unitNumber: null,
             };
           })
           .catch((error) => {
