@@ -77,6 +77,13 @@
               density="compact"
               required
             ></v-text-field>
+            <v-text-field
+              v-model="input.unitNumber"
+              label="Unit Number"
+              variant="outlined"
+              density="compact"
+              required
+            ></v-text-field>
           </v-col>
           <v-col cols="12" md="3">
             <v-text-field
@@ -106,7 +113,7 @@
             ></v-textarea>
           </v-col>
         </v-row>
-        <v-row class="mt-n4">
+        <!-- <v-row class="mt-n4">
           <v-col cols="12" md="3">
             <v-text-field
               v-model="input.unitNumber"
@@ -116,7 +123,7 @@
               required
             ></v-text-field>
           </v-col>
-        </v-row>
+        </v-row> -->
         <v-row class="mt-n6">
           <v-col cols="12" md="2">
             <v-btn
@@ -263,8 +270,9 @@
 
                 <td></td>
                 <td>
-                  <div class="app-column">
-                    {{ item.location }}
+                  <div class="app-column-2">
+                    <p>{{ item.location }}</p>
+                    <p v-if="item.unit_number">{{ item.unit_number || '' }}</p>
                   </div>
                   <v-table class="app-column-table">
                     <tr>
@@ -486,7 +494,7 @@ export default {
       latitude: null,
       longitude: null,
       address: null,
-      unitNumber:null,
+      unitNumber: null,
     },
     rules: {
       countryRules: [
@@ -734,6 +742,7 @@ export default {
         latitude: item.latitude,
         longitude: item.longitude,
         address: item.address,
+        unitNumber: item.unit_number,
       };
     },
     cancelEdit() {
@@ -915,6 +924,7 @@ export default {
               town_id: item?.town?.town_id || null,
               zone: item?.zone?.zone_name || '',
               zone_id: item?.zone?.zone_id || null,
+              unit_number: item?.unit_number || '',
               isPrimary:
                 item.primary == 'N' ? false : item.primary == 'Y' ? true : null,
               isFavorite:
@@ -1144,6 +1154,14 @@ export default {
 .app-column {
   display: flex;
   align-items: center;
+  min-height: 70px;
+  margin-bottom: 10px;
+}
+.app-column-2 {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  flex-direction: column;
   min-height: 70px;
   margin-bottom: 10px;
 }

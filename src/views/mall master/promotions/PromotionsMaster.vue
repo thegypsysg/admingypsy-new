@@ -60,7 +60,7 @@
             <v-autocomplete
               class="mt-8"
               density="compact"
-              label="Type Merchants Name"
+              label="Type Merchant Name"
               placeholder="Type Merchant / Brand Name"
               :items="resource.mall"
               item-title="name"
@@ -69,56 +69,37 @@
               variant="outlined"
             ></v-autocomplete>
           </v-col>
-          <v-col cols="12" md="2">
-            <label>Country</label>
-            <v-autocomplete
-              class="mt-2"
-              density="compact"
-              label="Select Country"
-              placeholder="Select Country"
-              :items="resource.country"
-              item-title="name"
-              item-value="id"
-              v-model="input.country"
+          <v-col cols="12" md="9">
+            <v-text-field
+              v-model="input.name"
+              label="Type Merchant Name"
               variant="outlined"
-            ></v-autocomplete>
+              density="compact"
+              required
+            ></v-text-field>
           </v-col>
           <v-col cols="12" md="3">
-            <label>Merchant Type</label>
-            <v-autocomplete
-              class="mt-2"
-              density="compact"
-              label="Select - Merchant - Type"
-              placeholder="Select - Merchant - Type"
-              :items="resource.subIndustry"
-              item-title="name"
-              item-value="id"
-              v-model="input.type"
-              variant="outlined"
-            ></v-autocomplete>
-          </v-col>
-          <v-col cols="12" md="2">
+            <!-- :prepend-icon="
+              isEdit
+                ? 'mdi-account-multiple-check'
+                : 'mdi-account-multiple-plus'
+            " -->
             <div>
               <v-btn
-                :prepend-icon="
-                  isEdit
-                    ? 'mdi-account-multiple-check'
-                    : 'mdi-account-multiple-plus'
-                "
                 color="indigo-accent-2"
                 style="text-transform: none"
                 type="submit"
                 variant="flat"
-                class="w-100 mt-8"
+                class="w-100"
                 @click="isEdit ? saveEdit() : saveData()"
                 :disabled="isSending"
                 :loading="isSending"
               >
-                <template v-slot:prepend>
+                <!-- <template v-slot:prepend>
                   <v-icon color="white"></v-icon>
-                </template>
+                </template> -->
 
-                {{ isEdit ? 'Save' : 'Add' }}
+                {{ isEdit ? 'Save Promotion' : 'Add Promotion' }}
               </v-btn>
               <v-btn
                 v-if="isEdit"
@@ -158,14 +139,18 @@
           <v-table class="country-table">
             <thead>
               <tr>
-                <th class="text-left font-weight-bold text-black">Mall id</th>
-                <th class="text-left font-weight-bold text-black">Name</th>
+                <th class="text-left font-weight-bold text-black">Promo id</th>
+                <th class="text-left font-weight-bold text-black">
+                  Merchant Name
+                </th>
+                <th class="text-left font-weight-bold text-black">
+                  Promotion Name
+                </th>
                 <th class="text-left font-weight-bold text-black">Country</th>
-                <th class="text-left font-weight-bold text-black">Active</th>
-                <th class="text-left font-weight-bold text-black">Featured</th>
+                <th class="text-left font-weight-bold text-black">Outlets</th>
                 <th class="text-left font-weight-bold text-black">User</th>
                 <th class="text-left font-weight-bold text-black">Dated</th>
-                <th class="text-left font-weight-bold text-black">Actions</th>
+                <th class="text-left font-weight-bold text-black"></th>
               </tr>
             </thead>
             <tbody>
@@ -173,43 +158,9 @@
                 <tr class="country-table-body">
                   <td>{{ item.id }}</td>
                   <td>{{ item.name }}</td>
+                  <td>{{ item.promo }}</td>
                   <td>{{ item.country }}</td>
-                  <td>
-                    <v-btn-toggle
-                      style="
-                        font-size: 10px !important;
-                        font-weight: 200 !important;
-                        height: 22px !important;
-                        width: 54px !important;
-                      "
-                      class="d-flex align-center"
-                      v-model="item.isActive"
-                      rounded="5"
-                      @click="activeMerchants(item.id)"
-                    >
-                      <v-btn size="27" :value="true"> Yes </v-btn>
 
-                      <v-btn size="27" :value="false"> No </v-btn>
-                    </v-btn-toggle>
-                  </td>
-                  <td>
-                    <v-btn-toggle
-                      style="
-                        font-size: 10px !important;
-                        font-weight: 200 !important;
-                        height: 22px !important;
-                        width: 54px !important;
-                      "
-                      class="d-flex align-center"
-                      v-model="item.isFeatured"
-                      rounded="5"
-                      @click="featuredMerchants(item.id)"
-                    >
-                      <v-btn size="27" :value="true"> Yes </v-btn>
-
-                      <v-btn size="27" :value="false"> No </v-btn>
-                    </v-btn-toggle>
-                  </td>
                   <td>
                     {{ item.user }}
                   </td>
@@ -224,7 +175,7 @@
                             color="green"
                             variant="text"
                             v-bind="props"
-                            @click="editLocation(item)"
+                            @click="editPromotion(item)"
                             icon="mdi-pencil-outline"
                           ></v-btn>
                         </template>
@@ -248,9 +199,9 @@
                 </tr>
 
                 <tr>
-                  <td colspan="8">
+                  <td colspan="2">
                     <div class="d-flex flex-column justify-start">
-                      <v-table class="text-left pl-16">
+                      <!-- <v-table class="text-left pl-16">
                         <tr>
                           <td class="pt-2 pr-1"></td>
                           <td class="pt-2 pr-8">
@@ -258,47 +209,59 @@
                             >)
                           </td>
                         </tr>
-                      </v-table>
-                      <v-table class="text-left pl-16 mt-2">
+                      </v-table> -->
+                      <v-table class="text-left mt-2">
                         <tr>
-                          <td class="pt-2 pr-3"></td>
-                          <td class="pr-6 pt-2 pb-4">
-                            <div class="d-flex justify-start" style="gap: 20px">
-                              <router-link
-                                class="text-decoration-none"
-                                :to="`partner_master/main-info/${item.id}`"
-                              >
-                                <span>Main Info</span>
-                              </router-link>
-                              <router-link
-                                class="text-decoration-none"
-                                :to="`partner_master/contacts/${item.id}`"
-                              >
-                                <span>Images</span>
-                              </router-link>
-                              <router-link
-                                class="text-decoration-none"
-                                :to="`partner_master/locations/${item.id}`"
-                              >
-                                <span
-                                  >Outlets (<span class="text-red">{{
-                                    item.outlets
-                                  }}</span
-                                  >)</span
-                                >
-                              </router-link>
-                              <router-link
-                                class="text-decoration-none"
-                                :to="`partner_master/locations/${item.id}`"
-                              >
-                                <span
-                                  >Malls (<span class="text-red">{{
-                                    item.malls
-                                  }}</span
-                                  >)</span
-                                >
-                              </router-link>
-                            </div>
+                          <td>
+                            <v-img
+                              height="40"
+                              width="65"
+                              @click="openImage(item)"
+                              style="cursor: pointer"
+                              :src="
+                                item.image != null
+                                  ? $fileURL + item.image
+                                  : 'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png'
+                              "
+                              ><template #placeholder>
+                                <div class="skeleton" /> </template
+                            ></v-img>
+                          </td>
+                          <td>
+                            <v-btn-toggle
+                              style="
+                                font-size: 10px !important;
+                                font-weight: 200 !important;
+                                height: 22px !important;
+                                width: 54px !important;
+                              "
+                              class="d-flex align-center"
+                              v-model="item.isActive"
+                              rounded="5"
+                              @click="activePromotions(item.id)"
+                            >
+                              <v-btn size="27" :value="true"> Yes </v-btn>
+
+                              <v-btn size="27" :value="false"> No </v-btn>
+                            </v-btn-toggle>
+                          </td>
+                          <td>
+                            <v-btn-toggle
+                              style="
+                                font-size: 10px !important;
+                                font-weight: 200 !important;
+                                height: 22px !important;
+                                width: 54px !important;
+                              "
+                              class="d-flex align-center"
+                              v-model="item.isFeatured"
+                              rounded="5"
+                              @click="featuredPromotions(item.id)"
+                            >
+                              <v-btn size="27" :value="true"> Yes </v-btn>
+
+                              <v-btn size="27" :value="false"> No </v-btn>
+                            </v-btn-toggle>
                           </td>
                         </tr>
                       </v-table>
@@ -345,11 +308,11 @@
     <v-dialog persistent width="500" v-model="isDelete">
       <v-card>
         <v-card-title>Confirmation</v-card-title>
-        <v-card-text> Are you sure want to delete this merchant? </v-card-text>
+        <v-card-text> Are you sure want to delete this promotion? </v-card-text>
         <v-card-actions>
           <v-spacer></v-spacer>
           <v-btn color="error" text @click="cancelDelete">No</v-btn>
-          <v-btn color="success" text @click="deleteLocation">{{
+          <v-btn color="success" text @click="deletePromo">{{
             isDeleteLoading ? 'Deleting...' : 'Yes'
           }}</v-btn>
         </v-card-actions>
@@ -391,6 +354,7 @@
 <script>
 import ImageUpload from '@/components/ImageUpload.vue';
 import axios from '@/util/axios';
+import http from 'axios';
 import { setAuthHeader } from '@/util/axios';
 // import app from '@/util/eventBus';
 
@@ -407,18 +371,24 @@ export default {
     isSuccess: false,
     isDelete: false,
     isDeleteLoading: false,
-    locationIdToDelete: null,
+    promoIdToDelete: null,
     tableHeaders: [{ text: 'Gambar', value: 'image' }],
     isOpenImage: false,
     successMessage: '',
     errorMessage: '',
     imageFile: [],
 
+    promotionDataToImage: {
+      id: 0,
+      name: null,
+      industry: null,
+      subIndustry: null,
+      country: null,
+    },
     input: {
       id: 0,
       mall: null,
-      country: null,
-      type: null,
+      name: '',
     },
     rules: {
       countryRules: [
@@ -495,21 +465,19 @@ export default {
     //   },
     // ],
   }),
-  watch: {
-    'input.mall'() {
-      this.input.country = this.mallCountry?.country?.country_id;
-      this.input.type = this.mallCountry?.sub_industry?.sub_industry_id;
-    },
-  },
+  //watch: {
+  //  'input.mall'() {
+  //    this.input.country = this.mallCountry?.country?.country_id;
+  //    this.input.type = this.mallCountry?.sub_industry?.sub_industry_id;
+  //  },
+  //},
   created() {
     const token = JSON.parse(localStorage.getItem('token'));
     setAuthHeader(token);
   },
   mounted() {
-    this.getMerchantData();
+    this.getPromotionsData();
     this.getPartnerData();
-    this.getCountry();
-    this.getSubIndustryData();
   },
   computed: {
     filteredItems() {
@@ -520,9 +488,7 @@ export default {
       return this.items.filter(
         (item) =>
           item.name.toLowerCase().includes(searchTextLower) ||
-          item.country.toLowerCase().includes(searchTextLower) ||
-          item.city.toLowerCase().includes(searchTextLower) ||
-          item.town.toLowerCase().includes(searchTextLower)
+          item.promo.toLowerCase().includes(searchTextLower)
       );
     },
     mallCountry() {
@@ -530,13 +496,116 @@ export default {
     },
   },
   methods: {
-    editLocation(item) {
+    openImage(item) {
+      this.isOpenImage = true;
+      this.promotionDataToImage = {
+        id: item.id,
+      };
+      this.imageFile =
+        item.image != null
+          ? [
+              {
+                file: {
+                  name: item.image,
+                  size: '',
+                  base64: '',
+                  format: '',
+                },
+              },
+            ]
+          : [];
+    },
+
+    closeImage() {
+      this.isOpenImage = false;
+      this.imageFile = [];
+      this.promotionDataToImage = {
+        id: 0,
+      };
+    },
+
+    updateImageFile(newImageFile) {
+      this.imageFile.push(newImageFile);
+    },
+
+    deleteImageFile() {
+      this.isSending = true;
+      axios
+        .delete(`/mall-promotions/${this.promotionDataToImage.id}/main-image`)
+        .then((response) => {
+          const data = response.data;
+          this.successMessage = data.message;
+          this.isSuccess = true;
+          this.getPromotionsData();
+        })
+        .catch((error) => {
+          // eslint-disable-next-line
+          console.log(error);
+          const message =
+            error.response.data.message === ''
+              ? 'Something Wrong!!!'
+              : error.response.data.message;
+          this.errorMessage = message;
+          this.isError = true;
+        })
+        .finally(() => {
+          this.isEdit = false;
+          this.isSending = false;
+          // this.promotionDataToImage = {
+          //   app_id: 1,
+          //   app_group_id: 1,
+          //   app_name: '',
+          //   app_description: '',
+          //   app_detail: '',
+          // };
+          this.imageFile = [];
+        });
+    },
+    saveImage() {
+      this.isSending = true;
+      const payload = {
+        promo_id: this.promotionDataToImage.id,
+        main_image: this.imageFile[0],
+      };
+
+      http
+        .post(`/mall-promotions/update`, payload, {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+        })
+        .then((response) => {
+          const data = response.data;
+          this.successMessage = data.message;
+          this.isSuccess = true;
+          this.getPromotionsData();
+        })
+        .catch((error) => {
+          // eslint-disable-next-line
+          console.log(error);
+          const message =
+            error.response.data.message === ''
+              ? 'Something Wrong!!!'
+              : error.response.data.message;
+          this.errorMessage = message;
+          this.isError = true;
+        })
+        .finally(() => {
+          this.isEdit = false;
+          this.isSending = false;
+          this.promotionDataToImage = {
+            id: 0,
+          };
+          this.isOpenImage = false;
+          this.imageFile = [];
+        });
+    },
+    editPromotion(item) {
       this.isEdit = true;
       this.input = {
         id: item.id,
-        mall: item.partner_id,
-        country: item.country_id,
-        type: item.sub_industry_id,
+        mall: item.mall_id,
+        name: item.promo,
       };
     },
     cancelEdit() {
@@ -544,31 +613,28 @@ export default {
       this.input = {
         id: 0,
         mall: null,
-        country: null,
-        type: null,
+        name: '',
       };
     },
     saveEdit() {
       if (this.valid) {
         this.isSending = true;
         const payload = {
-          mm_id: this.input.id,
-          partner_id: this.input.mall,
-          country_id: this.input.country,
-          merchant_type: this.input.type,
+          promo_id: this.input.id,
+          merchant_id: this.input.mall,
+          promo_name: this.input.name,
         };
         axios
-          .post(`/mall-merchants/update`, payload)
+          .post(`/mall-promotions/update`, payload)
           .then((response) => {
             const data = response.data;
             this.successMessage = data.message;
             this.isSuccess = true;
-            this.getMerchantData();
+            this.getPromotionsData();
             this.input = {
               id: 0,
               mall: null,
-              country: null,
-              type: null,
+              name: '',
             };
           })
           .catch((error) => {
@@ -584,8 +650,7 @@ export default {
             this.input = {
               id: 0,
               mall: null,
-              country: null,
-              type: null,
+              name: '',
             };
           })
           .finally(() => {
@@ -598,22 +663,20 @@ export default {
       if (this.valid) {
         this.isSending = true;
         const payload = {
-          partner_id: this.input.mall,
-          country_id: this.input.country,
-          merchant_type: this.input.type,
+          merchant_id: this.input.mall,
+          promo_name: this.input.name,
         };
         axios
-          .post(`/mall-merchants`, payload)
+          .post(`/mall-promotions`, payload)
           .then((response) => {
             const data = response.data;
             this.successMessage = data.message;
             this.isSuccess = true;
-            this.getMerchantData();
+            this.getPromotionsData();
             this.input = {
               id: 0,
               mall: null,
-              country: null,
-              type: null,
+              name: '',
             };
           })
           .catch((error) => {
@@ -633,26 +696,26 @@ export default {
       }
     },
     cancelDelete() {
-      this.locationIdToDelete = null;
+      this.promoIdToDelete = null;
       this.isDelete = false;
     },
     openDeleteConfirm(itemId) {
-      this.locationIdToDelete = itemId;
+      this.promoIdToDelete = itemId;
       this.isDelete = true;
     },
     cancelConfirmation() {
-      this.locationIdToDelete = null;
+      this.promoIdToDelete = null;
       this.isDelete = false;
     },
-    deleteLocation() {
+    deletePromo() {
       this.isDeleteLoading = true;
       axios
-        .delete(`/mall-merchants/${this.locationIdToDelete}`)
+        .delete(`/mall-promotions/${this.promoIdToDelete}`)
         .then((response) => {
           const data = response.data;
           this.successMessage = data.message;
           this.isSuccess = true;
-          this.getMerchantData();
+          this.getPromotionsData();
         })
         .catch((error) => {
           // eslint-disable-next-line
@@ -666,34 +729,41 @@ export default {
         })
         .finally(() => {
           this.isDeleteLoading = false;
-          this.locationIdToDelete = null;
+          this.promoIdToDelete = null;
           this.isDelete = false;
         });
     },
-    getMerchantData() {
+    getPromotionsData() {
       this.isLoading = true;
       axios
-        .get(`/mall-merchants`)
+        .get(`/mall-promotions`)
         .then((response) => {
           const data = response.data.data;
           this.items = data.map((item) => {
             return {
-              id: item.mm_id || 1,
+              id: item.promo_id || 1,
+              mall_id: item.merchant_id || 1,
               name: item.partner_name || '',
+              promo: item.promo_name || '',
               partner_id: item.partner_id || null,
               country: item.country_name || '',
               country_id: item.country_id || null,
               isActive:
-                item.active == 'N' ? false : item.active == 'Y' ? true : null,
-              isFeatured:
-                item.featured == 'N'
+                item.promo_active == 'N'
                   ? false
-                  : item.featured == 'Y'
+                  : item.promo_active == 'Y'
                   ? true
                   : null,
+              isFeatured:
+                item.promo_featured == 'N'
+                  ? false
+                  : item.promo_featured == 'Y'
+                  ? true
+                  : null,
+              image: item.main_image || null,
               user: item.name || '',
               user_id: item.user_id || '',
-              dated: item.dated || '',
+              dated: item.promo_dated || '',
               type: item.sub_industry_name || '',
               sub_industry_id: item.sub_industry_id || null,
               outlets: 5,
@@ -744,68 +814,15 @@ export default {
           this.isError = true;
         });
     },
-    getCountry() {
-      axios
-        .get(`/country`)
-        .then((response) => {
-          const data = response.data.data;
-          this.resource.country = data
-            .sort((a, b) => a.country_name.localeCompare(b.country_name))
-            .map((country) => {
-              return {
-                id: country.country_id,
-                name: country.country_name,
-              };
-            });
-        })
-        .catch((error) => {
-          // eslint-disable-next-line
-          console.log(error);
-          const message =
-            error.response.data.message === ''
-              ? 'Something Wrong!!!'
-              : error.response.data.message;
-          this.errorMessage = message;
-          this.isError = true;
-        });
-    },
-    getSubIndustryData() {
-      this.isLoading = true;
-      axios
-        .get(`/sub-industries`)
-        .then((response) => {
-          const data = response.data.data;
-          // console.log(data);
-          this.resource.subIndustry = data.map((item) => {
-            return {
-              id: item.sub_industry_id || 1,
-              name: item.sub_industry_name || '',
-            };
-          });
-        })
-        .catch((error) => {
-          // eslint-disable-next-line
-          console.log(error);
-          const message =
-            error.response.data.message === ''
-              ? 'Something Wrong!!!'
-              : error.response.data.message;
-          this.errorMessage = message;
-          this.isError = true;
-        })
-        .finally(() => {
-          this.isLoading = false;
-        });
-    },
-    activeMerchants(id) {
+    activePromotions(id) {
       this.isSending = true;
       axios
-        .get(`/mall-merchants/toggle-active/${id}`)
+        .get(`/mall-promotions/toggle-active/${id}`)
         .then((response) => {
           const data = response.data;
           this.successMessage = data.message;
           this.isSuccess = true;
-          this.getMerchantData();
+          this.getPromotionsData();
         })
         .catch((error) => {
           // eslint-disable-next-line
@@ -821,15 +838,15 @@ export default {
           this.isSending = false;
         });
     },
-    featuredMerchants(id) {
+    featuredPromotions(id) {
       this.isSending = true;
       axios
-        .get(`/mall-merchants/toggle-featured/${id}`)
+        .get(`/mall-promotions/toggle-featured/${id}`)
         .then((response) => {
           const data = response.data;
           this.successMessage = data.message;
           this.isSuccess = true;
-          this.getMerchantData();
+          this.getPromotionsData();
         })
         .catch((error) => {
           // eslint-disable-next-line
@@ -859,6 +876,8 @@ export default {
 .country-table-body {
   margin-top: 50px !important;
   margin-bottom: 50px !important;
+  color: #a12a3d;
+  font-weight: 500;
 }
 
 .country-table-body td {

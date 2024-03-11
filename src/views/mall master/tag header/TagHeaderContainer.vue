@@ -3,7 +3,7 @@
     <sidebar-dashboard :drawer-open="drawer" />
     <header-dashboard @toggle-drawer="toggleDrawer" />
     <v-main>
-      <MallMaster />
+      <TagHeader />
     </v-main>
   </v-app>
 </template>
@@ -11,11 +11,11 @@
 <script>
 import HeaderDashboard from '@/components/HeaderDashboard.vue';
 import SidebarDashboard from '@/components/SidebarDashboard.vue';
-import MallMaster from './MallMaster.vue';
+import TagHeader from './TagHeader.vue';
 
 export default {
-  name: 'MallMasterContainer',
-  components: { SidebarDashboard, HeaderDashboard, MallMaster },
+  name: 'TagHeaderContainer',
+  components: { SidebarDashboard, HeaderDashboard, TagHeader },
   data: () => ({
     drawer: true,
   }),
@@ -40,4 +40,4 @@ export default {
 $fa-font-path: '~font-awesome/fonts/';
 @import '~font-awesome/scss/font-awesome.scss';
 </style>
-./MallMaster.vue./MallMaster.vue
+./TagHeader.vue ./TagHeaderMaster.vue

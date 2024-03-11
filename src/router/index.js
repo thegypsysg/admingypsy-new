@@ -319,7 +319,8 @@ const routes = [
   {
     name: 'Application master',
     path: '/application-master',
-    component: () => import('@/views/application master/ApplicationMasterContainer.vue'),
+    component: () =>
+      import('@/views/application master/ApplicationMasterContainer.vue'),
     beforeEnter: (to, from, next) => {
       // Pengecekan status login sebelum masuk ke halaman beranda
       if (localStorage.getItem('token') == null) {
@@ -329,10 +330,11 @@ const routes = [
       }
     },
   },
-    {
+  {
     name: 'Applicant master',
     path: '/applicant-master',
-    component: () => import('@/views/applicant master/ApplicantMasterContainer.vue'),
+    component: () =>
+      import('@/views/applicant master/ApplicantMasterContainer.vue'),
     beforeEnter: (to, from, next) => {
       // Pengecekan status login sebelum masuk ke halaman beranda
       if (localStorage.getItem('token') == null) {
@@ -529,7 +531,8 @@ const routes = [
   {
     name: 'university master',
     path: '/university_master',
-    component: () => import('@/views/course master/university/UniversityMasterContainer.vue'),
+    component: () =>
+      import('@/views/course master/university/UniversityMasterContainer.vue'),
     beforeEnter: (to, from, next) => {
       // Pengecekan status login sebelum masuk ke halaman beranda
       if (localStorage.getItem('token') == null) {
@@ -573,6 +576,48 @@ const routes = [
     path: '/merchants_master',
     component: () =>
       import('@/views/mall master/merchants/MerchantsMasterContainer.vue'),
+    beforeEnter: (to, from, next) => {
+      // Pengecekan status login sebelum masuk ke halaman beranda
+      if (localStorage.getItem('token') == null) {
+        next('/auth/login'); // Alihkan ke halaman login jika belum masuk
+      } else {
+        next(); // Lanjutkan ke halaman beranda jika sudah masuk
+      }
+    },
+  },
+  {
+    name: 'promotions master',
+    path: '/promotions_master',
+    component: () =>
+      import('@/views/mall master/promotions/PromotionsMasterContainer.vue'),
+    beforeEnter: (to, from, next) => {
+      // Pengecekan status login sebelum masuk ke halaman beranda
+      if (localStorage.getItem('token') == null) {
+        next('/auth/login'); // Alihkan ke halaman login jika belum masuk
+      } else {
+        next(); // Lanjutkan ke halaman beranda jika sudah masuk
+      }
+    },
+  },
+  {
+    name: 'tag header',
+    path: '/tag-header',
+    component: () =>
+      import('@/views/mall master/tag header/TagHeaderContainer.vue'),
+    beforeEnter: (to, from, next) => {
+      // Pengecekan status login sebelum masuk ke halaman beranda
+      if (localStorage.getItem('token') == null) {
+        next('/auth/login'); // Alihkan ke halaman login jika belum masuk
+      } else {
+        next(); // Lanjutkan ke halaman beranda jika sudah masuk
+      }
+    },
+  },
+  {
+    name: 'tag master',
+    path: '/tag-master',
+    component: () =>
+      import('@/views/mall master/tag master/TagMasterContainer.vue'),
     beforeEnter: (to, from, next) => {
       // Pengecekan status login sebelum masuk ke halaman beranda
       if (localStorage.getItem('token') == null) {

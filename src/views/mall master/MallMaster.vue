@@ -2,14 +2,14 @@
 <!-- eslint-disable vue/no-deprecated-v-bind-sync -->
 <template>
   <v-container>
-    <div class="d-flex ml-4 mb-4" style="gap: 40px">
+    <div class="d-flex ml-4 mb-4" style="gap: 30px">
       <router-link
         active-class="text-blue-accent-4"
         style="color: black"
         class="text-decoration-none"
         to="/mall_master"
       >
-        <h3>On-Board Mall</h3>
+        <h4>On-Board Mall</h4>
       </router-link>
       <router-link
         active-class="text-blue-accent-4"
@@ -17,7 +17,7 @@
         class="text-decoration-none"
         to="/merchants_master"
       >
-        <h3>On-Board Merchants</h3>
+        <h4>On-Board Merchants</h4>
       </router-link>
       <router-link
         active-class="text-blue-accent-4"
@@ -25,15 +25,32 @@
         class="text-decoration-none"
         to="/"
       >
-        <h3>On-Board Outlets</h3>
+        <h4>On-Board Outlets</h4>
       </router-link>
       <router-link
         active-class="text-blue-accent-4"
         style="color: black"
         class="text-decoration-none"
-        to="/"
+        to="/promotions_master"
       >
-        <h3>On-Board Promotions</h3>
+        <h4>On-Board Promotions</h4>
+      </router-link>
+
+      <router-link
+        active-class="text-blue-accent-4"
+        style="color: black"
+        class="text-decoration-none"
+        to="/tag-header"
+      >
+        <h4>Tag Header</h4>
+      </router-link>
+      <router-link
+        active-class="text-blue-accent-4"
+        style="color: black"
+        class="text-decoration-none"
+        to="/tag-master"
+      >
+        <h4>Tag Master</h4>
       </router-link>
     </div>
     <v-form v-model="valid" @submit.prevent>
