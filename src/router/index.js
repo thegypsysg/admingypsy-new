@@ -600,6 +600,36 @@ const routes = [
     },
   },
   {
+    name: 'promotions master main info',
+    path: '/promotions_master/main-info/:id',
+    component: () =>
+      import(
+        '@/views/mall master/promotions/main info/PromotionsMainInfoContainer.vue'
+      ),
+    beforeEnter: (to, from, next) => {
+      // Pengecekan status login sebelum masuk ke halaman beranda
+      if (localStorage.getItem('token') == null) {
+        next('/auth/login'); // Alihkan ke halaman login jika belum masuk
+      } else {
+        next(); // Lanjutkan ke halaman beranda jika sudah masuk
+      }
+    },
+  },
+  {
+    name: 'promotions master outlets',
+    path: '/promotions_master/outlets/:id',
+    component: () =>
+      import('@/views/mall master/promotions/outlets/OutletsContainer.vue'),
+    beforeEnter: (to, from, next) => {
+      // Pengecekan status login sebelum masuk ke halaman beranda
+      if (localStorage.getItem('token') == null) {
+        next('/auth/login'); // Alihkan ke halaman login jika belum masuk
+      } else {
+        next(); // Lanjutkan ke halaman beranda jika sudah masuk
+      }
+    },
+  },
+  {
     name: 'tag header',
     path: '/tag-header',
     component: () =>

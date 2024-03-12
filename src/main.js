@@ -2,15 +2,18 @@ import { createApp } from 'vue';
 import App from './App.vue';
 import router from './router';
 
-import "maz-ui/css/main.css";
+import 'maz-ui/css/main.css';
 import '@fortawesome/fontawesome-free/css/fontawesome.css';
 import '@fortawesome/fontawesome-free/css/brands.css';
-import "/node_modules/flag-icons/css/flag-icons.min.css";
+import '/node_modules/flag-icons/css/flag-icons.min.css';
 
 import store from './store';
 import axios from 'axios';
 import vuetify from './plugins/vuetify';
 import { loadFonts } from './plugins/webfontloader';
+
+import VueDatePicker from '@vuepic/vue-datepicker';
+import '@vuepic/vue-datepicker/dist/main.css';
 
 /// ===== LOCAL DEV
 const BASE_API_PATH = 'https://adminsymphinite.symphinite.tech/api/';
@@ -61,4 +64,5 @@ loadFonts();
 
 const app = createApp(App);
 app.config.globalProperties.$fileURL = 'https://admin1.the-gypsy.sg/img/app/';
+app.component('VueDatePicker', VueDatePicker);
 app.use(router).use(store).use(vuetify).mount('#app');

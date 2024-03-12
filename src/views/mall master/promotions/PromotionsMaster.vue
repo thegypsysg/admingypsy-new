@@ -199,7 +199,7 @@
                 </tr>
 
                 <tr>
-                  <td colspan="2">
+                  <td colspan="3">
                     <div class="d-flex flex-column justify-start">
                       <!-- <v-table class="text-left pl-16">
                         <tr>
@@ -262,6 +262,25 @@
 
                               <v-btn size="27" :value="false"> No </v-btn>
                             </v-btn-toggle>
+                          </td>
+                          <td class="pl-4">
+                            <div class="d-flex justify-start" style="gap: 20px">
+                              <router-link
+                                class="text-decoration-none"
+                                :to="`/promotions_master/main-info/${item.id}`"
+                              >
+                                <span>Main Info</span>
+                              </router-link>
+                              <router-link
+                                class="text-decoration-none"
+                                :to="`/promotions_master/outlets/${item.id}`"
+                              >
+                                <span
+                                  >Outlets (<span class="text-red"> 3 </span
+                                  >)</span
+                                >
+                              </router-link>
+                            </div>
                           </td>
                         </tr>
                       </v-table>
