@@ -710,7 +710,7 @@ export default {
             return {
               id: item.tag_id || 1,
               header_id: item.tag_header_id || 1,
-              header_name: item.tag_header.tag_header_name || 1,
+              header_name: item.tag_header?.tag_header_name || '',
               name: item.tag_name || '',
               description: item.tag_description || '',
               image: item.tag_image || null,

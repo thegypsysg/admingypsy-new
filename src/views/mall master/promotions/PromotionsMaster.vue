@@ -201,15 +201,6 @@
                 <tr>
                   <td colspan="3">
                     <div class="d-flex flex-column justify-start">
-                      <!-- <v-table class="text-left pl-16">
-                        <tr>
-                          <td class="pt-2 pr-1"></td>
-                          <td class="pt-2 pr-8">
-                            (<span class="text-red">{{ item.type }}</span
-                            >)
-                          </td>
-                        </tr>
-                      </v-table> -->
                       <v-table class="text-left mt-2">
                         <tr>
                           <td>
@@ -284,6 +275,84 @@
                           </td>
                         </tr>
                       </v-table>
+                      <v-table class="text-left pr-16">
+                        <tr>
+                          <td class="pt-2 pr-1 d-flex">
+                            <h4 class="mt-2 mr-4">Tags</h4>
+                            <v-autocomplete
+                              v-model="tagId"
+                              class="form-control search-input"
+                              item-title="name"
+                              item-value="id"
+                              :items="resource.tags"
+                              placeholder="Enter Tag Name"
+                              density="compact"
+                              variant="outlined"
+                              color="blue-grey-lighten-2"
+                            >
+                              <template #item="{ props, item }">
+                                <div class="mb-2" v-bind="props">
+                                  <div class="d-flex align-center w-100">
+                                    <div class="w-25 py-1">
+                                      <div>
+                                        <v-img
+                                          height="40"
+                                          :src="item?.raw?.image"
+                                        >
+                                          <template #placeholder>
+                                            <div class="skeleton" />
+                                          </template>
+                                        </v-img>
+                                      </div>
+                                    </div>
+                                    <div class="w-75" style="font-size: 12px">
+                                      <p class="mb-1">
+                                        {{ `${item?.raw?.name}` }}
+                                      </p>
+                                    </div>
+                                  </div>
+                                </div>
+                              </template>
+                            </v-autocomplete>
+
+                            <v-btn
+                              class="ml-4"
+                              color="indigo-accent-2"
+                              style="text-transform: none"
+                              type="submit"
+                              variant="flat"
+                              @click="addTagById(item.id)"
+                              :disabled="isSending"
+                              :loading="isSending"
+                            >
+                              Add Tag
+                            </v-btn>
+                          </td>
+                        </tr>
+                      </v-table>
+                      <table class="text-left pr-16">
+                        <tr>
+                          <td>
+                            <v-chip
+                              v-for="tag in item.tagItems"
+                              :key="tag.id"
+                              color="primary"
+                              dark
+                              small
+                              class="mr-1"
+                            >
+                              {{ tag.name }}
+                              <v-icon
+                                color="red"
+                                small
+                                @click="deleteTagById(tag.id)"
+                              >
+                                mdi-close
+                              </v-icon>
+                            </v-chip>
+                          </td>
+                        </tr>
+                      </table>
                     </div>
                   </td>
                 </tr>
@@ -381,6 +450,7 @@ export default {
   name: 'LocationsVue',
   data: () => ({
     // fileURL: 'https://admin1.the-gypsy.sg/img/app/',
+    activeMalls: [],
     partnerName: null,
     valid: false,
     isLoading: false,
@@ -404,6 +474,7 @@ export default {
       subIndustry: null,
       country: null,
     },
+    tagId: null,
     input: {
       id: 0,
       mall: null,
@@ -463,6 +534,7 @@ export default {
     search: '',
     items: [],
     resource: {
+      tags: [],
       mall: [],
       country: [],
       city: [],
@@ -495,8 +567,9 @@ export default {
     setAuthHeader(token);
   },
   mounted() {
-    this.getPromotionsData();
+    this.getItemsData();
     this.getPartnerData();
+    this.getTagsData();
   },
   computed: {
     filteredItems() {
@@ -555,7 +628,7 @@ export default {
           const data = response.data;
           this.successMessage = data.message;
           this.isSuccess = true;
-          this.getPromotionsData();
+          this.getItemsData();
         })
         .catch((error) => {
           // eslint-disable-next-line
@@ -597,7 +670,7 @@ export default {
           const data = response.data;
           this.successMessage = data.message;
           this.isSuccess = true;
-          this.getPromotionsData();
+          this.getItemsData();
         })
         .catch((error) => {
           // eslint-disable-next-line
@@ -649,7 +722,7 @@ export default {
             const data = response.data;
             this.successMessage = data.message;
             this.isSuccess = true;
-            this.getPromotionsData();
+            this.getItemsData();
             this.input = {
               id: 0,
               mall: null,
@@ -691,7 +764,7 @@ export default {
             const data = response.data;
             this.successMessage = data.message;
             this.isSuccess = true;
-            this.getPromotionsData();
+            this.getItemsData();
             this.input = {
               id: 0,
               mall: null,
@@ -734,7 +807,7 @@ export default {
           const data = response.data;
           this.successMessage = data.message;
           this.isSuccess = true;
-          this.getPromotionsData();
+          this.getItemsData();
         })
         .catch((error) => {
           // eslint-disable-next-line
@@ -752,57 +825,72 @@ export default {
           this.isDelete = false;
         });
     },
-    getPromotionsData() {
+    async getItemsData() {
       this.isLoading = true;
-      axios
-        .get(`/mall-promotions`)
-        .then((response) => {
-          const data = response.data.data;
-          this.items = data.map((item) => {
-            return {
-              id: item.promo_id || 1,
-              mall_id: item.merchant_id || 1,
-              name: item.partner_name || '',
-              promo: item.promo_name || '',
-              partner_id: item.partner_id || null,
-              country: item.country_name || '',
-              country_id: item.country_id || null,
-              isActive:
-                item.promo_active == 'N'
-                  ? false
-                  : item.promo_active == 'Y'
-                  ? true
-                  : null,
-              isFeatured:
-                item.promo_featured == 'N'
-                  ? false
-                  : item.promo_featured == 'Y'
-                  ? true
-                  : null,
-              image: item.main_image || null,
-              user: item.name || '',
-              user_id: item.user_id || '',
-              dated: item.promo_dated || '',
-              type: item.sub_industry_name || '',
-              sub_industry_id: item.sub_industry_id || null,
-              outlets: 5,
-              malls: 2,
-            };
-          });
-        })
-        .catch((error) => {
-          // eslint-disable-next-line
-          console.log(error);
-          const message =
-            error.response.data.message === ''
-              ? 'Something Wrong!!!'
-              : error.response.data.message;
-          this.errorMessage = message;
-          this.isError = true;
-        })
-        .finally(() => {
-          this.isLoading = false;
+      try {
+        let items = await this.getPromotionsData();
+
+        items = await Promise.all(
+          items.map(async (item) => {
+            const tagItems = await this.getTagsDataById(item.id);
+            return { ...item, tagItems };
+          })
+        );
+
+        this.items = items;
+      } catch (error) {
+        console.error('Error fetching items data:', error);
+      } finally {
+        this.isLoading = false;
+      }
+    },
+    async getPromotionsData() {
+      this.isLoading = true;
+      try {
+        const response = await axios.get(`/mall-promotions`);
+        const data = response.data.data;
+        return data.map((item) => {
+          return {
+            id: item.promo_id || 1,
+            mall_id: item.merchant_id || 1,
+            name: item.partner_name || '',
+            promo: item.promo_name || '',
+            partner_id: item.partner_id || null,
+            country: item.country_name || '',
+            country_id: item.country_id || null,
+            isActive:
+              item.promo_active == 'N'
+                ? false
+                : item.promo_active == 'Y'
+                ? true
+                : null,
+            isFeatured:
+              item.promo_featured == 'N'
+                ? false
+                : item.promo_featured == 'Y'
+                ? true
+                : null,
+            image: item.main_image || null,
+            user: item.name || '',
+            user_id: item.user_id || '',
+            dated: item.promo_dated || '',
+            type: item.sub_industry_name || '',
+            sub_industry_id: item.sub_industry_id || null,
+            outlets: 5,
+            malls: 2,
+          };
         });
+      } catch (error) {
+        console.log(error);
+        const message =
+          error.response.data.message === ''
+            ? 'Something Wrong!!!'
+            : error.response.data.message;
+        this.errorMessage = message;
+        this.isError = true;
+      } finally {
+        this.isLoading = false;
+      }
     },
     getPartnerData() {
       axios
@@ -833,6 +921,110 @@ export default {
           this.isError = true;
         });
     },
+    async getTagsDataById(id) {
+      this.isLoading = true;
+      try {
+        const response = await axios.get(`/mall-promotion-tags/${id}/tags`);
+        const data = response.data.data;
+        return data.map((item) => {
+          return {
+            id: item.mpt_id || 0,
+            name: item.tag_name || '',
+          };
+        });
+      } catch (error) {
+        console.log(error);
+        throw error;
+      } finally {
+        this.isLoading = false;
+      }
+    },
+    addTagById(id) {
+      this.isSending = true;
+      const payload = {
+        promo_id: id,
+        tag_id: this.tagId,
+      };
+      console.log(payload);
+      axios
+        .post(`/mall-promotion-tags`, payload)
+        .then((response) => {
+          const data = response.data;
+          this.successMessage = data.message;
+          this.isSuccess = true;
+          this.getItemsData();
+          this.tagId = null;
+        })
+        .catch((error) => {
+          // eslint-disable-next-line
+          console.log(error);
+          const message = error.response.data.partner_id
+            ? error.response.data.partner_id[0]
+            : error.response.data.message === ''
+            ? 'Something Wrong!!!'
+            : error.response.data.message;
+          this.errorMessage = message;
+          this.isError = true;
+        })
+        .finally(() => {
+          this.isSending = false;
+        });
+    },
+    deleteTagById(id) {
+      this.isDeleteLoading = true;
+      axios
+        .delete(`/mall-promotion-tags/${id}`)
+        .then((response) => {
+          const data = response.data;
+          this.successMessage = data.message;
+          this.isSuccess = true;
+          this.getItemsData();
+        })
+        .catch((error) => {
+          // eslint-disable-next-line
+          console.log(error);
+          const message =
+            error.response.data.message === ''
+              ? 'Something Wrong!!!'
+              : error.response.data.message;
+          this.errorMessage = message;
+          this.isError = true;
+        })
+        .finally(() => {
+          this.isDeleteLoading = false;
+          this.isDelete = false;
+        });
+    },
+    getTagsData() {
+      this.isLoading = true;
+      axios
+        .get(`/tags`)
+        .then((response) => {
+          const data = response.data.data;
+          this.resource.tags = data
+            .sort((a, b) => a.tag_name.localeCompare(b.tag_name))
+            .map((item) => {
+              return {
+                id: item.tag_id || 1,
+                name: item.tag_name || '',
+                image: item.tag_image ? this.$fileURL + item.tag_image : null,
+              };
+            });
+        })
+        .catch((error) => {
+          // eslint-disable-next-line
+          console.log(error);
+          const message =
+            error.response.data.message === ''
+              ? 'Something Wrong!!!'
+              : error.response.data.message;
+          this.errorMessage = message;
+          this.isError = true;
+        })
+        .finally(() => {
+          this.isLoading = false;
+        });
+    },
     activePromotions(id) {
       this.isSending = true;
       axios
@@ -841,7 +1033,7 @@ export default {
           const data = response.data;
           this.successMessage = data.message;
           this.isSuccess = true;
-          this.getPromotionsData();
+          this.getItemsData();
         })
         .catch((error) => {
           // eslint-disable-next-line
@@ -865,7 +1057,7 @@ export default {
           const data = response.data;
           this.successMessage = data.message;
           this.isSuccess = true;
-          this.getPromotionsData();
+          this.getItemsData();
         })
         .catch((error) => {
           // eslint-disable-next-line
