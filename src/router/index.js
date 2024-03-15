@@ -586,6 +586,20 @@ const routes = [
     },
   },
   {
+    name: 'outlets master',
+    path: '/outlets_master',
+    component: () =>
+      import('@/views/mall master/outlets/OutletsMasterContainer.vue'),
+    beforeEnter: (to, from, next) => {
+      // Pengecekan status login sebelum masuk ke halaman beranda
+      if (localStorage.getItem('token') == null) {
+        next('/auth/login'); // Alihkan ke halaman login jika belum masuk
+      } else {
+        next(); // Lanjutkan ke halaman beranda jika sudah masuk
+      }
+    },
+  },
+  {
     name: 'promotions master',
     path: '/promotions_master',
     component: () =>

@@ -23,7 +23,7 @@
         active-class="text-blue-accent-4"
         style="color: black"
         class="text-decoration-none"
-        to="/"
+        to="/outlets_master"
       >
         <h4>On-Board Outlets</h4>
       </router-link>
