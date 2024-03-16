@@ -631,7 +631,7 @@ const routes = [
   },
   {
     name: 'promotions master outlets',
-    path: '/promotions_master/outlets/:id',
+    path: '/promotions_master/outlets/:id_promo/:id_merchant',
     component: () =>
       import('@/views/mall master/promotions/outlets/OutletsContainer.vue'),
     beforeEnter: (to, from, next) => {

@@ -264,7 +264,7 @@
                               </router-link>
                               <router-link
                                 class="text-decoration-none"
-                                :to="`/promotions_master/outlets/${item.id}`"
+                                :to="`/promotions_master/outlets/${item.id}/${item.mall_id}`"
                               >
                                 <span
                                   >Outlets (<span class="text-red"> 3 </span
@@ -339,7 +339,7 @@
                               color="primary"
                               dark
                               small
-                              class="mr-1"
+                              class="mr-1 mb-1"
                             >
                               {{ tag.name }}
                               <v-icon

@@ -28,7 +28,7 @@
               density="compact"
               label="Search Mall Name"
               placeholder="Type Mall Name"
-              :items="resource.mall"
+              :items="resource.malls"
               item-title="name"
               item-value="id"
               v-model="input.mall"
@@ -40,11 +40,10 @@
               density="compact"
               label="Select Mall Location"
               placeholder="Type Mall Location"
-              :items="resource.country"
+              :items="resource.locations"
               item-title="name"
               item-value="id"
-              :rules="rules.cityRules"
-              v-model="input.country"
+              v-model="input.location"
               variant="outlined"
             ></v-autocomplete>
           </v-col>
@@ -122,22 +121,22 @@
                 </td>
                 <td>
                   <div class="app-column">
-                    {{ item.latitude }}
+                    {{ item.mall }}
                   </div>
                 </td>
                 <td>
                   <div class="app-column">
-                    {{ item.longitude }}
+                    {{ item.unit_number }}
                   </div>
                 </td>
                 <td>
                   <div class="app-column">
-                    {{ item.address }}
+                    {{ item.user }}
                   </div>
                 </td>
                 <td>
                   <div class="app-column">
-                    {{ item.address }}
+                    {{ item.dated }}
                   </div>
                 </td>
                 <td>
@@ -198,12 +197,12 @@
       <v-card>
         <v-card-title>Confirmation</v-card-title>
         <v-card-text>
-          Are you sure want to delete this partner location?
+          Are you sure want to delete this promotion outlet?
         </v-card-text>
         <v-card-actions>
           <v-spacer></v-spacer>
           <v-btn color="error" text @click="cancelDelete">No</v-btn>
-          <v-btn color="success" text @click="deleteLocation">{{
+          <v-btn color="success" text @click="deleteOutlet">{{
             isDeleteLoading ? 'Deleting...' : 'Yes'
           }}</v-btn>
         </v-card-actions>
@@ -253,6 +252,7 @@ export default {
   data: () => ({
     // fileURL: 'https://admin1.the-gypsy.sg/img/app/',
     idPromo: null,
+    idMerchant: null,
     partnerName: null,
     promoName: null,
     valid: false,
@@ -282,15 +282,8 @@ export default {
     },
     input: {
       id: 0,
-      country: null,
-      town: null,
-      city: null,
-      zone: null,
+      mall: null,
       location: null,
-      latitude: null,
-      longitude: null,
-      address: null,
-      unitNumber: null,
     },
     rules: {
       countryRules: [
@@ -347,9 +340,7 @@ export default {
     items: [],
     resource: {
       mall: [],
-      city: [],
-      town: [],
-      zone: [],
+      locations: [],
     },
     itemsTry: [
       {
@@ -374,8 +365,9 @@ export default {
     setAuthHeader(token);
   },
   mounted() {
-    this.idPromo = this.$route.params.id;
-    this.getPartnerLocationsData();
+    this.idPromo = this.$route.params.id_promo;
+    this.idMerchant = this.$route.params.id_merchant;
+    this.getOutletsData();
     this.getPromotionData();
     this.getPartnerData();
   },
@@ -387,11 +379,22 @@ export default {
       const searchTextLower = this.search.toLowerCase();
       return this.items.filter(
         (item) =>
-          item.name.toLowerCase().includes(searchTextLower) ||
-          item.country.toLowerCase().includes(searchTextLower) ||
-          item.city.toLowerCase().includes(searchTextLower) ||
-          item.town.toLowerCase().includes(searchTextLower)
+          item.mall.toLowerCase().includes(searchTextLower) ||
+          item.unit_number.toLowerCase().includes(searchTextLower)
       );
+    },
+  },
+  watch: {
+    'input.mall'() {
+      const filteredLocation = this.resource.malls
+        .filter((i) => i.id == this.input.mall)
+        .map((item) => {
+          return {
+            id: item.pl_id,
+            name: item.unit_number,
+          };
+        });
+      this.resource.locations = filteredLocation;
     },
   },
   methods: {
@@ -399,44 +402,31 @@ export default {
       if (this.valid) {
         this.isSending = true;
         const payload = {
-          partner_id: this.idPromo,
-          country_id: this.input.country,
-          city_id: this.input.city,
-          town_id: this.input.town,
-          zone_id: this.input.zone,
-          location_name: this.input.location,
-          latitude: this.input.latitude,
-          longitude: this.input.longitude,
-          location_address: this.input.address,
-          unit_number: this.input.unitNumber,
+          merchant_id: this.idMerchant,
+          promo_id: this.idPromo,
+          mmo_id: this.input.mall,
         };
         axios
-          .post(`/partner-locations`, payload)
+          .post(`/mall-promotions-outlets`, payload)
           .then((response) => {
             const data = response.data;
             this.successMessage = data.message;
             this.isSuccess = true;
-            this.getPartnerLocationsData();
+            this.getOutletsData();
             this.input = {
               id: 0,
-              country: null,
-              town: null,
-              city: null,
-              zone: null,
+              mall: null,
               location: null,
-              latitude: null,
-              longitude: null,
-              address: null,
-              unitNumber: null,
             };
           })
           .catch((error) => {
             // eslint-disable-next-line
             console.log(error);
-            const message =
-              error.response.data.message === ''
-                ? 'Something Wrong!!!'
-                : error.response.data.message;
+            const message = error.response.data.mmo_id
+              ? error.response.data.mmo_id[0]
+              : error.response.data.message === ''
+              ? 'Something Wrong!!!'
+              : error.response.data.message;
             this.errorMessage = message;
             this.isError = true;
           })
@@ -457,15 +447,15 @@ export default {
       this.locationIdToDelete = null;
       this.isDelete = false;
     },
-    deleteLocation() {
+    deleteOutlet() {
       this.isDeleteLoading = true;
       axios
-        .delete(`/partner-locations/${this.locationIdToDelete}`)
+        .delete(`/mall-promotions-outlets/${this.locationIdToDelete}`)
         .then((response) => {
           const data = response.data;
           this.successMessage = data.message;
           this.isSuccess = true;
-          this.getPartnerLocationsData();
+          this.getOutletsData();
         })
         .catch((error) => {
           // eslint-disable-next-line
@@ -483,38 +473,24 @@ export default {
           this.isDelete = false;
         });
     },
-    getPartnerLocationsData() {
+    getOutletsData() {
       this.isLoading = true;
       axios
-        .get(`/partner-locations/${this.idPromo}`)
+        .get(`/mall-promotions-outlets`)
         .then((response) => {
           const data = response.data.data;
           console.log(data);
           this.items = data.map((item) => {
             return {
-              id: item.pl_id || 1,
-              image: item.location_image || null,
-              location: item.location_name || '',
-              latitude: item.latitude || '',
-              longitude: item.longitude || '',
-              address: item.location_address || '',
-              country: item?.country?.country_name || '',
-              country_id: item?.country?.country_id || null,
-              city: item?.city?.city_name || '',
-              city_id: item?.city?.city_id || null,
-              town: item?.town?.town_name || '',
-              town_id: item?.town?.town_id || null,
-              zone: item?.zone?.zone_name || '',
-              zone_id: item?.zone?.zone_id || null,
-              unit_number: item?.unit_number || '',
-              isPrimary:
-                item.primary == 'N' ? false : item.primary == 'Y' ? true : null,
-              isFavorite:
-                item.favorite == 'N'
-                  ? false
-                  : item.favorite == 'Y'
-                  ? true
-                  : null,
+              id: item.mpo_id || 1,
+              promo_id: item.promo_id || 1,
+              merchant_id: item.merchant_id || 1,
+              mall_id: item.mall_id || 1,
+              pl_id: item.pl_id || 1,
+              mall: item.mall || '',
+              unit_number: item.unit_number || '',
+              user: item.name || '',
+              dated: item.dated || '',
             };
           });
         })
@@ -569,41 +545,18 @@ export default {
     },
     getPartnerData() {
       axios
-        .get(`/partners`)
+        .get(`/mall-merchant-outlets/${this.idMerchant}/list`)
         .then((response) => {
           const data = response.data.data;
           // console.log(data);
-          this.resource.mall = data.map((item) => {
+          this.resource.malls = data.map((item) => {
             return {
-              id: item.partner_id || 1,
-              name: item.partner_name || '',
+              id: item.mmo_id || 1,
+              name: item.mall || '',
+              pl_id: item.pl_id || 1,
+              unit_number: item.unit_number || '',
             };
           });
-        })
-        .catch((error) => {
-          // eslint-disable-next-line
-          console.log(error);
-          const message =
-            error.response.data.message === ''
-              ? 'Something Wrong!!!'
-              : error.response.data.message;
-          this.errorMessage = message;
-          this.isError = true;
-        });
-    },
-    getCountry() {
-      axios
-        .get(`/countries`)
-        .then((response) => {
-          const data = response.data.data;
-          this.resource.country = data
-            .sort((a, b) => a.country_name.localeCompare(b.country_name))
-            .map((country) => {
-              return {
-                id: country.country_id,
-                name: country.country_name,
-              };
-            });
         })
         .catch((error) => {
           // eslint-disable-next-line
