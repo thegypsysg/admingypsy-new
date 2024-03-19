@@ -480,19 +480,24 @@ export default {
         .then((response) => {
           const data = response.data.data;
           console.log(data);
-          this.items = data.map((item) => {
-            return {
-              id: item.mpo_id || 1,
-              promo_id: item.promo_id || 1,
-              merchant_id: item.merchant_id || 1,
-              mall_id: item.mall_id || 1,
-              pl_id: item.pl_id || 1,
-              mall: item.mall || '',
-              unit_number: item.unit_number || '',
-              user: item.name || '',
-              dated: item.dated || '',
-            };
-          });
+          this.items = data
+            .filter(
+              (i) =>
+                i.promo_id === this.idPromo && i.merchant_id === this.idMerchant
+            )
+            .map((item) => {
+              return {
+                id: item.mpo_id || 1,
+                promo_id: item.promo_id || 1,
+                merchant_id: item.merchant_id || 1,
+                mall_id: item.mall_id || 1,
+                pl_id: item.pl_id || 1,
+                mall: item.mall || '',
+                unit_number: item.unit_number || '',
+                user: item.name || '',
+                dated: item.dated || '',
+              };
+            });
         })
         .catch((error) => {
           // eslint-disable-next-line
