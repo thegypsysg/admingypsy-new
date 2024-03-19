@@ -3,14 +3,24 @@
 <template>
   <v-container>
     <div class="d-flex ml-4 mb-4" style="gap: 30px">
-      <router-link
-        active-class="text-blue-accent-4"
-        style="color: black"
-        class="text-decoration-none"
-        to="/mall_master"
-      >
-        <h4>On-Board Mall</h4>
-      </router-link>
+      <div>
+        <router-link
+          active-class="text-blue-accent-4"
+          style="color: black"
+          class="text-decoration-none"
+          to="/mall_master"
+        >
+          <h4>On-Board Mall</h4>
+        </router-link>
+        <router-link
+          active-class="text-purple-accent-4"
+          style="color: black"
+          class="text-decoration-none"
+          to="/mall-country"
+        >
+          <h4 class="mt-4">Country / City</h4>
+        </router-link>
+      </div>
       <router-link
         active-class="text-blue-accent-4"
         style="color: black"

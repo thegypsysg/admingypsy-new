@@ -671,6 +671,22 @@ const routes = [
       }
     },
   },
+  {
+    name: 'mall country',
+    path: '/mall-country',
+    component: () =>
+      import(
+        '@/views/mall master/countryCity/country/MallCountryContainer.vue'
+      ),
+    beforeEnter: (to, from, next) => {
+      // Pengecekan status login sebelum masuk ke halaman beranda
+      if (localStorage.getItem('token') == null) {
+        next('/auth/login'); // Alihkan ke halaman login jika belum masuk
+      } else {
+        next(); // Lanjutkan ke halaman beranda jika sudah masuk
+      }
+    },
+  },
 
   {
     path: '/*', // Rute ini akan menangkap semua rute yang tidak cocok dengan rute lainnya
