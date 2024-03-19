@@ -1,54 +1,88 @@
 <!-- eslint-disable vue/no-deprecated-v-bind-sync -->
 <template>
   <v-container>
-    <div class="d-flex ml-4 mb-4" style="gap: 40px">
+    <div class="d-flex ml-4 mb-8" style="gap: 30px">
+      <div>
+        <router-link
+          active-class="text-blue-accent-4"
+          style="color: black"
+          class="text-decoration-none"
+          to="/mall_master"
+        >
+          <h4>On-Board Mall</h4>
+        </router-link>
+        <router-link
+          active-class="text-purple-accent-4"
+          style="color: black"
+          class="text-decoration-none"
+          to="/mall-country"
+        >
+          <h4 class="mt-4">Country / City</h4>
+        </router-link>
+      </div>
+      <router-link
+        active-class="text-blue-accent-4"
+        style="color: black"
+        class="text-decoration-none"
+        to="/merchants_master"
+      >
+        <h4>On-Board Merchants</h4>
+      </router-link>
+      <router-link
+        active-class="text-blue-accent-4"
+        style="color: black"
+        class="text-decoration-none"
+        to="/outlets_master"
+      >
+        <h4>On-Board Outlets</h4>
+      </router-link>
+      <router-link
+        active-class="text-blue-accent-4"
+        style="color: black"
+        class="text-decoration-none"
+        to="/promotions_master"
+      >
+        <h4>On-Board Promotions</h4>
+      </router-link>
+
+      <router-link
+        active-class="text-blue-accent-4"
+        style="color: black"
+        class="text-decoration-none"
+        to="/tag-header"
+      >
+        <h4>Tag Header</h4>
+      </router-link>
+      <router-link
+        active-class="text-blue-accent-4"
+        style="color: black"
+        class="text-decoration-none"
+        to="/tag-master"
+      >
+        <h4>Tag Master</h4>
+      </router-link>
+    </div>
+    <div class="d-flex ml-4 my-4" style="gap: 40px">
       <router-link
         active-class="text-black"
         style="color: #3e4aaf"
         class="text-decoration-none"
-        to="/country-master"
+        to="/mall-country"
       >
-        <h1>Country Master</h1>
+        <h1>Country</h1>
       </router-link>
       <router-link
         active-class="text-black"
         style="color: #3e4aaf"
         class="text-decoration-none"
-        to="/city-master"
+        to="/mall-city"
       >
-        <h1>City Master</h1>
-      </router-link>
-      <router-link
-        active-class="text-black"
-        style="color: #3e4aaf"
-        class="text-decoration-none"
-        to="/town-master"
-      >
-        <h1>Town Master</h1>
-      </router-link>
-      <router-link
-        active-class="text-black"
-        style="color: #3e4aaf"
-        class="text-decoration-none"
-        to="/zone-master"
-      >
-        <h1>Zone Master</h1>
+        <h1>City</h1>
       </router-link>
     </div>
     <v-form v-model="valid" @submit.prevent>
       <v-container>
         <v-row>
-          <v-col cols="12" md="3">
-            <v-combobox
-              clearable
-              density="compact"
-              label="Select City"
-              placeholder="Type a City"
-              :items="resource.city"
-              v-model="input.city"
-              variant="outlined"
-            ></v-combobox>
-          </v-col>
           <v-col cols="12" md="3">
             <v-autocomplete
               clearable
@@ -59,6 +93,19 @@
               item-title="name"
               item-value="id"
               v-model="input.country"
+              variant="outlined"
+            ></v-autocomplete>
+          </v-col>
+          <v-col cols="12" md="3">
+            <v-autocomplete
+              clearable
+              density="compact"
+              label="Select City"
+              placeholder="Type a City"
+              :items="resource.cityFiltered"
+              item-title="name"
+              item-value="id"
+              v-model="input.city"
               variant="outlined"
             ></v-autocomplete>
           </v-col>
@@ -124,11 +171,10 @@
           <v-table class="country-table">
             <thead>
               <tr>
-                <th class="text-left">City Name</th>
                 <th class="text-left">Country</th>
-                <th class="text-left">Active</th>
-                <th class="text-left">Favorite</th>
-                <th class="text-left">Actions</th>
+                <th class="text-left">City</th>
+                <th class="text-left">User</th>
+                <th class="text-left">Dated</th>
               </tr>
             </thead>
             <tbody>
@@ -143,71 +189,13 @@
                 <td style="font-weight: 500 !important">
                   {{ item.country }}
                 </td>
-                <td>
-                  <v-btn-toggle
-                    style="
-                      font-size: 10px !important;
-                      font-weight: 200 !important;
-                      height: 22px !important;
-                      width: 54px !important;
-                    "
-                    class="d-flex align-center"
-                    v-model="item.isActive"
-                    rounded="5"
-                    @click="activeCity(item.id)"
-                  >
-                    <v-btn size="27" :value="true"> Yes </v-btn>
-
-                    <v-btn size="27" :value="false"> No </v-btn>
-                  </v-btn-toggle>
+                <td style="font-weight: 500 !important">
+                  <!-- {{ item.country }} -->
+                  Charlton
                 </td>
-                <td>
-                  <v-btn-toggle
-                    style="
-                      font-size: 10px !important;
-                      font-weight: 200 !important;
-                      height: 22px !important;
-                      width: 54px !important;
-                    "
-                    class="d-flex align-center"
-                    v-model="item.isFav"
-                    rounded="5"
-                    @click="favoriteCity(item.id)"
-                  >
-                    <v-btn size="27" :value="true"> Yes </v-btn>
-
-                    <v-btn size="27" :value="false"> No </v-btn>
-                  </v-btn-toggle>
-                </td>
-                <td>
-                  <div class="d-flex">
-                    <v-tooltip location="top">
-                      <template v-slot:activator="{ props }">
-                        <v-btn
-                          color="green"
-                          variant="text"
-                          v-bind="props"
-                          @click="editCity(item)"
-                          icon="mdi-pencil-outline"
-                        ></v-btn>
-                      </template>
-                      <span>Edit</span>
-                    </v-tooltip>
-
-                    <v-tooltip location="top">
-                      <template v-slot:activator="{ props }">
-                        <v-btn
-                          color="red"
-                          variant="text"
-                          v-bind="props"
-                          :disabled="isDeleteLoading"
-                          @click="openDeleteConfirm(item.id)"
-                          icon="mdi-trash-can-outline"
-                        ></v-btn>
-                      </template>
-                      <span>Delete</span>
-                    </v-tooltip>
-                  </div>
+                <td style="font-weight: 500 !important">
+                  <!-- {{ item.country }} -->
+                  06/09/2023
                 </td>
               </tr>
               <tr v-if="isLoading">
@@ -292,6 +280,7 @@ export default {
     resource: {
       country: [],
       city: [],
+      cityFiltered: [],
     },
     rules: {
       countryRules: [
@@ -325,7 +314,15 @@ export default {
   },
   mounted() {
     this.getCityData();
-    this.getCountry();
+    this.getCountries();
+  },
+  watch: {
+    'input.country'() {
+      const filteredCity = this.resource.city.filter(
+        (item) => item.countryId === this.input.country
+      );
+      this.resource.cityFiltered = filteredCity;
+    },
   },
   computed: {
     filteredItems() {
@@ -495,8 +492,13 @@ export default {
           this.resource.city = data
             .filter((d) => d.city_name !== '')
             .sort((a, b) => a.city_name.localeCompare(b.city_name))
-
-            .map((item) => item.city_name);
+            .map((item) => {
+              return {
+                id: item.city_id || 1,
+                name: item.city_name || '',
+                countryId: item.country_id || 1,
+              };
+            });
         })
         .catch((error) => {
           // eslint-disable-next-line
@@ -512,17 +514,17 @@ export default {
           this.isLoading = false;
         });
     },
-    getCountry() {
+    getCountries() {
       axios
-        .get(`/country`)
+        .get(`/countries`)
         .then((response) => {
           const data = response.data.data;
           this.resource.country = data
             .sort((a, b) => a.country_name.localeCompare(b.country_name))
             .map((country) => {
               return {
-                id: country.country_id,
-                name: country.country_name,
+                id: country.country_id || 1,
+                name: country.country_name || '',
               };
             });
         })

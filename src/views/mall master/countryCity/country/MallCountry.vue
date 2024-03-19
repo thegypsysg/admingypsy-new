@@ -67,7 +67,7 @@
         active-class="text-black"
         style="color: #3e4aaf"
         class="text-decoration-none"
-        to="/country-master"
+        to="/mall-country"
       >
         <h1>Country</h1>
       </router-link>
@@ -75,7 +75,7 @@
         active-class="text-black"
         style="color: #3e4aaf"
         class="text-decoration-none"
-        to="/city-master"
+        to="/mall-city"
       >
         <h1>City</h1>
       </router-link>
@@ -375,7 +375,7 @@ export default {
   },
   mounted() {
     this.getCountryData();
-    this.getCountry();
+    //this.getCountry();
   },
   computed: {
     filteredItems() {
@@ -654,6 +654,10 @@ export default {
         .then((response) => {
           const data = response.data.data;
           // console.log(data);
+
+          this.resource.country = data
+            .sort((a, b) => a.country_name.localeCompare(b.country_name))
+            .map((country) => country.country_name);
           this.items = data.map((item) => {
             return {
               id: item.country_id || 1,

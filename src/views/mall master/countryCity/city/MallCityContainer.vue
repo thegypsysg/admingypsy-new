@@ -3,7 +3,7 @@
     <sidebar-dashboard :drawer-open="drawer" />
     <header-dashboard @toggle-drawer="toggleDrawer" />
     <v-main>
-      <CityMaster />
+      <MallCity />
     </v-main>
   </v-app>
 </template>
@@ -11,11 +11,11 @@
 <script>
 import HeaderDashboard from '@/components/HeaderDashboard.vue';
 import SidebarDashboard from '@/components/SidebarDashboard.vue';
-import CityMaster from './CityMaster.vue';
+import MallCity from './MallCity.vue';
 
 export default {
-  name: 'CityMasterContainer',
-  components: { SidebarDashboard, HeaderDashboard, CityMaster },
+  name: 'MallCityContainer',
+  components: { SidebarDashboard, HeaderDashboard, MallCity },
   data: () => ({
     drawer: true,
   }),
@@ -40,3 +40,4 @@ export default {
 $fa-font-path: '~font-awesome/fonts/';
 @import '~font-awesome/scss/font-awesome.scss';
 </style>
+./MallCity.vue
