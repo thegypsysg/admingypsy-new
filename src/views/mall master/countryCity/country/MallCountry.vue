@@ -84,16 +84,17 @@
       <v-container>
         <v-row>
           <v-col cols="12" md="3">
-            <v-combobox
+            <v-autocomplete
               clearable
               density="compact"
               label="Select Country"
               placeholder="Type a Country"
               :items="resource.country"
+              item-title="name"
+              item-value="id"
               v-model="input.country"
               variant="outlined"
-              required
-            ></v-combobox>
+            ></v-autocomplete>
           </v-col>
         </v-row>
         <v-row class="mt-n2">
@@ -173,8 +174,6 @@
                   <v-img
                     height="40"
                     width="65"
-                    @click="openImage(item)"
-                    style="cursor: pointer"
                     :src="
                       item.image != null
                         ? $fileURL + item.image
@@ -187,12 +186,10 @@
                   {{ item.country }}
                 </td>
                 <td style="font-weight: 500 !important">
-                  <!-- {{ item.code }} -->
-                  Charlton
+                  {{ item.user }}
                 </td>
                 <td style="font-weight: 500 !important">
-                  <!-- {{ item.national }} -->
-                  06/09/2023
+                  {{ item.dated }}
                 </td>
               </tr>
               <tr v-if="isLoading">
@@ -242,43 +239,11 @@
         </v-card-actions>
       </v-card>
     </v-dialog>
-    <v-dialog persistent width="auto" v-model="isOpenImage">
-      <v-card width="750">
-        <v-card-title class="upload-title px-6 py-4">
-          Upload Image - Flag</v-card-title
-        >
-        <v-card-text>
-          <image-upload
-            :image-file="imageFile"
-            @update-image-file="updateImageFile"
-            @delete-image-file="deleteImageFile"
-          />
-        </v-card-text>
-        <v-card-actions class="mt-16">
-          <v-spacer></v-spacer>
-          <v-btn
-            style="text-transform: none"
-            color="error"
-            text
-            @click="closeImage"
-            >Cancel</v-btn
-          >
-          <v-btn
-            style="background-color: #9ddcff; text-transform: none"
-            color="black"
-            @click="saveImage()"
-            >Save</v-btn
-          >
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
   </v-container>
 </template>
 
 <script>
-import ImageUpload from '@/components/ImageUpload.vue';
 import axios from '@/util/axios';
-import http from 'axios';
 import { setAuthHeader } from '@/util/axios';
 // import app from '@/util/eventBus';
 
@@ -375,6 +340,7 @@ export default {
   },
   mounted() {
     this.getCountryData();
+    this.getCountryList();
     //this.getCountry();
   },
   computed: {
@@ -383,204 +349,20 @@ export default {
         return this.items;
       }
       const searchTextLower = this.search.toLowerCase();
-      return this.items.filter(
-        (item) =>
-          item.country.toLowerCase().includes(searchTextLower) ||
-          item.code.toLowerCase().includes(searchTextLower) ||
-          item.national.toLowerCase().includes(searchTextLower)
+      return this.items.filter((item) =>
+        item.country.toLowerCase().includes(searchTextLower)
       );
     },
   },
   methods: {
-    updateImageFile(newImageFile) {
-      this.imageFile.push(newImageFile);
-    },
-    deleteImageFile() {
-      this.isSending = true;
-      axios
-        .delete(`/countries/${this.countryDataToImage.id}/flag`)
-        .then((response) => {
-          const data = response.data;
-          this.successMessage = data.message;
-          this.isSuccess = true;
-          this.getCountryData();
-          // app.config.globalProperties.$eventBus.$emit('update-image');
-        })
-        .catch((error) => {
-          // eslint-disable-next-line
-          console.log(error);
-          const message =
-            error.response.data.message === ''
-              ? 'Something Wrong!!!'
-              : error.response.data.message;
-          this.errorMessage = message;
-          this.isError = true;
-        })
-        .finally(() => {
-          this.isEdit = false;
-          this.isSending = false;
-          this.imageFile = [];
-        });
-    },
-    openImage(item) {
-      this.isOpenImage = true;
-      this.countryDataToImage = {
-        id: item.id,
-        country: item.country,
-        code: item.code,
-        national: item.national,
-      };
-      this.imageFile =
-        item.image != null
-          ? [
-              {
-                file: {
-                  name: item.image,
-                  size: '',
-                  base64: '',
-                  format: '',
-                },
-              },
-            ]
-          : [];
-    },
-    closeImage() {
-      this.isOpenImage = false;
-      this.imageFile = [];
-      this.countryDataToImage = {
-        id: 0,
-        country: null,
-        code: null,
-        national: null,
-      };
-    },
-    saveImage() {
-      const payload = {
-        country_id: this.countryDataToImage.id,
-        country_name: this.countryDataToImage.country,
-        country_code: this.countryDataToImage.code,
-        nationality: this.countryDataToImage.national,
-        flag: this.imageFile[0],
-      };
-
-      if (payload.country_code == '') {
-        this.isError = true;
-        this.errorMessage = 'Please input the country code!';
-      } else if (payload.nationality == '') {
-        this.isError = true;
-        this.errorMessage = 'Please input the nationality!';
-      } else {
-        this.isError = false;
-      }
-
-      if (this.isError == false) {
-        this.isSending = true;
-        http
-          .post(`/countries/update`, payload, {
-            headers: {
-              'Content-Type': 'multipart/form-data',
-            },
-          })
-          .then((response) => {
-            const data = response.data;
-            this.successMessage = data.message;
-            this.isSuccess = true;
-            this.getCountryData();
-            // app.config.globalProperties.$eventBus.$emit('update-image');
-          })
-          .catch((error) => {
-            // eslint-disable-next-line
-            console.log(error);
-          })
-          .finally(() => {
-            this.isEdit = false;
-            this.isSending = false;
-            this.countryDataToImage = {
-              id: 0,
-              country: null,
-              code: null,
-              national: null,
-            };
-            this.isOpenImage = false;
-            this.imageFile = [];
-          });
-      }
-    },
-    editCountry(country) {
-      this.isEdit = true;
-      this.input = {
-        id: country.id,
-        country: country.country,
-        code: country.code,
-        national: country.national,
-      };
-    },
-    cancelEdit() {
-      this.isEdit = false;
-      this.input = {
-        id: 1,
-        image: null,
-        country: null,
-        code: null,
-        national: null,
-      };
-    },
-    saveEdit() {
-      if (this.valid) {
-        this.isSending = true;
-        const payload = {
-          country_id: this.input.id,
-          country_name: this.input.country,
-          country_code: this.input.code,
-          nationality: this.input.national,
-        };
-        if (this.input.image !== null) {
-          payload['flag'] = this.input.image;
-        }
-        axios
-          .post(`/countries/update`, payload)
-          .then((response) => {
-            const data = response.data;
-            this.successMessage = data.message;
-            this.isSuccess = true;
-            this.getCountryData();
-            this.input = {
-              id: 0,
-              image: null,
-              country: null,
-              code: null,
-              national: null,
-            };
-          })
-          .catch((error) => {
-            // eslint-disable-next-line
-            console.log(error);
-            const message =
-              error.response.data.message === ''
-                ? 'Something Wrong!!!'
-                : error.response.data.message;
-            this.errorMessage = message;
-            this.isError = true;
-          })
-          .finally(() => {
-            this.isEdit = false;
-            this.isSending = false;
-          });
-      }
-    },
     saveData() {
       if (this.valid) {
         this.isSending = true;
         const payload = {
-          country_name: this.input.country,
-          country_code: this.input.code,
-          nationality: this.input.national,
+          country_id: this.input.country,
         };
-        if (this.input.image !== null) {
-          payload['flag'] = this.input.image;
-        }
         axios
-          .post(`/countries`, payload)
+          .post(`/mall-country`, payload)
           .then((response) => {
             const data = response.data;
             this.successMessage = data.message;
@@ -609,75 +391,24 @@ export default {
           });
       }
     },
-    cancelDelete() {
-      this.countryIdToDelete = null;
-      this.isDelete = false;
-    },
-    openDeleteConfirm(itemId) {
-      this.countryIdToDelete = itemId;
-      this.isDelete = true;
-    },
-    cancelConfirmation() {
-      this.countryIdToDelete = null;
-      this.isDelete = false;
-    },
-    deleteCountry() {
-      this.isDeleteLoading = true;
-      axios
-        .delete(`/countries/${this.countryIdToDelete}`)
-        .then((response) => {
-          const data = response.data;
-          this.successMessage = data.message;
-          this.isSuccess = true;
-          this.getCountryData();
-        })
-        .catch((error) => {
-          // eslint-disable-next-line
-          console.log(error);
-          const message =
-            error.response.data.message === ''
-              ? 'Something Wrong!!!'
-              : error.response.data.message;
-          this.errorMessage = message;
-          this.isError = true;
-        })
-        .finally(() => {
-          this.isDeleteLoading = false;
-          this.countryIdToDelete = null;
-          this.isDelete = false;
-        });
-    },
     getCountryData() {
       this.isLoading = true;
       axios
-        .get(`/countries`)
+        .get(`/mall-country`)
         .then((response) => {
           const data = response.data.data;
           // console.log(data);
 
-          this.resource.country = data
-            .sort((a, b) => a.country_name.localeCompare(b.country_name))
-            .map((country) => country.country_name);
           this.items = data.map((item) => {
             return {
-              id: item.country_id || 1,
-              image: item.flag || null,
+              id: item.mc_id || 1,
+              country_id: item.country_id || 1,
               country: item.country_name || '',
-              code: item.country_code || '',
-              national: item.nationality || '',
-              isActive:
-                item.active == 'N' ? false : item.active == 'Y' ? true : null,
-              isFav:
-                item.favorite == 'N'
-                  ? false
-                  : item.favorite == 'Y'
-                  ? true
-                  : null,
+              image: item.flag || null,
+              user: item.name || '',
+              dated: item.dated || '',
             };
           });
-          this.resource.nationality = data
-            .filter((d) => d.nationality !== '')
-            .map((item) => item.nationality);
         })
         .catch((error) => {
           // eslint-disable-next-line
@@ -687,69 +418,32 @@ export default {
           this.isLoading = false;
         });
     },
-    getCountry() {
+    getCountryList() {
+      this.isLoading = true;
       axios
-        .get(`/country`)
+        .get(`/countries`)
         .then((response) => {
           const data = response.data.data;
-          this.resource.country = data.map((country) => country.country_name);
-        })
-        .catch((error) => {
-          // eslint-disable-next-line
-          console.log(error);
-        });
-    },
+          // console.log(data);
 
-    activeCountry(id) {
-      this.isSending = true;
-      axios
-        .get(`/countries/toggle-active/${id}`)
-        .then((response) => {
-          const data = response.data;
-          this.successMessage = data.message;
-          this.isSuccess = true;
-          this.getCountryData();
+          this.resource.country = data
+            .sort((a, b) => a.country_name.localeCompare(b.country_name))
+            .map((country) => {
+              return {
+                id: country.country_id || 1,
+                name: country.country_name || '',
+              };
+            });
         })
         .catch((error) => {
           // eslint-disable-next-line
           console.log(error);
-          const message =
-            error.response.data.message === ''
-              ? 'Something Wrong!!!'
-              : error.response.data.message;
-          this.errorMessage = message;
-          this.isError = true;
         })
         .finally(() => {
-          this.isSending = false;
-        });
-    },
-    favoriteCountry(id) {
-      this.isSending = true;
-      axios
-        .get(`/countries/toggle-favorite/${id}`)
-        .then((response) => {
-          const data = response.data;
-          this.successMessage = data.message;
-          this.isSuccess = true;
-          this.getCountryData();
-        })
-        .catch((error) => {
-          // eslint-disable-next-line
-          console.log(error);
-          const message =
-            error.response.data.message === ''
-              ? 'Something Wrong!!!'
-              : error.response.data.message;
-          this.errorMessage = message;
-          this.isError = true;
-        })
-        .finally(() => {
-          this.isSending = false;
+          this.isLoading = false;
         });
     },
   },
-  components: { ImageUpload },
 };
 </script>
 

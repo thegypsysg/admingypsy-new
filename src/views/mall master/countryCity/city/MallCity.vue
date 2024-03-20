@@ -190,12 +190,10 @@
                   {{ item.country }}
                 </td>
                 <td style="font-weight: 500 !important">
-                  <!-- {{ item.country }} -->
-                  Charlton
+                  {{ item.user }}
                 </td>
                 <td style="font-weight: 500 !important">
-                  <!-- {{ item.country }} -->
-                  06/09/2023
+                  {{ item.dated }}
                 </td>
               </tr>
               <tr v-if="isLoading">
@@ -314,6 +312,7 @@ export default {
   },
   mounted() {
     this.getCityData();
+    this.getCityList();
     this.getCountries();
   },
   watch: {
@@ -338,69 +337,15 @@ export default {
     },
   },
   methods: {
-    editCity(city) {
-      this.isEdit = true;
-      this.input = {
-        id: city.id,
-        city: city.city,
-        country: city.country_id,
-      };
-    },
-    cancelEdit() {
-      this.isEdit = false;
-      this.input = {
-        id: 0,
-        city: null,
-        country: null,
-      };
-    },
-    saveEdit() {
-      if (this.valid) {
-        this.isSending = true;
-        const payload = {
-          city_id: this.input.id,
-          city_name: this.input.city,
-          country_id: this.input.country,
-        };
-        axios
-          .post(`/cities/update`, payload)
-          .then((response) => {
-            const data = response.data;
-            this.successMessage = data.message;
-            this.isSuccess = true;
-            this.getCityData();
-            this.input = {
-              id: 0,
-              city: null,
-              country: null,
-            };
-          })
-          .catch((error) => {
-            // eslint-disable-next-line
-            console.log(error);
-            const message = error.response.data.city_name
-              ? error.response.data.city_name[0]
-              : error.response.data.message
-              ? error.response.data.message
-              : 'Something Wrong!!!';
-            this.errorMessage = message;
-            this.isError = true;
-          })
-          .finally(() => {
-            this.isEdit = false;
-            this.isSending = false;
-          });
-      }
-    },
     saveData() {
       if (this.valid) {
         this.isSending = true;
         const payload = {
-          city_name: this.input.city,
           country_id: this.input.country,
+          city_id: this.input.city,
         };
         axios
-          .post(`/cities`, payload)
+          .post(`/mall-city`, payload)
           .then((response) => {
             const data = response.data;
             this.successMessage = data.message;
@@ -428,27 +373,24 @@ export default {
           });
       }
     },
-    cancelDelete() {
-      this.cityIdToDelete = null;
-      this.isDelete = false;
-    },
-    openDeleteConfirm(itemId) {
-      this.cityIdToDelete = itemId;
-      this.isDelete = true;
-    },
-    cancelConfirmation() {
-      this.cityIdToDelete = null;
-      this.isDelete = false;
-    },
-    deleteCity() {
-      this.isDeleteLoading = true;
+    getCityData() {
+      this.isLoading = true;
       axios
-        .delete(`/cities/${this.cityIdToDelete}`)
+        .get(`/mall-city`)
         .then((response) => {
-          const data = response.data;
-          this.successMessage = data.message;
-          this.isSuccess = true;
-          this.getCityData();
+          const data = response.data.data;
+          // console.log(data);
+          this.items = data.map((item) => {
+            return {
+              id: item.mcity_id || 1,
+              country_id: item.country_id || 1,
+              country: item.country_name || '',
+              city_id: item.city_id || 1,
+              city: item.city_name || '',
+              user: item.name || '',
+              dated: item.dated || '',
+            };
+          });
         })
         .catch((error) => {
           // eslint-disable-next-line
@@ -461,34 +403,16 @@ export default {
           this.isError = true;
         })
         .finally(() => {
-          this.isDeleteLoading = false;
-          this.cityIdToDelete = null;
-          this.isDelete = false;
+          this.isLoading = false;
         });
     },
-    getCityData() {
+    getCityList() {
       this.isLoading = true;
       axios
         .get(`/cities`)
         .then((response) => {
           const data = response.data.data;
           // console.log(data);
-          this.items = data.map((item) => {
-            return {
-              id: item.city_id || 1,
-              city: item.city_name || '',
-              country: item.country.country_name || '',
-              country_id: item.country_id || 1,
-              isActive:
-                item.active == 'N' ? false : item.active == 'Y' ? true : null,
-              isFav:
-                item.favorite == 'N'
-                  ? false
-                  : item.favorite == 'Y'
-                  ? true
-                  : null,
-            };
-          });
           this.resource.city = data
             .filter((d) => d.city_name !== '')
             .sort((a, b) => a.city_name.localeCompare(b.city_name))
@@ -537,54 +461,6 @@ export default {
               : error.response.data.message;
           this.errorMessage = message;
           this.isError = true;
-        });
-    },
-    activeCity(id) {
-      this.isSending = true;
-      axios
-        .get(`/cities/toggle-active/${id}`)
-        .then((response) => {
-          const data = response.data;
-          this.successMessage = data.message;
-          this.isSuccess = true;
-          this.getCityData();
-        })
-        .catch((error) => {
-          // eslint-disable-next-line
-          console.log(error);
-          const message =
-            error.response.data.message === ''
-              ? 'Something Wrong!!!'
-              : error.response.data.message;
-          this.errorMessage = message;
-          this.isError = true;
-        })
-        .finally(() => {
-          this.isSending = false;
-        });
-    },
-    favoriteCity(id) {
-      this.isSending = true;
-      axios
-        .get(`/cities/toggle-favorite/${id}`)
-        .then((response) => {
-          const data = response.data;
-          this.successMessage = data.message;
-          this.isSuccess = true;
-          this.getCityData();
-        })
-        .catch((error) => {
-          // eslint-disable-next-line
-          console.log(error);
-          const message =
-            error.response.data.message === ''
-              ? 'Something Wrong!!!'
-              : error.response.data.message;
-          this.errorMessage = message;
-          this.isError = true;
-        })
-        .finally(() => {
-          this.isSending = false;
         });
     },
   },
