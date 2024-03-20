@@ -184,10 +184,10 @@
                 :key="item.id"
               >
                 <td style="font-weight: 500 !important">
-                  {{ item.city }}
+                  {{ item.country }}
                 </td>
                 <td style="font-weight: 500 !important">
-                  {{ item.country }}
+                  {{ item.city }}
                 </td>
                 <td style="font-weight: 500 !important">
                   {{ item.user }}
