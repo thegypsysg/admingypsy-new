@@ -483,7 +483,7 @@ export default {
           this.items = data
             .filter(
               (i) =>
-                i.promo_id === this.idPromo && i.merchant_id === this.idMerchant
+                i.promo_id == this.idPromo && i.merchant_id == this.idMerchant
             )
             .map((item) => {
               return {
