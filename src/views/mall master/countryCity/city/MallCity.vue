@@ -91,7 +91,7 @@
               placeholder="Type a Country"
               :items="resource.country"
               item-title="name"
-              item-value="id"
+              item-value="country_id"
               v-model="input.country"
               variant="outlined"
             ></v-autocomplete>
@@ -440,14 +440,15 @@ export default {
     },
     getCountries() {
       axios
-        .get(`/countries`)
+        .get(`/mall-country`)
         .then((response) => {
           const data = response.data.data;
           this.resource.country = data
             .sort((a, b) => a.country_name.localeCompare(b.country_name))
             .map((country) => {
               return {
-                id: country.country_id || 1,
+                id: country.mc_id || 1,
+                country_id: country.country_id || 1,
                 name: country.country_name || '',
               };
             });
