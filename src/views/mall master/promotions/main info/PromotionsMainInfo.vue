@@ -91,6 +91,7 @@
                     style="margin-top: -1px"
                     variant="outlined"
                     type="number"
+                    inputmode="numeric"
                     density="compact"
                     placeholder="0"
                     v-model="input.amount"
@@ -321,8 +322,10 @@ export default {
             id: dataItem[0].promo_id,
             name: dataItem[0].promo_name || '',
             desc: dataItem[0].promo_description || '',
-            amount: dataItem[0].amount || null,
-            was: dataItem[0].was_amount || null,
+            amount: dataItem[0].amount ? dataItem[0].amount.toFixed(2) : null,
+            was: dataItem[0].was_amount
+              ? dataItem[0].was_amount.toFixed(2)
+              : null,
             offer: dataItem[0].other_offer || '',
             start: dataItem[0].promo_starts_on
               ? moment(dataItem[0].promo_starts_on, 'DD/MM/YYYY').toISOString()
