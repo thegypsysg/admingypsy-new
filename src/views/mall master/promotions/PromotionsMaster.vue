@@ -363,217 +363,80 @@
                           </td>
                         </tr>
                       </table>
-                      <table class="text-left pt-4 pb-2 pr-16">
+                      <table class="text-left pt-4 pb-2">
                         <tr>
                           <td>
                             <v-row>
                               <v-col cols="6">
-                                <!-- <div v-for="tag in item.tagItems" :key="tag.id"> -->
-                                <v-row>
-                                  <v-col cols="4">
-                                    <p>Category Tag</p>
-                                  </v-col>
-                                  <v-col cols="1">
-                                    <span>:</span>
-                                  </v-col>
-                                  <v-col cols="7">
-                                    <v-chip
-                                      color="primary"
-                                      dark
-                                      small
-                                      class="mr-1 mb-1"
-                                    >
-                                      Whole Cake
-                                      <v-icon
-                                        color="red"
+                                <div
+                                  v-for="tag in item.tagHeaderItems.slice(0, 5)"
+                                  :key="tag.id"
+                                >
+                                  <v-row>
+                                    <v-col cols="4">
+                                      <p class="mt-2">{{ tag.title }}</p>
+                                    </v-col>
+                                    <v-col cols="1">
+                                      <p class="mt-2">:</p>
+                                    </v-col>
+                                    <v-col class="d-flex flex-wrap" cols="7">
+                                      <v-chip
+                                        v-for="tagItem in tag.tags"
+                                        :key="tagItem.id"
+                                        color="primary"
+                                        dark
                                         small
-                                        @click="deleteTagById(1)"
+                                        class="mr-1 mb-1"
                                       >
-                                        mdi-close
-                                      </v-icon>
-                                    </v-chip>
-                                  </v-col>
-                                </v-row>
-                                <v-row>
-                                  <v-col cols="4">
-                                    <p>Preference Tag</p>
-                                  </v-col>
-                                  <v-col cols="1">
-                                    <span>:</span>
-                                  </v-col>
-                                  <v-col cols="7">
-                                    <v-chip
-                                      color="primary"
-                                      dark
-                                      small
-                                      class="mr-1 mb-1"
-                                    >
-                                      Dragon Fruit
-                                      <v-icon
-                                        color="red"
-                                        small
-                                        @click="deleteTagById(2)"
-                                      >
-                                        mdi-close
-                                      </v-icon>
-                                    </v-chip>
-                                  </v-col>
-                                </v-row>
-                                <v-row>
-                                  <v-col cols="4">
-                                    <p>Meals Tag</p>
-                                  </v-col>
-                                  <v-col cols="1">
-                                    <span>:</span>
-                                  </v-col>
-                                  <v-col cols="7">
-                                    <v-chip
-                                      color="primary"
-                                      dark
-                                      small
-                                      class="mr-1 mb-1"
-                                    >
-                                      Dessert
-                                      <v-icon
-                                        color="red"
-                                        small
-                                        @click="deleteTagById(3)"
-                                      >
-                                        mdi-close
-                                      </v-icon>
-                                    </v-chip>
-                                  </v-col>
-                                </v-row>
-                                <v-row>
-                                  <v-col cols="4">
-                                    <p>Discount Tag</p>
-                                  </v-col>
-                                  <v-col cols="1">
-                                    <span>:</span>
-                                  </v-col>
-                                  <v-col cols="7">
-                                    <v-chip
-                                      color="primary"
-                                      dark
-                                      small
-                                      class="mr-1 mb-1"
-                                    >
-                                      10 % Off
-                                      <v-icon
-                                        color="red"
-                                        small
-                                        @click="deleteTagById(4)"
-                                      >
-                                        mdi-close
-                                      </v-icon>
-                                    </v-chip>
-                                  </v-col>
-                                </v-row>
-                                <v-row>
-                                  <v-col cols="4">
-                                    <p>Days Tag</p>
-                                  </v-col>
-                                  <v-col cols="1">
-                                    <span>:</span>
-                                  </v-col>
-                                  <v-col cols="7">
-                                    <v-chip
-                                      color="primary"
-                                      dark
-                                      small
-                                      class="mr-1 mb-1"
-                                    >
-                                      Friday
-                                      <v-icon
-                                        color="red"
-                                        small
-                                        @click="deleteTagById(5)"
-                                      >
-                                        mdi-close
-                                      </v-icon>
-                                    </v-chip>
-                                  </v-col>
-                                </v-row>
-                                <!-- </div> -->
+                                        {{ tagItem.name }}
+                                        <v-icon
+                                          color="red"
+                                          small
+                                          @click="deleteTagById(tagItem.id)"
+                                        >
+                                          mdi-close
+                                        </v-icon>
+                                      </v-chip>
+                                    </v-col>
+                                  </v-row>
+                                </div>
                               </v-col>
-                              <v-col cols="6">
-                                <!-- <div v-for="tag in item.tagItems" :key="tag.id"> -->
-                                <v-row>
-                                  <v-col cols="3">
-                                    <p>People Tag</p>
-                                  </v-col>
-                                  <v-col cols="1">
-                                    <span>:</span>
-                                  </v-col>
-                                  <v-col cols="7">
-                                    <v-chip
-                                      color="primary"
-                                      dark
-                                      small
-                                      class="mr-1 mb-1"
-                                    >
-                                      Everyone
-                                      <v-icon
-                                        color="red"
+                              <v-col
+                                v-if="item.tagHeaderItems.length > 5"
+                                cols="6"
+                              >
+                                <div
+                                  v-for="tag in item.tagHeaderItems.slice(5)"
+                                  :key="tag.id"
+                                >
+                                  <v-row>
+                                    <v-col cols="4">
+                                      <p class="mt-2">{{ tag.title }}</p>
+                                    </v-col>
+                                    <v-col cols="1">
+                                      <p class="mt-2">:</p>
+                                    </v-col>
+                                    <v-col class="d-flex flex-wrap" cols="7">
+                                      <v-chip
+                                        v-for="tagItem in tag.tags"
+                                        :key="tagItem.id"
+                                        color="primary"
+                                        dark
                                         small
-                                        @click="deleteTagById(6)"
+                                        class="mr-1 mb-1"
                                       >
-                                        mdi-close
-                                      </v-icon>
-                                    </v-chip>
-                                  </v-col>
-                                </v-row>
-                                <v-row>
-                                  <v-col cols="3">
-                                    <p>Vouchers Tag</p>
-                                  </v-col>
-                                  <v-col cols="1">
-                                    <span>:</span>
-                                  </v-col>
-                                  <v-col cols="7">
-                                    <v-chip
-                                      color="primary"
-                                      dark
-                                      small
-                                      class="mr-1 mb-1"
-                                    >
-                                      Vouchers for 10$
-                                      <v-icon
-                                        color="red"
-                                        small
-                                        @click="deleteTagById(7)"
-                                      >
-                                        mdi-close
-                                      </v-icon>
-                                    </v-chip>
-                                  </v-col>
-                                </v-row>
-                                <v-row>
-                                  <v-col cols="3">
-                                    <p>Other Tag</p>
-                                  </v-col>
-                                  <v-col cols="1">
-                                    <span>:</span>
-                                  </v-col>
-                                  <v-col cols="7">
-                                    <v-chip
-                                      color="primary"
-                                      dark
-                                      small
-                                      class="mr-1 mb-1"
-                                    >
-                                      Buy 1 get 1 Free
-                                      <v-icon
-                                        color="red"
-                                        small
-                                        @click="deleteTagById(8)"
-                                      >
-                                        mdi-close
-                                      </v-icon>
-                                    </v-chip>
-                                  </v-col>
-                                </v-row>
-                                <!-- </div> -->
+                                        {{ tagItem.name }}
+                                        <v-icon
+                                          color="red"
+                                          small
+                                          @click="deleteTagById(tagItem.id)"
+                                        >
+                                          mdi-close
+                                        </v-icon>
+                                      </v-chip>
+                                    </v-col>
+                                  </v-row>
+                                </div>
                               </v-col>
                             </v-row>
                           </td>
@@ -680,6 +543,7 @@ export default {
     partnerName: null,
     valid: false,
     isLoading: false,
+    requestCount: 0,
     isSending: false,
     isError: false,
     isEdit: false,
@@ -782,12 +646,13 @@ export default {
     //   },
     // ],
   }),
-  //watch: {
-  //  'input.mall'() {
-  //    this.input.country = this.mallCountry?.country?.country_id;
-  //    this.input.type = this.mallCountry?.sub_industry?.sub_industry_id;
-  //  },
-  //},
+  watch: {
+    requestCount() {
+      if (this.requestCount === 0) {
+        this.isLoading = false;
+      }
+    },
+  },
   created() {
     const token = JSON.parse(localStorage.getItem('token'));
     setAuthHeader(token);
@@ -1053,23 +918,36 @@ export default {
     },
     async getItemsData() {
       this.isLoading = true;
+      this.requestCount = 0; // Reset request count
       try {
         let items = await this.getPromotionsData();
+        this.requestCount++;
 
         items = await Promise.all(
           items.map(async (item) => {
             const tagItems = await this.getTagsDataById(item.id);
+            this.requestCount++;
             return { ...item, tagItems };
           })
         );
 
+        items = await Promise.all(
+          items.map(async (item) => {
+            const tagHeaderItems = await this.getTagsHeaderDataById(item.id);
+            this.requestCount++;
+            return { ...item, tagHeaderItems };
+          })
+        );
+
         this.items = items;
+        console.log(items);
       } catch (error) {
         console.error('Error fetching items data:', error);
       } finally {
         this.isLoading = false;
       }
     },
+
     async getPromotionsData() {
       this.isLoading = true;
       try {
@@ -1159,6 +1037,53 @@ export default {
             name: item.tag_name || '',
           };
         });
+      } catch (error) {
+        console.log(error);
+        throw error;
+      } finally {
+        this.isLoading = false;
+      }
+    },
+    async getTagsHeaderDataById(id) {
+      this.isLoading = true;
+      try {
+        const response = await axios.get(
+          `/mall-promotion-tags/${id}/tags-by-tag-header`
+        );
+        const data = response.data.data;
+        const newData = [];
+        for (const key in data) {
+          if (Object.prototype.hasOwnProperty.call(data, key)) {
+            let title = '';
+            if (key === 'DT') {
+              title = 'Discount Tag';
+            } else if (key === 'CAT') {
+              title = 'Category Tag';
+            } else if (key === 'PPLT') {
+              title = 'People Tag';
+            } else if (key === 'MT') {
+              title = 'Meals Tag';
+            } else if (key === 'PT') {
+              title = 'Preference Tag';
+            } else if (key === 'DAYST') {
+              title = 'Days Tag';
+            } else if (key === 'VT') {
+              title = 'Voucher Tag';
+            } else if (key === 'OPT') {
+              title = 'Other Tag';
+            }
+            newData.push({
+              title,
+              tags: data[key].map((item) => {
+                return {
+                  id: item.mpt_id || 0,
+                  name: item.tag_name || '',
+                };
+              }),
+            });
+          }
+        }
+        return newData;
       } catch (error) {
         console.log(error);
         throw error;
