@@ -340,103 +340,287 @@
                           </td>
                         </tr>
                       </v-table>
-                      <table class="text-left pr-16 w-66">
-                        <tr>
-                          <td>
-                            <v-chip
-                              v-for="tag in item.tagItems"
-                              :key="tag.id"
-                              color="primary"
-                              dark
-                              small
-                              class="mr-1 mb-1"
-                            >
-                              {{ tag.name }}
-                              <v-icon
-                                color="red"
-                                small
-                                @click="deleteTagById(tag.id)"
-                              >
-                                mdi-close
-                              </v-icon>
-                            </v-chip>
-                          </td>
-                        </tr>
-                      </table>
                       <table class="text-left pt-4 pb-2">
                         <tr>
                           <td>
                             <v-row>
                               <v-col cols="6">
-                                <div
+                                <!-- <div
                                   v-for="tag in item.tagHeaderItems.slice(0, 5)"
                                   :key="tag.id"
-                                >
-                                  <v-row>
-                                    <v-col cols="4">
-                                      <p class="mt-2">{{ tag.title }}</p>
-                                    </v-col>
-                                    <v-col cols="1">
-                                      <p class="mt-2">:</p>
-                                    </v-col>
-                                    <v-col class="d-flex flex-wrap" cols="7">
+                                > -->
+                                <v-row>
+                                  <v-col cols="4">
+                                    <p class="mt-2">Category Tag</p>
+                                  </v-col>
+                                  <v-col cols="1">
+                                    <p class="mt-2">:</p>
+                                  </v-col>
+                                  <v-col class="d-flex flex-wrap" cols="7">
+                                    <template
+                                      v-if="
+                                        item.tagHeaderItems?.CAT?.length > 0
+                                      "
+                                    >
                                       <v-chip
-                                        v-for="tagItem in tag.tags"
-                                        :key="tagItem.id"
+                                        v-for="tagItem in item.tagHeaderItems
+                                          ?.CAT"
+                                        :key="tagItem.mpt_id"
                                         color="primary"
                                         dark
                                         small
                                         class="mr-1 mb-1"
                                       >
-                                        {{ tagItem.name }}
+                                        {{ tagItem.tag_name }}
                                         <v-icon
                                           color="red"
                                           small
-                                          @click="deleteTagById(tagItem.id)"
+                                          @click="deleteTagById(tagItem.mpt_id)"
                                         >
                                           mdi-close
                                         </v-icon>
                                       </v-chip>
-                                    </v-col>
-                                  </v-row>
-                                </div>
+                                    </template>
+                                  </v-col>
+                                </v-row>
+                                <v-row>
+                                  <v-col cols="4">
+                                    <p class="mt-2">Preference Tag</p>
+                                  </v-col>
+                                  <v-col cols="1">
+                                    <p class="mt-2">:</p>
+                                  </v-col>
+                                  <v-col class="d-flex flex-wrap" cols="7">
+                                    <template
+                                      v-if="item.tagHeaderItems?.PT?.length > 0"
+                                    >
+                                      <v-chip
+                                        v-for="tagItem in item.tagHeaderItems
+                                          ?.PT"
+                                        :key="tagItem.mpt_id"
+                                        color="primary"
+                                        dark
+                                        small
+                                        class="mr-1 mb-1"
+                                      >
+                                        {{ tagItem.tag_name }}
+                                        <v-icon
+                                          color="red"
+                                          small
+                                          @click="deleteTagById(tagItem.mpt_id)"
+                                        >
+                                          mdi-close
+                                        </v-icon>
+                                      </v-chip>
+                                    </template>
+                                  </v-col>
+                                </v-row>
+                                <v-row>
+                                  <v-col cols="4">
+                                    <p class="mt-2">Meals Tag</p>
+                                  </v-col>
+                                  <v-col cols="1">
+                                    <p class="mt-2">:</p>
+                                  </v-col>
+                                  <v-col class="d-flex flex-wrap" cols="7">
+                                    <template
+                                      v-if="item.tagHeaderItems?.MT?.length > 0"
+                                    >
+                                      <v-chip
+                                        v-for="tagItem in item.tagHeaderItems
+                                          ?.MT"
+                                        :key="tagItem.mpt_id"
+                                        color="primary"
+                                        dark
+                                        small
+                                        class="mr-1 mb-1"
+                                      >
+                                        {{ tagItem.tag_name }}
+                                        <v-icon
+                                          color="red"
+                                          small
+                                          @click="deleteTagById(tagItem.mpt_id)"
+                                        >
+                                          mdi-close
+                                        </v-icon>
+                                      </v-chip>
+                                    </template>
+                                  </v-col>
+                                </v-row>
+                                <v-row>
+                                  <v-col cols="4">
+                                    <p class="mt-2">People Tag</p>
+                                  </v-col>
+                                  <v-col cols="1">
+                                    <p class="mt-2">:</p>
+                                  </v-col>
+                                  <v-col class="d-flex flex-wrap" cols="7">
+                                    <template
+                                      v-if="
+                                        item.tagHeaderItems?.PPLT?.length > 0
+                                      "
+                                    >
+                                      <v-chip
+                                        v-for="tagItem in item.tagHeaderItems
+                                          ?.PPLT"
+                                        :key="tagItem.mpt_id"
+                                        color="primary"
+                                        dark
+                                        small
+                                        class="mr-1 mb-1"
+                                      >
+                                        {{ tagItem.tag_name }}
+                                        <v-icon
+                                          color="red"
+                                          small
+                                          @click="deleteTagById(tagItem.mpt_id)"
+                                        >
+                                          mdi-close
+                                        </v-icon>
+                                      </v-chip>
+                                    </template>
+                                  </v-col>
+                                </v-row>
+                                <v-row>
+                                  <v-col cols="4">
+                                    <p class="mt-2">Discount Tag</p>
+                                  </v-col>
+                                  <v-col cols="1">
+                                    <p class="mt-2">:</p>
+                                  </v-col>
+                                  <v-col class="d-flex flex-wrap" cols="7">
+                                    <template
+                                      v-if="item.tagHeaderItems?.DT?.length > 0"
+                                    >
+                                      <v-chip
+                                        v-for="tagItem in item.tagHeaderItems
+                                          ?.DT"
+                                        :key="tagItem.mpt_id"
+                                        color="primary"
+                                        dark
+                                        small
+                                        class="mr-1 mb-1"
+                                      >
+                                        {{ tagItem.tag_name }}
+                                        <v-icon
+                                          color="red"
+                                          small
+                                          @click="deleteTagById(tagItem.mpt_id)"
+                                        >
+                                          mdi-close
+                                        </v-icon>
+                                      </v-chip>
+                                    </template>
+                                  </v-col>
+                                </v-row>
+                                <!-- </div> -->
                               </v-col>
-                              <v-col
-                                v-if="item.tagHeaderItems.length > 5"
-                                cols="6"
-                              >
-                                <div
+                              <v-col cols="6">
+                                <!-- <div
                                   v-for="tag in item.tagHeaderItems.slice(5)"
                                   :key="tag.id"
-                                >
-                                  <v-row>
-                                    <v-col cols="4">
-                                      <p class="mt-2">{{ tag.title }}</p>
-                                    </v-col>
-                                    <v-col cols="1">
-                                      <p class="mt-2">:</p>
-                                    </v-col>
-                                    <v-col class="d-flex flex-wrap" cols="7">
+                                > -->
+                                <v-row>
+                                  <v-col cols="4">
+                                    <p class="mt-2">Days Tag</p>
+                                  </v-col>
+                                  <v-col cols="1">
+                                    <p class="mt-2">:</p>
+                                  </v-col>
+                                  <v-col class="d-flex flex-wrap" cols="7">
+                                    <template
+                                      v-if="
+                                        item.tagHeaderItems?.DAYST?.length > 0
+                                      "
+                                    >
                                       <v-chip
-                                        v-for="tagItem in tag.tags"
-                                        :key="tagItem.id"
+                                        v-for="tagItem in item.tagHeaderItems
+                                          ?.DAYST"
+                                        :key="tagItem.mpt_id"
                                         color="primary"
                                         dark
                                         small
                                         class="mr-1 mb-1"
                                       >
-                                        {{ tagItem.name }}
+                                        {{ tagItem.tag_name }}
                                         <v-icon
                                           color="red"
                                           small
-                                          @click="deleteTagById(tagItem.id)"
+                                          @click="deleteTagById(tagItem.mpt_id)"
                                         >
                                           mdi-close
                                         </v-icon>
                                       </v-chip>
-                                    </v-col>
-                                  </v-row>
-                                </div>
+                                    </template>
+                                  </v-col>
+                                </v-row>
+                                <v-row>
+                                  <v-col cols="4">
+                                    <p class="mt-2">Voucher Tag</p>
+                                  </v-col>
+                                  <v-col cols="1">
+                                    <p class="mt-2">:</p>
+                                  </v-col>
+                                  <v-col class="d-flex flex-wrap" cols="7">
+                                    <template
+                                      v-if="item.tagHeaderItems?.VT?.length > 0"
+                                    >
+                                      <v-chip
+                                        v-for="tagItem in item.tagHeaderItems
+                                          ?.VT"
+                                        :key="tagItem.mpt_id"
+                                        color="primary"
+                                        dark
+                                        small
+                                        class="mr-1 mb-1"
+                                      >
+                                        {{ tagItem.tag_name }}
+                                        <v-icon
+                                          color="red"
+                                          small
+                                          @click="deleteTagById(tagItem.mpt_id)"
+                                        >
+                                          mdi-close
+                                        </v-icon>
+                                      </v-chip>
+                                    </template>
+                                  </v-col>
+                                </v-row>
+                                <v-row>
+                                  <v-col cols="4">
+                                    <p class="mt-2">Other Tag</p>
+                                  </v-col>
+                                  <v-col cols="1">
+                                    <p class="mt-2">:</p>
+                                  </v-col>
+                                  <v-col class="d-flex flex-wrap" cols="7">
+                                    <template
+                                      v-if="
+                                        item.tagHeaderItems?.OPT?.length > 0
+                                      "
+                                    >
+                                      <v-chip
+                                        v-for="tagItem in item.tagHeaderItems
+                                          ?.OPT"
+                                        :key="tagItem.mpt_id"
+                                        color="primary"
+                                        dark
+                                        small
+                                        class="mr-1 mb-1"
+                                      >
+                                        {{ tagItem.tag_name }}
+                                        <v-icon
+                                          color="red"
+                                          small
+                                          @click="deleteTagById(tagItem.mpt_id)"
+                                        >
+                                          mdi-close
+                                        </v-icon>
+                                      </v-chip>
+                                    </template>
+                                  </v-col>
+                                </v-row>
+                                <!-- </div> -->
                               </v-col>
                             </v-row>
                           </td>
@@ -925,17 +1109,9 @@ export default {
 
         items = await Promise.all(
           items.map(async (item) => {
-            const tagItems = await this.getTagsDataById(item.id);
-            this.requestCount++;
-            return { ...item, tagItems };
-          })
-        );
-
-        items = await Promise.all(
-          items.map(async (item) => {
             const tagHeaderItems = await this.getTagsHeaderDataById(item.id);
             this.requestCount++;
-            return { ...item, tagHeaderItems };
+            return { ...item, tagHeaderItems: tagHeaderItems };
           })
         );
 
@@ -953,37 +1129,40 @@ export default {
       try {
         const response = await axios.get(`/mall-promotions`);
         const data = response.data.data;
-        return data.map((item) => {
-          return {
-            id: item.promo_id || 1,
-            mall_id: item.merchant_id || 1,
-            name: item.partner_name || '',
-            promo: item.promo_name || '',
-            partner_id: item.partner_id || null,
-            country: item.country_name || '',
-            country_id: item.country_id || null,
-            isActive:
-              item.promo_active == 'N'
-                ? false
-                : item.promo_active == 'Y'
-                ? true
-                : null,
-            isFeatured:
-              item.promo_featured == 'N'
-                ? false
-                : item.promo_featured == 'Y'
-                ? true
-                : null,
-            image: item.main_image || null,
-            user: item.name || '',
-            user_id: item.user_id || '',
-            dated: item.promo_dated || '',
-            type: item.sub_industry_name || '',
-            sub_industry_id: item.sub_industry_id || null,
-            outlets: 5,
-            malls: 2,
-          };
-        });
+        return data
+          .sort((a, b) => b.promo_id - a.promo_id)
+          .map((item) => {
+            return {
+              id: item.promo_id || 1,
+              mall_id: item.merchant_id || 1,
+              name: item.partner_name || '',
+              promo: item.promo_name || '',
+              partner_id: item.partner_id || null,
+              country: item.country_name || '',
+              country_id: item.country_id || null,
+              isActive:
+                item.promo_active == 'N'
+                  ? false
+                  : item.promo_active == 'Y'
+                  ? true
+                  : null,
+              isFeatured:
+                item.promo_featured == 'N'
+                  ? false
+                  : item.promo_featured == 'Y'
+                  ? true
+                  : null,
+              image: item.main_image || null,
+              user: item.name || '',
+              user_id: item.user_id || '',
+              dated: item.promo_dated || '',
+              type: item.sub_industry_name || '',
+              sub_industry_id: item.sub_industry_id || null,
+              outlets: 5,
+              malls: 2,
+            };
+          })
+          .slice(0, 5);
       } catch (error) {
         console.log(error);
         const message =
@@ -1025,25 +1204,6 @@ export default {
           this.isError = true;
         });
     },
-    async getTagsDataById(id) {
-      this.isLoading = true;
-      try {
-        const response = await axios.get(`/mall-promotion-tags/${id}/tags`);
-        const data = response.data.data;
-        return data.map((item) => {
-          return {
-            id: item.mpt_id || 0,
-            title: 'Example Tag',
-            name: item.tag_name || '',
-          };
-        });
-      } catch (error) {
-        console.log(error);
-        throw error;
-      } finally {
-        this.isLoading = false;
-      }
-    },
     async getTagsHeaderDataById(id) {
       this.isLoading = true;
       try {
@@ -1051,39 +1211,39 @@ export default {
           `/mall-promotion-tags/${id}/tags-by-tag-header`
         );
         const data = response.data.data;
-        const newData = [];
-        for (const key in data) {
-          if (Object.prototype.hasOwnProperty.call(data, key)) {
-            let title = '';
-            if (key === 'DT') {
-              title = 'Discount Tag';
-            } else if (key === 'CAT') {
-              title = 'Category Tag';
-            } else if (key === 'PPLT') {
-              title = 'People Tag';
-            } else if (key === 'MT') {
-              title = 'Meals Tag';
-            } else if (key === 'PT') {
-              title = 'Preference Tag';
-            } else if (key === 'DAYST') {
-              title = 'Days Tag';
-            } else if (key === 'VT') {
-              title = 'Voucher Tag';
-            } else if (key === 'OPT') {
-              title = 'Other Tag';
-            }
-            newData.push({
-              title,
-              tags: data[key].map((item) => {
-                return {
-                  id: item.mpt_id || 0,
-                  name: item.tag_name || '',
-                };
-              }),
-            });
-          }
-        }
-        return newData;
+        //const newData = [];
+        //for (const key in data) {
+        //  if (Object.prototype.hasOwnProperty.call(data, key)) {
+        //    let title = '';
+        //    if (key === 'DT') {
+        //      title = 'Discount Tag';
+        //    } else if (key === 'CAT') {
+        //      title = 'Category Tag';
+        //    } else if (key === 'PPLT') {
+        //      title = 'People Tag';
+        //    } else if (key === 'MT') {
+        //      title = 'Meals Tag';
+        //    } else if (key === 'PT') {
+        //      title = 'Preference Tag';
+        //    } else if (key === 'DAYST') {
+        //      title = 'Days Tag';
+        //    } else if (key === 'VT') {
+        //      title = 'Voucher Tag';
+        //    } else if (key === 'OPT') {
+        //      title = 'Other Tag';
+        //    }
+        //    newData.push({
+        //      title,
+        //      tags: data[key].map((item) => {
+        //        return {
+        //          id: item.mpt_id || 0,
+        //          name: item.tag_name || '',
+        //        };
+        //      }),
+        //    });
+        // }
+        // }
+        return data;
       } catch (error) {
         console.log(error);
         throw error;
@@ -1234,6 +1394,7 @@ export default {
 .country-table {
   font-size: 12px;
   color: rgb(100, 100, 100) !important;
+  overflow-y: hidden !important;
 }
 
 .country-table-body {
