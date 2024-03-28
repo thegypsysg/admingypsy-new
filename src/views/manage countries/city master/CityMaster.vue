@@ -124,6 +124,7 @@
           <v-table class="country-table">
             <thead>
               <tr>
+                <th class="text-left">Image</th>
                 <th class="text-left">City Name</th>
                 <th class="text-left">Country</th>
                 <th class="text-left">Active</th>
@@ -137,6 +138,20 @@
                 v-for="item in filteredItems"
                 :key="item.id"
               >
+                <td>
+                  <v-img
+                    height="40"
+                    width="65"
+                    @click="openImage(item)"
+                    style="cursor: pointer"
+                    :src="
+                      item.image != null
+                        ? $fileURL + item.image
+                        : 'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png'
+                    "
+                    ><template #placeholder> <div class="skeleton" /> </template
+                  ></v-img>
+                </td>
                 <td style="font-weight: 500 !important">
                   {{ item.city }}
                 </td>
@@ -257,10 +272,42 @@
         </v-card-actions>
       </v-card>
     </v-dialog>
+    <v-dialog persistent width="auto" v-model="isOpenImage">
+      <v-card width="750">
+        <v-card-title class="upload-title px-6 py-4">
+          Upload Image - City</v-card-title
+        >
+        <v-card-text>
+          <image-upload
+            :image-file="imageFile"
+            @update-image-file="updateImageFile"
+            @delete-image-file="deleteImageFile"
+          />
+        </v-card-text>
+        <v-card-actions class="mt-16">
+          <v-spacer></v-spacer>
+          <v-btn
+            style="text-transform: none"
+            color="error"
+            text
+            @click="closeImage"
+            >Cancel</v-btn
+          >
+          <v-btn
+            style="background-color: #9ddcff; text-transform: none"
+            color="black"
+            @click="saveImage()"
+            >Save</v-btn
+          >
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
   </v-container>
 </template>
 
 <script>
+import ImageUpload from '@/components/ImageUpload.vue';
+import http from 'axios';
 import axios from '@/util/axios';
 // import http from 'axios';
 import { setAuthHeader } from '@/util/axios';
@@ -281,6 +328,11 @@ export default {
     cityIdToDelete: null,
     tableHeaders: [{ text: 'Gambar', value: 'image' }],
     imageFile: [],
+    cityDataToImage: {
+      id: 0,
+      city: null,
+      country: null,
+    },
     isOpenImage: false,
     successMessage: '',
     errorMessage: '',
@@ -341,6 +393,102 @@ export default {
     },
   },
   methods: {
+    updateImageFile(newImageFile) {
+      this.imageFile.push(newImageFile);
+    },
+    deleteImageFile() {
+      this.isSending = true;
+      axios
+        .delete(`/cities/${this.cityDataToImage.id}/image`)
+        .then((response) => {
+          const data = response.data;
+          this.successMessage = data.message;
+          this.isSuccess = true;
+          this.getCityData();
+          // app.config.globalProperties.$eventBus.$emit('update-image');
+        })
+        .catch((error) => {
+          // eslint-disable-next-line
+          console.log(error);
+          const message =
+            error.response.data.message === ''
+              ? 'Something Wrong!!!'
+              : error.response.data.message;
+          this.errorMessage = message;
+          this.isError = true;
+        })
+        .finally(() => {
+          this.isEdit = false;
+          this.isSending = false;
+          this.imageFile = [];
+        });
+    },
+    openImage(item) {
+      this.isOpenImage = true;
+      this.cityDataToImage = {
+        id: item.id,
+      };
+      this.imageFile =
+        item.image != null
+          ? [
+              {
+                file: {
+                  name: item.image,
+                  size: '',
+                  base64: '',
+                  format: '',
+                },
+              },
+            ]
+          : [];
+    },
+    closeImage() {
+      this.isOpenImage = false;
+      this.imageFile = [];
+      this.cityDataToImage = {
+        id: 0,
+        city: null,
+        country: null,
+      };
+    },
+    saveImage() {
+      const payload = {
+        city_id: this.cityDataToImage.id,
+        city_image: this.imageFile[0],
+      };
+
+      if (this.isError == false) {
+        this.isSending = true;
+        http
+          .post(`/cities/update`, payload, {
+            headers: {
+              'Content-Type': 'multipart/form-data',
+            },
+          })
+          .then((response) => {
+            const data = response.data;
+            this.successMessage = data.message;
+            this.isSuccess = true;
+            this.getCityData();
+            // app.config.globalProperties.$eventBus.$emit('update-image');
+          })
+          .catch((error) => {
+            // eslint-disable-next-line
+            console.log(error);
+          })
+          .finally(() => {
+            this.isEdit = false;
+            this.isSending = false;
+            this.cityDataToImage = {
+              id: 0,
+              city: null,
+              country: null,
+            };
+            this.isOpenImage = false;
+            this.imageFile = [];
+          });
+      }
+    },
     editCity(city) {
       this.isEdit = true;
       this.input = {
@@ -481,6 +629,7 @@ export default {
               id: item.city_id || 1,
               city: item.city_name || '',
               country: item.country.country_name || '',
+              image: item.city_image || null,
               country_id: item.country_id || 1,
               isActive:
                 item.active == 'N' ? false : item.active == 'Y' ? true : null,
@@ -586,6 +735,7 @@ export default {
         });
     },
   },
+  components: { ImageUpload },
 };
 </script>
 

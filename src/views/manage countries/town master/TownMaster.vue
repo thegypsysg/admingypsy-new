@@ -219,10 +219,42 @@
         </v-card-actions>
       </v-card>
     </v-dialog>
+    <v-dialog persistent width="auto" v-model="isOpenImage">
+      <v-card width="750">
+        <v-card-title class="upload-title px-6 py-4">
+          Upload Image - Town</v-card-title
+        >
+        <v-card-text>
+          <image-upload
+            :image-file="imageFile"
+            @update-image-file="updateImageFile"
+            @delete-image-file="deleteImageFile"
+          />
+        </v-card-text>
+        <v-card-actions class="mt-16">
+          <v-spacer></v-spacer>
+          <v-btn
+            style="text-transform: none"
+            color="error"
+            text
+            @click="closeImage"
+            >Cancel</v-btn
+          >
+          <v-btn
+            style="background-color: #9ddcff; text-transform: none"
+            color="black"
+            @click="saveImage()"
+            >Save</v-btn
+          >
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
   </v-container>
 </template>
 
 <script>
+import ImageUpload from '@/components/ImageUpload.vue';
+import http from 'axios';
 import axios from '@/util/axios';
 // import http from 'axios';
 import { setAuthHeader } from '@/util/axios';
@@ -243,6 +275,9 @@ export default {
     townIdToDelete: null,
     tableHeaders: [{ text: 'Gambar', value: 'image' }],
     imageFile: [],
+    townDataToImage: {
+      id: 0,
+    },
     isOpenImage: false,
     successMessage: '',
     errorMessage: '',
@@ -303,6 +338,98 @@ export default {
     },
   },
   methods: {
+    updateImageFile(newImageFile) {
+      this.imageFile.push(newImageFile);
+    },
+    deleteImageFile() {
+      this.isSending = true;
+      axios
+        .delete(`/towns/${this.townDataToImage.id}/image`)
+        .then((response) => {
+          const data = response.data;
+          this.successMessage = data.message;
+          this.isSuccess = true;
+          this.getTownData();
+          // app.config.globalProperties.$eventBus.$emit('update-image');
+        })
+        .catch((error) => {
+          // eslint-disable-next-line
+          console.log(error);
+          const message =
+            error.response.data.message === ''
+              ? 'Something Wrong!!!'
+              : error.response.data.message;
+          this.errorMessage = message;
+          this.isError = true;
+        })
+        .finally(() => {
+          this.isEdit = false;
+          this.isSending = false;
+          this.imageFile = [];
+        });
+    },
+    openImage(item) {
+      this.isOpenImage = true;
+      this.townDataToImage = {
+        id: item.id,
+      };
+      this.imageFile =
+        item.image != null
+          ? [
+              {
+                file: {
+                  name: item.image,
+                  size: '',
+                  base64: '',
+                  format: '',
+                },
+              },
+            ]
+          : [];
+    },
+    closeImage() {
+      this.isOpenImage = false;
+      this.imageFile = [];
+      this.townDataToImage = {
+        id: 0,
+      };
+    },
+    saveImage() {
+      const payload = {
+        town_id: this.townDataToImage.id,
+        town_image: this.imageFile[0],
+      };
+
+      if (this.isError == false) {
+        this.isSending = true;
+        http
+          .post(`/towns/update`, payload, {
+            headers: {
+              'Content-Type': 'multipart/form-data',
+            },
+          })
+          .then((response) => {
+            const data = response.data;
+            this.successMessage = data.message;
+            this.isSuccess = true;
+            this.getTownData();
+            // app.config.globalProperties.$eventBus.$emit('update-image');
+          })
+          .catch((error) => {
+            // eslint-disable-next-line
+            console.log(error);
+          })
+          .finally(() => {
+            this.isEdit = false;
+            this.isSending = false;
+            this.townDataToImage = {
+              id: 0,
+            };
+            this.isOpenImage = false;
+            this.imageFile = [];
+          });
+      }
+    },
     editTown(town) {
       this.isEdit = true;
       this.input = {
@@ -497,6 +624,7 @@ export default {
         });
     },
   },
+  components: { ImageUpload },
 };
 </script>
 
