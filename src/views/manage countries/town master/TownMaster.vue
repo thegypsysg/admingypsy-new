@@ -124,6 +124,7 @@
           <v-table class="country-table">
             <thead>
               <tr>
+                <th class="text-left">Image</th>
                 <th class="text-left">Town Name</th>
                 <th class="text-left">City</th>
                 <th class="text-left">Actions</th>
@@ -135,6 +136,20 @@
                 v-for="item in filteredItems"
                 :key="item.id"
               >
+                <td>
+                  <v-img
+                    height="40"
+                    width="65"
+                    @click="openImage(item)"
+                    style="cursor: pointer"
+                    :src="
+                      item?.image != null
+                        ? $fileURL + item?.image
+                        : 'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png'
+                    "
+                    ><template #placeholder> <div class="skeleton" /> </template
+                  ></v-img>
+                </td>
                 <td style="font-weight: 500 !important">
                   {{ item.town }}
                 </td>
@@ -569,6 +584,7 @@ export default {
             return {
               id: item.town_id || 1,
               town: item.town_name || '',
+              image: item?.town_image || null,
               city: item.city.city_name || '',
               city_id: item.city_id || 1,
             };
