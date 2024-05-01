@@ -21,14 +21,26 @@
           <h4 class="mt-4">Country / City</h4>
         </router-link>
       </div>
-      <router-link
-        active-class="text-blue-accent-4"
-        style="color: black"
-        class="text-decoration-none"
-        to="/merchants_master"
-      >
-        <h4>On-Board Merchants</h4>
-      </router-link>
+      <div>
+        <router-link
+          active-class="text-blue-accent-4"
+          style="color: black"
+          class="text-decoration-none"
+          to="/merchants_master"
+        >
+          <h4>On-Board Merchants</h4>
+        </router-link>
+
+        <router-link
+          active-class="text-purple-accent-4"
+          style="color: black"
+          class="text-decoration-none"
+          to="/manage_events"
+        >
+          <h4 class="mt-4">Manage Events</h4>
+        </router-link>
+      </div>
+
       <router-link
         active-class="text-blue-accent-4"
         style="color: black"
@@ -354,9 +366,55 @@
                             Longitude :
                             <span class="text-red">{{ item.longitude }}</span>
                           </td>
+                        </tr>
+                      </v-table>
+                      <v-table class="text-left pl-16">
+                        <tr>
                           <td class="pt-2">
                             Managed By :
                             <span class="text-red">{{ item.managed }}</span>
+                          </td>
+                          <td class="pt-2 pr-10 d-flex justify-end">
+                            <div class="d-flex" style="gap: 40px">
+                              <div class="">
+                                <p class="font-weight-bold mb-2">Privileged</p>
+                                <v-btn-toggle
+                                  style="
+                                    font-size: 10px !important;
+                                    font-weight: 200 !important;
+                                    height: 22px !important;
+                                    width: 54px !important;
+                                  "
+                                  class="d-flex align-center"
+                                  v-model="item.isPrivileged"
+                                  rounded="5"
+                                  @click="privilegedMall(item.id)"
+                                >
+                                  <v-btn size="27" :value="true"> Yes </v-btn>
+
+                                  <v-btn size="27" :value="false"> No </v-btn>
+                                </v-btn-toggle>
+                              </div>
+                              <div class="">
+                                <p class="font-weight-bold mb-2">Platinum</p>
+                                <v-btn-toggle
+                                  style="
+                                    font-size: 10px !important;
+                                    font-weight: 200 !important;
+                                    height: 22px !important;
+                                    width: 54px !important;
+                                  "
+                                  class="d-flex align-center"
+                                  v-model="item.isPlatinum"
+                                  rounded="5"
+                                  @click="platinumMall(item.id)"
+                                >
+                                  <v-btn size="27" :value="true"> Yes </v-btn>
+
+                                  <v-btn size="27" :value="false"> No </v-btn>
+                                </v-btn-toggle>
+                              </div>
+                            </div>
                           </td>
                         </tr>
                       </v-table>
@@ -843,6 +901,18 @@ export default {
               town: item.town_name || '',
               city: item.city_name || '',
               country: item.country_name || '',
+              isPrivileged:
+                item.privileged == 'N'
+                  ? false
+                  : item.privileged == 'Y'
+                  ? true
+                  : null,
+              isPlatinum:
+                item.platinum == 'N'
+                  ? false
+                  : item.platinum == 'Y'
+                  ? true
+                  : null,
               isActive:
                 item.active == 'N' ? false : item.active == 'Y' ? true : null,
               isFeatured:
@@ -1046,6 +1116,54 @@ export default {
       this.isSending = true;
       axios
         .get(`/mall/toggle-active/${id}`)
+        .then((response) => {
+          const data = response.data;
+          this.successMessage = data.message;
+          this.isSuccess = true;
+          this.getMallData();
+        })
+        .catch((error) => {
+          // eslint-disable-next-line
+          console.log(error);
+          const message =
+            error.response.data.message === ''
+              ? 'Something Wrong!!!'
+              : error.response.data.message;
+          this.errorMessage = message;
+          this.isError = true;
+        })
+        .finally(() => {
+          this.isSending = false;
+        });
+    },
+    privilegedMall(id) {
+      this.isSending = true;
+      axios
+        .get(`/mall/toggle-privileged/${id}`)
+        .then((response) => {
+          const data = response.data;
+          this.successMessage = data.message;
+          this.isSuccess = true;
+          this.getMallData();
+        })
+        .catch((error) => {
+          // eslint-disable-next-line
+          console.log(error);
+          const message =
+            error.response.data.message === ''
+              ? 'Something Wrong!!!'
+              : error.response.data.message;
+          this.errorMessage = message;
+          this.isError = true;
+        })
+        .finally(() => {
+          this.isSending = false;
+        });
+    },
+    platinumMall(id) {
+      this.isSending = true;
+      axios
+        .get(`/mall/toggle-platinum/${id}`)
         .then((response) => {
           const data = response.data;
           this.successMessage = data.message;

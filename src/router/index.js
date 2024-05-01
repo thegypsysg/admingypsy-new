@@ -586,6 +586,36 @@ const routes = [
     },
   },
   {
+    name: 'manage events',
+    path: '/manage_events',
+    component: () =>
+      import('@/views/mall master/manage events/ManageEventsContainer.vue'),
+    beforeEnter: (to, from, next) => {
+      // Pengecekan status login sebelum masuk ke halaman beranda
+      if (localStorage.getItem('token') == null) {
+        next('/auth/login'); // Alihkan ke halaman login jika belum masuk
+      } else {
+        next(); // Lanjutkan ke halaman beranda jika sudah masuk
+      }
+    },
+  },
+  {
+    name: 'manage events main info',
+    path: '/manage_events/main-info/:id',
+    component: () =>
+      import(
+        '@/views/mall master/manage events/main info/EventsMainInfoContainer.vue'
+      ),
+    beforeEnter: (to, from, next) => {
+      // Pengecekan status login sebelum masuk ke halaman beranda
+      if (localStorage.getItem('token') == null) {
+        next('/auth/login'); // Alihkan ke halaman login jika belum masuk
+      } else {
+        next(); // Lanjutkan ke halaman beranda jika sudah masuk
+      }
+    },
+  },
+  {
     name: 'outlets master',
     path: '/outlets_master',
     component: () =>

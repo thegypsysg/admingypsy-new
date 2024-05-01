@@ -21,14 +21,25 @@
           <h4 class="mt-4">Country / City</h4>
         </router-link>
       </div>
-      <router-link
-        active-class="text-blue-accent-4"
-        style="color: black"
-        class="text-decoration-none"
-        to="/merchants_master"
-      >
-        <h4>On-Board Merchants</h4>
-      </router-link>
+      <div>
+        <router-link
+          active-class="text-blue-accent-4"
+          style="color: black"
+          class="text-decoration-none"
+          to="/merchants_master"
+        >
+          <h4>On-Board Merchants</h4>
+        </router-link>
+
+        <router-link
+          active-class="text-purple-accent-4"
+          style="color: black"
+          class="text-decoration-none"
+          to="/manage_events"
+        >
+          <h4 class="mt-4">Manage Events</h4>
+        </router-link>
+      </div>
       <router-link
         active-class="text-blue-accent-4"
         style="color: black"
@@ -242,6 +253,80 @@
                         </template>
                         <span>Delete</span>
                       </v-tooltip>
+                    </div>
+                  </td>
+                </tr>
+
+                <tr>
+                  <td colspan="8">
+                    <div class="d-flex flex-column justify-start">
+                      <v-table class="text-left pl-16 pb-4">
+                        <tr>
+                          <td class="pt-2 pr-1"></td>
+                          <td class="pt-2 pr-8"></td>
+                          <td class="pt-2 pr-8">
+                            <div class="d-flex" style="gap: 50px">
+                              <div class="">
+                                <p class="font-weight-bold mb-2">Featured</p>
+                                <v-btn-toggle
+                                  style="
+                                    font-size: 10px !important;
+                                    font-weight: 200 !important;
+                                    height: 22px !important;
+                                    width: 54px !important;
+                                  "
+                                  class="d-flex align-center"
+                                  v-model="item.isFeatured"
+                                  rounded="5"
+                                  @click="featuredOutlets(item.id)"
+                                >
+                                  <v-btn size="27" :value="true"> Yes </v-btn>
+
+                                  <v-btn size="27" :value="false"> No </v-btn>
+                                </v-btn-toggle>
+                              </div>
+                              <div class="">
+                                <p class="font-weight-bold mb-2">Privileged</p>
+                                <v-btn-toggle
+                                  style="
+                                    font-size: 10px !important;
+                                    font-weight: 200 !important;
+                                    height: 22px !important;
+                                    width: 54px !important;
+                                  "
+                                  class="d-flex align-center"
+                                  v-model="item.isPrivileged"
+                                  rounded="5"
+                                  @click="privilegedOutlets(item.id)"
+                                >
+                                  <v-btn size="27" :value="true"> Yes </v-btn>
+
+                                  <v-btn size="27" :value="false"> No </v-btn>
+                                </v-btn-toggle>
+                              </div>
+                              <div class="">
+                                <p class="font-weight-bold mb-2">Platinum</p>
+                                <v-btn-toggle
+                                  style="
+                                    font-size: 10px !important;
+                                    font-weight: 200 !important;
+                                    height: 22px !important;
+                                    width: 54px !important;
+                                  "
+                                  class="d-flex align-center"
+                                  v-model="item.isPlatinum"
+                                  rounded="5"
+                                  @click="platinumOutlets(item.id)"
+                                >
+                                  <v-btn size="27" :value="true"> Yes </v-btn>
+
+                                  <v-btn size="27" :value="false"> No </v-btn>
+                                </v-btn-toggle>
+                              </div>
+                            </div>
+                          </td>
+                        </tr>
+                      </v-table>
                     </div>
                   </td>
                 </tr>
@@ -743,8 +828,26 @@ export default {
               mall: item.mall || '',
               unit_number: item.unit_number || '',
               image: item.location_image || null,
+              isPrivileged:
+                item.privileged == 'N'
+                  ? false
+                  : item.privileged == 'Y'
+                  ? true
+                  : null,
+              isPlatinum:
+                item.platinum == 'N'
+                  ? false
+                  : item.platinum == 'Y'
+                  ? true
+                  : null,
               isActive:
                 item.active == 'N' ? false : item.active == 'Y' ? true : null,
+              isFeatured:
+                item.featured == 'N'
+                  ? false
+                  : item.featured == 'Y'
+                  ? true
+                  : null,
               user: item.name || '',
               user_id: item.user_id || '',
               dated: item.dated || '',

@@ -20,14 +20,25 @@
           <h4 class="mt-4">Country / City</h4>
         </router-link>
       </div>
-      <router-link
-        active-class="text-blue-accent-4"
-        style="color: black"
-        class="text-decoration-none"
-        to="/merchants_master"
-      >
-        <h4>On-Board Merchants</h4>
-      </router-link>
+      <div>
+        <router-link
+          active-class="text-blue-accent-4"
+          style="color: black"
+          class="text-decoration-none"
+          to="/merchants_master"
+        >
+          <h4>On-Board Merchants</h4>
+        </router-link>
+
+        <router-link
+          active-class="text-purple-accent-4"
+          style="color: black"
+          class="text-decoration-none"
+          to="/manage_events"
+        >
+          <h4 class="mt-4">Manage Events</h4>
+        </router-link>
+      </div>
       <router-link
         active-class="text-blue-accent-4"
         style="color: black"
