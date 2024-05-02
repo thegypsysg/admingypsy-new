@@ -39,14 +39,25 @@
           <h4 class="mt-4">Manage Events</h4>
         </router-link>
       </div>
-      <router-link
-        active-class="text-blue-accent-4"
-        style="color: black"
-        class="text-decoration-none"
-        to="/outlets_master"
-      >
-        <h4>On-Board Outlets</h4>
-      </router-link>
+      <div>
+        <router-link
+          active-class="text-blue-accent-4"
+          style="color: black"
+          class="text-decoration-none"
+          to="/outlets_master"
+        >
+          <h4>On-Board Outlets</h4>
+        </router-link>
+
+        <router-link
+          active-class="text-red-darken-4"
+          style="color: black"
+          class="text-decoration-none"
+          to="/manage_levels"
+        >
+          <h4 class="mt-4">Manage Levels</h4>
+        </router-link>
+      </div>
       <router-link
         active-class="text-blue-accent-4"
         style="color: black"

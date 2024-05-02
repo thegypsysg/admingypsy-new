@@ -59,6 +59,7 @@
           <h4 class="mt-4">Manage Levels</h4>
         </router-link>
       </div>
+
       <router-link
         active-class="text-blue-accent-4"
         style="color: black"
@@ -89,33 +90,20 @@
       <v-container>
         <v-row>
           <v-col cols="12" md="4">
-            <v-text-field
-              v-model="input.name"
-              label="Tag Header Name"
-              variant="outlined"
-              density="compact"
-              required
-            ></v-text-field>
+            <h3>Manage Levels</h3>
           </v-col>
+        </v-row>
+        <v-row>
           <v-col cols="12" md="4">
             <v-text-field
-              v-model="input.short"
-              label="Tag Header Name (Short)"
+              v-model="input.name"
+              label="Enter Level"
               variant="outlined"
               density="compact"
               required
             ></v-text-field>
           </v-col>
-          <v-col cols="12" md="9">
-            <v-text-field
-              v-model="input.desc"
-              label="Description"
-              variant="outlined"
-              density="compact"
-              required
-            ></v-text-field>
-          </v-col>
-          <v-col cols="12" md="3">
+          <v-col cols="12" md="2">
             <div>
               <v-btn
                 :prepend-icon="
@@ -144,7 +132,7 @@
                 color="red"
                 style="text-transform: none"
                 variant="flat"
-                class="w-100 mt-2"
+                class="w-100"
                 @click="cancelEdit"
                 :disabled="isSending"
               >
@@ -176,18 +164,14 @@
           <v-table class="country-table">
             <thead>
               <tr>
-                <th class="text-left font-weight-bold text-black">Id</th>
-                <th class="text-left font-weight-bold text-black">Image</th>
+                <th class="text-left font-weight-bold text-black">Level Id</th>
+                <th class="text-left font-weight-bold text-black"></th>
                 <th class="text-left font-weight-bold text-black">
-                  Tag Header Name
-                </th>
-                <th class="text-left font-weight-bold text-black">Short</th>
-                <th class="text-left font-weight-bold text-black">
-                  Description
+                  Level Name
                 </th>
                 <th class="text-left font-weight-bold text-black">User</th>
                 <th class="text-left font-weight-bold text-black">Dated</th>
-                <th class="text-left font-weight-bold text-black"></th>
+                <th class="text-left font-weight-bold text-black">Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -210,9 +194,6 @@
                     ></v-img>
                   </td>
                   <td>{{ item.name }}</td>
-                  <td>{{ item.short }}</td>
-                  <td>{{ item.description }}</td>
-
                   <td>
                     {{ item.user }}
                   </td>
@@ -220,19 +201,7 @@
                     {{ item.dated }}
                   </td>
                   <td>
-                    <div class="d-flex">
-                      <v-tooltip location="top">
-                        <template v-slot:activator="{ props }">
-                          <v-btn
-                            color="green"
-                            variant="text"
-                            v-bind="props"
-                            @click="editTagHeader(item)"
-                            icon="mdi-pencil-outline"
-                          ></v-btn>
-                        </template>
-                        <span>Edit</span>
-                      </v-tooltip>
+                    <div class="d-flex align-center">
                       <v-tooltip location="top">
                         <template v-slot:activator="{ props }">
                           <v-btn
@@ -289,13 +258,11 @@
     <v-dialog persistent width="500" v-model="isDelete">
       <v-card>
         <v-card-title>Confirmation</v-card-title>
-        <v-card-text>
-          Are you sure want to delete this tag header?
-        </v-card-text>
+        <v-card-text> Are you sure want to delete this level? </v-card-text>
         <v-card-actions>
           <v-spacer></v-spacer>
           <v-btn color="error" text @click="cancelDelete">No</v-btn>
-          <v-btn color="success" text @click="deleteTagHeader">{{
+          <v-btn color="success" text @click="deleteLocation">{{
             isDeleteLoading ? 'Deleting...' : 'Yes'
           }}</v-btn>
         </v-card-actions>
@@ -342,7 +309,7 @@ import { setAuthHeader } from '@/util/axios';
 // import app from '@/util/eventBus';
 
 export default {
-  name: 'LocationsVue',
+  name: 'ManageLevels',
   data: () => ({
     // fileURL: 'https://admin1.the-gypsy.sg/img/app/',
     partnerName: null,
@@ -354,86 +321,30 @@ export default {
     isSuccess: false,
     isDelete: false,
     isDeleteLoading: false,
-    tagHeaderIdToDelete: null,
+    locationIdToDelete: null,
     tableHeaders: [{ text: 'Gambar', value: 'image' }],
     isOpenImage: false,
     successMessage: '',
     errorMessage: '',
     imageFile: [],
-
-    tagDataToImage: {
+    partnerLocationDataToImage: {
       id: 0,
-      name: null,
-      industry: null,
-      subIndustry: null,
-      country: null,
     },
+
     input: {
       id: 0,
       name: '',
-      short: '',
-      desc: '',
     },
     rules: {
-      countryRules: [
+      nameRules: [
         (value) => {
           if (value) return true;
-          return 'Country is required.';
-        },
-      ],
-      townRules: [
-        (value) => {
-          if (value) return true;
-          return 'Town is required.';
-        },
-      ],
-
-      cityRules: [
-        (value) => {
-          if (value) return true;
-          return 'City is required.';
-        },
-      ],
-      zoneRules: [
-        (value) => {
-          if (value) return true;
-          return 'Zone is required.';
-        },
-      ],
-      locationRules: [
-        (value) => {
-          if (value) return true;
-          return 'Location is required.';
-        },
-      ],
-      latitudeRules: [
-        (value) => {
-          if (value) return true;
-          return 'Latitude is required.';
-        },
-      ],
-      longitudeRules: [
-        (value) => {
-          if (value) return true;
-          return 'Longitude is required.';
-        },
-      ],
-      addressRules: [
-        (value) => {
-          if (value) return true;
-          return 'Address is required.';
+          return 'Name is required.';
         },
       ],
     },
     search: '',
     items: [],
-    resource: {
-      mall: [],
-      country: [],
-      city: [],
-      town: [],
-      subIndustry: [],
-    },
     // itemsTry: [
     //   {
     //     id: 1,
@@ -449,18 +360,12 @@ export default {
     //   },
     // ],
   }),
-  //watch: {
-  //  'input.mall'() {
-  //    this.input.country = this.mallCountry?.country?.country_id;
-  //    this.input.type = this.mallCountry?.sub_industry?.sub_industry_id;
-  //  },
-  //},
   created() {
     const token = JSON.parse(localStorage.getItem('token'));
     setAuthHeader(token);
   },
   mounted() {
-    this.getTagHeaderData();
+    this.getLevelsData();
   },
   computed: {
     filteredItems() {
@@ -468,21 +373,44 @@ export default {
         return this.items;
       }
       const searchTextLower = this.search.toLowerCase();
-      return this.items.filter(
-        (item) =>
-          item.name.toLowerCase().includes(searchTextLower) ||
-          item.short.toLowerCase().includes(searchTextLower) ||
-          item.description.toLowerCase().includes(searchTextLower)
+      return this.items.filter((item) =>
+        item.name.toLowerCase().includes(searchTextLower)
       );
-    },
-    mallCountry() {
-      return this.resource?.mall.find((item) => item.id === this.input.mall);
     },
   },
   methods: {
+    updateImageFile(newImageFile) {
+      this.imageFile.push(newImageFile);
+    },
+    deleteImageFile() {
+      this.isSending = true;
+      axios
+        .delete(`/levels/${this.partnerLocationDataToImage.id}/image`)
+        .then((response) => {
+          const data = response.data;
+          this.successMessage = data.message;
+          this.isSuccess = true;
+          this.getLevelsData();
+        })
+        .catch((error) => {
+          // eslint-disable-next-line
+          console.log(error);
+          const message =
+            error.response.data.message === ''
+              ? 'Something Wrong!!!'
+              : error.response.data.message;
+          this.errorMessage = message;
+          this.isError = true;
+        })
+        .finally(() => {
+          this.isEdit = false;
+          this.isSending = false;
+          this.imageFile = [];
+        });
+    },
     openImage(item) {
       this.isOpenImage = true;
-      this.tagDataToImage = {
+      this.partnerLocationDataToImage = {
         id: item.id,
       };
       this.imageFile =
@@ -499,61 +427,21 @@ export default {
             ]
           : [];
     },
-
     closeImage() {
       this.isOpenImage = false;
       this.imageFile = [];
-      this.tagDataToImage = {
+      this.partnerLocationDataToImage = {
         id: 0,
       };
-    },
-
-    updateImageFile(newImageFile) {
-      this.imageFile.push(newImageFile);
-    },
-
-    deleteImageFile() {
-      this.isSending = true;
-      axios
-        .delete(`/tag-headers/${this.tagDataToImage.id}/main-image`)
-        .then((response) => {
-          const data = response.data;
-          this.successMessage = data.message;
-          this.isSuccess = true;
-          this.getTagHeaderData();
-        })
-        .catch((error) => {
-          // eslint-disable-next-line
-          console.log(error);
-          const message =
-            error.response.data.message === ''
-              ? 'Something Wrong!!!'
-              : error.response.data.message;
-          this.errorMessage = message;
-          this.isError = true;
-        })
-        .finally(() => {
-          this.isEdit = false;
-          this.isSending = false;
-          // this.tagDataToImage = {
-          //   app_id: 1,
-          //   app_group_id: 1,
-          //   app_name: '',
-          //   app_description: '',
-          //   app_detail: '',
-          // };
-          this.imageFile = [];
-        });
     },
     saveImage() {
       this.isSending = true;
       const payload = {
-        tag_header_id: this.tagDataToImage.id,
-        main_image: this.imageFile[0],
+        level_id: this.partnerLocationDataToImage.id,
+        image: this.imageFile[0],
       };
-
       http
-        .post(`/tag-headers/update`, payload, {
+        .post(`/levels/update`, payload, {
           headers: {
             'Content-Type': 'multipart/form-data',
           },
@@ -562,7 +450,8 @@ export default {
           const data = response.data;
           this.successMessage = data.message;
           this.isSuccess = true;
-          this.getTagHeaderData();
+          this.getLevelsData();
+          // app.config.globalProperties.$eventBus.$emit('update-image');
         })
         .catch((error) => {
           // eslint-disable-next-line
@@ -577,111 +466,36 @@ export default {
         .finally(() => {
           this.isEdit = false;
           this.isSending = false;
-          this.tagDataToImage = {
+          this.partnerLocationDataToImage = {
             id: 0,
           };
           this.isOpenImage = false;
           this.imageFile = [];
         });
     },
-    editTagHeader(item) {
-      this.isEdit = true;
-      this.input = {
-        id: item.id,
-        name: item.name,
-        short: item.short,
-        desc: item.description,
-      };
-    },
-    cancelEdit() {
-      this.isEdit = false;
-      this.input = {
-        id: 0,
-        mall: null,
-        name: '',
-      };
-    },
-    saveEdit() {
-      if (this.valid) {
-        this.isSending = true;
-        const payload = {
-          tag_header_id: this.input.id,
-          tag_header_name: this.input.name,
-          tag_header_short: this.input.short,
-          description: this.input.desc,
-        };
-        axios
-          .post(`/tag-headers/update`, payload)
-          .then((response) => {
-            const data = response.data;
-            this.successMessage = data.message;
-            this.isSuccess = true;
-            this.getTagHeaderData();
-            this.input = {
-              id: 0,
-              name: '',
-              short: '',
-              desc: '',
-            };
-          })
-          .catch((error) => {
-            // eslint-disable-next-line
-            console.log(error);
-            const message = error.response.data.tag_header_name
-              ? error.response.data.tag_header_name[0]
-              : error.response.data.tag_header_short
-              ? error.response.data.tag_header_short[0]
-              : error.response.data.description
-              ? error.response.data.description[0]
-              : error.response.data.message === ''
-              ? 'Something Wrong!!!'
-              : error.response.data.message;
-            this.errorMessage = message;
-            this.isError = true;
-            this.input = {
-              id: 0,
-              name: '',
-              short: '',
-              desc: '',
-            };
-          })
-          .finally(() => {
-            this.isEdit = false;
-            this.isSending = false;
-          });
-      }
-    },
     saveData() {
       if (this.valid) {
         this.isSending = true;
         const payload = {
-          tag_header_name: this.input.name,
-          tag_header_short: this.input.short,
-          description: this.input.desc,
+          level_name: this.input.name,
         };
         axios
-          .post(`/tag-headers`, payload)
+          .post(`/levels`, payload)
           .then((response) => {
             const data = response.data;
             this.successMessage = data.message;
             this.isSuccess = true;
-            this.getTagHeaderData();
+            this.getLevelsData();
             this.input = {
               id: 0,
               name: '',
-              short: '',
-              desc: '',
             };
           })
           .catch((error) => {
             // eslint-disable-next-line
             console.log(error);
-            const message = error.response.data.tag_header_name
-              ? error.response.data.tag_header_name[0]
-              : error.response.data.tag_header_short
-              ? error.response.data.tag_header_short[0]
-              : error.response.data.description
-              ? error.response.data.description[0]
+            const message = error.response.data.partner_id
+              ? error.response.data.partner_id[0]
               : error.response.data.message === ''
               ? 'Something Wrong!!!'
               : error.response.data.message;
@@ -694,26 +508,26 @@ export default {
       }
     },
     cancelDelete() {
-      this.tagHeaderIdToDelete = null;
+      this.locationIdToDelete = null;
       this.isDelete = false;
     },
     openDeleteConfirm(itemId) {
-      this.tagHeaderIdToDelete = itemId;
+      this.locationIdToDelete = itemId;
       this.isDelete = true;
     },
     cancelConfirmation() {
-      this.tagHeaderIdToDelete = null;
+      this.locationIdToDelete = null;
       this.isDelete = false;
     },
-    deleteTagHeader() {
+    deleteLocation() {
       this.isDeleteLoading = true;
       axios
-        .delete(`/tag-headers/${this.tagHeaderIdToDelete}`)
+        .delete(`/levels/${this.locationIdToDelete}`)
         .then((response) => {
           const data = response.data;
           this.successMessage = data.message;
           this.isSuccess = true;
-          this.getTagHeaderData();
+          this.getLevelsData();
         })
         .catch((error) => {
           // eslint-disable-next-line
@@ -727,25 +541,23 @@ export default {
         })
         .finally(() => {
           this.isDeleteLoading = false;
-          this.tagHeaderIdToDelete = null;
+          this.locationIdToDelete = null;
           this.isDelete = false;
         });
     },
-    getTagHeaderData() {
+    getLevelsData() {
       this.isLoading = true;
       axios
-        .get(`/tag-headers`)
+        .get(`/levels`)
         .then((response) => {
           const data = response.data.data;
           this.items = data.map((item) => {
             return {
-              id: item.tag_header_id || 1,
-              name: item.tag_header_name || '',
-              short: item.tag_header_short || '',
-              description: item.description || '',
-              image: item.main_image || null,
+              id: item.level_id || 1,
+              name: item.level_name || '',
+              image: item.image || null,
+
               user: item.user.name || '',
-              user_id: item.user_id || '',
               dated: item.dated || '',
             };
           });
@@ -778,8 +590,6 @@ export default {
 .country-table-body {
   margin-top: 50px !important;
   margin-bottom: 50px !important;
-  color: #a12a3d;
-  font-weight: 500;
 }
 
 .country-table-body td {

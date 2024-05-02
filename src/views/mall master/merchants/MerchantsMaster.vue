@@ -40,14 +40,25 @@
           <h4 class="mt-4">Manage Events</h4>
         </router-link>
       </div>
-      <router-link
-        active-class="text-blue-accent-4"
-        style="color: black"
-        class="text-decoration-none"
-        to="/outlets_master"
-      >
-        <h4>On-Board Outlets</h4>
-      </router-link>
+      <div>
+        <router-link
+          active-class="text-blue-accent-4"
+          style="color: black"
+          class="text-decoration-none"
+          to="/outlets_master"
+        >
+          <h4>On-Board Outlets</h4>
+        </router-link>
+
+        <router-link
+          active-class="text-red-darken-4"
+          style="color: black"
+          class="text-decoration-none"
+          to="/manage_levels"
+        >
+          <h4 class="mt-4">Manage Levels</h4>
+        </router-link>
+      </div>
       <router-link
         active-class="text-blue-accent-4"
         style="color: black"
@@ -923,12 +934,12 @@ export default {
     privilegedMerchants(id) {
       this.isSending = true;
       axios
-        .get(`/mall/toggle-privileged/${id}`)
+        .get(`/mall-merchants/toggle-privileged/${id}`)
         .then((response) => {
           const data = response.data;
           this.successMessage = data.message;
           this.isSuccess = true;
-          this.getMallData();
+          this.getMerchantData();
         })
         .catch((error) => {
           // eslint-disable-next-line
@@ -947,12 +958,12 @@ export default {
     platinumMerchants(id) {
       this.isSending = true;
       axios
-        .get(`/mall/toggle-platinum/${id}`)
+        .get(`/mall-merchants/toggle-platinum/${id}`)
         .then((response) => {
           const data = response.data;
           this.successMessage = data.message;
           this.isSuccess = true;
-          this.getMallData();
+          this.getMerchantData();
         })
         .catch((error) => {
           // eslint-disable-next-line

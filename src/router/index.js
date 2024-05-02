@@ -616,6 +616,20 @@ const routes = [
     },
   },
   {
+    name: 'manage levels',
+    path: '/manage_levels',
+    component: () =>
+      import('@/views/mall master/manage levels/ManageLevelsContainer.vue'),
+    beforeEnter: (to, from, next) => {
+      // Pengecekan status login sebelum masuk ke halaman beranda
+      if (localStorage.getItem('token') == null) {
+        next('/auth/login'); // Alihkan ke halaman login jika belum masuk
+      } else {
+        next(); // Lanjutkan ke halaman beranda jika sudah masuk
+      }
+    },
+  },
+  {
     name: 'outlets master',
     path: '/outlets_master',
     component: () =>
