@@ -60,14 +60,25 @@
           <h4 class="mt-4">Manage Levels</h4>
         </router-link>
       </div>
-      <router-link
-        active-class="text-blue-accent-4"
-        style="color: black"
-        class="text-decoration-none"
-        to="/promotions_master"
-      >
-        <h4>On-Board Promotions</h4>
-      </router-link>
+      <div>
+        <router-link
+          active-class="text-blue-accent-4"
+          style="color: black"
+          class="text-decoration-none"
+          to="/promotions_master"
+        >
+          <h4>On-Board Promotions</h4>
+        </router-link>
+
+        <router-link
+          active-class="text-blue-darken-4"
+          style="color: black"
+          class="text-decoration-none"
+          to="/manage_services"
+        >
+          <h4 class="mt-4">Manage Services</h4>
+        </router-link>
+      </div>
 
       <router-link
         active-class="text-blue-accent-4"
