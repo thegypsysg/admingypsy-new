@@ -458,7 +458,7 @@
                               </router-link>
                               <router-link
                                 class="text-decoration-none"
-                                :to="`partner_master/socials/${item.id}`"
+                                :to="`/mall_master/levels/${item.id}`"
                               >
                                 <span>Levels</span>
                               </router-link>
