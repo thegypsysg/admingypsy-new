@@ -11,7 +11,7 @@
       <router-link
         style="color: #293fb8; font-size: 13px"
         class="text-decoration-none"
-        to="/manage_events"
+        to="/mall_master"
       >
         <p>Back</p>
       </router-link>

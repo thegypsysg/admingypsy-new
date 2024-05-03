@@ -882,14 +882,16 @@ export default {
   computed: {
     filteredItems() {
       if (!this.search) {
-        return this.items;
+        return this.items.slice(0, 5);
       }
       const searchTextLower = this.search.toLowerCase();
-      return this.items.filter(
-        (item) =>
-          item.name.toLowerCase().includes(searchTextLower) ||
-          item.promo.toLowerCase().includes(searchTextLower)
-      );
+      return this.items
+        .filter(
+          (item) =>
+            item.name.toLowerCase().includes(searchTextLower) ||
+            item.promo.toLowerCase().includes(searchTextLower)
+        )
+        .slice(0, 5);
     },
     mallCountry() {
       return this.resource?.mall.find((item) => item.id === this.input.mall);
@@ -1194,8 +1196,7 @@ export default {
               outlets: 5,
               malls: 2,
             };
-          })
-          .slice(0, 5);
+          });
       } catch (error) {
         console.log(error);
         const message =

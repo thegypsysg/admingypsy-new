@@ -345,6 +345,17 @@
                                   <v-btn size="27" :value="false"> No </v-btn>
                                 </v-btn-toggle>
                               </div>
+                              <div class="">
+                                <p class="font-weight-bold mb-2">Level</p>
+                                <v-autocomplete
+                                  density="compact"
+                                  :items="resource.levels"
+                                  item-title="name"
+                                  clearable
+                                  item-value="id"
+                                  variant="outlined"
+                                ></v-autocomplete>
+                              </div>
                             </div>
                           </td>
                         </tr>
@@ -528,6 +539,7 @@ export default {
       merchants: [],
       locations: [],
       malls: [],
+      levels: [],
     },
     // itemsTry: [
     //   {
@@ -579,6 +591,7 @@ export default {
     this.getOutletsData();
     this.getPartnerLocationsData();
     this.getMallsData();
+    this.getLevelsData();
   },
   computed: {
     filteredItems() {
@@ -945,6 +958,33 @@ export default {
               : error.response.data.message;
           this.errorMessage = message;
           this.isError = true;
+        });
+    },
+    getLevelsData() {
+      this.isLoading = true;
+      axios
+        .get(`/levels`)
+        .then((response) => {
+          const data = response.data.data;
+          this.resource.levels = data.map((item) => {
+            return {
+              id: item.level_id || 1,
+              name: item.level_name || '',
+            };
+          });
+        })
+        .catch((error) => {
+          // eslint-disable-next-line
+          console.log(error);
+          const message =
+            error.response.data.message === ''
+              ? 'Something Wrong!!!'
+              : error.response.data.message;
+          this.errorMessage = message;
+          this.isError = true;
+        })
+        .finally(() => {
+          this.isLoading = false;
         });
     },
     activeOutlets(id) {
