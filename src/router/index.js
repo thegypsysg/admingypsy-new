@@ -559,6 +559,19 @@ const routes = [
     },
   },
   {
+    name: 'walls master',
+    path: '/walls_master',
+    component: () => import('@/views/walls master/WallsMasterContainer.vue'),
+    beforeEnter: (to, from, next) => {
+      // Pengecekan status login sebelum masuk ke halaman beranda
+      if (localStorage.getItem('token') == null) {
+        next('/auth/login'); // Alihkan ke halaman login jika belum masuk
+      } else {
+        next(); // Lanjutkan ke halaman beranda jika sudah masuk
+      }
+    },
+  },
+  {
     name: 'mall master',
     path: '/mall_master',
     component: () => import('@/views/mall master/MallMasterContainer.vue'),

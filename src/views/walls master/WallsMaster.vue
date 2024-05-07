@@ -10,16 +10,16 @@
           class="text-decoration-none"
           to="/mall_master"
         >
-          <h4>On-Board Mall</h4>
+          <h4>On-Board Owners</h4>
         </router-link>
-        <router-link
+        <!-- <router-link
           active-class="text-purple-accent-4"
           style="color: black"
           class="text-decoration-none"
           to="/mall-country"
         >
           <h4 class="mt-4">Country / City</h4>
-        </router-link>
+        </router-link> -->
       </div>
       <div>
         <router-link
@@ -28,18 +28,19 @@
           class="text-decoration-none"
           to="/merchants_master"
         >
-          <h4>On-Board Merchants</h4>
+          <h4>On-Board Agents</h4>
         </router-link>
 
-        <router-link
+        <!-- <router-link
           active-class="text-purple-accent-4"
           style="color: black"
           class="text-decoration-none"
           to="/manage_events"
         >
           <h4 class="mt-4">Manage Events</h4>
-        </router-link>
+        </router-link> -->
       </div>
+
       <div>
         <router-link
           active-class="text-blue-accent-4"
@@ -47,17 +48,17 @@
           class="text-decoration-none"
           to="/outlets_master"
         >
-          <h4>On-Board Outlets</h4>
+          <h4>Manage Tenants</h4>
         </router-link>
 
-        <router-link
+        <!-- <router-link
           active-class="text-red-darken-4"
           style="color: black"
           class="text-decoration-none"
           to="/manage_levels"
         >
           <h4 class="mt-4">Manage Levels</h4>
-        </router-link>
+        </router-link> -->
       </div>
       <div>
         <router-link
@@ -66,118 +67,179 @@
           class="text-decoration-none"
           to="/promotions_master"
         >
-          <h4>On-Board Promotions</h4>
+          <h4>Country/City</h4>
         </router-link>
 
-        <router-link
+        <!-- <router-link
           active-class="text-blue-darken-4"
           style="color: black"
           class="text-decoration-none"
           to="/manage_services"
         >
           <h4 class="mt-4">Manage Services</h4>
-        </router-link>
+        </router-link> -->
       </div>
-
-      <router-link
-        active-class="text-blue-accent-4"
-        style="color: black"
-        class="text-decoration-none"
-        to="/tag-header"
-      >
-        <h4>Tag Header</h4>
-      </router-link>
-      <router-link
-        active-class="text-blue-accent-4"
-        style="color: black"
-        class="text-decoration-none"
-        to="/tag-master"
-      >
-        <h4>Tag Master</h4>
-      </router-link>
     </div>
-    <v-form v-model="valid" @submit.prevent>
+    <!-- <v-form v-model="valid" @submit.prevent>
       <v-container>
         <v-row>
           <v-col cols="12" md="4">
             <v-autocomplete
-              class="mt-2"
+              class="mt-8"
               density="compact"
-              label="Merchants Name"
-              placeholder="Type Merchant / Brand Name"
-              :items="resource.merchants"
-              item-title="name"
-              item-value="id"
-              v-model="input.merchant"
-              variant="outlined"
-            ></v-autocomplete>
-          </v-col>
-          <v-col cols="12" md="4">
-            <v-autocomplete
-              class="mt-2"
-              density="compact"
-              label="Merchants Location"
-              placeholder="Type Merchants Locations"
-              :items="resource.locations"
-              item-title="name"
-              item-value="id"
-              v-model="input.location"
-              variant="outlined"
-            ></v-autocomplete>
-          </v-col>
-          <v-col cols="12" md="4">
-            <v-autocomplete
-              class="mt-2"
-              density="compact"
-              label="Mall"
-              placeholder="Select Mall"
-              :items="resource.malls"
+              label="Type Mall Name"
+              placeholder="Type Mall Name"
+              :items="resource.mall"
               item-title="name"
               item-value="id"
               v-model="input.mall"
               variant="outlined"
             ></v-autocomplete>
           </v-col>
-          <v-col cols="12" md="3">
-            <div>
-              <v-btn
-                :prepend-icon="
-                  isEdit
-                    ? 'mdi-account-multiple-check'
-                    : 'mdi-account-multiple-plus'
-                "
-                color="indigo-accent-2"
-                style="text-transform: none"
-                type="submit"
-                variant="flat"
-                class="w-100 mt-n2"
-                @click="isEdit ? saveEdit() : saveData()"
-                :disabled="isSending"
-                :loading="isSending"
-              >
-                <template v-slot:prepend>
-                  <v-icon color="white"></v-icon>
-                </template>
+          <v-col cols="12" md="2">
+            <label>Country</label>
+            <v-autocomplete
+              class="mt-2"
+              density="compact"
+              label="Type Country"
+              placeholder="Type Country"
+              :items="resource.country"
+              item-title="name"
+              item-value="id"
+              v-model="input.country"
+              variant="outlined"
+            ></v-autocomplete>
+          </v-col>
+          <v-col cols="12" md="2">
+            <label>City</label>
+            <v-combobox
+              v-if="!isEdit"
+              class="mt-2"
+              density="compact"
+              label="Type City"
+              placeholder="Type City"
+              :items="resource.city"
+              item-title="name"
+              item-value="id"
+              v-model="input.city"
+              variant="outlined"
+            ></v-combobox>
+            <v-autocomplete
+              v-if="isEdit"
+              class="mt-2"
+              density="compact"
+              label="Type City"
+              placeholder="Type City"
+              :items="resource.city"
+              item-title="name"
+              item-value="id"
+              v-model="input.city"
+              variant="outlined"
+            ></v-autocomplete>
+          </v-col>
+          <v-col cols="12" md="2">
+            <label>Town</label>
+            <v-combobox
+              v-if="!isEdit"
+              class="mt-2"
+              density="compact"
+              label="Type Town"
+              placeholder="Type Town"
+              :items="resource.town"
+              item-title="name"
+              item-value="id"
+              v-model="input.town"
+              variant="outlined"
+            ></v-combobox>
+            <v-autocomplete
+              v-if="isEdit"
+              class="mt-2"
+              density="compact"
+              label="Type Town"
+              placeholder="Type Town"
+              :items="resource.town"
+              item-title="name"
+              item-value="id"
+              v-model="input.town"
+              variant="outlined"
+            ></v-autocomplete>
+          </v-col>
+        </v-row>
+        <v-row class="mt-n4">
+          <v-col cols="12" md="4">
+            <label>Mall Type</label>
+            <v-autocomplete
+              class="mt-2"
+              density="compact"
+              label="Type Mall Type"
+              placeholder="Type Mall Type"
+              :items="resource.subIndustry"
+              item-title="name"
+              item-value="id"
+              v-model="input.type"
+              variant="outlined"
+            ></v-autocomplete>
+          </v-col>
+          <v-col cols="12" md="2">
+            <v-text-field
+              class="mt-8"
+              v-model="input.latitude"
+              label="Latitude"
+              variant="outlined"
+              density="compact"
+              required
+            ></v-text-field>
+          </v-col>
+          <v-col cols="12" md="2">
+            <v-text-field
+              class="mt-8"
+              v-model="input.longitude"
+              label="Longitude"
+              variant="outlined"
+              density="compact"
+              required
+            ></v-text-field>
+          </v-col>
+          <v-col cols="12" md="2">
+            <v-btn
+              :prepend-icon="
+                isEdit
+                  ? 'mdi-account-multiple-check'
+                  : 'mdi-account-multiple-plus'
+              "
+              color="indigo-accent-2"
+              style="text-transform: none"
+              type="submit"
+              variant="flat"
+              class="w-100 mt-8"
+              @click="isEdit ? saveEdit() : saveData()"
+              :disabled="isSending"
+              :loading="isSending"
+            >
+              <template v-slot:prepend>
+                <v-icon color="white"></v-icon>
+              </template>
 
-                {{ isEdit ? 'Save' : 'Add' }}
-              </v-btn>
-              <v-btn
-                v-if="isEdit"
-                prepend-icon="mdi-account-multiple-remove"
-                color="red"
-                style="text-transform: none"
-                variant="flat"
-                class="w-100 mt-2"
-                @click="cancelEdit"
-                :disabled="isSending"
-              >
-                <template v-slot:prepend>
-                  <v-icon color="white"></v-icon>
-                </template>
+              {{ isEdit ? 'Save' : 'Add' }}
+            </v-btn>
+          </v-col>
+          <v-col cols="12" md="2">
+            <v-btn
+              v-if="isEdit"
+              prepend-icon="mdi-account-multiple-remove"
+              color="red"
+              style="text-transform: none"
+              variant="flat"
+              class="w-100 mt-8"
+              @click="cancelEdit"
+              :disabled="isSending"
+            >
+              <template v-slot:prepend>
+                <v-icon color="white"></v-icon>
+              </template>
 
-                CANCEL
-              </v-btn>
-            </div>
+              CANCEL
+            </v-btn>
           </v-col>
         </v-row>
       </v-container>
@@ -199,16 +261,13 @@
           <v-table class="country-table">
             <thead>
               <tr>
-                <th class="text-left font-weight-bold text-black">Id</th>
-                <th class="text-left font-weight-bold text-black"></th>
-                <th class="text-left font-weight-bold text-black">
-                  Merchant Name
-                </th>
-                <th class="text-left font-weight-bold text-black">Mall</th>
-                <th class="text-left font-weight-bold text-black">
-                  Unit Number
-                </th>
+                <th class="text-left font-weight-bold text-black">Mall id</th>
+                <th class="text-left font-weight-bold text-black">Name</th>
+                <th class="text-left font-weight-bold text-black">Town</th>
+                <th class="text-left font-weight-bold text-black">City</th>
+                <th class="text-left font-weight-bold text-black">Country</th>
                 <th class="text-left font-weight-bold text-black">Active</th>
+                <th class="text-left font-weight-bold text-black">Featured</th>
                 <th class="text-left font-weight-bold text-black">User</th>
                 <th class="text-left font-weight-bold text-black">Dated</th>
                 <th class="text-left font-weight-bold text-black">Actions</th>
@@ -218,24 +277,10 @@
               <template v-for="item in filteredItems" :key="item.id">
                 <tr class="country-table-body">
                   <td>{{ item.id }}</td>
-                  <td>
-                    <v-img
-                      height="40"
-                      width="65"
-                      @click="openImage(item)"
-                      style="cursor: pointer"
-                      :src="
-                        item.image != null
-                          ? $fileURL + item.image
-                          : 'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png'
-                      "
-                      ><template #placeholder>
-                        <div class="skeleton" /> </template
-                    ></v-img>
-                  </td>
                   <td>{{ item.name }}</td>
-                  <td>{{ item.mall }}</td>
-                  <td>{{ item.unit_number }}</td>
+                  <td>{{ item.town }}</td>
+                  <td>{{ item.city }}</td>
+                  <td>{{ item.country }}</td>
                   <td>
                     <v-btn-toggle
                       style="
@@ -247,7 +292,25 @@
                       class="d-flex align-center"
                       v-model="item.isActive"
                       rounded="5"
-                      @click="activeOutlets(item.id)"
+                      @click="activeMall(item.id)"
+                    >
+                      <v-btn size="27" :value="true"> Yes </v-btn>
+
+                      <v-btn size="27" :value="false"> No </v-btn>
+                    </v-btn-toggle>
+                  </td>
+                  <td>
+                    <v-btn-toggle
+                      style="
+                        font-size: 10px !important;
+                        font-weight: 200 !important;
+                        height: 22px !important;
+                        width: 54px !important;
+                      "
+                      class="d-flex align-center"
+                      v-model="item.isFeatured"
+                      rounded="5"
+                      @click="featuredMall(item.id)"
                     >
                       <v-btn size="27" :value="true"> Yes </v-btn>
 
@@ -262,6 +325,18 @@
                   </td>
                   <td>
                     <div class="d-flex">
+                      <v-tooltip location="top">
+                        <template v-slot:activator="{ props }">
+                          <v-btn
+                            color="green"
+                            variant="text"
+                            v-bind="props"
+                            @click="editLocation(item)"
+                            icon="mdi-pencil-outline"
+                          ></v-btn>
+                        </template>
+                        <span>Edit</span>
+                      </v-tooltip>
                       <v-tooltip location="top">
                         <template v-slot:activator="{ props }">
                           <v-btn
@@ -280,33 +355,32 @@
                 </tr>
 
                 <tr>
-                  <td colspan="8">
+                  <td colspan="10">
                     <div class="d-flex flex-column justify-start">
-                      <v-table class="text-left pl-16 pb-4">
+                      <v-table class="text-left pl-16">
                         <tr>
-                          <td class="pt-2 pr-1"></td>
-                          <td class="pt-2 pr-8"></td>
                           <td class="pt-2 pr-8">
-                            <div class="d-flex" style="gap: 50px">
-                              <div class="">
-                                <p class="font-weight-bold mb-2">Featured</p>
-                                <v-btn-toggle
-                                  style="
-                                    font-size: 10px !important;
-                                    font-weight: 200 !important;
-                                    height: 22px !important;
-                                    width: 54px !important;
-                                  "
-                                  class="d-flex align-center"
-                                  v-model="item.isFeatured"
-                                  rounded="5"
-                                  @click="featuredOutlets(item.id)"
-                                >
-                                  <v-btn size="27" :value="true"> Yes </v-btn>
-
-                                  <v-btn size="27" :value="false"> No </v-btn>
-                                </v-btn-toggle>
-                              </div>
+                            (<span class="text-red">{{ item.type }}</span
+                            >)
+                          </td>
+                          <td class="pt-2">
+                            Latitude :
+                            <span class="text-red">{{ item.latitude }}</span>
+                          </td>
+                          <td class="pt-2">
+                            Longitude :
+                            <span class="text-red">{{ item.longitude }}</span>
+                          </td>
+                        </tr>
+                      </v-table>
+                      <v-table class="text-left pl-16">
+                        <tr>
+                          <td class="pt-2">
+                            Managed By :
+                            <span class="text-red">{{ item.managed }}</span>
+                          </td>
+                          <td class="pt-2 pr-10 d-flex justify-end">
+                            <div class="d-flex" style="gap: 40px">
                               <div class="">
                                 <p class="font-weight-bold mb-2">Privileged</p>
                                 <v-btn-toggle
@@ -319,7 +393,7 @@
                                   class="d-flex align-center"
                                   v-model="item.isPrivileged"
                                   rounded="5"
-                                  @click="privilegedOutlets(item.id)"
+                                  @click="privilegedMall(item.id)"
                                 >
                                   <v-btn size="27" :value="true"> Yes </v-btn>
 
@@ -338,25 +412,63 @@
                                   class="d-flex align-center"
                                   v-model="item.isPlatinum"
                                   rounded="5"
-                                  @click="platinumOutlets(item.id)"
+                                  @click="platinumMall(item.id)"
                                 >
                                   <v-btn size="27" :value="true"> Yes </v-btn>
 
                                   <v-btn size="27" :value="false"> No </v-btn>
                                 </v-btn-toggle>
                               </div>
-                              <div class="">
-                                <p class="font-weight-bold mb-2">Level</p>
-                                <v-autocomplete
-                                  style="min-width: 150px"
-                                  density="compact"
-                                  :items="resource.levels"
-                                  item-title="name"
-                                  clearable
-                                  item-value="id"
-                                  variant="outlined"
-                                ></v-autocomplete>
-                              </div>
+                            </div>
+                          </td>
+                        </tr>
+                      </v-table>
+                      <v-table class="text-left pl-16 mt-2">
+                        <tr>
+                          <td class="pr-6 pt-2 pb-4">
+                            <div class="d-flex justify-start" style="gap: 20px">
+                              <router-link
+                                class="text-decoration-none"
+                                :to="`partner_master/main-info/${item.id}`"
+                              >
+                                <span>Main Info</span>
+                              </router-link>
+                              <router-link
+                                class="text-decoration-none"
+                                :to="`partner_master/contacts/${item.id}`"
+                              >
+                                <span>Images</span>
+                              </router-link>
+                              <router-link
+                                class="text-decoration-none"
+                                :to="`/mall_master/levels/${item.id}`"
+                              >
+                                <span>Levels</span>
+                              </router-link>
+                              <router-link
+                                class="text-decoration-none"
+                                :to="`partner_master/locations/${item.id}`"
+                              >
+                                <span>Events ({{ item.events }})</span>
+                              </router-link>
+                              <router-link
+                                class="text-decoration-none"
+                                :to="`partner_master/socials/${item.id}`"
+                              >
+                                <span>Parking Info</span>
+                              </router-link>
+                              <router-link
+                                class="text-decoration-none"
+                                :to="`partner_master/locations/${item.id}`"
+                              >
+                                <span>Mall Offers ({{ item.events }})</span>
+                              </router-link>
+                              <router-link
+                                class="text-decoration-none"
+                                :to="`partner_master/locations/${item.id}`"
+                              >
+                                <span>Merchants ({{ item.events }})</span>
+                              </router-link>
                             </div>
                           </td>
                         </tr>
@@ -377,7 +489,7 @@
           </v-table>
         </v-col>
       </v-row>
-    </v-sheet>
+    </v-sheet> -->
     <v-snackbar
       location="top"
       color="green"
@@ -404,7 +516,7 @@
     <v-dialog persistent width="500" v-model="isDelete">
       <v-card>
         <v-card-title>Confirmation</v-card-title>
-        <v-card-text> Are you sure want to delete this outlet? </v-card-text>
+        <v-card-text> Are you sure want to delete this mall? </v-card-text>
         <v-card-actions>
           <v-spacer></v-spacer>
           <v-btn color="error" text @click="cancelDelete">No</v-btn>
@@ -450,7 +562,6 @@
 <script>
 import ImageUpload from '@/components/ImageUpload.vue';
 import axios from '@/util/axios';
-import http from 'axios';
 import { setAuthHeader } from '@/util/axios';
 // import app from '@/util/eventBus';
 
@@ -458,6 +569,7 @@ export default {
   name: 'LocationsVue',
   data: () => ({
     // fileURL: 'https://admin1.the-gypsy.sg/img/app/',
+    idPartnerLocations: null,
     partnerName: null,
     valid: false,
     isLoading: false,
@@ -473,15 +585,16 @@ export default {
     successMessage: '',
     errorMessage: '',
     imageFile: [],
-    partnerLocationDataToImage: {
-      id: 0,
-    },
 
     input: {
       id: 0,
-      merchant: null,
-      location: null,
       mall: null,
+      country: null,
+      town: null,
+      city: null,
+      type: null,
+      latitude: null,
+      longitude: null,
     },
     rules: {
       countryRules: [
@@ -537,62 +650,45 @@ export default {
     search: '',
     items: [],
     resource: {
-      merchants: [],
-      locations: [],
-      malls: [],
-      levels: [],
+      mall: [],
+      country: [],
+      city: [],
+      town: [],
+      subIndustry: [],
     },
     // itemsTry: [
     //   {
     //     id: 1,
-    //     name: 'Pappa Rich',
+    //     name: 'Parkway Parade',
+    //     town: 'Marine Parade',
+    //     city: 'Singapore',
     //     country: 'Singapore',
     //     isActive: false,
     //     isFeatured: false,
     //     user: 'Charlton',
     //     dated: '15/08/2023',
-    //     type: 'Restaurant',
-    //     outlets: 5,
-    //     malls: 2,
+    //     type: 'Mall',
+    //     latitude: 1.3019,
+    //     longitude: 103.9028,
+    //     managed: 'Lendlease Pte Ltd',
+    //     events: 4,
+    //     offers: 2,
+    //     merchants: 14,
     //   },
     // ],
   }),
-  watch: {
-    'input.merchant'() {
-      const filteredLocations = this.resource.merchants.filter(
-        (i) => i.id == this.input.merchant
-      );
-      const finalLocations =
-        filteredLocations.length > 0 ? filteredLocations[0].locations : [];
-      if (finalLocations.length > 0) {
-        this.resource.locations = finalLocations.map((item) => {
-          return {
-            id: item.pl_id || 1,
-            name:
-              item?.location_name && item?.town?.town_name
-                ? `${item.location_name} (${item?.town?.town_name})`
-                : !item?.location_name && item?.town?.town_name
-                ? item?.town?.town_name
-                : item?.location_name && !item?.town?.town_name
-                ? item?.location_name
-                : '',
-          };
-        });
-      } else {
-        this.resource.locations = [];
-      }
-      console.log(this.resource.locations);
-    },
-  },
   created() {
     const token = JSON.parse(localStorage.getItem('token'));
     setAuthHeader(token);
   },
   mounted() {
-    this.getOutletsData();
-    this.getPartnerLocationsData();
-    this.getMallsData();
-    this.getLevelsData();
+    this.idPartnerLocations = this.$route.params.id;
+    this.getMallData();
+    this.getPartnerData();
+    this.getCountry();
+    this.getCityData();
+    this.getTownData();
+    this.getSubIndustryData();
   },
   computed: {
     filteredItems() {
@@ -603,150 +699,71 @@ export default {
       return this.items.filter(
         (item) =>
           item.name.toLowerCase().includes(searchTextLower) ||
-          item.mall.toLowerCase().includes(searchTextLower) ||
-          item.unit_number.toLowerCase().includes(searchTextLower)
+          item.country.toLowerCase().includes(searchTextLower) ||
+          item.city.toLowerCase().includes(searchTextLower) ||
+          item.town.toLowerCase().includes(searchTextLower)
       );
-    },
-    mallCountry() {
-      return this.resource?.mall.find((item) => item.id === this.input.mall);
     },
   },
   methods: {
-    updateImageFile(newImageFile) {
-      this.imageFile.push(newImageFile);
-    },
-    deleteImageFile() {
-      this.isSending = true;
-      axios
-        .delete(
-          `/partner-locations/${this.partnerLocationDataToImage.id}/location-image`
-        )
-        .then((response) => {
-          const data = response.data;
-          this.successMessage = data.message;
-          this.isSuccess = true;
-          this.getOutletsData();
-        })
-        .catch((error) => {
-          // eslint-disable-next-line
-          console.log(error);
-          const message =
-            error.response.data.message === ''
-              ? 'Something Wrong!!!'
-              : error.response.data.message;
-          this.errorMessage = message;
-          this.isError = true;
-        })
-        .finally(() => {
-          this.isEdit = false;
-          this.isSending = false;
-          this.imageFile = [];
-        });
-    },
-    openImage(item) {
-      this.isOpenImage = true;
-      this.partnerLocationDataToImage = {
-        id: item.pl_id,
-      };
-      this.imageFile =
-        item.image != null
-          ? [
-              {
-                file: {
-                  name: item.image,
-                  size: '',
-                  base64: '',
-                  format: '',
-                },
-              },
-            ]
-          : [];
-    },
-    closeImage() {
-      this.isOpenImage = false;
-      this.imageFile = [];
-      this.partnerLocationDataToImage = {
-        id: 0,
-      };
-    },
-    saveImage() {
-      this.isSending = true;
-      const payload = {
-        pl_id: this.partnerLocationDataToImage.id,
-        location_image: this.imageFile[0],
-      };
-      http
-        .post(`/partner-locations/update`, payload, {
-          headers: {
-            'Content-Type': 'multipart/form-data',
-          },
-        })
-        .then((response) => {
-          const data = response.data;
-          this.successMessage = data.message;
-          this.isSuccess = true;
-          this.getOutletsData();
-          // app.config.globalProperties.$eventBus.$emit('update-image');
-        })
-        .catch((error) => {
-          // eslint-disable-next-line
-          console.log(error);
-          const message =
-            error.response.data.message === ''
-              ? 'Something Wrong!!!'
-              : error.response.data.message;
-          this.errorMessage = message;
-          this.isError = true;
-        })
-        .finally(() => {
-          this.isEdit = false;
-          this.isSending = false;
-          this.partnerLocationDataToImage = {
-            id: 0,
-          };
-          this.isOpenImage = false;
-          this.imageFile = [];
-        });
-    },
     editLocation(item) {
       this.isEdit = true;
       this.input = {
         id: item.id,
         mall: item.partner_id,
         country: item.country_id,
-        type: item.sub_industry_id,
+        town: item.town_id,
+        city: item.city_id,
+        type: null,
+        latitude: item.latitude,
+        longitude: item.longitude,
       };
     },
     cancelEdit() {
       this.isEdit = false;
       this.input = {
         id: 0,
-        merchant: null,
-        location: null,
         mall: null,
+        country: null,
+        town: null,
+        city: null,
+        type: null,
+        latitude: null,
+        longitude: null,
       };
     },
     saveEdit() {
       if (this.valid) {
         this.isSending = true;
+        console.log(this.input.city);
+        console.log(this.input.town);
         const payload = {
-          mm_id: this.input.id,
+          mall_id: this.input.id,
           partner_id: this.input.mall,
           country_id: this.input.country,
-          merchant_type: this.input.type,
+          city_id: this.input.city,
+          town_id: this.input.town,
+          new_city: '',
+          new_town: '',
+          latitude: this.input.latitude,
+          longitude: this.input.longitude,
         };
         axios
-          .post(`/mall-merchant-outlets/update`, payload)
+          .post(`/mall/update`, payload)
           .then((response) => {
             const data = response.data;
             this.successMessage = data.message;
             this.isSuccess = true;
-            this.getOutletsData();
+            this.getMallData();
             this.input = {
               id: 0,
-              merchant: null,
-              location: null,
               mall: null,
+              country: null,
+              town: null,
+              city: null,
+              type: null,
+              latitude: null,
+              longitude: null,
             };
           })
           .catch((error) => {
@@ -754,16 +771,24 @@ export default {
             console.log(error);
             const message = error.response.data.partner_id
               ? error.response.data.partner_id[0]
-              : error.response.data.message === ''
-              ? 'Something Wrong!!!'
-              : error.response.data.message;
+              : error.response.data.new_city
+              ? error.response.data.new_city[0]
+              : error.response.data.new_town
+              ? error.response.data.new_town[0]
+              : error.response.data.message
+              ? error.response.data.message
+              : 'Something Wrong!!!';
             this.errorMessage = message;
             this.isError = true;
             this.input = {
               id: 0,
-              merchant: null,
-              location: null,
               mall: null,
+              country: null,
+              town: null,
+              city: null,
+              type: null,
+              latitude: null,
+              longitude: null,
             };
           })
           .finally(() => {
@@ -775,23 +800,34 @@ export default {
     saveData() {
       if (this.valid) {
         this.isSending = true;
+        console.log(this.input.city);
+        console.log(this.input.town);
         const payload = {
-          merchant_id: this.input.merchant,
-          pl_id: this.input.location,
-          mall_id: this.input.mall,
+          partner_id: this.input.mall,
+          country_id: this.input.country,
+          city_id: this.input.city.id ? this.input.city.id : null,
+          town_id: this.input.town.id ? this.input.town.id : null,
+          new_city: !this.input.city.id ? this.input.city : '',
+          new_town: !this.input.town.id ? this.input.town : '',
+          latitude: this.input.latitude,
+          longitude: this.input.longitude,
         };
         axios
-          .post(`/mall-merchant-outlets`, payload)
+          .post(`/mall`, payload)
           .then((response) => {
             const data = response.data;
             this.successMessage = data.message;
             this.isSuccess = true;
-            this.getOutletsData();
+            this.getMallData();
             this.input = {
               id: 0,
-              merchant: null,
-              location: null,
               mall: null,
+              country: null,
+              town: null,
+              city: null,
+              type: null,
+              latitude: null,
+              longitude: null,
             };
           })
           .catch((error) => {
@@ -799,9 +835,13 @@ export default {
             console.log(error);
             const message = error.response.data.partner_id
               ? error.response.data.partner_id[0]
-              : error.response.data.message === ''
-              ? 'Something Wrong!!!'
-              : error.response.data.message;
+              : error.response.data.new_city
+              ? error.response.data.new_city[0]
+              : error.response.data.new_town
+              ? error.response.data.new_town[0]
+              : error.response.data.message
+              ? error.response.data.message
+              : 'Something Wrong!!!';
             this.errorMessage = message;
             this.isError = true;
           })
@@ -825,12 +865,12 @@ export default {
     deleteLocation() {
       this.isDeleteLoading = true;
       axios
-        .delete(`/mall-merchant-outlets/${this.locationIdToDelete}`)
+        .delete(`/mall/${this.locationIdToDelete}`)
         .then((response) => {
           const data = response.data;
           this.successMessage = data.message;
           this.isSuccess = true;
-          this.getOutletsData();
+          this.getMallData();
         })
         .catch((error) => {
           // eslint-disable-next-line
@@ -848,22 +888,24 @@ export default {
           this.isDelete = false;
         });
     },
-    getOutletsData() {
+
+    getMallData() {
       this.isLoading = true;
       axios
-        .get(`/mall-merchant-outlets`)
+        .get(`/mall`)
         .then((response) => {
           const data = response.data.data;
+          console.log(data);
           this.items = data.map((item) => {
             return {
-              id: item.mmo_id || 1,
-              merchant_id: item.merchant_id || 1,
-              mall_id: item.mall_id || 1,
-              pl_id: item.pl_id || 1,
-              name: item.merchant_name || '',
-              mall: item.mall || '',
-              unit_number: item.unit_number || '',
-              image: item.location_image || null,
+              // type: 'Mall',
+
+              id: item.mall_id || 1,
+              name: item.partner_name || '',
+              partner_id: item.partner_id || null,
+              town: item.town_name || '',
+              city: item.city_name || '',
+              country: item.country_name || '',
               isPrivileged:
                 item.privileged == 'N'
                   ? false
@@ -885,8 +927,18 @@ export default {
                   ? true
                   : null,
               user: item.name || '',
-              user_id: item.user_id || '',
               dated: item.dated || '',
+              latitude: item.latitude || '',
+              longitude: item.longitude || '',
+              managed: item.managed_by || '',
+              country_id: item.country_id || null,
+              city_id: item.city_id || null,
+              town_id: item?.town_id || null,
+
+              type: 'Mall',
+              events: 4,
+              offers: 2,
+              merchants: 14,
             };
           });
         })
@@ -904,26 +956,18 @@ export default {
           this.isLoading = false;
         });
     },
-    getPartnerLocationsData() {
+    getPartnerData() {
       axios
-        .get(`/partners/locations`)
+        .get(`/partners`)
         .then((response) => {
           const data = response.data.data;
           // console.log(data);
-          this.resource.merchants = data
-            .sort((a, b) => a.partner_name.localeCompare(b.partner_name))
-            .map((item) => {
-              return {
-                id: item.partner_id || 1,
-                name: item.partner_name || '',
-                locations:
-                  item.partner_locations.length > 0
-                    ? item.partner_locations
-                    : null,
-              };
-            });
-
-          console.log(this.resource.locations);
+          this.resource.mall = data.map((item) => {
+            return {
+              id: item.partner_id || 1,
+              name: item.partner_name || '',
+            };
+          });
         })
         .catch((error) => {
           // eslint-disable-next-line
@@ -936,17 +980,17 @@ export default {
           this.isError = true;
         });
     },
-    getMallsData() {
+    getCountry() {
       axios
-        .get(`/mall`)
+        .get(`/country`)
         .then((response) => {
           const data = response.data.data;
-          this.resource.malls = data
-            .sort((a, b) => a.partner_name.localeCompare(b.partner_name))
-            .map((item) => {
+          this.resource.country = data
+            .sort((a, b) => a.country_name.localeCompare(b.country_name))
+            .map((country) => {
               return {
-                id: item.mall_id || 1,
-                name: item.partner_name || '',
+                id: country.country_id,
+                name: country.country_name,
               };
             });
         })
@@ -961,16 +1005,77 @@ export default {
           this.isError = true;
         });
     },
-    getLevelsData() {
+    getCityData() {
       this.isLoading = true;
       axios
-        .get(`/levels`)
+        .get(`/cities`)
         .then((response) => {
           const data = response.data.data;
-          this.resource.levels = data.map((item) => {
+          // console.log(data);
+          this.resource.city = data
+            .sort((a, b) => a.city_name.localeCompare(b.city_name))
+            .map((item) => {
+              return {
+                id: item.city_id || 1,
+                name: item.city_name || '',
+              };
+            });
+        })
+        .catch((error) => {
+          // eslint-disable-next-line
+          console.log(error);
+          const message =
+            error.response.data.message === ''
+              ? 'Something Wrong!!!'
+              : error.response.data.message;
+          this.errorMessage = message;
+          this.isError = true;
+        })
+        .finally(() => {
+          this.isLoading = false;
+        });
+    },
+    getTownData() {
+      this.isLoading = true;
+      axios
+        .get(`/towns`)
+        .then((response) => {
+          const data = response.data.data;
+          // console.log(data);
+          this.resource.town = data
+            .sort((a, b) => a.town_name.localeCompare(b.town_name))
+            .map((item) => {
+              return {
+                id: item.town_id || 1,
+                name: item.town_name || '',
+              };
+            });
+        })
+        .catch((error) => {
+          // eslint-disable-next-line
+          console.log(error);
+          const message =
+            error.response.data.message === ''
+              ? 'Something Wrong!!!'
+              : error.response.data.message;
+          this.errorMessage = message;
+          this.isError = true;
+        })
+        .finally(() => {
+          this.isLoading = false;
+        });
+    },
+    getSubIndustryData() {
+      this.isLoading = true;
+      axios
+        .get(`/sub-industries`)
+        .then((response) => {
+          const data = response.data.data;
+          // console.log(data);
+          this.resource.subIndustry = data.map((item) => {
             return {
-              id: item.level_id || 1,
-              name: item.level_name || '',
+              id: item.sub_industry_id || 1,
+              name: item.sub_industry_name || '',
             };
           });
         })
@@ -988,15 +1093,15 @@ export default {
           this.isLoading = false;
         });
     },
-    activeOutlets(id) {
+    featuredMall(id) {
       this.isSending = true;
       axios
-        .get(`/mall-merchant-outlets/toggle-active/${id}`)
+        .get(`/mall/toggle-featured/${id}`)
         .then((response) => {
           const data = response.data;
           this.successMessage = data.message;
           this.isSuccess = true;
-          this.getOutletsData();
+          this.getMallData();
         })
         .catch((error) => {
           // eslint-disable-next-line
@@ -1012,15 +1117,15 @@ export default {
           this.isSending = false;
         });
     },
-    featuredOutlets(id) {
+    activeMall(id) {
       this.isSending = true;
       axios
-        .get(`/mall-merchant-outlets/toggle-featured/${id}`)
+        .get(`/mall/toggle-active/${id}`)
         .then((response) => {
           const data = response.data;
           this.successMessage = data.message;
           this.isSuccess = true;
-          this.getOutletsData();
+          this.getMallData();
         })
         .catch((error) => {
           // eslint-disable-next-line
@@ -1036,15 +1141,15 @@ export default {
           this.isSending = false;
         });
     },
-    privilegedMerchants(id) {
+    privilegedMall(id) {
       this.isSending = true;
       axios
-        .get(`/mall-merchant-outlets/toggle-privileged/${id}`)
+        .get(`/mall/toggle-privileged/${id}`)
         .then((response) => {
           const data = response.data;
           this.successMessage = data.message;
           this.isSuccess = true;
-          this.getOutletsData();
+          this.getMallData();
         })
         .catch((error) => {
           // eslint-disable-next-line
@@ -1060,15 +1165,15 @@ export default {
           this.isSending = false;
         });
     },
-    platinumMerchants(id) {
+    platinumMall(id) {
       this.isSending = true;
       axios
-        .get(`/mall-merchant-outlets/toggle-platinum/${id}`)
+        .get(`/mall/toggle-platinum/${id}`)
         .then((response) => {
           const data = response.data;
           this.successMessage = data.message;
           this.isSuccess = true;
-          this.getOutletsData();
+          this.getMallData();
         })
         .catch((error) => {
           // eslint-disable-next-line

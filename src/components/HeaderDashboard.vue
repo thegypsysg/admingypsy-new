@@ -120,6 +120,8 @@ export default {
                     ? '/healthcare-settings'
                     : app.app_name == 'Mall-e'
                     ? '/mall_master'
+                    : app.app_name == '4 Walls'
+                    ? '/walls_master'
                     : app.app_name == 'i-Study'
                     ? '/course_master'
                     : app.app_name == 'Boozards'
