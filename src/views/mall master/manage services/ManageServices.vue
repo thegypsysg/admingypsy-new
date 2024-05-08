@@ -449,7 +449,7 @@ export default {
       this.isSending = true;
       const payload = {
         service_id: this.partnerLocationDataToImage.id,
-        image: this.imageFile[0],
+        service_image: this.imageFile[0],
       };
       http
         .post(`/services/update`, payload, {
@@ -560,16 +560,16 @@ export default {
       this.isLoading = true;
       axios
         //.get(`/services`)
-        .get(`/levels`)
+        .get(`/services`)
         .then((response) => {
           const data = response.data.data;
           this.items = data.map((item) => {
             return {
               // id: item.service_id || 1,
               // name: item.service_name || '',
-              id: item.level_id || 1,
-              name: item.level_name || '',
-              image: item.image || null,
+              id: item.service_id || 1,
+              name: item.service_name || '',
+              image: item.service_image || null,
 
               user: item.user.name || '',
               dated: item.dated || '',
