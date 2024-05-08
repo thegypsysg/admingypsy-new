@@ -25,20 +25,23 @@
           </v-col>
           <v-col cols="12">
             <h3 class="mb-6" style="color: #293fb8; font-weight: 600">
-              <!-- {{ partnerName[0]?.name || '' }} -->
-              Kids Magic Show
+              {{ mallName?.name || '' }}
             </h3>
           </v-col>
         </v-row>
         <v-row>
           <v-col cols="12" md="4">
-            <v-text-field
+            <v-autocomplete
               v-model="input.name"
+              :items="resource.levels"
+              item-title="name"
+              item-value="id"
               label="Search a Level"
               variant="outlined"
               density="compact"
+              clearable
               required
-            ></v-text-field>
+            ></v-autocomplete>
           </v-col>
           <v-col cols="12" md="2">
             <div>
@@ -111,6 +114,8 @@
                       type="number"
                       variant="outlined"
                       v-model="item.sequence"
+                      :disabled="isSending"
+                      @input="(e) => changeSequence(item, e)"
                     >
                     </v-text-field>
                   </td>
@@ -118,7 +123,6 @@
                     <v-img
                       height="40"
                       width="65"
-                      @click="openImage(item)"
                       style="cursor: pointer"
                       :src="
                         item.image != null
@@ -240,7 +244,6 @@
 <script>
 import ImageUpload from '@/components/ImageUpload.vue';
 import axios from '@/util/axios';
-import http from 'axios';
 import { setAuthHeader } from '@/util/axios';
 // import app from '@/util/eventBus';
 
@@ -248,7 +251,8 @@ export default {
   name: 'ManageLevels',
   data: () => ({
     // fileURL: 'https://admin1.the-gypsy.sg/img/app/',
-    partnerName: null,
+    mallName: null,
+    idMall: null,
     valid: false,
     isLoading: false,
     isSending: false,
@@ -263,6 +267,9 @@ export default {
     successMessage: '',
     errorMessage: '',
     imageFile: [],
+    resource: {
+      levels: [],
+    },
     partnerLocationDataToImage: {
       id: 0,
     },
@@ -301,6 +308,9 @@ export default {
     setAuthHeader(token);
   },
   mounted() {
+    this.idMall = parseInt(this.$route.params.id);
+    this.getMallData();
+    this.getMallLevelsData();
     this.getLevelsData();
   },
   computed: {
@@ -315,18 +325,61 @@ export default {
     },
   },
   methods: {
-    updateImageFile(newImageFile) {
-      this.imageFile.push(newImageFile);
-    },
-    deleteImageFile() {
-      this.isSending = true;
+    getMallData() {
+      this.isLoading = true;
       axios
-        .delete(`/levels/${this.partnerLocationDataToImage.id}/image`)
+        .get(`/mall`)
         .then((response) => {
-          const data = response.data;
-          this.successMessage = data.message;
-          this.isSuccess = true;
-          this.getLevelsData();
+          const data = response.data.data;
+          this.mallName = data
+            .filter((d) => d.mall_id == this.idMall)
+            .map((item) => {
+              return {
+                // type: 'Mall',
+
+                id: item.mall_id || 1,
+                name: item.partner_name || '',
+                partner_id: item.partner_id || null,
+                town: item.town_name || '',
+                city: item.city_name || '',
+                country: item.country_name || '',
+                isPrivileged:
+                  item.privileged == 'N'
+                    ? false
+                    : item.privileged == 'Y'
+                    ? true
+                    : null,
+                isPlatinum:
+                  item.platinum == 'N'
+                    ? false
+                    : item.platinum == 'Y'
+                    ? true
+                    : null,
+                isActive:
+                  item.active == 'N' ? false : item.active == 'Y' ? true : null,
+                isFeatured:
+                  item.featured == 'N'
+                    ? false
+                    : item.featured == 'Y'
+                    ? true
+                    : null,
+                user: item.name || '',
+                dated: item.dated || '',
+                latitude: item.latitude || '',
+                longitude: item.longitude || '',
+                managed: item.managed_by || '',
+                country_id: item.country_id || null,
+                city_id: item.city_id || null,
+                town_id: item?.town_id || null,
+
+                type: 'Mall',
+                events: 4,
+                offers: 2,
+                merchants: 14,
+              };
+            })[0];
+
+          console.log(this.mallName);
         })
         .catch((error) => {
           // eslint-disable-next-line
@@ -339,89 +392,53 @@ export default {
           this.isError = true;
         })
         .finally(() => {
-          this.isEdit = false;
-          this.isSending = false;
-          this.imageFile = [];
+          this.isLoading = false;
         });
     },
-    openImage(item) {
-      this.isOpenImage = true;
-      this.partnerLocationDataToImage = {
-        id: item.id,
-      };
-      this.imageFile =
-        item.image != null
-          ? [
-              {
-                file: {
-                  name: item.image,
-                  size: '',
-                  base64: '',
-                  format: '',
-                },
-              },
-            ]
-          : [];
-    },
-    closeImage() {
-      this.isOpenImage = false;
-      this.imageFile = [];
-      this.partnerLocationDataToImage = {
-        id: 0,
-      };
-    },
-    saveImage() {
+    changeSequence(item, e) {
       this.isSending = true;
       const payload = {
-        level_id: this.partnerLocationDataToImage.id,
-        image: this.imageFile[0],
+        ml_id: item.ml_id,
+        sequence: e.target.value,
       };
-      http
-        .post(`/levels/update`, payload, {
-          headers: {
-            'Content-Type': 'multipart/form-data',
-          },
-        })
+      axios
+        .post(`/mall-levels/update`, payload)
         .then((response) => {
           const data = response.data;
           this.successMessage = data.message;
           this.isSuccess = true;
-          this.getLevelsData();
-          // app.config.globalProperties.$eventBus.$emit('update-image');
+          //this.getMallLevelsData();
         })
         .catch((error) => {
           // eslint-disable-next-line
           console.log(error);
-          const message =
-            error.response.data.message === ''
-              ? 'Something Wrong!!!'
-              : error.response.data.message;
+          const message = error.response.data.partner_id
+            ? error.response.data.partner_id[0]
+            : error.response.data.message === ''
+            ? 'Something Wrong!!!'
+            : error.response.data.message;
           this.errorMessage = message;
           this.isError = true;
         })
         .finally(() => {
-          this.isEdit = false;
           this.isSending = false;
-          this.partnerLocationDataToImage = {
-            id: 0,
-          };
-          this.isOpenImage = false;
-          this.imageFile = [];
         });
     },
     saveData() {
-      if (this.valid) {
+      console.log(this.input.name);
+      if (this.input.name) {
         this.isSending = true;
         const payload = {
-          level_name: this.input.name,
+          mall_id: this.idMall,
+          level_id: this.input.name,
         };
         axios
-          .post(`/levels`, payload)
+          .post(`/mall-levels`, payload)
           .then((response) => {
             const data = response.data;
             this.successMessage = data.message;
             this.isSuccess = true;
-            this.getLevelsData();
+            this.getMallLevelsData();
             this.input = {
               id: 0,
               name: '',
@@ -434,7 +451,7 @@ export default {
               ? error.response.data.partner_id[0]
               : error.response.data.message === ''
               ? 'Something Wrong!!!'
-              : error.response.data.message;
+              : error.response.data.error;
             this.errorMessage = message;
             this.isError = true;
           })
@@ -458,12 +475,12 @@ export default {
     deleteLocation() {
       this.isDeleteLoading = true;
       axios
-        .delete(`/levels/${this.locationIdToDelete}`)
+        .delete(`/mall-levels/${this.locationIdToDelete}`)
         .then((response) => {
           const data = response.data;
           this.successMessage = data.message;
           this.isSuccess = true;
-          this.getLevelsData();
+          this.getMallLevelsData();
         })
         .catch((error) => {
           // eslint-disable-next-line
@@ -481,21 +498,49 @@ export default {
           this.isDelete = false;
         });
     },
+    getMallLevelsData() {
+      this.isLoading = true;
+      axios
+        .get(`/mall-levels/${this.$route.params.id}/levels`)
+        .then((response) => {
+          const data = response.data.data;
+          this.items = data.map((item) => {
+            return {
+              ...item,
+              id: item.ml_id || 1,
+              sequence: item.sequence,
+              name: item.level_name || '',
+              image: item.image || null,
+
+              user: item.name || '',
+              dated: item.dated || '',
+            };
+          });
+        })
+        .catch((error) => {
+          // eslint-disable-next-line
+          console.log(error);
+          const message =
+            error.response.data.message === ''
+              ? 'Something Wrong!!!'
+              : error.response.data.message;
+          this.errorMessage = message;
+          this.isError = true;
+        })
+        .finally(() => {
+          this.isLoading = false;
+        });
+    },
     getLevelsData() {
       this.isLoading = true;
       axios
         .get(`/levels`)
         .then((response) => {
           const data = response.data.data;
-          this.items = data.map((item) => {
+          this.resource.levels = data.map((item) => {
             return {
               id: item.level_id || 1,
-              sequence: 1,
               name: item.level_name || '',
-              image: item.image || null,
-
-              user: item.user.name || '',
-              dated: item.dated || '',
             };
           });
         })
