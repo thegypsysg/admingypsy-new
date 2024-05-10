@@ -464,6 +464,12 @@
                               </router-link>
                               <router-link
                                 class="text-decoration-none"
+                                :to="`/mall_master/services/${item.id}`"
+                              >
+                                <span>Services</span>
+                              </router-link>
+                              <router-link
+                                class="text-decoration-none"
                                 :to="`partner_master/locations/${item.id}`"
                               >
                                 <span>Events ({{ item.events }})</span>
