@@ -117,6 +117,18 @@
               required
             ></v-text-field>
           </v-col>
+          <v-col cols="12" md="4">
+            <v-autocomplete
+              density="compact"
+              label="Sub Industry"
+              placeholder="Type Sub Industry"
+              :items="resource.subIndustry"
+              item-title="name"
+              item-value="id"
+              v-model="input.subIndustry"
+              variant="outlined"
+            ></v-autocomplete>
+          </v-col>
           <v-col cols="12" md="9">
             <v-text-field
               v-model="input.desc"
@@ -196,6 +208,9 @@
                 <th class="text-left font-weight-bold text-black">
                   Description
                 </th>
+                <th class="text-left font-weight-bold text-black">
+                  Sub Industry
+                </th>
                 <th class="text-left font-weight-bold text-black">User</th>
                 <th class="text-left font-weight-bold text-black">Dated</th>
                 <th class="text-left font-weight-bold text-black"></th>
@@ -223,6 +238,7 @@
                   <td>{{ item.name }}</td>
                   <td>{{ item.short }}</td>
                   <td>{{ item.description }}</td>
+                  <td>{{ item.subIndustry }}</td>
 
                   <td>
                     {{ item.user }}
@@ -383,6 +399,7 @@ export default {
       id: 0,
       name: '',
       short: '',
+      subIndustry: null,
       desc: '',
     },
     rules: {
@@ -472,6 +489,7 @@ export default {
   },
   mounted() {
     this.getTagHeaderData();
+    this.getSubIndustryData();
   },
   computed: {
     filteredItems() {
@@ -754,10 +772,39 @@ export default {
               name: item.tag_header_name || '',
               short: item.tag_header_short || '',
               description: item.description || '',
+              subIndustry: 'Bakery',
               image: item.main_image || null,
               user: item.user.name || '',
               user_id: item.user_id || '',
               dated: item.dated || '',
+            };
+          });
+        })
+        .catch((error) => {
+          // eslint-disable-next-line
+          console.log(error);
+          const message =
+            error.response.data.message === ''
+              ? 'Something Wrong!!!'
+              : error.response.data.message;
+          this.errorMessage = message;
+          this.isError = true;
+        })
+        .finally(() => {
+          this.isLoading = false;
+        });
+    },
+    getSubIndustryData() {
+      this.isLoading = true;
+      axios
+        .get(`/sub-industries`)
+        .then((response) => {
+          const data = response.data.data;
+          // console.log(data);
+          this.resource.subIndustry = data.map((item) => {
+            return {
+              id: item.sub_industry_id || 1,
+              name: item.sub_industry_name || '',
             };
           });
         })

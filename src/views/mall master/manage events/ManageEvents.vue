@@ -154,7 +154,7 @@
                 color="red"
                 style="text-transform: none"
                 variant="flat"
-                class="w-100"
+                class="w-100 mt-2"
                 @click="cancelEdit"
                 :disabled="isSending"
               >
@@ -521,33 +521,6 @@ export default {
     //   },
     // ],
   }),
-  watch: {
-    'input.merchant'() {
-      const filteredLocations = this.resource.merchants.filter(
-        (i) => i.id == this.input.merchant
-      );
-      const finalLocations =
-        filteredLocations.length > 0 ? filteredLocations[0].locations : [];
-      if (finalLocations.length > 0) {
-        this.resource.locations = finalLocations.map((item) => {
-          return {
-            id: item.pl_id || 1,
-            name:
-              item?.location_name && item?.town?.town_name
-                ? `${item.location_name} (${item?.town?.town_name})`
-                : !item?.location_name && item?.town?.town_name
-                ? item?.town?.town_name
-                : item?.location_name && !item?.town?.town_name
-                ? item?.location_name
-                : '',
-          };
-        });
-      } else {
-        this.resource.locations = [];
-      }
-      console.log(this.resource.locations);
-    },
-  },
   created() {
     const token = JSON.parse(localStorage.getItem('token'));
     setAuthHeader(token);
@@ -581,7 +554,7 @@ export default {
       this.isSending = true;
       axios
         .delete(
-          `/partner-locations/${this.partnerLocationDataToImage.id}/location-image`
+          `/mall-events/${this.partnerLocationDataToImage.id}/event-image`
         )
         .then((response) => {
           const data = response.data;
@@ -608,7 +581,7 @@ export default {
     openImage(item) {
       this.isOpenImage = true;
       this.partnerLocationDataToImage = {
-        id: item.pl_id,
+        id: item.id,
       };
       this.imageFile =
         item.image != null
@@ -634,11 +607,11 @@ export default {
     saveImage() {
       this.isSending = true;
       const payload = {
-        pl_id: this.partnerLocationDataToImage.id,
-        location_image: this.imageFile[0],
+        event_id: this.partnerLocationDataToImage.id,
+        event_image: this.imageFile[0],
       };
       http
-        .post(`/partner-locations/update`, payload, {
+        .post(`/mall-events/update`, payload, {
           headers: {
             'Content-Type': 'multipart/form-data',
           },
@@ -674,17 +647,15 @@ export default {
       this.isEdit = true;
       this.input = {
         id: item.id,
-        mall: item.partner_id,
-        country: item.country_id,
-        type: item.sub_industry_id,
+        name: item.name,
+        mall: item.mall_id,
       };
     },
     cancelEdit() {
       this.isEdit = false;
       this.input = {
         id: 0,
-        merchant: null,
-        location: null,
+        name: '',
         mall: null,
       };
     },
@@ -692,13 +663,12 @@ export default {
       if (this.valid) {
         this.isSending = true;
         const payload = {
-          mm_id: this.input.id,
-          partner_id: this.input.mall,
-          country_id: this.input.country,
-          merchant_type: this.input.type,
+          event_id: this.input.id,
+          event_header: this.input.name,
+          mall_id: this.input.mall,
         };
         axios
-          .post(`/mall-merchant-outlets/update`, payload)
+          .post(`/mall-events/update`, payload)
           .then((response) => {
             const data = response.data;
             this.successMessage = data.message;
@@ -706,8 +676,7 @@ export default {
             this.getEventsData();
             this.input = {
               id: 0,
-              merchant: null,
-              location: null,
+              name: '',
               mall: null,
             };
           })
@@ -738,12 +707,11 @@ export default {
       if (this.valid) {
         this.isSending = true;
         const payload = {
-          merchant_id: this.input.merchant,
-          pl_id: this.input.location,
+          event_header: this.input.name,
           mall_id: this.input.mall,
         };
         axios
-          .post(`/mall-merchant-outlets`, payload)
+          .post(`/mall-events`, payload)
           .then((response) => {
             const data = response.data;
             this.successMessage = data.message;
@@ -751,8 +719,7 @@ export default {
             this.getEventsData();
             this.input = {
               id: 0,
-              merchant: null,
-              location: null,
+              name: '',
               mall: null,
             };
           })
@@ -787,7 +754,7 @@ export default {
     deleteLocation() {
       this.isDeleteLoading = true;
       axios
-        .delete(`/mall-merchant-outlets/${this.locationIdToDelete}`)
+        .delete(`/mall-events/${this.locationIdToDelete}`)
         .then((response) => {
           const data = response.data;
           this.successMessage = data.message;
@@ -813,19 +780,19 @@ export default {
     getEventsData() {
       this.isLoading = true;
       axios
-        .get(`/mall-merchant-outlets`)
+        .get(`/mall-events`)
         .then((response) => {
           const data = response.data.data;
           this.items = data.map((item) => {
             return {
-              id: item.mmo_id || 1,
-              merchant_id: item.merchant_id || 1,
+              ...item,
+              id: item.event_id || 1,
               mall_id: item.mall_id || 1,
               pl_id: item.pl_id || 1,
-              name: item.merchant_name || '',
-              mall: item.mall || '',
+              name: item.event_header || '',
+              mall: item.mall_name || '',
               unit_number: item.unit_number || '',
-              image: item.location_image || null,
+              image: item.event_image || null,
               isLive: item.live == 'N' ? false : item.live == 'Y' ? true : null,
               isActive:
                 item.active == 'N' ? false : item.active == 'Y' ? true : null,
@@ -835,7 +802,7 @@ export default {
                   : item.featured == 'Y'
                   ? true
                   : null,
-              user: item.name || '',
+              user: item.user?.name || '',
               user_id: item.user_id || '',
               dated: item.dated || '',
             };
@@ -853,38 +820,6 @@ export default {
         })
         .finally(() => {
           this.isLoading = false;
-        });
-    },
-    getPartnerLocationsData() {
-      axios
-        .get(`/partners/locations`)
-        .then((response) => {
-          const data = response.data.data;
-          // console.log(data);
-          this.resource.merchants = data
-            .sort((a, b) => a.partner_name.localeCompare(b.partner_name))
-            .map((item) => {
-              return {
-                id: item.partner_id || 1,
-                name: item.partner_name || '',
-                locations:
-                  item.partner_locations.length > 0
-                    ? item.partner_locations
-                    : null,
-              };
-            });
-
-          console.log(this.resource.locations);
-        })
-        .catch((error) => {
-          // eslint-disable-next-line
-          console.log(error);
-          const message =
-            error.response.data.message === ''
-              ? 'Something Wrong!!!'
-              : error.response.data.message;
-          this.errorMessage = message;
-          this.isError = true;
         });
     },
     getMallsData() {
@@ -915,7 +850,7 @@ export default {
     activeEvents(id) {
       this.isSending = true;
       axios
-        .get(`/mall-merchant-outlets/toggle-active/${id}`)
+        .get(`/mall-events/toggle-active/${id}`)
         .then((response) => {
           const data = response.data;
           this.successMessage = data.message;
@@ -939,7 +874,7 @@ export default {
     liveEvents(id) {
       this.isSending = true;
       axios
-        .get(`/mall-merchant-outlets/toggle-live/${id}`)
+        .get(`/mall-events/toggle-live/${id}`)
         .then((response) => {
           const data = response.data;
           this.successMessage = data.message;
@@ -963,7 +898,7 @@ export default {
     featuredEvents(id) {
       this.isSending = true;
       axios
-        .get(`/mall-merchant-outlets/toggle-featured/${id}`)
+        .get(`/mall-events/toggle-featured/${id}`)
         .then((response) => {
           const data = response.data;
           this.successMessage = data.message;

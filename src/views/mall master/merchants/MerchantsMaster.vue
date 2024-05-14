@@ -344,7 +344,88 @@
                           </td>
                         </tr>
                       </v-table>
-                      <v-table class="text-left pl-16 mt-2">
+                      <v-table class="text-left pt-8 px-16 w-50">
+                        <tr>
+                          <td class="pt-2 pr-1 d-flex">
+                            <v-autocomplete
+                              v-model="tagId"
+                              class="form-control search-input"
+                              item-title="name"
+                              item-value="id"
+                              :items="resource.tags"
+                              placeholder="Enter Tag Name"
+                              density="compact"
+                              variant="outlined"
+                              color="blue-grey-lighten-2"
+                            >
+                              <template #item="{ props, item }">
+                                <div class="mb-2" v-bind="props">
+                                  <div class="d-flex align-center w-100">
+                                    <div class="w-25 py-1">
+                                      <div>
+                                        <v-img
+                                          height="40"
+                                          :src="item?.raw?.image"
+                                        >
+                                          <template #placeholder>
+                                            <div class="skeleton" />
+                                          </template>
+                                        </v-img>
+                                      </div>
+                                    </div>
+                                    <div class="w-75" style="font-size: 12px">
+                                      <p class="mb-1">
+                                        {{ `${item?.raw?.name}` }}
+                                      </p>
+                                    </div>
+                                  </div>
+                                </div>
+                              </template>
+                            </v-autocomplete>
+
+                            <v-btn
+                              class="ml-4"
+                              color="indigo-accent-2"
+                              style="text-transform: none"
+                              type="submit"
+                              variant="flat"
+                              @click="addTagById(item.id)"
+                              :disabled="isSending"
+                              :loading="isSending"
+                            >
+                              Add Tag
+                            </v-btn>
+                          </td>
+                        </tr>
+                      </v-table>
+                      <table class="text-left pl-16 pt-4 pb-2">
+                        <tr>
+                          <td>
+                            <v-row>
+                              <v-col class="d-flex flex-wrap" cols="7">
+                                <v-chip
+                                  v-for="tagItem in item.tagHeaderItems"
+                                  :key="tagItem.id"
+                                  color="primary"
+                                  dark
+                                  small
+                                  class="mr-1 mb-1"
+                                >
+                                  {{ tagItem.name }}
+                                  <v-icon
+                                    color="red"
+                                    small
+                                    @click="deleteTagById(tagItem.id)"
+                                  >
+                                    mdi-close
+                                  </v-icon>
+                                </v-chip>
+                              </v-col>
+                            </v-row>
+                          </td>
+                        </tr>
+                      </table>
+                      <v-table class="text-left pl-10 mt-2">
                         <tr>
                           <td class="pt-2 pr-3"></td>
                           <td class="pr-6 pt-2 pb-4 d-flex">
@@ -564,6 +645,7 @@ export default {
       city: [],
       town: [],
       subIndustry: [],
+      tags: [],
     },
     // itemsTry: [
     //   {
@@ -595,6 +677,7 @@ export default {
     this.getPartnerData();
     this.getCountry();
     this.getSubIndustryData();
+    this.getTagsData();
   },
   computed: {
     filteredItems() {
@@ -795,6 +878,20 @@ export default {
               sub_industry_id: item.sub_industry_id || null,
               outlets: 5,
               malls: 2,
+              tagHeaderItems: [
+                {
+                  id: 1,
+                  name: 'Whole Cake',
+                },
+                {
+                  id: 2,
+                  name: 'Sliced Cake',
+                },
+                {
+                  id: 3,
+                  name: 'Designer Cake',
+                },
+              ],
             };
           });
         })
@@ -879,6 +976,61 @@ export default {
               name: item.sub_industry_name || '',
             };
           });
+        })
+        .catch((error) => {
+          // eslint-disable-next-line
+          console.log(error);
+          const message =
+            error.response.data.message === ''
+              ? 'Something Wrong!!!'
+              : error.response.data.message;
+          this.errorMessage = message;
+          this.isError = true;
+        })
+        .finally(() => {
+          this.isLoading = false;
+        });
+    },
+    deleteTagById(id) {
+      this.isDeleteLoading = true;
+      axios
+        .delete(`/mall-promotion-tags/${id}`)
+        .then((response) => {
+          const data = response.data;
+          this.successMessage = data.message;
+          this.isSuccess = true;
+          this.getMerchantData();
+        })
+        .catch((error) => {
+          // eslint-disable-next-line
+          console.log(error);
+          const message =
+            error.response.data.message === ''
+              ? 'Something Wrong!!!'
+              : error.response.data.message;
+          this.errorMessage = message;
+          this.isError = true;
+        })
+        .finally(() => {
+          this.isDeleteLoading = false;
+          this.isDelete = false;
+        });
+    },
+    getTagsData() {
+      this.isLoading = true;
+      axios
+        .get(`/tags`)
+        .then((response) => {
+          const data = response.data.data;
+          this.resource.tags = data
+            .sort((a, b) => a.tag_name.localeCompare(b.tag_name))
+            .map((item) => {
+              return {
+                id: item.tag_id || 1,
+                name: item.tag_name || '',
+                image: item.tag_image ? this.$fileURL + item.tag_image : null,
+              };
+            });
         })
         .catch((error) => {
           // eslint-disable-next-line
