@@ -553,9 +553,7 @@ export default {
     deleteImageFile() {
       this.isSending = true;
       axios
-        .delete(
-          `/mall-events/${this.partnerLocationDataToImage.id}/event-image`
-        )
+        .delete(`/mall-events/${this.partnerLocationDataToImage.id}/image`)
         .then((response) => {
           const data = response.data;
           this.successMessage = data.message;
