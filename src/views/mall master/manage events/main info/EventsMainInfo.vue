@@ -33,8 +33,8 @@
     </div>
 
     <h4 class="ml-4 mb-6" style="color: #293fb8; font-weight: 400">
-      <!-- {{ partnerName[0]?.name || '' }} -->
-      Kids Magic Show
+      {{ partnerName[0]?.name || '' }}
+      <!-- Kids Magic Show -->
     </h4>
     <v-form v-model="valid" @submit.prevent>
       <v-container>
@@ -54,8 +54,8 @@
             <div class="d-flex justify-space-between">
               <p class="mb-2">Event Details</p>
               <h4 class="ml-4 mb-6" style="color: #293fb8; font-weight: 400">
-                <!-- {{ partnerName[0]?.name || '' }} -->
-                Phoenix Market City Mall
+                {{ partnerName[0]?.mall || '' }}
+                <!-- Phoenix Market City Mall -->
               </h4>
             </div>
             <v-textarea
@@ -75,14 +75,6 @@
               variant="outlined"
               required
             ></v-textarea>
-            <p class="mb-2">Other Offer</p>
-            <v-text-field
-              v-model="input.offer"
-              placeholder="Type Other Offer"
-              density="compact"
-              variant="outlined"
-              required
-            ></v-text-field>
             <div class="mb-4 d-flex">
               <div class="w-50">
                 <p class="mb-2">Event Starts on</p>
@@ -108,7 +100,6 @@
             <p class="mb-2 mt-4">Event Time</p>
             <v-text-field
               v-model="input.time"
-              placeholder="Type Promotion Name"
               variant="outlined"
               density="compact"
               required
@@ -157,7 +148,7 @@ export default {
   name: 'EventsMainInfo',
   data: () => ({
     // fileURL: 'https://admin1.the-gypsy.sg/img/app/',
-    idPromo: null,
+    idEvent: null,
     partnerName: [],
     valid: false,
     isLoading: false,
@@ -261,39 +252,37 @@ export default {
     setAuthHeader(token);
   },
   mounted() {
-    this.idPromo = parseInt(this.$route.params.id);
-    this.getPartnerData();
+    this.idEvent = parseInt(this.$route.params.id);
+    this.getEventData();
   },
   methods: {
-    getPartnerData() {
+    getEventData() {
       this.isLoading = true;
       axios
-        .get(`/mall-promotions`)
+        .get(`/mall-events`)
         .then((response) => {
           const data = response.data.data;
           // console.log(data);
-          const dataItem = data.filter((i) => i.promo_id == this.idPromo);
+          const dataItem = data.filter((i) => i.event_id == this.idEvent);
           this.partnerName = dataItem.map((item) => {
             return {
-              id: item.promo_id,
-              name: item.partner_name,
+              id: item.event_id,
+              name: item.event_header,
+              mall: item.mall_name || '',
             };
           });
           this.input = {
-            id: dataItem[0].promo_id,
-            name: dataItem[0].promo_name || '',
-            desc: dataItem[0].promo_description || '',
-            amount: dataItem[0].amount ? dataItem[0].amount.toFixed(2) : null,
-            was: dataItem[0].was_amount
-              ? dataItem[0].was_amount.toFixed(2)
+            id: dataItem[0].event_id,
+            detail: dataItem[0].event_details || '',
+            location: dataItem[0].event_location || '',
+            all: dataItem[0].all_day_event == 'Y' ? true : null,
+            start: dataItem[0].event_start_on
+              ? moment(dataItem[0].event_start_on, 'DD/MM/YYYY').toISOString()
               : null,
-            offer: dataItem[0].other_offer || '',
-            start: dataItem[0].promo_starts_on
-              ? moment(dataItem[0].promo_starts_on, 'DD/MM/YYYY').toISOString()
+            end: dataItem[0].event_end_on
+              ? moment(dataItem[0].event_end_on, 'DD/MM/YYYY').toISOString()
               : null,
-            end: dataItem[0].promo_ends_on
-              ? moment(dataItem[0].promo_ends_on, 'DD/MM/YYYY').toISOString()
-              : null,
+            time: dataItem[0].event_time || '',
           };
         })
         .catch((error) => {
@@ -314,21 +303,20 @@ export default {
       if (this.valid) {
         this.isSending = true;
         const payload = {
-          promo_id: this.idPromo,
-          promo_name: this.input.name,
-          promo_description: this.input.desc,
-          amount: this.input.amount,
-          was_amount: this.input.was,
-          other_offer: this.input.offer,
-          promo_starts_on: this.input.start
+          event_id: this.idEvent,
+          event_details: this.input.detail,
+          event_location: this.input.location,
+          event_start_on: this.input.start
             ? moment(this.input.start).format('DD/MM/YYYY')
             : this.input.start,
-          promo_ends_on: this.input.end
+          event_end_on: this.input.end
             ? moment(this.input.end).format('DD/MM/YYYY')
             : this.input.end,
+          event_time: this.input.time,
+          all_day_event: this.input.all == true ? 'Y' : null,
         };
         axios
-          .post(`/mall-promotions/update`, payload)
+          .post(`/mall-events/update`, payload)
           .then((response) => {
             const data = response.data;
             this.successMessage = data.message;
@@ -337,12 +325,14 @@ export default {
           .catch((error) => {
             // eslint-disable-next-line
             console.log(error);
-            const message = error.response.data.promo_name
-              ? 'Please fill the name field'
-              : error.response.data.promo_description
-              ? 'Please fill the description field'
-              : error.response.data.promo_starts_on
-              ? 'Please fill the Promotion Starts on field'
+            const message = error.response.data.event_details
+              ? 'Please fill the detail field'
+              : error.response.data.event_location
+              ? 'Please fill the location field'
+              : error.response.data.event_time
+              ? 'Please fill the time field'
+              : error.response.data.event_start_on
+              ? 'Please fill the Event Starts on field'
               : error.response.data.message === ''
               ? 'Something Wrong!!!'
               : error.response.data.message;
