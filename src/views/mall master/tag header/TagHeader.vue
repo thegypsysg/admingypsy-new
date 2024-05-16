@@ -238,7 +238,7 @@
                   <td>{{ item.name }}</td>
                   <td>{{ item.short }}</td>
                   <td>{{ item.description }}</td>
-                  <td>{{ item.subIndustry }}</td>
+                  <td>{{ item.subIndustryName }}</td>
 
                   <td>
                     {{ item.user }}
@@ -619,6 +619,7 @@ export default {
         id: item.id,
         name: item.name,
         short: item.short,
+        subIndustry: item.subIndustry,
         desc: item.description,
       };
     },
@@ -626,8 +627,10 @@ export default {
       this.isEdit = false;
       this.input = {
         id: 0,
-        mall: null,
         name: '',
+        short: '',
+        subIndustry: null,
+        desc: '',
       };
     },
     saveEdit() {
@@ -637,6 +640,7 @@ export default {
           tag_header_id: this.input.id,
           tag_header_name: this.input.name,
           tag_header_short: this.input.short,
+          sub_industry_id: this.input.subIndustry,
           description: this.input.desc,
         };
         axios
@@ -650,6 +654,7 @@ export default {
               id: 0,
               name: '',
               short: '',
+              subIndustry: null,
               desc: '',
             };
           })
@@ -660,6 +665,8 @@ export default {
               ? error.response.data.tag_header_name[0]
               : error.response.data.tag_header_short
               ? error.response.data.tag_header_short[0]
+              : error.response.data.sub_industry_id
+              ? error.response.data.sub_industry_id[0]
               : error.response.data.description
               ? error.response.data.description[0]
               : error.response.data.message === ''
@@ -671,6 +678,7 @@ export default {
               id: 0,
               name: '',
               short: '',
+              subIndustry: null,
               desc: '',
             };
           })
@@ -686,6 +694,7 @@ export default {
         const payload = {
           tag_header_name: this.input.name,
           tag_header_short: this.input.short,
+          sub_industry_id: this.input.subIndustry,
           description: this.input.desc,
         };
         axios
@@ -699,6 +708,7 @@ export default {
               id: 0,
               name: '',
               short: '',
+              subIndustry: null,
               desc: '',
             };
           })
@@ -709,6 +719,8 @@ export default {
               ? error.response.data.tag_header_name[0]
               : error.response.data.tag_header_short
               ? error.response.data.tag_header_short[0]
+              : error.response.data.sub_industry_id
+              ? error.response.data.sub_industry_id[0]
               : error.response.data.description
               ? error.response.data.description[0]
               : error.response.data.message === ''
@@ -772,7 +784,8 @@ export default {
               name: item.tag_header_name || '',
               short: item.tag_header_short || '',
               description: item.description || '',
-              subIndustry: 'Bakery',
+              subIndustry: item.sub_industry_id || null,
+              subIndustryName: item?.sub_industry?.sub_industry_name || '',
               image: item.main_image || null,
               user: item.user.name || '',
               user_id: item.user_id || '',
