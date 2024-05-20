@@ -389,7 +389,7 @@
                               style="text-transform: none"
                               type="submit"
                               variant="flat"
-                              @click="addTagById(item.id)"
+                              @click="addTagById(item.partner_id)"
                               :disabled="isSending"
                               :loading="isSending"
                             >
@@ -405,17 +405,17 @@
                               <v-col class="d-flex flex-wrap" cols="7">
                                 <v-chip
                                   v-for="tagItem in item.tagHeaderItems"
-                                  :key="tagItem.id"
+                                  :key="tagItem.mmt_id"
                                   color="primary"
                                   dark
                                   small
                                   class="mr-1 mb-1"
                                 >
-                                  {{ tagItem.name }}
+                                  {{ tagItem.tag_name }}
                                   <v-icon
                                     color="red"
                                     small
-                                    @click="deleteTagById(tagItem.id)"
+                                    @click="deleteTagById(tagItem.mmt_id)"
                                   >
                                     mdi-close
                                   </v-icon>
@@ -566,6 +566,7 @@ export default {
     // fileURL: 'https://admin1.the-gypsy.sg/img/app/',
     partnerName: null,
     valid: false,
+    requestCount: 0,
     isLoading: false,
     isSending: false,
     isError: false,
@@ -580,6 +581,7 @@ export default {
     errorMessage: '',
     imageFile: [],
 
+    tagId: null,
     input: {
       id: 0,
       mall: null,
@@ -667,13 +669,18 @@ export default {
       this.input.country = this.mallCountry?.country?.country_id;
       this.input.type = this.mallCountry?.sub_industry?.sub_industry_id;
     },
+    requestCount() {
+      if (this.requestCount === 0) {
+        this.isLoading = false;
+      }
+    },
   },
   created() {
     const token = JSON.parse(localStorage.getItem('token'));
     setAuthHeader(token);
   },
   mounted() {
-    this.getMerchantData();
+    this.getItemsData();
     this.getPartnerData();
     this.getCountry();
     this.getSubIndustryData();
@@ -838,77 +845,6 @@ export default {
           this.isDelete = false;
         });
     },
-    getMerchantData() {
-      this.isLoading = true;
-      axios
-        .get(`/mall-merchants`)
-        .then((response) => {
-          const data = response.data.data;
-          this.items = data.map((item) => {
-            return {
-              id: item.mm_id || 1,
-              name: item.partner_name || '',
-              partner_id: item.partner_id || null,
-              country: item.country_name || '',
-              country_id: item.country_id || null,
-              isPrivileged:
-                item.privileged == 'N'
-                  ? false
-                  : item.privileged == 'Y'
-                  ? true
-                  : null,
-              isPlatinum:
-                item.platinum == 'N'
-                  ? false
-                  : item.platinum == 'Y'
-                  ? true
-                  : null,
-              isActive:
-                item.active == 'N' ? false : item.active == 'Y' ? true : null,
-              isFeatured:
-                item.featured == 'N'
-                  ? false
-                  : item.featured == 'Y'
-                  ? true
-                  : null,
-              user: item.name || '',
-              user_id: item.user_id || '',
-              dated: item.dated || '',
-              type: item.sub_industry_name || '',
-              sub_industry_id: item.sub_industry_id || null,
-              outlets: 5,
-              malls: 2,
-              tagHeaderItems: [
-                {
-                  id: 1,
-                  name: 'Whole Cake',
-                },
-                {
-                  id: 2,
-                  name: 'Sliced Cake',
-                },
-                {
-                  id: 3,
-                  name: 'Designer Cake',
-                },
-              ],
-            };
-          });
-        })
-        .catch((error) => {
-          // eslint-disable-next-line
-          console.log(error);
-          const message =
-            error.response.data.message === ''
-              ? 'Something Wrong!!!'
-              : error.response.data.message;
-          this.errorMessage = message;
-          this.isError = true;
-        })
-        .finally(() => {
-          this.isLoading = false;
-        });
-    },
     getPartnerData() {
       axios
         .get(`/partners`)
@@ -991,15 +927,131 @@ export default {
           this.isLoading = false;
         });
     },
-    deleteTagById(id) {
-      this.isDeleteLoading = true;
+    async getItemsData() {
+      this.isLoading = true;
+      this.requestCount = 0; // Reset request count
+      try {
+        let items = await this.getMerchantData();
+        this.requestCount++;
+
+        items = await Promise.all(
+          items.map(async (item) => {
+            const tagHeaderItems = await this.getTagsHeaderDataById(
+              item.partner_id
+            );
+            this.requestCount++;
+            return { ...item, tagHeaderItems: tagHeaderItems };
+          })
+        );
+
+        this.items = items;
+        console.log(items);
+      } catch (error) {
+        console.error('Error fetching items data:', error);
+      } finally {
+        this.isLoading = false;
+      }
+    },
+    async getMerchantData() {
+      this.isLoading = true;
+      try {
+        const response = await axios.get(`/mall-merchants`);
+        const data = response.data.data;
+        return data.map((item) => {
+          return {
+            id: item.mm_id || 1,
+            name: item.partner_name || '',
+            partner_id: item.partner_id || null,
+            country: item.country_name || '',
+            country_id: item.country_id || null,
+            isPrivileged:
+              item.privileged == 'N'
+                ? false
+                : item.privileged == 'Y'
+                ? true
+                : null,
+            isPlatinum:
+              item.platinum == 'N' ? false : item.platinum == 'Y' ? true : null,
+            isActive:
+              item.active == 'N' ? false : item.active == 'Y' ? true : null,
+            isFeatured:
+              item.featured == 'N' ? false : item.featured == 'Y' ? true : null,
+            user: item.name || '',
+            user_id: item.user_id || '',
+            dated: item.dated || '',
+            type: item.sub_industry_name || '',
+            sub_industry_id: item.sub_industry_id || null,
+            outlets: 5,
+            malls: 2,
+          };
+        });
+      } catch (error) {
+        // eslint-disable-next-line
+        console.log(error);
+        const message =
+          error.response.data.message === ''
+            ? 'Something Wrong!!!'
+            : error.response.data.message;
+        this.errorMessage = message;
+        this.isError = true;
+      } finally {
+        this.isLoading = false;
+      }
+    },
+    async getTagsHeaderDataById(id) {
+      this.isLoading = true;
+      try {
+        const response = await axios.get(`/mall-merchants-tags/${id}/tags`);
+        const data = response.data.data;
+
+        return data;
+      } catch (error) {
+        console.log(error);
+        throw error;
+      } finally {
+        this.isLoading = false;
+      }
+    },
+    addTagById(id) {
+      this.isSending = true;
+      const payload = {
+        tag_id: this.tagId,
+        merchant_id: id,
+      };
+      console.log(payload);
       axios
-        .delete(`/mall-promotion-tags/${id}`)
+        .post(`/mall-merchants-tags`, payload)
         .then((response) => {
           const data = response.data;
           this.successMessage = data.message;
           this.isSuccess = true;
-          this.getMerchantData();
+          this.getItemsData();
+          this.tagId = null;
+        })
+        .catch((error) => {
+          // eslint-disable-next-line
+          console.log(error);
+          const message = error.response.data.partner_id
+            ? error.response.data.partner_id[0]
+            : error.response.data.message === ''
+            ? 'Something Wrong!!!'
+            : error.response.data.message;
+          this.errorMessage = message;
+          this.isError = true;
+        })
+        .finally(() => {
+          this.isSending = false;
+        });
+    },
+    deleteTagById(id) {
+      this.isDeleteLoading = true;
+      axios
+        .delete(`/mall-merchants-tags/${id}`)
+        .then((response) => {
+          const data = response.data;
+          this.successMessage = data.message;
+          this.isSuccess = true;
+          this.getItemsData();
         })
         .catch((error) => {
           // eslint-disable-next-line

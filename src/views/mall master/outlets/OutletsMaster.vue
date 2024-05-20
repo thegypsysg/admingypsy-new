@@ -350,7 +350,9 @@
                                 <v-autocomplete
                                   style="min-width: 150px"
                                   density="compact"
+                                  v-model="item.level"
                                   :items="resource.levels"
+                                  @update:model-value="changeLevel(item)"
                                   item-title="name"
                                   clearable
                                   item-value="id"
@@ -772,6 +774,46 @@ export default {
           });
       }
     },
+    changeLevel(data) {
+      this.isSending = true;
+      const payload = {
+        pl_id: data.pl_id,
+        level_id: data.level,
+      };
+      axios
+        .post(`/partner-locations/update`, payload)
+        .then((response) => {
+          const data = response.data;
+          this.successMessage = data.message;
+          this.isSuccess = true;
+          //this.getOutletsData();
+          //this.input = {
+          //  id: 0,
+          //  merchant: null,
+          //  location: null,
+          //  mall: null,
+          //};
+        })
+        .catch((error) => {
+          console.log(error);
+          const message = error.response.data.partner_id
+            ? error.response.data.partner_id[0]
+            : error.response.data.message === ''
+            ? 'Something Wrong!!!'
+            : error.response.data.message;
+          this.errorMessage = message;
+          this.isError = true;
+          //this.input = {
+          //  id: 0,
+          //  merchant: null,
+          //  location: null,
+          //  mall: null,
+          //};
+        })
+        .finally(() => {
+          this.isSending = false;
+        });
+    },
     saveData() {
       if (this.valid) {
         this.isSending = true;
@@ -887,6 +929,7 @@ export default {
               user: item.name || '',
               user_id: item.user_id || '',
               dated: item.dated || '',
+              level: item.level_id || null,
             };
           });
         })
