@@ -313,6 +313,87 @@
                 <tr>
                   <td colspan="10">
                     <div class="d-flex flex-column justify-start">
+                      <v-table class="text-left pt-8 px-16 w-50">
+                        <tr>
+                          <td class="pt-2 pr-1 d-flex">
+                            <v-autocomplete
+                              v-model="tagId"
+                              class="form-control search-input"
+                              item-title="name"
+                              item-value="id"
+                              :items="resource.tags"
+                              placeholder="Enter Tag Name"
+                              density="compact"
+                              variant="outlined"
+                              color="blue-grey-lighten-2"
+                            >
+                              <template #item="{ props, item }">
+                                <div class="mb-2" v-bind="props">
+                                  <div class="d-flex align-center w-100">
+                                    <div class="w-25 py-1">
+                                      <div>
+                                        <v-img
+                                          height="40"
+                                          :src="item?.raw?.image"
+                                        >
+                                          <template #placeholder>
+                                            <div class="skeleton" />
+                                          </template>
+                                        </v-img>
+                                      </div>
+                                    </div>
+                                    <div class="w-75" style="font-size: 12px">
+                                      <p class="mb-1">
+                                        {{ `${item?.raw?.name}` }}
+                                      </p>
+                                    </div>
+                                  </div>
+                                </div>
+                              </template>
+                            </v-autocomplete>
+
+                            <v-btn
+                              class="ml-4"
+                              color="indigo-accent-2"
+                              style="text-transform: none"
+                              type="submit"
+                              variant="flat"
+                              @click="addTagById(item.id)"
+                              :disabled="isSending"
+                              :loading="isSending"
+                            >
+                              Add Tag
+                            </v-btn>
+                          </td>
+                        </tr>
+                      </v-table>
+                      <table class="text-left pl-16 pt-4 pb-2">
+                        <tr>
+                          <td>
+                            <v-row>
+                              <v-col class="d-flex flex-wrap" cols="7">
+                                <v-chip
+                                  v-for="tagItem in item.tagHeaderItems"
+                                  :key="tagItem.met_id"
+                                  color="primary"
+                                  dark
+                                  small
+                                  class="mr-1 mb-1"
+                                >
+                                  {{ tagItem.tag_name }}
+                                  <v-icon
+                                    color="red"
+                                    small
+                                    @click="deleteTagById(tagItem.met_id)"
+                                  >
+                                    mdi-close
+                                  </v-icon>
+                                </v-chip>
+                              </v-col>
+                            </v-row>
+                          </td>
+                        </tr>
+                      </table>
                       <v-table class="text-left pl-16 mt-2">
                         <tr>
                           <td class="pr-6 pl-6 pt-2 pb-4">
@@ -426,6 +507,7 @@ export default {
     // fileURL: 'https://admin1.the-gypsy.sg/img/app/',
     partnerName: null,
     valid: false,
+    requestCount: 0,
     isLoading: false,
     isSending: false,
     isError: false,
@@ -442,6 +524,7 @@ export default {
     partnerLocationDataToImage: {
       id: 0,
     },
+    tagId: null,
 
     input: {
       id: 0,
@@ -505,6 +588,7 @@ export default {
       merchants: [],
       locations: [],
       malls: [],
+      tags: [],
     },
     // itemsTry: [
     //   {
@@ -526,8 +610,9 @@ export default {
     setAuthHeader(token);
   },
   mounted() {
-    this.getEventsData();
+    this.getItemsData();
     this.getMallsData();
+    this.getTagsData();
   },
   computed: {
     filteredItems() {
@@ -558,7 +643,7 @@ export default {
           const data = response.data;
           this.successMessage = data.message;
           this.isSuccess = true;
-          this.getEventsData();
+          this.getItemsData();
         })
         .catch((error) => {
           // eslint-disable-next-line
@@ -618,7 +703,7 @@ export default {
           const data = response.data;
           this.successMessage = data.message;
           this.isSuccess = true;
-          this.getEventsData();
+          this.getItemsData();
           // app.config.globalProperties.$eventBus.$emit('update-image');
         })
         .catch((error) => {
@@ -671,7 +756,7 @@ export default {
             const data = response.data;
             this.successMessage = data.message;
             this.isSuccess = true;
-            this.getEventsData();
+            this.getItemsData();
             this.input = {
               id: 0,
               name: '',
@@ -714,7 +799,7 @@ export default {
             const data = response.data;
             this.successMessage = data.message;
             this.isSuccess = true;
-            this.getEventsData();
+            this.getItemsData();
             this.input = {
               id: 0,
               name: '',
@@ -757,7 +842,7 @@ export default {
           const data = response.data;
           this.successMessage = data.message;
           this.isSuccess = true;
-          this.getEventsData();
+          this.getItemsData();
         })
         .catch((error) => {
           // eslint-disable-next-line
@@ -775,36 +860,154 @@ export default {
           this.isDelete = false;
         });
     },
-    getEventsData() {
+
+    async getItemsData() {
+      this.isLoading = true;
+      this.requestCount = 0; // Reset request count
+      try {
+        let items = await this.getEventsData();
+        this.requestCount++;
+
+        items = await Promise.all(
+          items.map(async (item) => {
+            const tagHeaderItems = await this.getTagsHeaderDataById(item.id);
+            this.requestCount++;
+            return { ...item, tagHeaderItems: tagHeaderItems };
+          })
+        );
+
+        this.items = items;
+        console.log(items);
+      } catch (error) {
+        console.error('Error fetching items data:', error);
+      } finally {
+        this.isLoading = false;
+      }
+    },
+    async getEventsData() {
+      this.isLoading = true;
+      try {
+        const response = await axios.get(`/mall-events`);
+        const data = response.data.data;
+        return data.map((item) => {
+          return {
+            ...item,
+            id: item.event_id || 1,
+            mall_id: item.mall_id || 1,
+            pl_id: item.pl_id || 1,
+            name: item.event_header || '',
+            mall: item.mall_name || '',
+            unit_number: item.unit_number || '',
+            image: item.event_image || null,
+            isLive: item.live == 'N' ? false : item.live == 'Y' ? true : null,
+            isActive:
+              item.active == 'N' ? false : item.active == 'Y' ? true : null,
+            isFeatured:
+              item.featured == 'N' ? false : item.featured == 'Y' ? true : null,
+            user: item.user?.name || '',
+            user_id: item.user_id || '',
+            dated: item.dated || '',
+          };
+        });
+      } catch (error) {
+        // eslint-disable-next-line
+        console.log(error);
+        const message =
+          error.response.data.message === ''
+            ? 'Something Wrong!!!'
+            : error.response.data.message;
+        this.errorMessage = message;
+        this.isError = true;
+      } finally {
+        this.isLoading = false;
+      }
+    },
+    async getTagsHeaderDataById(id) {
+      this.isLoading = true;
+      try {
+        const response = await axios.get(`/mall-events-tags/${id}/tags`);
+        const data = response.data.data;
+
+        return data;
+      } catch (error) {
+        console.log(error);
+        throw error;
+      } finally {
+        this.isLoading = false;
+      }
+    },
+    addTagById(id) {
+      this.isSending = true;
+      const payload = {
+        tag_id: this.tagId,
+        event_id: id,
+      };
+      console.log(payload);
+      axios
+        .post(`/mall-events-tags`, payload)
+        .then((response) => {
+          const data = response.data;
+          this.successMessage = data.message;
+          this.isSuccess = true;
+          this.getItemsData();
+          this.tagId = null;
+        })
+        .catch((error) => {
+          // eslint-disable-next-line
+          console.log(error);
+          const message = error.response.data.partner_id
+            ? error.response.data.partner_id[0]
+            : error.response.data.message === ''
+            ? 'Something Wrong!!!'
+            : error.response.data.message;
+          this.errorMessage = message;
+          this.isError = true;
+        })
+        .finally(() => {
+          this.isSending = false;
+        });
+    },
+    deleteTagById(id) {
+      this.isDeleteLoading = true;
+      axios
+        .delete(`/mall-events-tags/${id}`)
+        .then((response) => {
+          const data = response.data;
+          this.successMessage = data.message;
+          this.isSuccess = true;
+          this.getItemsData();
+        })
+        .catch((error) => {
+          // eslint-disable-next-line
+          console.log(error);
+          const message =
+            error.response.data.message === ''
+              ? 'Something Wrong!!!'
+              : error.response.data.message;
+          this.errorMessage = message;
+          this.isError = true;
+        })
+        .finally(() => {
+          this.isDeleteLoading = false;
+          this.isDelete = false;
+        });
+    },
+    getTagsData() {
       this.isLoading = true;
       axios
-        .get(`/mall-events`)
+        .get(`/tags`)
         .then((response) => {
           const data = response.data.data;
-          this.items = data.map((item) => {
-            return {
-              ...item,
-              id: item.event_id || 1,
-              mall_id: item.mall_id || 1,
-              pl_id: item.pl_id || 1,
-              name: item.event_header || '',
-              mall: item.mall_name || '',
-              unit_number: item.unit_number || '',
-              image: item.event_image || null,
-              isLive: item.live == 'N' ? false : item.live == 'Y' ? true : null,
-              isActive:
-                item.active == 'N' ? false : item.active == 'Y' ? true : null,
-              isFeatured:
-                item.featured == 'N'
-                  ? false
-                  : item.featured == 'Y'
-                  ? true
-                  : null,
-              user: item.user?.name || '',
-              user_id: item.user_id || '',
-              dated: item.dated || '',
-            };
-          });
+          this.resource.tags = data
+            .filter((d) => d.tag_header_id === 3)
+            .sort((a, b) => a.tag_name.localeCompare(b.tag_name))
+            .map((item) => {
+              return {
+                id: item.tag_id || 1,
+                name: item.tag_name || '',
+                image: item.tag_image ? this.$fileURL + item.tag_image : null,
+              };
+            });
         })
         .catch((error) => {
           // eslint-disable-next-line
@@ -853,7 +1056,7 @@ export default {
           const data = response.data;
           this.successMessage = data.message;
           this.isSuccess = true;
-          this.getEventsData();
+          this.getItemsData();
         })
         .catch((error) => {
           // eslint-disable-next-line
@@ -877,7 +1080,7 @@ export default {
           const data = response.data;
           this.successMessage = data.message;
           this.isSuccess = true;
-          this.getEventsData();
+          this.getItemsData();
         })
         .catch((error) => {
           // eslint-disable-next-line
@@ -901,7 +1104,7 @@ export default {
           const data = response.data;
           this.successMessage = data.message;
           this.isSuccess = true;
-          this.getEventsData();
+          this.getItemsData();
         })
         .catch((error) => {
           // eslint-disable-next-line

@@ -738,7 +738,7 @@ export default {
             const data = response.data;
             this.successMessage = data.message;
             this.isSuccess = true;
-            this.getMerchantData();
+            this.getItemsData();
             this.input = {
               id: 0,
               mall: null,
@@ -783,7 +783,7 @@ export default {
             const data = response.data;
             this.successMessage = data.message;
             this.isSuccess = true;
-            this.getMerchantData();
+            this.getItemsData();
             this.input = {
               id: 0,
               mall: null,
@@ -827,7 +827,7 @@ export default {
           const data = response.data;
           this.successMessage = data.message;
           this.isSuccess = true;
-          this.getMerchantData();
+          this.getItemsData();
         })
         .catch((error) => {
           // eslint-disable-next-line
@@ -1106,7 +1106,7 @@ export default {
           const data = response.data;
           this.successMessage = data.message;
           this.isSuccess = true;
-          this.getMerchantData();
+          this.getItemsData();
         })
         .catch((error) => {
           // eslint-disable-next-line
@@ -1130,7 +1130,7 @@ export default {
           const data = response.data;
           this.successMessage = data.message;
           this.isSuccess = true;
-          this.getMerchantData();
+          this.getItemsData();
         })
         .catch((error) => {
           // eslint-disable-next-line
@@ -1154,7 +1154,7 @@ export default {
           const data = response.data;
           this.successMessage = data.message;
           this.isSuccess = true;
-          this.getMerchantData();
+          this.getItemsData();
         })
         .catch((error) => {
           // eslint-disable-next-line

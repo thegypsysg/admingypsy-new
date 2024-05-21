@@ -18,18 +18,40 @@
     </div>
     <div class="d-flex align-center justify-space-between gap-2 pr-16">
       <h3 class="ml-4 mr-10 mb-6">Main Info</h3>
-
-      <v-btn
-        color="indigo-accent-2"
-        style="text-transform: none"
-        type="submit"
-        variant="flat"
-        @click="saveData()"
-        :disabled="isSending"
-        :loading="isSending"
-      >
-        Update
-      </v-btn>
+      <div class="d-flex w-66 align-center gap-4" style="gap: 40px">
+        <v-autocomplete
+          density="compact"
+          label="Event Status"
+          placeholder="Select Event Status"
+          :items="resource.status"
+          item-title="name"
+          item-value="value"
+          v-model="input.status"
+          variant="outlined"
+        ></v-autocomplete>
+        <v-autocomplete
+          density="compact"
+          label="Free or Paid"
+          placeholder="Select Free or Paid"
+          :items="resource.paid"
+          item-title="name"
+          item-value="value"
+          v-model="input.paid"
+          variant="outlined"
+        ></v-autocomplete>
+        <v-btn
+          class="mt-n4"
+          color="indigo-accent-2"
+          style="text-transform: none"
+          type="submit"
+          variant="flat"
+          @click="saveData()"
+          :disabled="isSending"
+          :loading="isSending"
+        >
+          Update
+        </v-btn>
+      </div>
     </div>
 
     <h4 class="ml-4 mb-6" style="color: #293fb8; font-weight: 400">
@@ -97,13 +119,15 @@
                 :enable-time-picker="false"
               ></VueDatePicker>
             </div>
-            <p class="mb-2 mt-4">Event Time</p>
-            <v-text-field
-              v-model="input.time"
-              variant="outlined"
-              density="compact"
-              required
-            ></v-text-field>
+            <div class="w-50 mt-4">
+              <p class="mb-2">Event Time</p>
+              <v-text-field
+                v-model="input.time"
+                variant="outlined"
+                density="compact"
+                required
+              ></v-text-field>
+            </div>
           </v-col>
           <!-- <v-col class="ml-4" cols="12" md="2">
           </v-col> -->
@@ -167,6 +191,8 @@ export default {
     errorMessage: '',
     input: {
       id: 0,
+      status: null,
+      paid: null,
       detail: '',
       location: '',
       all: null,
@@ -175,6 +201,30 @@ export default {
       time: '',
     },
     resource: {
+      status: [
+        {
+          value: 'F',
+          name: 'Finished',
+        },
+        {
+          value: 'U',
+          name: 'Upcoming',
+        },
+        {
+          value: 'C',
+          name: 'Current',
+        },
+      ],
+      paid: [
+        {
+          value: null,
+          name: 'Free',
+        },
+        {
+          value: 'Y',
+          name: 'Paid',
+        },
+      ],
       type: [
         {
           name: 'Super Admin',
@@ -273,6 +323,8 @@ export default {
           });
           this.input = {
             id: dataItem[0].event_id,
+            status: dataItem[0]?.event_status || null,
+            paid: dataItem[0]?.paid_event || null,
             detail: dataItem[0].event_details || '',
             location: dataItem[0].event_location || '',
             all: dataItem[0].all_day_event == 'Y' ? true : null,
@@ -304,6 +356,8 @@ export default {
         this.isSending = true;
         const payload = {
           event_id: this.idEvent,
+          paid_event: this.input.paid,
+          event_status: this.input.status,
           event_details: this.input.detail,
           event_location: this.input.location,
           event_start_on: this.input.start
