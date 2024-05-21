@@ -394,8 +394,8 @@ export default {
       if (this.input.name) {
         this.isSending = true;
         const payload = {
-          mall_id: this.idMall,
           service_id: this.input.name,
+          mall_id: this.idMall,
         };
         axios
           .post(`/mall-services`, payload)
@@ -466,15 +466,15 @@ export default {
     getMallServicesData() {
       this.isLoading = true;
       axios
-        .get(`/mall-levels/${this.$route.params.id}/levels`)
+        .get(`/mall-services/${this.$route.params.id}/services`)
         .then((response) => {
           const data = response.data.data;
           this.items = data.map((item) => {
             return {
               ...item,
-              id: item.ml_id || 1,
-              name: item.level_name || '',
-              image: item.image || null,
+              id: item.ms_id || 1,
+              name: item.service_name || '',
+              image: item.service_image || null,
 
               user: item.name || '',
               dated: item.dated || '',
