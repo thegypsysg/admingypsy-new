@@ -79,14 +79,24 @@
         </router-link>
       </div>
 
-      <router-link
-        active-class="text-blue-accent-4"
-        style="color: black"
-        class="text-decoration-none"
-        to="/tag-header"
-      >
-        <h4>Tag Header</h4>
-      </router-link>
+      <div>
+        <router-link
+          active-class="text-blue-accent-4"
+          style="color: black"
+          class="text-decoration-none"
+          to="/tag-header"
+        >
+          <h4>Tag Header</h4>
+        </router-link>
+        <router-link
+          active-class="text-blue-accent-4"
+          style="color: black"
+          class="text-decoration-none"
+          to="/displayed-banners"
+        >
+          <h4 class="mt-4">Displayed Banners</h4>
+        </router-link>
+      </div>
       <router-link
         active-class="text-blue-accent-4"
         style="color: black"
@@ -896,42 +906,44 @@ export default {
         .get(`/mall-merchant-outlets`)
         .then((response) => {
           const data = response.data.data;
-          this.items = data.map((item) => {
-            return {
-              id: item.mmo_id || 1,
-              merchant_id: item.merchant_id || 1,
-              mall_id: item.mall_id || 1,
-              pl_id: item.pl_id || 1,
-              name: item.merchant_name || '',
-              mall: item.mall || '',
-              unit_number: item.unit_number || '',
-              image: item.location_image || null,
-              isPrivileged:
-                item.privileged == 'N'
-                  ? false
-                  : item.privileged == 'Y'
-                  ? true
-                  : null,
-              isPlatinum:
-                item.platinum == 'N'
-                  ? false
-                  : item.platinum == 'Y'
-                  ? true
-                  : null,
-              isActive:
-                item.active == 'N' ? false : item.active == 'Y' ? true : null,
-              isFeatured:
-                item.featured == 'N'
-                  ? false
-                  : item.featured == 'Y'
-                  ? true
-                  : null,
-              user: item.name || '',
-              user_id: item.user_id || '',
-              dated: item.dated || '',
-              level: item.level_id || null,
-            };
-          });
+          this.items = data
+            .sort((a, b) => b.mmo_id - a.mmo_id)
+            .map((item) => {
+              return {
+                id: item.mmo_id || 1,
+                merchant_id: item.merchant_id || 1,
+                mall_id: item.mall_id || 1,
+                pl_id: item.pl_id || 1,
+                name: item.merchant_name || '',
+                mall: item.mall || '',
+                unit_number: item.unit_number || '',
+                image: item.location_image || null,
+                isPrivileged:
+                  item.privileged == 'N'
+                    ? false
+                    : item.privileged == 'Y'
+                    ? true
+                    : null,
+                isPlatinum:
+                  item.platinum == 'N'
+                    ? false
+                    : item.platinum == 'Y'
+                    ? true
+                    : null,
+                isActive:
+                  item.active == 'N' ? false : item.active == 'Y' ? true : null,
+                isFeatured:
+                  item.featured == 'N'
+                    ? false
+                    : item.featured == 'Y'
+                    ? true
+                    : null,
+                user: item.name || '',
+                user_id: item.user_id || '',
+                dated: item.dated || '',
+                level: item.level_id || null,
+              };
+            });
         })
         .catch((error) => {
           // eslint-disable-next-line

@@ -104,6 +104,7 @@
                   v-model="input.start"
                   text-input
                   :enable-time-picker="false"
+                  :format="formatDate"
                 ></VueDatePicker>
               </div>
               <div class="w-50">
@@ -117,6 +118,7 @@
                 v-model="input.end"
                 text-input
                 :enable-time-picker="false"
+                :format="formatDate"
               ></VueDatePicker>
             </div>
             <div class="w-50 mt-4">
@@ -217,7 +219,7 @@ export default {
       ],
       paid: [
         {
-          value: null,
+          value: 'F',
           name: 'Free',
         },
         {
@@ -306,6 +308,13 @@ export default {
     this.getEventData();
   },
   methods: {
+    formatDate(date) {
+      const day = date.getDate();
+      const month = date.getMonth() + 1;
+      const year = date.getFullYear();
+
+      return `${day}/${month}/${year}`;
+    },
     getEventData() {
       this.isLoading = true;
       axios
@@ -324,7 +333,8 @@ export default {
           this.input = {
             id: dataItem[0].event_id,
             status: dataItem[0]?.event_status || null,
-            paid: dataItem[0]?.paid_event || null,
+            paid:
+              dataItem[0]?.paid_event == null ? 'F' : dataItem[0]?.paid_event,
             detail: dataItem[0].event_details || '',
             location: dataItem[0].event_location || '',
             all: dataItem[0].all_day_event == 'Y' ? true : null,
@@ -356,7 +366,7 @@ export default {
         this.isSending = true;
         const payload = {
           event_id: this.idEvent,
-          paid_event: this.input.paid,
+          paid_event: this.input.paid == 'F' ? null : this.input.paid,
           event_status: this.input.status,
           event_details: this.input.detail,
           event_location: this.input.location,
@@ -383,6 +393,8 @@ export default {
               ? 'Please fill the detail field'
               : error.response.data.event_location
               ? 'Please fill the location field'
+              : error.response.data.event_time
+              ? error.response.data.event_time[0]
               : error.response.data.event_time
               ? 'Please fill the time field'
               : error.response.data.event_start_on

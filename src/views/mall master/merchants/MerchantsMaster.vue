@@ -79,14 +79,24 @@
         </router-link>
       </div>
 
-      <router-link
-        active-class="text-blue-accent-4"
-        style="color: black"
-        class="text-decoration-none"
-        to="/tag-header"
-      >
-        <h4>Tag Header</h4>
-      </router-link>
+      <div>
+        <router-link
+          active-class="text-blue-accent-4"
+          style="color: black"
+          class="text-decoration-none"
+          to="/tag-header"
+        >
+          <h4>Tag Header</h4>
+        </router-link>
+        <router-link
+          active-class="text-blue-accent-4"
+          style="color: black"
+          class="text-decoration-none"
+          to="/displayed-banners"
+        >
+          <h4 class="mt-4">Displayed Banners</h4>
+        </router-link>
+      </div>
       <router-link
         active-class="text-blue-accent-4"
         style="color: black"
@@ -201,7 +211,9 @@
           <v-table class="country-table">
             <thead>
               <tr>
-                <th class="text-left font-weight-bold text-black">Mall id</th>
+                <th class="text-left font-weight-bold text-black">
+                  Merchant id
+                </th>
                 <th class="text-left font-weight-bold text-black">Name</th>
                 <th class="text-left font-weight-bold text-black">Country</th>
                 <th class="text-left font-weight-bold text-black">Active</th>
@@ -391,7 +403,7 @@
                               variant="flat"
                               @click="addTagById(item.partner_id)"
                               :disabled="isSending"
-                              :loading="isSending"
+                              :loading="isSending2"
                             >
                               Add Tag
                             </v-btn>
@@ -569,6 +581,7 @@ export default {
     requestCount: 0,
     isLoading: false,
     isSending: false,
+    isSending2: false,
     isError: false,
     isEdit: false,
     isSuccess: false,
@@ -641,6 +654,7 @@ export default {
     },
     search: '',
     items: [],
+    filteredMerchants: [],
     resource: {
       mall: [],
       country: [],
@@ -689,17 +703,25 @@ export default {
   computed: {
     filteredItems() {
       if (!this.search) {
-        return this.items;
+        return this.items.slice(0, 10);
       }
       const searchTextLower = this.search.toLowerCase();
-      return this.items.filter(
-        (item) =>
-          item.name.toLowerCase().includes(searchTextLower) ||
-          item.country.toLowerCase().includes(searchTextLower) ||
-          item.city.toLowerCase().includes(searchTextLower) ||
-          item.town.toLowerCase().includes(searchTextLower)
-      );
+      return this.items
+        .filter((item) => item.name.toLowerCase().includes(searchTextLower))
+        .slice(0, 10);
     },
+    // filteredMerchants() {
+    //   console.log(this.searchMall);
+    //   let filtered = [];
+    //   if (this.searchMall) {
+    //     filtered = this.resource.mall.filter((item) =>
+    //       item.name.toLowerCase().includes(this.searchMall.toLowerCase())
+    //     );
+    //     return filtered.slice(0, 10);
+    //   } else {
+    //     return this.resource.mall.slice(0, 10);
+    //   }
+    // },
     mallCountry() {
       return this.resource?.mall.find((item) => item.id === this.input.mall);
     },
@@ -944,7 +966,7 @@ export default {
           })
         );
 
-        this.items = items;
+        this.items = items.sort((a, b) => b.id - a.id);
         console.log(items);
       } catch (error) {
         console.error('Error fetching items data:', error);
@@ -1014,6 +1036,7 @@ export default {
     },
     addTagById(id) {
       this.isSending = true;
+      this.isSending2 = true;
       const payload = {
         tag_id: this.tagId,
         merchant_id: id,
@@ -1041,6 +1064,7 @@ export default {
         })
         .finally(() => {
           this.isSending = false;
+          this.isSending2 = false;
         });
     },
     deleteTagById(id) {

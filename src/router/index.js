@@ -771,6 +771,54 @@ const routes = [
     },
   },
   {
+    name: 'displayed banners',
+    path: '/displayed-banners',
+    component: () =>
+      import(
+        '@/views/mall master/displayed banners/DisplayedBannersContainer.vue'
+      ),
+    beforeEnter: (to, from, next) => {
+      // Pengecekan status login sebelum masuk ke halaman beranda
+      if (localStorage.getItem('token') == null) {
+        next('/auth/login'); // Alihkan ke halaman login jika belum masuk
+      } else {
+        next(); // Lanjutkan ke halaman beranda jika sudah masuk
+      }
+    },
+  },
+  {
+    name: 'displayed banners main info',
+    path: '/displayed-banners/main-info/:id',
+    component: () =>
+      import(
+        '@/views/mall master/displayed banners/main info/BannerMainInfoContainer.vue'
+      ),
+    beforeEnter: (to, from, next) => {
+      // Pengecekan status login sebelum masuk ke halaman beranda
+      if (localStorage.getItem('token') == null) {
+        next('/auth/login'); // Alihkan ke halaman login jika belum masuk
+      } else {
+        next(); // Lanjutkan ke halaman beranda jika sudah masuk
+      }
+    },
+  },
+  {
+    name: 'displayed banners outlets',
+    path: '/displayed-banners/outlets/:id_banner/:id_merchant',
+    component: () =>
+      import(
+        '@/views/mall master/displayed banners/outlets/OutletsContainer.vue'
+      ),
+    beforeEnter: (to, from, next) => {
+      // Pengecekan status login sebelum masuk ke halaman beranda
+      if (localStorage.getItem('token') == null) {
+        next('/auth/login'); // Alihkan ke halaman login jika belum masuk
+      } else {
+        next(); // Lanjutkan ke halaman beranda jika sudah masuk
+      }
+    },
+  },
+  {
     name: 'mall country',
     path: '/mall-country',
     component: () =>

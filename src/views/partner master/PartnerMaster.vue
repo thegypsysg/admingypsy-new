@@ -205,12 +205,13 @@
                 </tr>
 
                 <tr>
-                  <td colspan="5">
+                  <td colspan="6">
                     <div class="d-flex justify-center" style="gap: 20px">
                       <v-table class="text-left">
                         <tr>
                           <th class="pt-2">Active</th>
                           <th class="pt-2">Favorite</th>
+                          <th class="pt-2"></th>
                           <th class="pt-2"></th>
                         </tr>
                         <tr>
@@ -280,6 +281,20 @@
                                 <span>Locations</span>
                               </router-link>
                             </div>
+                          </td>
+                          <td class="pr-6 pt-2 pb-4">
+                            <v-autocomplete
+                              style="width: 200px"
+                              density="compact"
+                              label="Brand Country"
+                              placeholder="Type Brand Country"
+                              :items="resource.country"
+                              item-title="name"
+                              item-value="id"
+                              v-model="item.brand_origin"
+                              @update:model-value="changeBrandOrigin(item)"
+                              variant="outlined"
+                            ></v-autocomplete>
                           </td>
                         </tr>
                       </v-table>
@@ -922,6 +937,35 @@ export default {
           this.isDelete = false;
         });
     },
+    changeBrandOrigin(item) {
+      this.isSending = true;
+      const payload = {
+        partner_id: item.id,
+        brand_origin: item.brand_origin,
+      };
+      axios
+        .post(`/partners/update`, payload)
+        .then((response) => {
+          const data = response.data;
+          this.successMessage = data.message;
+          this.isSuccess = true;
+          //this.getPartnerData();
+        })
+        .catch((error) => {
+          // eslint-disable-next-line
+          console.log(error);
+          const message = error.response.data.partner_id
+            ? error.response.data.partner_id[0]
+            : error.response.data.message === ''
+            ? 'Something Wrong!!!'
+            : error.response.data.message;
+          this.errorMessage = message;
+          this.isError = true;
+        })
+        .finally(() => {
+          this.isSending = false;
+        });
+    },
     getPartnerData() {
       this.isLoading = true;
       axios
@@ -949,6 +993,7 @@ export default {
                   : item.favorite == 'Y'
                   ? true
                   : null,
+              brand_origin: item?.brand_origin || null,
             };
           });
           this.resource.name = data.map((item) => item.partner_name || '');
@@ -972,12 +1017,14 @@ export default {
         .get(`/country`)
         .then((response) => {
           const data = response.data.data;
-          this.resource.country = data.map((country) => {
-            return {
-              id: country.country_id,
-              name: country.country_name,
-            };
-          });
+          this.resource.country = data
+            .sort((a, b) => a.country_name.localeCompare(b.country_name))
+            .map((country) => {
+              return {
+                id: country.country_id,
+                name: country.country_name,
+              };
+            });
         })
         .catch((error) => {
           // eslint-disable-next-line

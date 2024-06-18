@@ -106,7 +106,7 @@
             </thead>
             <tbody>
               <template v-for="item in filteredItems" :key="item.id">
-                <tr class="country-table-body">
+                <tr v-if="!isLoading2" class="country-table-body">
                   <td style="width: 100px">{{ item.id }}</td>
                   <td style="width: 100px">
                     <v-text-field
@@ -159,7 +159,7 @@
                   </td>
                 </tr>
               </template>
-              <tr v-if="isLoading">
+              <tr v-if="isLoading2">
                 <td :colspan="6" class="text-center">
                   <v-progress-circular
                     indeterminate
@@ -255,6 +255,7 @@ export default {
     idMall: null,
     valid: false,
     isLoading: false,
+    isLoading2: false,
     isSending: false,
     isError: false,
     isEdit: false,
@@ -396,33 +397,35 @@ export default {
         });
     },
     changeSequence(item, e) {
-      this.isSending = true;
-      const payload = {
-        ml_id: item.ml_id,
-        sequence: e.target.value,
-      };
-      axios
-        .post(`/mall-levels/update`, payload)
-        .then((response) => {
-          const data = response.data;
-          this.successMessage = data.message;
-          this.isSuccess = true;
-          //this.getMallLevelsData();
-        })
-        .catch((error) => {
-          // eslint-disable-next-line
-          console.log(error);
-          const message = error.response.data.partner_id
-            ? error.response.data.partner_id[0]
-            : error.response.data.message === ''
-            ? 'Something Wrong!!!'
-            : error.response.data.message;
-          this.errorMessage = message;
-          this.isError = true;
-        })
-        .finally(() => {
-          this.isSending = false;
-        });
+      if (e.target.value) {
+        this.isSending = true;
+        const payload = {
+          ml_id: item.ml_id,
+          sequence: e.target.value,
+        };
+        axios
+          .post(`/mall-levels/update`, payload)
+          .then((response) => {
+            const data = response.data;
+            this.successMessage = data.message;
+            this.isSuccess = true;
+            this.getMallLevelsData2();
+          })
+          .catch((error) => {
+            // eslint-disable-next-line
+            console.log(error);
+            const message = error.response.data.partner_id
+              ? error.response.data.partner_id[0]
+              : error.response.data.message === ''
+              ? 'Something Wrong!!!'
+              : error.response.data.message;
+            this.errorMessage = message;
+            this.isError = true;
+          })
+          .finally(() => {
+            this.isSending = false;
+          });
+      }
     },
     saveData() {
       console.log(this.input.name);
@@ -504,18 +507,20 @@ export default {
         .get(`/mall-levels/${this.$route.params.id}/levels`)
         .then((response) => {
           const data = response.data.data;
-          this.items = data.map((item) => {
-            return {
-              ...item,
-              id: item.ml_id || 1,
-              sequence: item.sequence,
-              name: item.level_name || '',
-              image: item.image || null,
+          this.items = data
+            .sort((a, b) => a.sequence - b.sequence)
+            .map((item) => {
+              return {
+                ...item,
+                id: item.ml_id || 1,
+                sequence: item.sequence,
+                name: item.level_name || '',
+                image: item.image || null,
 
-              user: item.name || '',
-              dated: item.dated || '',
-            };
-          });
+                user: item.name || '',
+                dated: item.dated || '',
+              };
+            });
         })
         .catch((error) => {
           // eslint-disable-next-line
@@ -529,6 +534,41 @@ export default {
         })
         .finally(() => {
           this.isLoading = false;
+        });
+    },
+    getMallLevelsData2() {
+      this.isLoading2 = true;
+      axios
+        .get(`/mall-levels/${this.$route.params.id}/levels`)
+        .then((response) => {
+          const data = response.data.data;
+          this.items = data
+            .sort((a, b) => a.sequence - b.sequence)
+            .map((item) => {
+              return {
+                ...item,
+                id: item.ml_id || 1,
+                sequence: item.sequence,
+                name: item.level_name || '',
+                image: item.image || null,
+
+                user: item.name || '',
+                dated: item.dated || '',
+              };
+            });
+        })
+        .catch((error) => {
+          // eslint-disable-next-line
+          console.log(error);
+          const message =
+            error.response.data.message === ''
+              ? 'Something Wrong!!!'
+              : error.response.data.message;
+          this.errorMessage = message;
+          this.isError = true;
+        })
+        .finally(() => {
+          this.isLoading2 = false;
         });
     },
     getLevelsData() {

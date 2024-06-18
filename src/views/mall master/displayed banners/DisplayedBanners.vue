@@ -78,6 +78,7 @@
           <h4 class="mt-4">Manage Services</h4>
         </router-link>
       </div>
+
       <div>
         <router-link
           active-class="text-blue-accent-4"
@@ -124,7 +125,7 @@
           <v-col cols="12" md="9">
             <v-text-field
               v-model="input.name"
-              label="Type Promotion Name"
+              label="Type Banner Name"
               variant="outlined"
               density="compact"
               required
@@ -151,7 +152,7 @@
                   <v-icon color="white"></v-icon>
                 </template> -->
 
-                {{ isEdit ? 'Save Promotion' : 'Add Promotion' }}
+                {{ isEdit ? 'Save Banner' : 'Add Banner' }}
               </v-btn>
               <v-btn
                 v-if="isEdit"
@@ -191,15 +192,15 @@
           <v-table class="country-table">
             <thead>
               <tr>
-                <th class="text-left font-weight-bold text-black">Promo id</th>
+                <th class="text-left font-weight-bold text-blue-accent-4">
+                  Banner id
+                </th>
                 <th class="text-left font-weight-bold text-black">
                   Merchant Name
                 </th>
-                <th class="text-left font-weight-bold text-black">
-                  Promotion Name
+                <th class="text-left font-weight-bold text-blue-accent-4">
+                  Banner Header
                 </th>
-                <th class="text-left font-weight-bold text-black">Country</th>
-                <th class="text-left font-weight-bold text-black">Outlets</th>
                 <th class="text-left font-weight-bold text-black">User</th>
                 <th class="text-left font-weight-bold text-black">Dated</th>
                 <th class="text-left font-weight-bold text-black"></th>
@@ -209,9 +210,8 @@
               <template v-for="item in filteredItems" :key="item.id">
                 <tr class="country-table-body">
                   <td>{{ item.id }}</td>
+                  <td>{{ item.partner }}</td>
                   <td>{{ item.name }}</td>
-                  <td>{{ item.promo }}</td>
-                  <td>{{ item.country }}</td>
 
                   <td>
                     {{ item.user }}
@@ -227,7 +227,7 @@
                             color="green"
                             variant="text"
                             v-bind="props"
-                            @click="editPromotion(item)"
+                            @click="editBanner(item)"
                             icon="mdi-pencil-outline"
                           ></v-btn>
                         </template>
@@ -255,22 +255,7 @@
                     <div class="d-flex flex-column justify-start">
                       <v-table class="text-left mt-2 w-66">
                         <tr>
-                          <td>
-                            <v-img
-                              height="40"
-                              width="65"
-                              @click="openImage(item)"
-                              style="cursor: pointer"
-                              :src="
-                                item.image != null
-                                  ? $fileURL + item.image
-                                  : 'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png'
-                              "
-                              ><template #placeholder>
-                                <div class="skeleton" /> </template
-                            ></v-img>
-                          </td>
-                          <td>
+                          <td class="pl-16">
                             <v-btn-toggle
                               style="
                                 font-size: 10px !important;
@@ -281,7 +266,7 @@
                               class="d-flex align-center"
                               v-model="item.isActive"
                               rounded="5"
-                              @click="activePromotions(item.id)"
+                              @click="activeBanners(item.id)"
                             >
                               <v-btn size="27" :value="true"> Yes </v-btn>
 
@@ -299,7 +284,7 @@
                               class="d-flex align-center"
                               v-model="item.isFeatured"
                               rounded="5"
-                              @click="featuredPromotions(item.id)"
+                              @click="featuredBanner(item.id)"
                             >
                               <v-btn size="27" :value="true"> Yes </v-btn>
 
@@ -310,13 +295,13 @@
                             <div class="d-flex justify-start" style="gap: 20px">
                               <router-link
                                 class="text-decoration-none"
-                                :to="`/promotions_master/main-info/${item.id}`"
+                                :to="`/displayed-banners/main-info/${item.id}`"
                               >
                                 <span>Main Info</span>
                               </router-link>
                               <router-link
                                 class="text-decoration-none"
-                                :to="`/promotions_master/outlets/${item.id}/${item.mall_id}`"
+                                :to="`/displayed-banners/outlets/${item.id}/${item.mall_id}`"
                               >
                                 <span
                                   >Outlets (<span class="text-red">
@@ -712,11 +697,11 @@
     <v-dialog persistent width="500" v-model="isDelete">
       <v-card>
         <v-card-title>Confirmation</v-card-title>
-        <v-card-text> Are you sure want to delete this promotion? </v-card-text>
+        <v-card-text> Are you sure want to delete this banner? </v-card-text>
         <v-card-actions>
           <v-spacer></v-spacer>
           <v-btn color="error" text @click="cancelDelete">No</v-btn>
-          <v-btn color="success" text @click="deletePromo">{{
+          <v-btn color="success" text @click="deleteBanner">{{
             isDeleteLoading ? 'Deleting...' : 'Yes'
           }}</v-btn>
         </v-card-actions>
@@ -763,7 +748,7 @@ import { setAuthHeader } from '@/util/axios';
 // import app from '@/util/eventBus';
 
 export default {
-  name: 'LocationsVue',
+  name: 'DisplayedBanners',
   data: () => ({
     // fileURL: 'https://admin1.the-gypsy.sg/img/app/',
     activeMalls: [],
@@ -777,14 +762,14 @@ export default {
     isSuccess: false,
     isDelete: false,
     isDeleteLoading: false,
-    promoIdToDelete: null,
+    bannerIdToDelete: null,
     tableHeaders: [{ text: 'Gambar', value: 'image' }],
     isOpenImage: false,
     successMessage: '',
     errorMessage: '',
     imageFile: [],
 
-    promotionDataToImage: {
+    bannerDataToImage: {
       id: 0,
       name: null,
       industry: null,
@@ -899,7 +884,7 @@ export default {
         .filter(
           (item) =>
             item.name.toLowerCase().includes(searchTextLower) ||
-            item.promo.toLowerCase().includes(searchTextLower)
+            item.partner.toLowerCase().includes(searchTextLower)
         )
         .slice(0, 5);
     },
@@ -910,7 +895,7 @@ export default {
   methods: {
     openImage(item) {
       this.isOpenImage = true;
-      this.promotionDataToImage = {
+      this.bannerDataToImage = {
         id: item.id,
       };
       this.imageFile =
@@ -931,7 +916,7 @@ export default {
     closeImage() {
       this.isOpenImage = false;
       this.imageFile = [];
-      this.promotionDataToImage = {
+      this.bannerDataToImage = {
         id: 0,
       };
     },
@@ -943,7 +928,7 @@ export default {
     deleteImageFile() {
       this.isSending = true;
       axios
-        .delete(`/mall-promotions/${this.promotionDataToImage.id}/main-image`)
+        .delete(`/mall-promotions/${this.bannerDataToImage.id}/main-image`)
         .then((response) => {
           const data = response.data;
           this.successMessage = data.message;
@@ -963,7 +948,7 @@ export default {
         .finally(() => {
           this.isEdit = false;
           this.isSending = false;
-          // this.promotionDataToImage = {
+          // this.bannerDataToImage = {
           //   app_id: 1,
           //   app_group_id: 1,
           //   app_name: '',
@@ -976,7 +961,7 @@ export default {
     saveImage() {
       this.isSending = true;
       const payload = {
-        promo_id: this.promotionDataToImage.id,
+        promo_id: this.bannerDataToImage.id,
         main_image: this.imageFile[0],
       };
 
@@ -1005,19 +990,19 @@ export default {
         .finally(() => {
           this.isEdit = false;
           this.isSending = false;
-          this.promotionDataToImage = {
+          this.bannerDataToImage = {
             id: 0,
           };
           this.isOpenImage = false;
           this.imageFile = [];
         });
     },
-    editPromotion(item) {
+    editBanner(item) {
       this.isEdit = true;
       this.input = {
         id: item.id,
         mall: item.mall_id,
-        name: item.promo,
+        name: item.name,
       };
     },
     cancelEdit() {
@@ -1032,12 +1017,12 @@ export default {
       if (this.valid) {
         this.isSending = true;
         const payload = {
-          promo_id: this.input.id,
+          md_id: this.input.id,
           merchant_id: this.input.mall,
-          promo_name: this.input.name,
+          display_header: this.input.name,
         };
         axios
-          .post(`/mall-promotions/update`, payload)
+          .post(`/mall-displays/update`, payload)
           .then((response) => {
             const data = response.data;
             this.successMessage = data.message;
@@ -1076,10 +1061,10 @@ export default {
         this.isSending = true;
         const payload = {
           merchant_id: this.input.mall,
-          promo_name: this.input.name,
+          display_header: this.input.name,
         };
         axios
-          .post(`/mall-promotions`, payload)
+          .post(`/mall-displays`, payload)
           .then((response) => {
             const data = response.data;
             this.successMessage = data.message;
@@ -1110,21 +1095,21 @@ export default {
       }
     },
     cancelDelete() {
-      this.promoIdToDelete = null;
+      this.bannerIdToDelete = null;
       this.isDelete = false;
     },
     openDeleteConfirm(itemId) {
-      this.promoIdToDelete = itemId;
+      this.bannerIdToDelete = itemId;
       this.isDelete = true;
     },
     cancelConfirmation() {
-      this.promoIdToDelete = null;
+      this.bannerIdToDelete = null;
       this.isDelete = false;
     },
-    deletePromo() {
+    deleteBanner() {
       this.isDeleteLoading = true;
       axios
-        .delete(`/mall-promotions/${this.promoIdToDelete}`)
+        .delete(`/mall-displays/${this.bannerIdToDelete}`)
         .then((response) => {
           const data = response.data;
           this.successMessage = data.message;
@@ -1143,7 +1128,7 @@ export default {
         })
         .finally(() => {
           this.isDeleteLoading = false;
-          this.promoIdToDelete = null;
+          this.bannerIdToDelete = null;
           this.isDelete = false;
         });
     },
@@ -1151,16 +1136,16 @@ export default {
       this.isLoading = true;
       this.requestCount = 0; // Reset request count
       try {
-        let items = await this.getPromotionsData();
-        this.requestCount++;
+        let items = await this.getBannersData();
+        // this.requestCount++;
 
-        items = await Promise.all(
-          items.map(async (item) => {
-            const tagHeaderItems = await this.getTagsHeaderDataById(item.id);
-            this.requestCount++;
-            return { ...item, tagHeaderItems: tagHeaderItems };
-          })
-        );
+        // items = await Promise.all(
+        //   items.map(async (item) => {
+        //     const tagHeaderItems = await this.getTagsHeaderDataById(item.id);
+        //     this.requestCount++;
+        //     return { ...item, tagHeaderItems: tagHeaderItems };
+        //   })
+        // );
 
         this.items = items;
         console.log(items);
@@ -1171,42 +1156,41 @@ export default {
       }
     },
 
-    async getPromotionsData() {
+    async getBannersData() {
       this.isLoading = true;
       try {
-        const response = await axios.get(`/mall-promotions`);
+        const response = await axios.get(`/mall-displays`);
         const data = response.data.data;
         return data
-          .sort((a, b) => b.promo_id - a.promo_id)
+          .sort((a, b) => b.md_id - a.md_id)
           .map((item) => {
             return {
-              id: item.promo_id || 1,
+              id: item.md_id || 1,
               mall_id: item.merchant_id || 1,
-              name: item.partner_name || '',
-              promo: item.promo_name || '',
-              partner_id: item.partner_id || null,
-              country: item.country_name || '',
-              country_id: item.country_id || null,
+              name: item.display_header || '',
+              partner: item.partner_name || '',
+              description: item.display_description || '',
+              start_date: item.start_date || '',
+              end_date: item.end_date || '',
+              // partner_id: item.partner_id || null,
+              // country: item.country_name || '',
+              // country_id: item.country_id || null,
               isActive:
-                item.promo_active == 'N'
-                  ? false
-                  : item.promo_active == 'Y'
-                  ? true
-                  : null,
+                item.active == 'N' ? false : item.active == 'Y' ? true : null,
               isFeatured:
-                item.promo_featured == 'N'
+                item.featured == 'N'
                   ? false
-                  : item.promo_featured == 'Y'
+                  : item.featured == 'Y'
                   ? true
                   : null,
-              image: item.main_image || null,
+              image: item.image || null,
               user: item.name || '',
               user_id: item.user_id || '',
-              dated: item.promo_dated || '',
-              type: item.sub_industry_name || '',
-              sub_industry_id: item.sub_industry_id || null,
-              outlets: item.promo_outlet_count || 0,
-              malls: 2,
+              dated: item.dated || '',
+              // type: item.sub_industry_name || '',
+              // sub_industry_id: item.sub_industry_id || null,
+              outlets: item.display_outlet_count || 0,
+              // malls: 2,
             };
           });
       } catch (error) {
@@ -1383,10 +1367,10 @@ export default {
           this.isLoading = false;
         });
     },
-    activePromotions(id) {
+    activeBanners(id) {
       this.isSending = true;
       axios
-        .get(`/mall-promotions/toggle-active/${id}`)
+        .get(`/mall-displays/toggle-active/${id}`)
         .then((response) => {
           const data = response.data;
           this.successMessage = data.message;
@@ -1407,10 +1391,10 @@ export default {
           this.isSending = false;
         });
     },
-    featuredPromotions(id) {
+    featuredBanner(id) {
       this.isSending = true;
       axios
-        .get(`/mall-promotions/toggle-featured/${id}`)
+        .get(`/mall-displays/toggle-featured/${id}`)
         .then((response) => {
           const data = response.data;
           this.successMessage = data.message;

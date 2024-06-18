@@ -80,14 +80,24 @@
         </router-link>
       </div>
 
-      <router-link
-        active-class="text-blue-accent-4"
-        style="color: black"
-        class="text-decoration-none"
-        to="/tag-header"
-      >
-        <h4>Tag Header</h4>
-      </router-link>
+      <div>
+        <router-link
+          active-class="text-blue-accent-4"
+          style="color: black"
+          class="text-decoration-none"
+          to="/tag-header"
+        >
+          <h4>Tag Header</h4>
+        </router-link>
+        <router-link
+          active-class="text-blue-accent-4"
+          style="color: black"
+          class="text-decoration-none"
+          to="/displayed-banners"
+        >
+          <h4 class="mt-4">Displayed Banners</h4>
+        </router-link>
+      </div>
       <router-link
         active-class="text-blue-accent-4"
         style="color: black"
