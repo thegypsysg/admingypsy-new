@@ -403,7 +403,7 @@
                                         <v-icon
                                           color="red"
                                           small
-                                          @click="deleteTagById(tagItem.mpt_id)"
+                                          @click="deleteTagById(tagItem.mdt_id)"
                                         >
                                           mdi-close
                                         </v-icon>
@@ -435,7 +435,7 @@
                                         <v-icon
                                           color="red"
                                           small
-                                          @click="deleteTagById(tagItem.mpt_id)"
+                                          @click="deleteTagById(tagItem.mdt_id)"
                                         >
                                           mdi-close
                                         </v-icon>
@@ -467,7 +467,7 @@
                                         <v-icon
                                           color="red"
                                           small
-                                          @click="deleteTagById(tagItem.mpt_id)"
+                                          @click="deleteTagById(tagItem.mdt_id)"
                                         >
                                           mdi-close
                                         </v-icon>
@@ -501,7 +501,7 @@
                                         <v-icon
                                           color="red"
                                           small
-                                          @click="deleteTagById(tagItem.mpt_id)"
+                                          @click="deleteTagById(tagItem.mdt_id)"
                                         >
                                           mdi-close
                                         </v-icon>
@@ -533,7 +533,7 @@
                                         <v-icon
                                           color="red"
                                           small
-                                          @click="deleteTagById(tagItem.mpt_id)"
+                                          @click="deleteTagById(tagItem.mdt_id)"
                                         >
                                           mdi-close
                                         </v-icon>
@@ -574,7 +574,7 @@
                                         <v-icon
                                           color="red"
                                           small
-                                          @click="deleteTagById(tagItem.mpt_id)"
+                                          @click="deleteTagById(tagItem.mdt_id)"
                                         >
                                           mdi-close
                                         </v-icon>
@@ -606,7 +606,7 @@
                                         <v-icon
                                           color="red"
                                           small
-                                          @click="deleteTagById(tagItem.mpt_id)"
+                                          @click="deleteTagById(tagItem.mdt_id)"
                                         >
                                           mdi-close
                                         </v-icon>
@@ -640,7 +640,7 @@
                                         <v-icon
                                           color="red"
                                           small
-                                          @click="deleteTagById(tagItem.mpt_id)"
+                                          @click="deleteTagById(tagItem.mdt_id)"
                                         >
                                           mdi-close
                                         </v-icon>
@@ -707,43 +707,11 @@
         </v-card-actions>
       </v-card>
     </v-dialog>
-    <v-dialog persistent width="auto" v-model="isOpenImage">
-      <v-card width="750">
-        <v-card-title class="upload-title px-6 py-4">
-          Upload Image - Partner Location</v-card-title
-        >
-        <v-card-text>
-          <image-upload
-            :image-file="imageFile"
-            @update-image-file="updateImageFile"
-            @delete-image-file="deleteImageFile"
-          />
-        </v-card-text>
-        <v-card-actions class="mt-16">
-          <v-spacer></v-spacer>
-          <v-btn
-            style="text-transform: none"
-            color="error"
-            text
-            @click="closeImage"
-            >Cancel</v-btn
-          >
-          <v-btn
-            style="background-color: #9ddcff; text-transform: none"
-            color="black"
-            @click="saveImage()"
-            >Save</v-btn
-          >
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
   </v-container>
 </template>
 
 <script>
-import ImageUpload from '@/components/ImageUpload.vue';
 import axios from '@/util/axios';
-import http from 'axios';
 import { setAuthHeader } from '@/util/axios';
 // import app from '@/util/eventBus';
 
@@ -893,110 +861,6 @@ export default {
     },
   },
   methods: {
-    openImage(item) {
-      this.isOpenImage = true;
-      this.bannerDataToImage = {
-        id: item.id,
-      };
-      this.imageFile =
-        item.image != null
-          ? [
-              {
-                file: {
-                  name: item.image,
-                  size: '',
-                  base64: '',
-                  format: '',
-                },
-              },
-            ]
-          : [];
-    },
-
-    closeImage() {
-      this.isOpenImage = false;
-      this.imageFile = [];
-      this.bannerDataToImage = {
-        id: 0,
-      };
-    },
-
-    updateImageFile(newImageFile) {
-      this.imageFile.push(newImageFile);
-    },
-
-    deleteImageFile() {
-      this.isSending = true;
-      axios
-        .delete(`/mall-promotions/${this.bannerDataToImage.id}/main-image`)
-        .then((response) => {
-          const data = response.data;
-          this.successMessage = data.message;
-          this.isSuccess = true;
-          this.getItemsData();
-        })
-        .catch((error) => {
-          // eslint-disable-next-line
-          console.log(error);
-          const message =
-            error.response.data.message === ''
-              ? 'Something Wrong!!!'
-              : error.response.data.message;
-          this.errorMessage = message;
-          this.isError = true;
-        })
-        .finally(() => {
-          this.isEdit = false;
-          this.isSending = false;
-          // this.bannerDataToImage = {
-          //   app_id: 1,
-          //   app_group_id: 1,
-          //   app_name: '',
-          //   app_description: '',
-          //   app_detail: '',
-          // };
-          this.imageFile = [];
-        });
-    },
-    saveImage() {
-      this.isSending = true;
-      const payload = {
-        promo_id: this.bannerDataToImage.id,
-        main_image: this.imageFile[0],
-      };
-
-      http
-        .post(`/mall-promotions/update`, payload, {
-          headers: {
-            'Content-Type': 'multipart/form-data',
-          },
-        })
-        .then((response) => {
-          const data = response.data;
-          this.successMessage = data.message;
-          this.isSuccess = true;
-          this.getItemsData();
-        })
-        .catch((error) => {
-          // eslint-disable-next-line
-          console.log(error);
-          const message =
-            error.response.data.message === ''
-              ? 'Something Wrong!!!'
-              : error.response.data.message;
-          this.errorMessage = message;
-          this.isError = true;
-        })
-        .finally(() => {
-          this.isEdit = false;
-          this.isSending = false;
-          this.bannerDataToImage = {
-            id: 0,
-          };
-          this.isOpenImage = false;
-          this.imageFile = [];
-        });
-    },
     editBanner(item) {
       this.isEdit = true;
       this.input = {
@@ -1137,15 +1001,15 @@ export default {
       this.requestCount = 0; // Reset request count
       try {
         let items = await this.getBannersData();
-        // this.requestCount++;
+        this.requestCount++;
 
-        // items = await Promise.all(
-        //   items.map(async (item) => {
-        //     const tagHeaderItems = await this.getTagsHeaderDataById(item.id);
-        //     this.requestCount++;
-        //     return { ...item, tagHeaderItems: tagHeaderItems };
-        //   })
-        // );
+        items = await Promise.all(
+          items.map(async (item) => {
+            const tagHeaderItems = await this.getTagsHeaderDataById(item.id);
+            this.requestCount++;
+            return { ...item, tagHeaderItems: tagHeaderItems };
+          })
+        );
 
         this.items = items;
         console.log(items);
@@ -1238,7 +1102,7 @@ export default {
       this.isLoading = true;
       try {
         const response = await axios.get(
-          `/mall-promotion-tags/${id}/tags-by-tag-header`
+          `/mall-display-tags/${id}/tags-by-tag-header`
         );
         const data = response.data.data;
         //const newData = [];
@@ -1284,12 +1148,12 @@ export default {
     addTagById(id) {
       this.isSending = true;
       const payload = {
-        promo_id: id,
         tag_id: this.tagId,
+        md_id: id,
       };
       console.log(payload);
       axios
-        .post(`/mall-promotion-tags`, payload)
+        .post(`/mall-display-tags`, payload)
         .then((response) => {
           const data = response.data;
           this.successMessage = data.message;
@@ -1315,7 +1179,7 @@ export default {
     deleteTagById(id) {
       this.isDeleteLoading = true;
       axios
-        .delete(`/mall-promotion-tags/${id}`)
+        .delete(`/mall-display-tags/${id}`)
         .then((response) => {
           const data = response.data;
           this.successMessage = data.message;
@@ -1416,7 +1280,6 @@ export default {
         });
     },
   },
-  components: { ImageUpload },
 };
 </script>
 

@@ -7,38 +7,38 @@
     </div>
   </v-container>
   <v-container v-else>
-    <div class="d-flex ml-4 mb-6" style="gap: 50px">
-      <router-link
-        style="color: #293fb8; font-size: 13px"
-        class="text-decoration-none"
-        to="/displayed-banners"
-      >
-        <p>Back</p>
-      </router-link>
-    </div>
-    <div class="d-flex align-items-center gap-2">
-      <h3 class="ml-4 mr-10 mb-6">Main Info</h3>
-
-      <v-btn
-        color="indigo-accent-2"
-        style="text-transform: none"
-        type="submit"
-        variant="flat"
-        @click="saveData()"
-        :disabled="isSending"
-        :loading="isSending"
-      >
-        Update
-      </v-btn>
-    </div>
-
-    <h4 class="ml-4 mb-6" style="color: #293fb8; font-weight: 400">
-      {{ partnerName[0]?.name || '' }}
-    </h4>
     <v-form v-model="valid" @submit.prevent>
       <v-container>
         <v-row>
           <v-col cols="12" md="6">
+            <div class="d-flex ml-4 mb-6" style="gap: 50px">
+              <router-link
+                style="color: #293fb8; font-size: 13px"
+                class="text-decoration-none"
+                to="/displayed-banners"
+              >
+                <p>Back</p>
+              </router-link>
+            </div>
+            <div class="d-flex align-items-center gap-2">
+              <h3 class="ml-4 mr-10 mb-6">Main Info</h3>
+
+              <v-btn
+                color="indigo-accent-2"
+                style="text-transform: none"
+                type="submit"
+                variant="flat"
+                @click="saveData()"
+                :disabled="isSending"
+                :loading="isSending"
+              >
+                Update
+              </v-btn>
+            </div>
+
+            <h4 class="ml-4 mb-6" style="color: #293fb8; font-weight: 400">
+              {{ partnerName[0]?.name || '' }}
+            </h4>
             <!-- <v-combobox
               density="compact"
               label="Employer Type"
@@ -85,6 +85,24 @@
               </div>
             </div>
           </v-col>
+          <v-col cols="12" md="6">
+            <div class="w-100 py-3 pl-5" style="background: #cccccc">
+              <h3>Upload File</h3>
+            </div>
+            <div class="img-container py-4 px-8">
+              <v-img
+                class="img-content"
+                @click="openImage(itemData)"
+                style="cursor: pointer"
+                :src="
+                  itemData?.image != null
+                    ? $fileURL + itemData?.image
+                    : 'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png'
+                "
+                ><template #placeholder> <div class="skeleton" /> </template
+              ></v-img>
+            </div>
+          </v-col>
         </v-row>
       </v-container>
     </v-form>
@@ -112,22 +130,57 @@
         </v-btn>
       </template>
     </v-snackbar>
+    <v-dialog persistent width="auto" v-model="isOpenImage">
+      <v-card width="750">
+        <v-card-title class="upload-title px-6 py-4">
+          Upload Image - Partner Location</v-card-title
+        >
+        <v-card-text>
+          <image-upload
+            :image-file="imageFile"
+            :is-vertical="true"
+            @update-image-file="updateImageFile"
+            @delete-image-file="deleteImageFile"
+          />
+        </v-card-text>
+        <v-card-actions class="mt-16">
+          <v-spacer></v-spacer>
+          <v-btn
+            style="text-transform: none"
+            color="error"
+            text
+            @click="closeImage"
+            >Cancel</v-btn
+          >
+          <v-btn
+            style="background-color: #9ddcff; text-transform: none"
+            color="black"
+            @click="saveImage()"
+            >Save</v-btn
+          >
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
   </v-container>
 </template>
 
 <script>
 import axios from '@/util/axios';
 import moment from 'moment';
-// import http from 'axios';
+import ImageUpload from '@/components/ImageUpload.vue';
+import http from 'axios';
 import { setAuthHeader } from '@/util/axios';
 // import app from '@/util/eventBus';
 
 export default {
   name: 'MainInfo',
+
+  components: { ImageUpload },
   data: () => ({
     // fileURL: 'https://admin1.the-gypsy.sg/img/app/',
     idBanner: null,
     partnerName: [],
+    itemData: null,
     valid: false,
     isLoading: false,
     isSending: false,
@@ -139,7 +192,9 @@ export default {
     userIdToDelete: null,
     tableHeaders: [{ text: 'Gambar', value: 'image' }],
     imageFile: [],
-    userIdToImage: null,
+    promotionDataToImage: {
+      id: 0,
+    },
     isOpenImage: false,
     successMessage: '',
     errorMessage: '',
@@ -235,6 +290,115 @@ export default {
     this.getPartnerData();
   },
   methods: {
+    openImage(item) {
+      this.isOpenImage = true;
+      this.promotionDataToImage = {
+        id: item.md_id,
+      };
+      this.imageFile =
+        item.image != null
+          ? [
+              {
+                file: {
+                  name: item.image,
+                  size: '',
+                  base64: '',
+                  format: '',
+                },
+              },
+            ]
+          : [];
+    },
+
+    closeImage() {
+      this.isOpenImage = false;
+      this.imageFile = [];
+      this.promotionDataToImage = {
+        id: 0,
+      };
+    },
+
+    updateImageFile(newImageFile) {
+      this.imageFile.push(newImageFile);
+    },
+
+    deleteImageFile() {
+      this.isSending = true;
+      axios
+        .delete(`/mall-displays/${this.promotionDataToImage.id}/image`)
+        .then((response) => {
+          const data = response.data;
+          this.successMessage = data.message;
+          this.isSuccess = true;
+          this.getPartnerData();
+        })
+        .catch((error) => {
+          // eslint-disable-next-line
+          console.log(error);
+          const message =
+            error.response.data.message === ''
+              ? 'Something Wrong!!!'
+              : error.response.data.message;
+          this.errorMessage = message;
+          this.isError = true;
+        })
+        .finally(() => {
+          this.isEdit = false;
+          this.isSending = false;
+          // this.promotionDataToImage = {
+          //   app_id: 1,
+          //   app_group_id: 1,
+          //   app_name: '',
+          //   app_description: '',
+          //   app_detail: '',
+          // };
+          this.promotionDataToImage = {
+            id: 0,
+          };
+          this.isOpenImage = false;
+          this.imageFile = [];
+        });
+    },
+    saveImage() {
+      this.isSending = true;
+      const payload = {
+        md_id: this.promotionDataToImage.id,
+        merchant_id: this.itemData.merchant_id,
+        image: this.imageFile[0],
+      };
+
+      http
+        .post(`/mall-displays/update`, payload, {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+        })
+        .then((response) => {
+          const data = response.data;
+          this.successMessage = data.message;
+          this.isSuccess = true;
+          this.getPartnerData();
+        })
+        .catch((error) => {
+          // eslint-disable-next-line
+          console.log(error);
+          const message =
+            error.response.data.message === ''
+              ? 'Something Wrong!!!'
+              : error.response.data.message;
+          this.errorMessage = message;
+          this.isError = true;
+        })
+        .finally(() => {
+          this.isEdit = false;
+          this.isSending = false;
+          this.promotionDataToImage = {
+            id: 0,
+          };
+          this.isOpenImage = false;
+          this.imageFile = [];
+        });
+    },
     getPartnerData() {
       this.isLoading = true;
       axios
@@ -243,6 +407,7 @@ export default {
           const data = response.data.data;
           // console.log(data);
           const dataItem = data.filter((i) => i.md_id == this.idBanner);
+          this.itemData = dataItem[0];
           this.partnerName = dataItem.map((item) => {
             return {
               id: item.md_id,
@@ -356,5 +521,29 @@ export default {
 .v-btn-toggle .v-btn--active {
   background-color: #2196f3 !important;
   color: #fff !important;
+}
+
+.img-container {
+  width: 100%;
+  height: 100%;
+  border: 4px solid #cccccc;
+}
+
+.img-content {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+}
+
+.skeleton {
+  width: 100%;
+  height: 100%;
+  border-radius: 0;
+
+  background: linear-gradient(-90deg, #f2f2f2 0%, #e1e1e1 50%, #f2f2f2 100%);
+  background-size: 400% 400%;
+  animation: skeleton 1.6s ease infinite;
+  margin: 0 auto;
 }
 </style>
