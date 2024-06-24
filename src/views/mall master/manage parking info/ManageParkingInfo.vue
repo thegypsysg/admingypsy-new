@@ -135,14 +135,14 @@
       <v-container>
         <v-row>
           <v-col cols="12" md="4">
-            <h3>Mall Events</h3>
+            <h3>Manage Parking Info</h3>
           </v-col>
         </v-row>
         <v-row>
           <v-col cols="12" md="4">
             <v-text-field
               v-model="input.name"
-              label="Event Name"
+              label="Parking Title"
               variant="outlined"
               density="compact"
               required
@@ -221,14 +221,18 @@
           <v-table class="country-table">
             <thead>
               <tr>
-                <th class="text-left font-weight-bold text-black">Event Id</th>
+                <th
+                  class="text-left font-weight-bold text-black"
+                  style="width: 100px"
+                >
+                  Parking Id
+                </th>
                 <th class="text-left font-weight-bold text-black"></th>
                 <th class="text-left font-weight-bold text-black">
-                  Event Name
+                  Parking Title
                 </th>
                 <th class="text-left font-weight-bold text-black">Mall</th>
                 <th class="text-left font-weight-bold text-black">Active</th>
-                <th class="text-left font-weight-bold text-black">Live</th>
                 <th class="text-left font-weight-bold text-black">Featured</th>
                 <th class="text-left font-weight-bold text-black">User</th>
                 <th class="text-left font-weight-bold text-black">Dated</th>
@@ -268,24 +272,6 @@
                       v-model="item.isActive"
                       rounded="5"
                       @click="activeEvents(item.id)"
-                    >
-                      <v-btn size="27" :value="true"> Yes </v-btn>
-
-                      <v-btn size="27" :value="false"> No </v-btn>
-                    </v-btn-toggle>
-                  </td>
-                  <td>
-                    <v-btn-toggle
-                      style="
-                        font-size: 10px !important;
-                        font-weight: 200 !important;
-                        height: 22px !important;
-                        width: 54px !important;
-                      "
-                      class="d-flex align-center"
-                      v-model="item.isLive"
-                      rounded="5"
-                      @click="liveEvents(item.id)"
                     >
                       <v-btn size="27" :value="true"> Yes </v-btn>
 
@@ -348,9 +334,34 @@
                 <tr>
                   <td colspan="10">
                     <div class="d-flex flex-column justify-start">
-                      <v-table class="text-left pt-8 px-16 w-50">
+                      <v-table class="text-left pl-16">
                         <tr>
-                          <td class="pt-2 pr-1 d-flex">
+                          <td class="pl-16 pb-4">
+                            <div
+                              class="d-flex justify-start pl-16"
+                              style="gap: 20px"
+                            >
+                              <p class="font-weight-bold">
+                                Views :
+                                <span class="text-blue-darken-4">10</span>
+                              </p>
+                              <p>|</p>
+                              <p class="font-weight-bold">
+                                Likes :
+                                <span class="text-blue-darken-4">10</span>
+                              </p>
+                              <p>|</p>
+                              <p class="font-weight-bold">
+                                Shares :
+                                <span class="text-blue-darken-4">10</span>
+                              </p>
+                            </div>
+                          </td>
+                        </tr>
+                      </v-table>
+                      <v-table class="text-left px-16 w-50">
+                        <tr>
+                          <td class="pr-1 d-flex">
                             <v-autocomplete
                               v-model="tagId"
                               class="form-control search-input"
@@ -435,7 +446,7 @@
                             <div class="d-flex justify-start" style="gap: 20px">
                               <router-link
                                 class="text-decoration-none"
-                                :to="`manage_events/main-info/${item.id}`"
+                                :to="`manage_parking_info/main-info/${item.id}`"
                               >
                                 <span>Main Info</span>
                               </router-link>

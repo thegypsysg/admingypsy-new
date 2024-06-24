@@ -20,6 +20,14 @@
         >
           <h4 class="mt-4">Country / City</h4>
         </router-link>
+        <router-link
+          active-class="text-purple-accent-4"
+          style="color: black"
+          class="text-decoration-none"
+          to="/manage_parking_info"
+        >
+          <h4 class="mt-4">Manage Parking Info</h4>
+        </router-link>
       </div>
       <div>
         <router-link
@@ -38,6 +46,14 @@
           to="/manage_events"
         >
           <h4 class="mt-4">Manage Events</h4>
+        </router-link>
+        <router-link
+          active-class="text-purple-accent-4"
+          style="color: black"
+          class="text-decoration-none"
+          to="/"
+        >
+          <h4 class="mt-4">Manage Mall Promos</h4>
         </router-link>
       </div>
 
@@ -58,6 +74,14 @@
           to="/manage_levels"
         >
           <h4 class="mt-4">Manage Levels</h4>
+        </router-link>
+        <router-link
+          active-class="text-red-darken-4"
+          style="color: black"
+          class="text-decoration-none"
+          to="/"
+        >
+          <h4 class="mt-4">Manage Jobs</h4>
         </router-link>
       </div>
       <div>
