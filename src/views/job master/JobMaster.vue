@@ -124,8 +124,7 @@
                   <td class="text-black text-bold">
                     {{ item.subIndustry }}
                   </td>
-                  <td class="text-black text-bold">
-                  </td>
+                  <td class="text-black text-bold"></td>
                   <td
                     class="text-bold"
                     :class="{
@@ -167,7 +166,7 @@
                   </td>
                 </tr>
                 <tr>
-                  <td style="border-bottom: none;" colspan="7">
+                  <td style="border-bottom: none" colspan="7">
                     <div>
                       <v-table class="text-left">
                         <tr>
@@ -196,6 +195,7 @@
                               "
                               class="d-flex align-center"
                               v-model="item.isActive"
+                              :disabled="isSending2"
                               @click="activeJob(item.job_id)"
                               rounded="5"
                             >
@@ -215,6 +215,7 @@
                               class="d-flex align-center"
                               v-model="item.isLive"
                               @click="liveJob(item.job_id)"
+                              :disabled="isSending2"
                               rounded="5"
                             >
                               <v-btn size="27" :value="true"> Yes </v-btn>
@@ -233,6 +234,7 @@
                               class="d-flex align-center"
                               v-model="item.isFeatured"
                               @click="featuredJob(item.job_id)"
+                              :disabled="isSending2"
                               rounded="5"
                             >
                               <v-btn size="27" :value="true"> Yes </v-btn>
@@ -251,6 +253,7 @@
                               class="d-flex align-center"
                               v-model="item.isPlatinum"
                               @click="platinumJob(item.job_id)"
+                              :disabled="isSending2"
                               rounded="5"
                             >
                               <v-btn size="27" :value="true"> Yes </v-btn>
@@ -269,6 +272,7 @@
                               class="d-flex align-center"
                               v-model="item.isPrivileged"
                               @click="privilegedJob(item.job_id)"
+                              :disabled="isSending2"
                               rounded="5"
                             >
                               <v-btn size="27" :value="true"> Yes </v-btn>
@@ -302,7 +306,7 @@
                   </td>
                 </tr>
                 <tr>
-                  <td  colspan="7">
+                  <td colspan="7">
                     <div>
                       <v-table class="text-left">
                         <tr>
@@ -322,20 +326,24 @@
                             {{ item.showInCountry }}
                           </td>
                           <td class="pt-2 pb-4 text-blue-darken-4">
-                            {{item.jobLocationCity == 'Singapore City' ? item.address2 : item.address}}
+                            {{
+                              item.jobLocationCity == 'Singapore City'
+                                ? item.address2
+                                : item.address
+                            }}
                           </td>
                           <td class="pt-2 pb-4 text-blue-darken-4">
-                            <div style="width: 80px;"></div>
+                            <div style="width: 80px"></div>
                           </td>
                           <td class="pt-2 pb-4 text-blue-darken-4">
-                            <div style="width: 80px;"></div>
+                            <div style="width: 80px"></div>
                           </td>
                           <td class="pt-2 pb-4 text-blue-darken-4">
-                            <div style="width: 80px;"></div>
+                            <div style="width: 80px"></div>
                           </td>
                           <td class="pb-4 d-flex justify-end">
                             <v-btn
-                            @click="openTemplateConfirm(item)"
+                              @click="openTemplateConfirm(item)"
                               color="pink"
                               style="text-transform: none"
                               variant="flat"
@@ -426,10 +434,14 @@
     <v-dialog persistent width="500" v-model="isTemplate">
       <v-card>
         <v-card-title>Template</v-card-title>
-        <v-card-text> 
+        <v-card-text>
           <p>Do you wish make Template for</p>
-          <p class="text-blue-lighten-1 mt-2">{{`${templateData?.id} - ${templateData?.position} - ${templateData?.client}`}}</p>
-         </v-card-text>
+          <p class="text-blue-lighten-1 mt-2">
+            {{
+              `${templateData?.id} - ${templateData?.position} - ${templateData?.client}`
+            }}
+          </p>
+        </v-card-text>
         <v-card-actions>
           <v-spacer></v-spacer>
           <v-btn color="error" text @click="cancelTemplate">No</v-btn>
@@ -439,12 +451,21 @@
     </v-dialog>
     <v-dialog persistent width="500" v-model="isSuccessTemplate">
       <v-card>
-        <v-card-text> 
+        <v-card-text>
           <p class="mb-2">Template Successfully Created</p>
-          <div class="w-100 d-flex"><span class="w-25">Job Ref  : </span><span class="text-red w-75">{{templateData?.id}}</span></div>
-          <div class="w-100 d-flex"><span class="w-25">Position : </span><span class="text-red w-75">{{templateData?.position}}</span></div>
-          <div class="w-100 d-flex"><span class="w-25">Client   : </span><span class="text-red w-75">{{templateData?.client}}</span></div>
-         </v-card-text>
+          <div class="w-100 d-flex">
+            <span class="w-25">Job Ref : </span
+            ><span class="text-red w-75">{{ templateData?.id }}</span>
+          </div>
+          <div class="w-100 d-flex">
+            <span class="w-25">Position : </span
+            ><span class="text-red w-75">{{ templateData?.position }}</span>
+          </div>
+          <div class="w-100 d-flex">
+            <span class="w-25">Client : </span
+            ><span class="text-red w-75">{{ templateData?.client }}</span>
+          </div>
+        </v-card-text>
         <v-card-actions>
           <v-btn color="blue" text @click="closeTemplateSuccess">OK</v-btn>
           <v-spacer></v-spacer>
@@ -467,6 +488,7 @@ export default {
     valid: false,
     isLoading: false,
     isSending: false,
+    isSending2: false,
     isError: false,
     isEdit: false,
     isSuccess: false,
@@ -670,46 +692,46 @@ export default {
       this.isTemplate = false;
     },
     openTemplateConfirm(item) {
-      this.templateData = item
+      this.templateData = item;
       this.isTemplate = true;
     },
     showTemplateSuccess() {
-            this.isTemplate = false;
-            this.isSuccessTemplate = true;
+      this.isTemplate = false;
+      this.isSuccessTemplate = true;
     },
     closeTemplateSuccess() {
       this.isSuccessTemplate = false;
       this.templateData = null;
     },
     sendTemplate() {
-        this.isSending = true;
-        const payload = {
-          job_id: this.templateData.job_id,
-        };
-        axios
-          .post(`/jobs/copy`, payload)
-          .then((response) => {
-            const data = response.data;
-            console.log(data);
-            this.getJobData();
-            this.showTemplateSuccess()
-          })
-          .catch((error) => {
-            // eslint-disable-next-line
-            console.log(error);
-            const message =
-              error.response.data.message === ''
-                ? 'Something Wrong!!!'
-                : error.response.data.message;
-            this.errorMessage = message;
-            this.isError = true;
-            this.templateData = null;
-      this.isTemplate = false;
-          })
-          .finally(() => {
-            this.isSending = false;
-          });
-      },
+      this.isSending = true;
+      const payload = {
+        job_id: this.templateData.job_id,
+      };
+      axios
+        .post(`/jobs/copy`, payload)
+        .then((response) => {
+          const data = response.data;
+          console.log(data);
+          this.getJobData();
+          this.showTemplateSuccess();
+        })
+        .catch((error) => {
+          // eslint-disable-next-line
+          console.log(error);
+          const message =
+            error.response.data.message === ''
+              ? 'Something Wrong!!!'
+              : error.response.data.message;
+          this.errorMessage = message;
+          this.isError = true;
+          this.templateData = null;
+          this.isTemplate = false;
+        })
+        .finally(() => {
+          this.isSending = false;
+        });
+    },
     cancelDelete() {
       this.jobIdToDelete = null;
       this.isDelete = false;
@@ -750,84 +772,161 @@ export default {
         .get(`/jobs`)
         .then((response) => {
           const data = response.data.data;
-          this.items = data.sort((a, b) => b.job_id - a.job_id).map((item) => {
-            return {
-              //       app: 'The Syringe',
-              //       skillsGroup: 'Nusrsing',
-              //       skills: 'Physioterapist',
-              id: item.job_reference_no || '',
-              job_id: item.job_id || 1,
-              position: item.position.position_name || '',
-              position_id: item.position_id || 1,
-              client: item.partner.partner_name || '',
-              partner_id: item.partner_id || 1,
-              subIndustry: item.partner.sub_industry.sub_industry_name || '',
-              skills_id: item.skills_id || 1,
-              status:
-                item.status == 'P'
-                  ? 'Pending'
-                  : item.status == 'C'
-                  ? 'Completed'
-                  : '',
-              postedOn: item.job_dated || '',
-              isActive:
-                item.active == 'N' ? false : item.active == 'Y' ? true : null,
-              isFeatured:
-                item.featured == 'N'
-                  ? false
-                  : item.featured == 'Y'
-                  ? true
-                  : null,
-              isPlatinum:
-                item.platinum == 'N'
-                  ? false
-                  : item.platinum == 'Y'
-                  ? true
-                  : null,
-              isPrivileged:
-                item.privileged == 'N'
-                  ? false
-                  : item.privileged == 'Y'
-                  ? true
-                  : null,
-              isLive: item.live == 'N' ? false : item.live == 'Y' ? true : null,
-              app: item.skill.skill_group.app.app_name || '',
-              skillsGroup: item.skill.skill_group.group_name || '',
-              skills: item.skill.skills_name || '',
-              international: item.job_international.map((inter) => inter),
-              country: item.job_country_name || '',
-              countryId: item.job_country || null,
-              showInCountry: item.show_in_country_name || '',
-              showInCountryId: item.show_in_country || null,
-              jobLocationCountry: item.job_location_country_name || '',
-              jobLocationCity: item.job_location_city_name || '',
-              jobLocationTown: item.job_location_town_name || '',
-              jobLocationZone: item.job_location_zone_name || '',
-              address: 
-              item.job_location_country_name && item.job_location_city_name && item.job_location_town_name && item.job_location_zone_name ? `${item.job_location_town_name} (${item.job_location_zone_name}), ${item.job_location_city_name}, ${item.job_location_country_name}` :
-              item.job_location_country_name == null && item.job_location_city_name && item.job_location_town_name && item.job_location_zone_name ? `${item.job_location_town_name} (${item.job_location_zone_name}), ${item.job_location_city_name}` :
-              item.job_location_country_name && item.job_location_city_name == null && item.job_location_town_name && item.job_location_zone_name ? `${item.job_location_town_name} (${item.job_location_zone_name}), ${item.job_location_country_name}` :
-              item.job_location_country_name && item.job_location_city_name && item.job_location_town_name == null && item.job_location_zone_name ? `${item.job_location_city_name} (${item.job_location_zone_name}), ${item.job_location_country_name}` :
-              item.job_location_country_name && item.job_location_city_name && item.job_location_town_name&& item.job_location_zone_name == null  ? `${item.job_location_town_name}, ${item.job_location_city_name}, ${item.job_location_country_name}` :
-              item.job_location_country_name == null && item.job_location_city_name == null && item.job_location_town_name && item.job_location_zone_name  ? `${item.job_location_town_name} (${item.job_location_zone_name})` :
-              item.job_location_country_name && item.job_location_city_name == null && item.job_location_town_name == null && item.job_location_zone_name  ? `${item.job_location_country_name} (${item.job_location_zone_name})` :
-              item.job_location_country_name && item.job_location_city_name && item.job_location_town_name == null && item.job_location_zone_name == null  ? `${item.job_location_city_name}, ${item.job_location_country_name}` :
-              item.job_location_country_name && item.job_location_city_name == null && item.job_location_town_name == null && item.job_location_zone_name == null  ? `${item.job_location_country_name}` :
-              item.job_location_country_name == null && item.job_location_city_name && item.job_location_town_name == null && item.job_location_zone_name == null  ? `${item.job_location_city_name}` :
-              item.job_location_country_name == null && item.job_location_city_name == null && item.job_location_town_name && item.job_location_zone_name == null  ? `${item.job_location_town_name}` :
-              item.job_location_country_name == null && item.job_location_city_name == null && item.job_location_town_name == null && item.job_location_zone_name  ? `${item.job_location_zone_name}` : '-',
+          this.items = data
+            .sort((a, b) => b.job_id - a.job_id)
+            .map((item) => {
+              return {
+                //       app: 'The Syringe',
+                //       skillsGroup: 'Nusrsing',
+                //       skills: 'Physioterapist',
+                id: item.job_reference_no || '',
+                job_id: item.job_id || 1,
+                position: item.position.position_name || '',
+                position_id: item.position_id || 1,
+                client: item.partner.partner_name || '',
+                partner_id: item.partner_id || 1,
+                subIndustry: item.partner.sub_industry.sub_industry_name || '',
+                skills_id: item.skills_id || 1,
+                status:
+                  item.status == 'P'
+                    ? 'Pending'
+                    : item.status == 'C'
+                    ? 'Completed'
+                    : '',
+                postedOn: item.job_dated || '',
+                isActive:
+                  item.active == 'N' ? false : item.active == 'Y' ? true : null,
+                isFeatured:
+                  item.featured == 'N'
+                    ? false
+                    : item.featured == 'Y'
+                    ? true
+                    : null,
+                isPlatinum:
+                  item.platinum == 'N'
+                    ? false
+                    : item.platinum == 'Y'
+                    ? true
+                    : null,
+                isPrivileged:
+                  item.privileged == 'N'
+                    ? false
+                    : item.privileged == 'Y'
+                    ? true
+                    : null,
+                isLive:
+                  item.live == 'N' ? false : item.live == 'Y' ? true : null,
+                app: item.skill.skill_group.app.app_name || '',
+                skillsGroup: item.skill.skill_group.group_name || '',
+                skills: item.skill.skills_name || '',
+                international: item.job_international.map((inter) => inter),
+                country: item.job_country_name || '',
+                countryId: item.job_country || null,
+                showInCountry: item.show_in_country_name || '',
+                showInCountryId: item.show_in_country || null,
+                jobLocationCountry: item.job_location_country_name || '',
+                jobLocationCity: item.job_location_city_name || '',
+                jobLocationTown: item.job_location_town_name || '',
+                jobLocationZone: item.job_location_zone_name || '',
+                address:
+                  item.job_location_country_name &&
+                  item.job_location_city_name &&
+                  item.job_location_town_name &&
+                  item.job_location_zone_name
+                    ? `${item.job_location_town_name} (${item.job_location_zone_name}), ${item.job_location_city_name}, ${item.job_location_country_name}`
+                    : item.job_location_country_name == null &&
+                      item.job_location_city_name &&
+                      item.job_location_town_name &&
+                      item.job_location_zone_name
+                    ? `${item.job_location_town_name} (${item.job_location_zone_name}), ${item.job_location_city_name}`
+                    : item.job_location_country_name &&
+                      item.job_location_city_name == null &&
+                      item.job_location_town_name &&
+                      item.job_location_zone_name
+                    ? `${item.job_location_town_name} (${item.job_location_zone_name}), ${item.job_location_country_name}`
+                    : item.job_location_country_name &&
+                      item.job_location_city_name &&
+                      item.job_location_town_name == null &&
+                      item.job_location_zone_name
+                    ? `${item.job_location_city_name} (${item.job_location_zone_name}), ${item.job_location_country_name}`
+                    : item.job_location_country_name &&
+                      item.job_location_city_name &&
+                      item.job_location_town_name &&
+                      item.job_location_zone_name == null
+                    ? `${item.job_location_town_name}, ${item.job_location_city_name}, ${item.job_location_country_name}`
+                    : item.job_location_country_name == null &&
+                      item.job_location_city_name == null &&
+                      item.job_location_town_name &&
+                      item.job_location_zone_name
+                    ? `${item.job_location_town_name} (${item.job_location_zone_name})`
+                    : item.job_location_country_name &&
+                      item.job_location_city_name == null &&
+                      item.job_location_town_name == null &&
+                      item.job_location_zone_name
+                    ? `${item.job_location_country_name} (${item.job_location_zone_name})`
+                    : item.job_location_country_name &&
+                      item.job_location_city_name &&
+                      item.job_location_town_name == null &&
+                      item.job_location_zone_name == null
+                    ? `${item.job_location_city_name}, ${item.job_location_country_name}`
+                    : item.job_location_country_name &&
+                      item.job_location_city_name == null &&
+                      item.job_location_town_name == null &&
+                      item.job_location_zone_name == null
+                    ? `${item.job_location_country_name}`
+                    : item.job_location_country_name == null &&
+                      item.job_location_city_name &&
+                      item.job_location_town_name == null &&
+                      item.job_location_zone_name == null
+                    ? `${item.job_location_city_name}`
+                    : item.job_location_country_name == null &&
+                      item.job_location_city_name == null &&
+                      item.job_location_town_name &&
+                      item.job_location_zone_name == null
+                    ? `${item.job_location_town_name}`
+                    : item.job_location_country_name == null &&
+                      item.job_location_city_name == null &&
+                      item.job_location_town_name == null &&
+                      item.job_location_zone_name
+                    ? `${item.job_location_zone_name}`
+                    : '-',
 
-              address2: 
-              item.job_location_country_name  && item.job_location_town_name && item.job_location_zone_name ? `${item.job_location_town_name} (${item.job_location_zone_name}), ${item.job_location_country_name}` :
-              item.job_location_country_name == null  && item.job_location_town_name && item.job_location_zone_name ? `${item.job_location_town_name} (${item.job_location_zone_name})` :
-              item.job_location_country_name  && item.job_location_town_name == null && item.job_location_zone_name ? `${item.job_location_country_name}(${item.job_location_zone_name})` :
-              item.job_location_country_name  && item.job_location_town_name && item.job_location_zone_name == null  ? `${item.job_location_town_name}, ${item.job_location_country_name}` :
-              item.job_location_country_name  && item.job_location_town_name == null && item.job_location_zone_name == null  ? `${item.job_location_country_name}` :
-              item.job_location_country_name  == null && item.job_location_town_name && item.job_location_zone_name == null  ? `${item.job_location_town_name}` :
-              item.job_location_country_name == null  && item.job_location_town_name == null && item.job_location_zone_name  ? `${item.job_location_zone_name}` :
-              item.job_location_country_name == null   && item.job_location_town_name == null && item.job_location_zone_name == null  ? `${item.job_location_city_name}` : '-'
-            };
-          });
+                address2:
+                  item.job_location_country_name &&
+                  item.job_location_town_name &&
+                  item.job_location_zone_name
+                    ? `${item.job_location_town_name} (${item.job_location_zone_name}), ${item.job_location_country_name}`
+                    : item.job_location_country_name == null &&
+                      item.job_location_town_name &&
+                      item.job_location_zone_name
+                    ? `${item.job_location_town_name} (${item.job_location_zone_name})`
+                    : item.job_location_country_name &&
+                      item.job_location_town_name == null &&
+                      item.job_location_zone_name
+                    ? `${item.job_location_country_name}(${item.job_location_zone_name})`
+                    : item.job_location_country_name &&
+                      item.job_location_town_name &&
+                      item.job_location_zone_name == null
+                    ? `${item.job_location_town_name}, ${item.job_location_country_name}`
+                    : item.job_location_country_name &&
+                      item.job_location_town_name == null &&
+                      item.job_location_zone_name == null
+                    ? `${item.job_location_country_name}`
+                    : item.job_location_country_name == null &&
+                      item.job_location_town_name &&
+                      item.job_location_zone_name == null
+                    ? `${item.job_location_town_name}`
+                    : item.job_location_country_name == null &&
+                      item.job_location_town_name == null &&
+                      item.job_location_zone_name
+                    ? `${item.job_location_zone_name}`
+                    : item.job_location_country_name == null &&
+                      item.job_location_town_name == null &&
+                      item.job_location_zone_name == null
+                    ? `${item.job_location_city_name}`
+                    : '-',
+              };
+            });
         })
         .catch((error) => {
           // eslint-disable-next-line
@@ -930,7 +1029,7 @@ export default {
         });
     },
     activeJob(id) {
-      this.isSending = true;
+      this.isSending2 = true;
       axios
         .get(`/jobs/toggle-active/${id}`)
         .then((response) => {
@@ -950,11 +1049,11 @@ export default {
           this.isError = true;
         })
         .finally(() => {
-          this.isSending = false;
+          this.isSending2 = false;
         });
     },
     liveJob(id) {
-      this.isSending = true;
+      this.isSending2 = true;
       axios
         .get(`/jobs/toggle-live/${id}`)
         .then((response) => {
@@ -974,11 +1073,11 @@ export default {
           this.isError = true;
         })
         .finally(() => {
-          this.isSending = false;
+          this.isSending2 = false;
         });
     },
     featuredJob(id) {
-      this.isSending = true;
+      this.isSending2 = true;
       axios
         .get(`/jobs/toggle-featured/${id}`)
         .then((response) => {
@@ -998,11 +1097,11 @@ export default {
           this.isError = true;
         })
         .finally(() => {
-          this.isSending = false;
+          this.isSending2 = false;
         });
     },
     platinumJob(id) {
-      this.isSending = true;
+      this.isSending2 = true;
       axios
         .get(`/jobs/toggle-platinum/${id}`)
         .then((response) => {
@@ -1022,11 +1121,11 @@ export default {
           this.isError = true;
         })
         .finally(() => {
-          this.isSending = false;
+          this.isSending2 = false;
         });
     },
     privilegedJob(id) {
-      this.isSending = true;
+      this.isSending2 = true;
       axios
         .get(`/jobs/toggle-privileged/${id}`)
         .then((response) => {
@@ -1046,7 +1145,7 @@ export default {
           this.isError = true;
         })
         .finally(() => {
-          this.isSending = false;
+          this.isSending2 = false;
         });
     },
   },

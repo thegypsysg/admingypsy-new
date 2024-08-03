@@ -50,7 +50,7 @@
           active-class="text-purple-accent-4"
           style="color: black"
           class="text-decoration-none"
-          to="/"
+          to="/manage_mall_promos"
         >
           <h4 class="mt-4">Manage Mall Promos</h4>
         </router-link>
@@ -78,7 +78,7 @@
           active-class="text-red-darken-4"
           style="color: black"
           class="text-decoration-none"
-          to="/"
+          to="/manage_jobs"
         >
           <h4 class="mt-4">Manage Jobs</h4>
         </router-link>

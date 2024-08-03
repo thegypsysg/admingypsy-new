@@ -169,6 +169,7 @@
                       "
                       class="d-flex align-center"
                       v-model="item.isActive"
+                      :disabled="isSending2"
                       @click="activeCategory(item.id)"
                       rounded="5"
                     >
@@ -186,6 +187,7 @@
                         width: 54px !important;
                       "
                       class="d-flex align-center"
+                      :disabled="isSending2"
                       v-model="item.isWebsite"
                       @click="websiteCategory(item.id)"
                       rounded="5"
@@ -338,6 +340,7 @@ export default {
     valid: false,
     isLoading: false,
     isSending: false,
+    isSending2: false,
     isEdit: false,
     isSuccess: false,
     isError: false,
@@ -722,7 +725,7 @@ export default {
         });
     },
     activeCategory(id) {
-      this.isSending = true;
+      this.isSending2 = true;
       axios
         .get(`/categories/toggle-active/${id}`)
         .then((response) => {
@@ -742,11 +745,11 @@ export default {
           this.isError = true;
         })
         .finally(() => {
-          this.isSending = false;
+          this.isSending2 = false;
         });
     },
     websiteCategory(id) {
-      this.isSending = true;
+      this.isSending2 = true;
       axios
         .get(`/categories/toggle-show-in-website/${id}`)
         .then((response) => {
@@ -766,7 +769,7 @@ export default {
           this.isError = true;
         })
         .finally(() => {
-          this.isSending = false;
+          this.isSending2 = false;
         });
     },
   },

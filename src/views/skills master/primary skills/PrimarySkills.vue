@@ -188,6 +188,7 @@
                       "
                       class="d-flex align-center"
                       v-model="item.isActive"
+                      :disabled="isSending2"
                       @click="activeSkill(item.id)"
                       rounded="5"
                     >
@@ -243,7 +244,9 @@
                           </td>
                           <td>
                             <tr>
-                              <th class="pt-2 text-red-darken-4">Stand Alone</th>
+                              <th class="pt-2 text-red-darken-4">
+                                Stand Alone
+                              </th>
                             </tr>
                             <tr>
                               <td class="pt-4 pb-1">
@@ -256,6 +259,7 @@
                                   "
                                   class="d-flex align-center"
                                   v-model="item.isStandAlone"
+                                  :disabled="isSending2"
                                   @click="standAloneSkill(item.id)"
                                   rounded="5"
                                 >
@@ -382,6 +386,7 @@ export default {
     valid: false,
     isLoading: false,
     isSending: false,
+    isSending2: false,
     isEdit: false,
     isSuccess: false,
     isError: false,
@@ -856,7 +861,7 @@ export default {
         });
     },
     activeSkill(id) {
-      this.isSending = true;
+      this.isSending2 = true;
       axios
         .get(`/skills/active/${id}`)
         .then((response) => {
@@ -876,11 +881,11 @@ export default {
           this.isError = true;
         })
         .finally(() => {
-          this.isSending = false;
+          this.isSending2 = false;
         });
     },
     standAloneSkill(id) {
-      this.isSending = true;
+      this.isSending2 = true;
       axios
         .get(`/skills/toggle-stand-alone/${id}`)
         .then((response) => {
@@ -900,7 +905,7 @@ export default {
           this.isError = true;
         })
         .finally(() => {
-          this.isSending = false;
+          this.isSending2 = false;
         });
     },
   },

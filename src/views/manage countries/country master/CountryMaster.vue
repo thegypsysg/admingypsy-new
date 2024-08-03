@@ -182,6 +182,7 @@
                     "
                     class="d-flex align-center"
                     v-model="item.isActive"
+                    :disabled="isSending2"
                     rounded="5"
                     @click="activeCountry(item.id)"
                   >
@@ -200,6 +201,7 @@
                     "
                     class="d-flex align-center"
                     v-model="item.isFav"
+                    :disabled="isSending2"
                     rounded="5"
                     @click="favoriteCountry(item.id)"
                   >
@@ -332,6 +334,7 @@ export default {
     valid: false,
     isLoading: false,
     isSending: false,
+    isSending2: false,
     isError: false,
     isEdit: false,
     isSuccess: false,
@@ -740,7 +743,7 @@ export default {
     },
 
     activeCountry(id) {
-      this.isSending = true;
+      this.isSending2 = true;
       axios
         .get(`/countries/toggle-active/${id}`)
         .then((response) => {
@@ -760,11 +763,11 @@ export default {
           this.isError = true;
         })
         .finally(() => {
-          this.isSending = false;
+          this.isSending2 = false;
         });
     },
     favoriteCountry(id) {
-      this.isSending = true;
+      this.isSending2 = true;
       axios
         .get(`/countries/toggle-favorite/${id}`)
         .then((response) => {
@@ -784,7 +787,7 @@ export default {
           this.isError = true;
         })
         .finally(() => {
-          this.isSending = false;
+          this.isSending2 = false;
         });
     },
   },

@@ -130,6 +130,7 @@
                       "
                       class="d-flex align-center"
                       v-model="item.registrable"
+                      :disabled="isSending2"
                       @click="registrableCountry(item.id)"
                       rounded="5"
                     >
@@ -248,6 +249,7 @@ export default {
     valid: false,
     isLoading: false,
     isSending: false,
+    isSending2: false,
     isEdit: false,
     isSuccess: false,
     isError: false,
@@ -571,7 +573,7 @@ export default {
         });
     },
     registrableCountry(id) {
-      this.isSending = true;
+      this.isSending2 = true;
       axios
         .get(`/registrable_countries/toggle-registrable/${id}`)
         .then((response) => {
@@ -591,7 +593,7 @@ export default {
           this.isError = true;
         })
         .finally(() => {
-          this.isSending = false;
+          this.isSending2 = false;
         });
     },
   },

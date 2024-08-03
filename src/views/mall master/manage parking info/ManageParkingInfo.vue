@@ -51,7 +51,7 @@
           active-class="text-purple-accent-4"
           style="color: black"
           class="text-decoration-none"
-          to="/"
+          to="/manage_mall_promos"
         >
           <h4 class="mt-4">Manage Mall Promos</h4>
         </router-link>
@@ -79,7 +79,7 @@
           active-class="text-red-darken-4"
           style="color: black"
           class="text-decoration-none"
-          to="/"
+          to="/manage_jobs"
         >
           <h4 class="mt-4">Manage Jobs</h4>
         </router-link>
@@ -270,8 +270,9 @@
                       "
                       class="d-flex align-center"
                       v-model="item.isActive"
+                      :disabled="isSending2"
                       rounded="5"
-                      @click="activeEvents(item.id)"
+                      @click="activeParking(item.id)"
                     >
                       <v-btn size="27" :value="true"> Yes </v-btn>
 
@@ -288,8 +289,9 @@
                       "
                       class="d-flex align-center"
                       v-model="item.isFeatured"
+                      :disabled="isSending2"
                       rounded="5"
-                      @click="featuredEvents(item.id)"
+                      @click="featuredParking(item.id)"
                     >
                       <v-btn size="27" :value="true"> Yes </v-btn>
 
@@ -343,17 +345,23 @@
                             >
                               <p class="font-weight-bold">
                                 Views :
-                                <span class="text-blue-darken-4">10</span>
+                                <span class="text-blue-darken-4">{{
+                                  item?.views || 0
+                                }}</span>
                               </p>
                               <p>|</p>
                               <p class="font-weight-bold">
                                 Likes :
-                                <span class="text-blue-darken-4">10</span>
+                                <span class="text-blue-darken-4">{{
+                                  item?.likes || 0
+                                }}</span>
                               </p>
                               <p>|</p>
                               <p class="font-weight-bold">
                                 Shares :
-                                <span class="text-blue-darken-4">10</span>
+                                <span class="text-blue-darken-4">{{
+                                  item?.shares || 0
+                                }}</span>
                               </p>
                             </div>
                           </td>
@@ -363,7 +371,7 @@
                         <tr>
                           <td class="pr-1 d-flex">
                             <v-autocomplete
-                              v-model="tagId"
+                              v-model="item.selectedTag"
                               class="form-control search-input"
                               item-title="name"
                               item-value="id"
@@ -404,9 +412,9 @@
                               style="text-transform: none"
                               type="submit"
                               variant="flat"
-                              @click="addTagById(item.id)"
-                              :disabled="isSending"
-                              :loading="isSending"
+                              @click="addTagById(item)"
+                              :disabled="item.loadingTag"
+                              :loading="item.loadingTag"
                             >
                               Add Tag
                             </v-btn>
@@ -430,7 +438,12 @@
                                   <v-icon
                                     color="red"
                                     small
-                                    @click="deleteTagById(tagItem.met_id)"
+                                    @click="
+                                      deleteTagById(
+                                        tagItem.mpt_id,
+                                        item.loadingTag
+                                      )
+                                    "
                                   >
                                     mdi-close
                                   </v-icon>
@@ -449,6 +462,18 @@
                                 :to="`manage_parking_info/main-info/${item.id}`"
                               >
                                 <span>Main Info</span>
+                              </router-link>
+                              <router-link
+                                class="text-decoration-none"
+                                :to="`manage_parking_info/services/${item.id}`"
+                              >
+                                <span>Parking Services</span>
+                              </router-link>
+                              <router-link
+                                class="text-decoration-none"
+                                :to="`manage_parking_info/levels/${item.id}`"
+                              >
+                                <span>Parking Levels</span>
                               </router-link>
                             </div>
                           </td>
@@ -497,7 +522,9 @@
     <v-dialog persistent width="500" v-model="isDelete">
       <v-card>
         <v-card-title>Confirmation</v-card-title>
-        <v-card-text> Are you sure want to delete this event? </v-card-text>
+        <v-card-text>
+          Are you sure want to delete this parking info?
+        </v-card-text>
         <v-card-actions>
           <v-spacer></v-spacer>
           <v-btn color="error" text @click="cancelDelete">No</v-btn>
@@ -548,7 +575,7 @@ import { setAuthHeader } from '@/util/axios';
 // import app from '@/util/eventBus';
 
 export default {
-  name: 'ManageEvents',
+  name: 'ManageParking',
   data: () => ({
     // fileURL: 'https://admin1.the-gypsy.sg/img/app/',
     partnerName: null,
@@ -556,6 +583,7 @@ export default {
     requestCount: 0,
     isLoading: false,
     isSending: false,
+    isSending2: false,
     isError: false,
     isEdit: false,
     isSuccess: false,
@@ -658,7 +686,6 @@ export default {
   mounted() {
     this.getItemsData();
     this.getMallsData();
-    this.getTagsData();
   },
   computed: {
     filteredItems() {
@@ -684,7 +711,7 @@ export default {
     deleteImageFile() {
       this.isSending = true;
       axios
-        .delete(`/mall-events/${this.partnerLocationDataToImage.id}/image`)
+        .delete(`/mall-parking/${this.partnerLocationDataToImage.id}/image`)
         .then((response) => {
           const data = response.data;
           this.successMessage = data.message;
@@ -736,11 +763,11 @@ export default {
     saveImage() {
       this.isSending = true;
       const payload = {
-        event_id: this.partnerLocationDataToImage.id,
-        event_image: this.imageFile[0],
+        parking_id: this.partnerLocationDataToImage.id,
+        image: this.imageFile[0],
       };
       http
-        .post(`/mall-events/update`, payload, {
+        .post(`/mall-parking/update`, payload, {
           headers: {
             'Content-Type': 'multipart/form-data',
           },
@@ -792,12 +819,12 @@ export default {
       if (this.valid) {
         this.isSending = true;
         const payload = {
-          event_id: this.input.id,
-          event_header: this.input.name,
+          parking_id: this.input.id,
+          parking_header: this.input.name,
           mall_id: this.input.mall,
         };
         axios
-          .post(`/mall-events/update`, payload)
+          .post(`/mall-parking/update`, payload)
           .then((response) => {
             const data = response.data;
             this.successMessage = data.message;
@@ -836,11 +863,11 @@ export default {
       if (this.valid) {
         this.isSending = true;
         const payload = {
-          event_header: this.input.name,
+          parking_header: this.input.name,
           mall_id: this.input.mall,
         };
         axios
-          .post(`/mall-events`, payload)
+          .post(`/mall-parking`, payload)
           .then((response) => {
             const data = response.data;
             this.successMessage = data.message;
@@ -883,7 +910,7 @@ export default {
     deleteLocation() {
       this.isDeleteLoading = true;
       axios
-        .delete(`/mall-events/${this.locationIdToDelete}`)
+        .delete(`/mall-parking/${this.locationIdToDelete}`)
         .then((response) => {
           const data = response.data;
           this.successMessage = data.message;
@@ -911,14 +938,20 @@ export default {
       this.isLoading = true;
       this.requestCount = 0; // Reset request count
       try {
-        let items = await this.getEventsData();
+        let items = await this.getParkingData();
+        this.items = items;
         this.requestCount++;
 
         items = await Promise.all(
           items.map(async (item) => {
             const tagHeaderItems = await this.getTagsHeaderDataById(item.id);
             this.requestCount++;
-            return { ...item, tagHeaderItems: tagHeaderItems };
+            return {
+              ...item,
+              selectedTag: null,
+              loadingTag: false,
+              tagHeaderItems: tagHeaderItems,
+            };
           })
         );
 
@@ -930,22 +963,21 @@ export default {
         this.isLoading = false;
       }
     },
-    async getEventsData() {
+    async getParkingData() {
       this.isLoading = true;
       try {
-        const response = await axios.get(`/mall-events`);
+        const response = await axios.get(`/mall-parking`);
         const data = response.data.data;
+        this.getTagsData();
         return data.map((item) => {
           return {
             ...item,
-            id: item.event_id || 1,
+            id: item.parking_id || 1,
             mall_id: item.mall_id || 1,
             pl_id: item.pl_id || 1,
-            name: item.event_header || '',
+            name: item.parking_header || '',
             mall: item.mall_name || '',
-            unit_number: item.unit_number || '',
-            image: item.event_image || null,
-            isLive: item.live == 'N' ? false : item.live == 'Y' ? true : null,
+            image: item.image || null,
             isActive:
               item.active == 'N' ? false : item.active == 'Y' ? true : null,
             isFeatured:
@@ -969,54 +1001,55 @@ export default {
       }
     },
     async getTagsHeaderDataById(id) {
-      this.isLoading = true;
+      //this.isLoading = true;
       try {
-        const response = await axios.get(`/mall-events-tags/${id}/tags`);
+        const response = await axios.get(`/mall-parking-tags/${id}/tags`);
         const data = response.data.data;
 
         return data;
       } catch (error) {
         console.log(error);
         throw error;
-      } finally {
-        this.isLoading = false;
       }
+      //finally {
+      //  this.isLoading = false;
+      //}
     },
-    addTagById(id) {
-      this.isSending = true;
+    addTagById(item) {
+      item.loadingTag = true;
       const payload = {
-        tag_id: this.tagId,
-        event_id: id,
+        tag_id: item.selectedTag,
+        parking_id: item.id,
       };
       console.log(payload);
       axios
-        .post(`/mall-events-tags`, payload)
+        .post(`/mall-parking-tags`, payload)
         .then((response) => {
           const data = response.data;
           this.successMessage = data.message;
           this.isSuccess = true;
           this.getItemsData();
-          this.tagId = null;
+          item.selectedTag = null;
         })
         .catch((error) => {
           // eslint-disable-next-line
           console.log(error);
-          const message = error.response.data.partner_id
-            ? error.response.data.partner_id[0]
-            : error.response.data.message === ''
-            ? 'Something Wrong!!!'
-            : error.response.data.message;
+          const message =
+            error.response.data.error === ''
+              ? 'Something Wrong!!!'
+              : error.response.data.error;
           this.errorMessage = message;
           this.isError = true;
         })
         .finally(() => {
-          this.isSending = false;
+          item.loadingTag = false;
         });
     },
-    deleteTagById(id) {
-      this.isDeleteLoading = true;
+    deleteTagById(id, loading) {
+      // eslint-disable-next-line no-unused-vars
+      loading = true;
       axios
-        .delete(`/mall-events-tags/${id}`)
+        .delete(`/mall-parking-tags/${id}`)
         .then((response) => {
           const data = response.data;
           this.successMessage = data.message;
@@ -1034,18 +1067,17 @@ export default {
           this.isError = true;
         })
         .finally(() => {
-          this.isDeleteLoading = false;
+          loading = false;
           this.isDelete = false;
         });
     },
     getTagsData() {
       this.isLoading = true;
       axios
-        .get(`/tags`)
+        .get(`/list-tags-by-tag-header/tag-header-short/Park`)
         .then((response) => {
           const data = response.data.data;
           this.resource.tags = data
-            .filter((d) => d.tag_header_id === 3)
             .sort((a, b) => a.tag_name.localeCompare(b.tag_name))
             .map((item) => {
               return {
@@ -1094,10 +1126,10 @@ export default {
           this.isError = true;
         });
     },
-    activeEvents(id) {
-      this.isSending = true;
+    activeParking(id) {
+      this.isSending2 = true;
       axios
-        .get(`/mall-events/toggle-active/${id}`)
+        .get(`/mall-parking/toggle-active/${id}`)
         .then((response) => {
           const data = response.data;
           this.successMessage = data.message;
@@ -1115,13 +1147,13 @@ export default {
           this.isError = true;
         })
         .finally(() => {
-          this.isSending = false;
+          this.isSending2 = false;
         });
     },
-    liveEvents(id) {
-      this.isSending = true;
+    featuredParking(id) {
+      this.isSending2 = true;
       axios
-        .get(`/mall-events/toggle-live/${id}`)
+        .get(`/mall-parking/toggle-featured/${id}`)
         .then((response) => {
           const data = response.data;
           this.successMessage = data.message;
@@ -1139,31 +1171,7 @@ export default {
           this.isError = true;
         })
         .finally(() => {
-          this.isSending = false;
-        });
-    },
-    featuredEvents(id) {
-      this.isSending = true;
-      axios
-        .get(`/mall-events/toggle-featured/${id}`)
-        .then((response) => {
-          const data = response.data;
-          this.successMessage = data.message;
-          this.isSuccess = true;
-          this.getItemsData();
-        })
-        .catch((error) => {
-          // eslint-disable-next-line
-          console.log(error);
-          const message =
-            error.response.data.message === ''
-              ? 'Something Wrong!!!'
-              : error.response.data.message;
-          this.errorMessage = message;
-          this.isError = true;
-        })
-        .finally(() => {
-          this.isSending = false;
+          this.isSending2 = false;
         });
     },
   },

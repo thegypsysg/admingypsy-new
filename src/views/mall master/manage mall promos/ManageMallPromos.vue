@@ -135,14 +135,14 @@
       <v-container>
         <v-row>
           <v-col cols="12" md="4">
-            <h3>Mall Events</h3>
+            <h3>Manage Mall Promos</h3>
           </v-col>
         </v-row>
         <v-row>
           <v-col cols="12" md="4">
             <v-text-field
               v-model="input.name"
-              label="Event Name"
+              label="Promotion Header"
               variant="outlined"
               density="compact"
               required
@@ -221,14 +221,18 @@
           <v-table class="country-table">
             <thead>
               <tr>
-                <th class="text-left font-weight-bold text-black">Event Id</th>
+                <th
+                  class="text-left font-weight-bold text-black"
+                  style="width: 100px"
+                >
+                  ID
+                </th>
                 <th class="text-left font-weight-bold text-black"></th>
                 <th class="text-left font-weight-bold text-black">
-                  Event Name
+                  Mall Promotion Header
                 </th>
                 <th class="text-left font-weight-bold text-black">Mall</th>
                 <th class="text-left font-weight-bold text-black">Active</th>
-                <th class="text-left font-weight-bold text-black">Live</th>
                 <th class="text-left font-weight-bold text-black">Featured</th>
                 <th class="text-left font-weight-bold text-black">User</th>
                 <th class="text-left font-weight-bold text-black">Dated</th>
@@ -269,25 +273,6 @@
                       :disabled="isSending2"
                       rounded="5"
                       @click="activeEvents(item.id)"
-                    >
-                      <v-btn size="27" :value="true"> Yes </v-btn>
-
-                      <v-btn size="27" :value="false"> No </v-btn>
-                    </v-btn-toggle>
-                  </td>
-                  <td>
-                    <v-btn-toggle
-                      style="
-                        font-size: 10px !important;
-                        font-weight: 200 !important;
-                        height: 22px !important;
-                        width: 54px !important;
-                      "
-                      class="d-flex align-center"
-                      v-model="item.isLive"
-                      :disabled="isSending2"
-                      rounded="5"
-                      @click="liveEvents(item.id)"
                     >
                       <v-btn size="27" :value="true"> Yes </v-btn>
 
@@ -351,11 +336,42 @@
                 <tr>
                   <td colspan="10">
                     <div class="d-flex flex-column justify-start">
-                      <v-table class="text-left pt-8 px-16 w-50">
+                      <v-table class="text-left pl-16">
                         <tr>
-                          <td class="pt-2 pr-1 d-flex">
+                          <td class="pl-16 pb-4">
+                            <div
+                              class="d-flex justify-start pl-16"
+                              style="gap: 20px"
+                            >
+                              <p class="font-weight-bold">
+                                Views :
+                                <span class="text-blue-darken-4">{{
+                                  item.views || 0
+                                }}</span>
+                              </p>
+                              <p>|</p>
+                              <p class="font-weight-bold">
+                                Likes :
+                                <span class="text-blue-darken-4">{{
+                                  item.likes || 0
+                                }}</span>
+                              </p>
+                              <p>|</p>
+                              <p class="font-weight-bold">
+                                Shares :
+                                <span class="text-blue-darken-4">{{
+                                  item.shares || 0
+                                }}</span>
+                              </p>
+                            </div>
+                          </td>
+                        </tr>
+                      </v-table>
+                      <!-- <v-table class="text-left px-16 w-50">
+                        <tr>
+                          <td class="pr-1 d-flex">
                             <v-autocomplete
-                              v-model="item.selectedTag"
+                              v-model="tagId"
                               class="form-control search-input"
                               item-title="name"
                               item-value="id"
@@ -396,9 +412,9 @@
                               style="text-transform: none"
                               type="submit"
                               variant="flat"
-                              @click="addTagById(item)"
-                              :disabled="item.loadingTag"
-                              :loading="item.loadingTag"
+                              @click="addTagById(item.id)"
+                              :disabled="isSending"
+                              :loading="isSending"
                             >
                               Add Tag
                             </v-btn>
@@ -431,14 +447,17 @@
                             </v-row>
                           </td>
                         </tr>
-                      </table>
+                      </table> -->
                       <v-table class="text-left pl-16 mt-2">
                         <tr>
-                          <td class="pr-6 pl-6 pt-2 pb-4">
-                            <div class="d-flex justify-start" style="gap: 20px">
+                          <td class="pr-6 pl-16 pt-2 pb-4">
+                            <div
+                              class="d-flex justify-start pl-16"
+                              style="gap: 20px"
+                            >
                               <router-link
                                 class="text-decoration-none"
-                                :to="`manage_events/main-info/${item.id}`"
+                                :to="`manage_mall_promos/main-info/${item.id}`"
                               >
                                 <span>Main Info</span>
                               </router-link>
@@ -489,7 +508,9 @@
     <v-dialog persistent width="500" v-model="isDelete">
       <v-card>
         <v-card-title>Confirmation</v-card-title>
-        <v-card-text> Are you sure want to delete this event? </v-card-text>
+        <v-card-text>
+          Are you sure want to delete this mall promo?
+        </v-card-text>
         <v-card-actions>
           <v-spacer></v-spacer>
           <v-btn color="error" text @click="cancelDelete">No</v-btn>
@@ -661,8 +682,7 @@ export default {
       return this.items.filter(
         (item) =>
           item.name.toLowerCase().includes(searchTextLower) ||
-          item.mall.toLowerCase().includes(searchTextLower) ||
-          item.unit_number.toLowerCase().includes(searchTextLower)
+          item.mall.toLowerCase().includes(searchTextLower)
       );
     },
     mallCountry() {
@@ -676,7 +696,9 @@ export default {
     deleteImageFile() {
       this.isSending = true;
       axios
-        .delete(`/mall-events/${this.partnerLocationDataToImage.id}/image`)
+        .delete(
+          `/mall-owners-promos/${this.partnerLocationDataToImage.id}/image`
+        )
         .then((response) => {
           const data = response.data;
           this.successMessage = data.message;
@@ -728,11 +750,11 @@ export default {
     saveImage() {
       this.isSending = true;
       const payload = {
-        event_id: this.partnerLocationDataToImage.id,
-        event_image: this.imageFile[0],
+        mop_id: this.partnerLocationDataToImage.id,
+        promotion_image: this.imageFile[0],
       };
       http
-        .post(`/mall-events/update`, payload, {
+        .post(`/mall-owners-promos/update`, payload, {
           headers: {
             'Content-Type': 'multipart/form-data',
           },
@@ -784,12 +806,12 @@ export default {
       if (this.valid) {
         this.isSending = true;
         const payload = {
-          event_id: this.input.id,
-          event_header: this.input.name,
+          mop_id: this.input.id,
+          promotion_header: this.input.name,
           mall_id: this.input.mall,
         };
         axios
-          .post(`/mall-events/update`, payload)
+          .post(`/mall-owners-promos/update`, payload)
           .then((response) => {
             const data = response.data;
             this.successMessage = data.message;
@@ -813,8 +835,7 @@ export default {
             this.isError = true;
             this.input = {
               id: 0,
-              merchant: null,
-              location: null,
+              name: null,
               mall: null,
             };
           })
@@ -828,11 +849,11 @@ export default {
       if (this.valid) {
         this.isSending = true;
         const payload = {
-          event_header: this.input.name,
+          promotion_header: this.input.name,
           mall_id: this.input.mall,
         };
         axios
-          .post(`/mall-events`, payload)
+          .post(`/mall-owners-promos`, payload)
           .then((response) => {
             const data = response.data;
             this.successMessage = data.message;
@@ -875,7 +896,7 @@ export default {
     deleteLocation() {
       this.isDeleteLoading = true;
       axios
-        .delete(`/mall-events/${this.locationIdToDelete}`)
+        .delete(`/mall-owners-promos/${this.locationIdToDelete}`)
         .then((response) => {
           const data = response.data;
           this.successMessage = data.message;
@@ -903,22 +924,16 @@ export default {
       this.isLoading = true;
       this.requestCount = 0; // Reset request count
       try {
-        let items = await this.getEventsData();
-        this.items = items;
-        this.requestCount++;
+        let items = await this.getMallPromosData();
+        //this.requestCount++;
 
-        items = await Promise.all(
-          items.map(async (item) => {
-            const tagHeaderItems = await this.getTagsHeaderDataById(item.id);
-            this.requestCount++;
-            return {
-              ...item,
-              loadingTag: false,
-              selectedTag: null,
-              tagHeaderItems: tagHeaderItems,
-            };
-          })
-        );
+        //items = await Promise.all(
+        //  items.map(async (item) => {
+        //    const tagHeaderItems = await this.getTagsHeaderDataById(item.id);
+        //    this.requestCount++;
+        //    return { ...item, tagHeaderItems: tagHeaderItems };
+        //  })
+        //);
 
         this.items = items;
         console.log(items);
@@ -928,23 +943,19 @@ export default {
         this.isLoading = false;
       }
     },
-    async getEventsData() {
+    async getMallPromosData() {
       this.isLoading = true;
       try {
-        const response = await axios.get(`/mall-events`);
+        const response = await axios.get(`/mall-owners-promos`);
         const data = response.data.data;
-        this.getTagsData();
         return data.map((item) => {
           return {
             ...item,
-            id: item.event_id || 1,
+            id: item.mop_id || 1,
             mall_id: item.mall_id || 1,
-            pl_id: item.pl_id || 1,
-            name: item.event_header || '',
+            name: item.promotion_header || '',
             mall: item.mall_name || '',
-            unit_number: item.unit_number || '',
-            image: item.event_image || null,
-            isLive: item.live == 'N' ? false : item.live == 'Y' ? true : null,
+            image: item.promotion_image || null,
             isActive:
               item.active == 'N' ? false : item.active == 'Y' ? true : null,
             isFeatured:
@@ -966,108 +977,6 @@ export default {
       } finally {
         this.isLoading = false;
       }
-    },
-    async getTagsHeaderDataById(id) {
-      //this.isLoading = true;
-      try {
-        const response = await axios.get(`/mall-events-tags/${id}/tags`);
-        const data = response.data.data;
-
-        return data;
-      } catch (error) {
-        console.log(error);
-        throw error;
-      }
-      //finally {
-      //  this.isLoading = false;
-      //}
-    },
-    addTagById(item) {
-      item.loadingTag = true;
-      const payload = {
-        tag_id: item.selectedTag,
-        event_id: item.id,
-      };
-      console.log(payload);
-      axios
-        .post(`/mall-events-tags`, payload)
-        .then((response) => {
-          const data = response.data;
-          this.successMessage = data.message;
-          this.isSuccess = true;
-          this.getItemsData();
-          item.selectedTag = null;
-        })
-        .catch((error) => {
-          // eslint-disable-next-line
-          console.log(error);
-          const message = error.response.data.partner_id
-            ? error.response.data.partner_id[0]
-            : error.response.data.message === ''
-            ? 'Something Wrong!!!'
-            : error.response.data.message;
-          this.errorMessage = message;
-          this.isError = true;
-        })
-        .finally(() => {
-          item.loadingTag = false;
-        });
-    },
-    deleteTagById(id) {
-      this.isDeleteLoading = true;
-      axios
-        .delete(`/mall-events-tags/${id}`)
-        .then((response) => {
-          const data = response.data;
-          this.successMessage = data.message;
-          this.isSuccess = true;
-          this.getItemsData();
-        })
-        .catch((error) => {
-          // eslint-disable-next-line
-          console.log(error);
-          const message =
-            error.response.data.message === ''
-              ? 'Something Wrong!!!'
-              : error.response.data.message;
-          this.errorMessage = message;
-          this.isError = true;
-        })
-        .finally(() => {
-          this.isDeleteLoading = false;
-          this.isDelete = false;
-        });
-    },
-    getTagsData() {
-      this.isLoading = true;
-      axios
-        .get(`/tags`)
-        .then((response) => {
-          const data = response.data.data;
-          this.resource.tags = data
-            .filter((d) => d.tag_header_id === 3)
-            .sort((a, b) => a.tag_name.localeCompare(b.tag_name))
-            .map((item) => {
-              return {
-                id: item.tag_id || 1,
-                name: item.tag_name || '',
-                image: item.tag_image ? this.$fileURL + item.tag_image : null,
-              };
-            });
-        })
-        .catch((error) => {
-          // eslint-disable-next-line
-          console.log(error);
-          const message =
-            error.response.data.message === ''
-              ? 'Something Wrong!!!'
-              : error.response.data.message;
-          this.errorMessage = message;
-          this.isError = true;
-        })
-        .finally(() => {
-          this.isLoading = false;
-        });
     },
     getMallsData() {
       axios
@@ -1097,31 +1006,7 @@ export default {
     activeEvents(id) {
       this.isSending2 = true;
       axios
-        .get(`/mall-events/toggle-active/${id}`)
-        .then((response) => {
-          const data = response.data;
-          this.successMessage = data.message;
-          this.isSuccess = true;
-          this.getItemsData();
-        })
-        .catch((error) => {
-          // eslint-disable-next-line
-          console.log(error);
-          const message =
-            error.response.data.message === ''
-              ? 'Something Wrong!!!'
-              : error.response.data.message;
-          this.errorMessage = message;
-          this.isError = true;
-        })
-        .finally(() => {
-          this.isSending2 = false;
-        });
-    },
-    liveEvents(id) {
-      this.isSending2 = true;
-      axios
-        .get(`/mall-events/toggle-live/${id}`)
+        .get(`/mall-owners-promos/toggle-active/${id}`)
         .then((response) => {
           const data = response.data;
           this.successMessage = data.message;
@@ -1145,7 +1030,7 @@ export default {
     featuredEvents(id) {
       this.isSending2 = true;
       axios
-        .get(`/mall-events/toggle-featured/${id}`)
+        .get(`/mall-owners-promos/toggle-featured/${id}`)
         .then((response) => {
           const data = response.data;
           this.successMessage = data.message;

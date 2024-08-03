@@ -73,28 +73,33 @@
                       ><template #placeholder>
                         <div class="skeleton" /> </template
                     ></v-img>
-                    <p class="text-blue-darken-4 text-center">{{ item.gender }}</p>
+                    <p class="text-blue-darken-4 text-center">
+                      {{ item.gender }}
+                    </p>
                   </td>
                   <td>
                     <p>{{ item.name }}</p>
-                    <p class="text-blue-darken-4 mt-2">{{ item.maritalStatus }}</p>
+                    <p class="text-blue-darken-4 mt-2">
+                      {{ item.maritalStatus }}
+                    </p>
                   </td>
                   <td>
                     <p>{{ item.country }}</p>
                     <p class="text-blue-darken-4 mt-2">
                       <span class="text-blue-darken-4">{{ item.date }}</span
-                        ><span v-if="item.date" class="text-blue-darken-4">
-                          ({{ countAge(item.date) }} years)</span
-                        >
+                      ><span v-if="item.date" class="text-blue-darken-4">
+                        ({{ countAge(item.date) }} years)</span
+                      >
                     </p>
                   </td>
                   <td>
                     <p>{{ item.nationality }}</p>
-                    
                   </td>
                   <td class="text-blue-darken-4">
-                    <p>{{  item.town ? item.town + ', ' + item.city : item.city }}</p>
-                    <p>{{ item.country}}</p>
+                    <p>
+                      {{ item.town ? item.town + ', ' + item.city : item.city }}
+                    </p>
+                    <p>{{ item.country }}</p>
                     <!-- <p
                       class="mt-2"
                       :class="{
@@ -174,7 +179,7 @@
                           <th class="pt-2 pr-6">Registered By</th>
                           <th class="pt-2 pr-6">Registered Type</th>
                           <th class="pt-2 pr-6">Registered Using</th>
-                          <th class="pt-2 ">Active</th>
+                          <th class="pt-2">Active</th>
                           <th class="pt-2"></th>
                         </tr>
                         <tr>
@@ -182,16 +187,17 @@
                             {{ item.lastLogin }}
                           </td>
                           <td class="pr-6 py-2">
-                           <p> {{ item.email }}</p>
+                            <p>{{ item.email }}</p>
                             <p
-                      class="mt-2"
-                      :class="{
-                        'text-green': item.verifiedEmail == 'verified',
-                        'text-red': item.verifiedEmail == 'Not verified',
-                      }"
-                    >
-                      ({{ item.verifiedEmail }})
-                    </p>
+                              class="mt-2"
+                              :class="{
+                                'text-green': item.verifiedEmail == 'verified',
+                                'text-red':
+                                  item.verifiedEmail == 'Not verified',
+                              }"
+                            >
+                              ({{ item.verifiedEmail }})
+                            </p>
                           </td>
                           <td class="pr-6 py-2">
                             {{ item.id }}
@@ -218,6 +224,7 @@
                               "
                               class="d-flex align-center"
                               v-model="item.isActive"
+                              :disabled="isSending2"
                               rounded="5"
                               @click="activeUser(item.gypsy_id)"
                             >
@@ -263,6 +270,7 @@
                               "
                               class="d-flex align-center"
                               v-model="item.isEmployed"
+                              :disabled="isSending2"
                               rounded="5"
                               @click="employedUser(item.gypsy_id)"
                             >
@@ -278,8 +286,8 @@
                             {{ item.position }}
                           </td>
                           <td class="pr-6 py-2">
-                          <p>{{ item.employer }}</p>
-                          <p>{{ item.country }}</p>
+                            <p>{{ item.employer }}</p>
+                            <p>{{ item.country }}</p>
                           </td>
                           <td class="pr-6 py-2 text-blue-darken-4 text-center">
                             10
@@ -294,6 +302,7 @@
                               "
                               class="d-flex align-center"
                               v-model="item.isBlock"
+                              :disabled="isSending2"
                               rounded="5"
                               @click="blockUser(item.gypsy_id)"
                             >
@@ -403,6 +412,7 @@ export default {
     valid: false,
     isLoading: false,
     isSending: false,
+    isSending2: false,
     isEdit: false,
     isSuccess: false,
     isError: false,
@@ -499,29 +509,27 @@ export default {
       if (!this.search && this.app === null && this.skills === null) {
         return this.items;
       } else if (this.search && this.app === null && this.skills === null) {
-      const searchTextLower = this.search.toLowerCase();
-      return this.items.filter(
-        (item) =>
-          item.id.toLowerCase().includes(searchTextLower) ||
-          item.applicant_id.toLowerCase().includes(searchTextLower) ||
-          item.name.toLowerCase().includes(searchTextLower) ||
-          item.email.toLowerCase().includes(searchTextLower) ||
-          item.mobile.toLowerCase().includes(searchTextLower) ||
-          item.whatsapp.toLowerCase().includes(searchTextLower)
-      );
+        const searchTextLower = this.search.toLowerCase();
+        return this.items.filter(
+          (item) =>
+            item.id.toLowerCase().includes(searchTextLower) ||
+            item.applicant_id.toLowerCase().includes(searchTextLower) ||
+            item.name.toLowerCase().includes(searchTextLower) ||
+            item.email.toLowerCase().includes(searchTextLower) ||
+            item.mobile.toLowerCase().includes(searchTextLower) ||
+            item.whatsapp.toLowerCase().includes(searchTextLower)
+        );
       } else if (!this.search && this.app === null && this.skills !== null) {
         const filteredData = this.items.filter((item) => {
           return this.skills
-            ? item.skills.toLowerCase() ===
-                this.skills.toLowerCase()
+            ? item.skills.toLowerCase() === this.skills.toLowerCase()
             : true;
         });
         return filteredData;
       } else if (!this.search && this.app !== null && this.skills === null) {
         const filteredData = this.items.filter((item) => {
           return this.app
-            ? item.appName.toLowerCase() ===
-                this.app.toLowerCase()
+            ? item.appName.toLowerCase() === this.app.toLowerCase()
             : true;
         });
         return filteredData;
@@ -530,13 +538,12 @@ export default {
         const filteredData = this.items.filter((item) => {
           return (
             (item.name.toLowerCase().includes(searchTextLower) ||
-            item.email.toLowerCase().includes(searchTextLower) ||
-            item.mobile.toLowerCase().includes(searchTextLower) ||
-            item.whatsapp.toLowerCase().includes(searchTextLower)) &&
+              item.email.toLowerCase().includes(searchTextLower) ||
+              item.mobile.toLowerCase().includes(searchTextLower) ||
+              item.whatsapp.toLowerCase().includes(searchTextLower)) &&
             (this.app
-            ? item.appName.toLowerCase() ===
-                this.app.toLowerCase()
-            : true)
+              ? item.appName.toLowerCase() === this.app.toLowerCase()
+              : true)
           );
         });
         return filteredData;
@@ -545,13 +552,12 @@ export default {
         const filteredData = this.items.filter((item) => {
           return (
             (item.name.toLowerCase().includes(searchTextLower) ||
-            item.email.toLowerCase().includes(searchTextLower) ||
-            item.mobile.toLowerCase().includes(searchTextLower) ||
-            item.whatsapp.toLowerCase().includes(searchTextLower)) &&
+              item.email.toLowerCase().includes(searchTextLower) ||
+              item.mobile.toLowerCase().includes(searchTextLower) ||
+              item.whatsapp.toLowerCase().includes(searchTextLower)) &&
             (this.skills
-            ? item.skills.toLowerCase() ===
-                this.skills.toLowerCase()
-            : true)
+              ? item.skills.toLowerCase() === this.skills.toLowerCase()
+              : true)
           );
         });
         return filteredData;
@@ -560,17 +566,15 @@ export default {
         const filteredData = this.items.filter((item) => {
           return (
             (item.name.toLowerCase().includes(searchTextLower) ||
-            item.email.toLowerCase().includes(searchTextLower) ||
-            item.mobile.toLowerCase().includes(searchTextLower) ||
-            item.whatsapp.toLowerCase().includes(searchTextLower)) &&
+              item.email.toLowerCase().includes(searchTextLower) ||
+              item.mobile.toLowerCase().includes(searchTextLower) ||
+              item.whatsapp.toLowerCase().includes(searchTextLower)) &&
             (this.skills
-            ? item.skills.toLowerCase() ===
-                this.skills.toLowerCase()
-            : true) && 
+              ? item.skills.toLowerCase() === this.skills.toLowerCase()
+              : true) &&
             (this.app
-            ? item.appName.toLowerCase() ===
-                this.app.toLowerCase()
-            : true)
+              ? item.appName.toLowerCase() === this.app.toLowerCase()
+              : true)
           );
         });
         return filteredData;
@@ -592,25 +596,25 @@ export default {
   },
   methods: {
     countAge(date) {
-     // if (!date) return null;
-//
-     // const today = new Date();
-     // const birthDate = new Date(date);
-     // let age = today.getFullYear() - birthDate.getFullYear();
-     // const monthDiff = today.getMonth() - birthDate.getMonth();
-//
-     // if (
-     //   monthDiff < 0 ||
-     //   (monthDiff === 0 && today.getDate() < birthDate.getDate())
-     // ) {
-     //   age--;
-     // }
-//
-     // return age;
+      // if (!date) return null;
+      //
+      // const today = new Date();
+      // const birthDate = new Date(date);
+      // let age = today.getFullYear() - birthDate.getFullYear();
+      // const monthDiff = today.getMonth() - birthDate.getMonth();
+      //
+      // if (
+      //   monthDiff < 0 ||
+      //   (monthDiff === 0 && today.getDate() < birthDate.getDate())
+      // ) {
+      //   age--;
+      // }
+      //
+      // return age;
 
-            if (!date) return null;
+      if (!date) return null;
 
-      const [day, month, year] = date.split("/").map(Number);
+      const [day, month, year] = date.split('/').map(Number);
       if (isNaN(day) || isNaN(month) || isNaN(year)) return null;
 
       const today = new Date();
@@ -809,7 +813,11 @@ export default {
               isBlock:
                 item.block == 'N' ? false : item.block == 'Y' ? true : null,
               isEmployed:
-                item.employed == 'N' ? false : item.employed == 'Y' ? true : null,
+                item.employed == 'N'
+                  ? false
+                  : item.employed == 'Y'
+                  ? true
+                  : null,
               lastLogin: item.last_login || '',
               registeredBy:
                 item.social_type == 'G'
@@ -861,7 +869,7 @@ export default {
         });
     },
     activeUser(id) {
-      this.isSending = true;
+      this.isSending2 = true;
       axios
         .get(`/gypsy-registration/toggle-active/${id}`)
         .then((response) => {
@@ -881,11 +889,11 @@ export default {
           this.isError = true;
         })
         .finally(() => {
-          this.isSending = false;
+          this.isSending2 = false;
         });
     },
     employedUser(id) {
-      this.isSending = true;
+      this.isSending2 = true;
       axios
         .get(`/gypsy-registration/toggle-employed/${id}`)
         .then((response) => {
@@ -905,11 +913,11 @@ export default {
           this.isError = true;
         })
         .finally(() => {
-          this.isSending = false;
+          this.isSending2 = false;
         });
     },
     blockUser(id) {
-      this.isSending = true;
+      this.isSending2 = true;
       axios
         .get(`/gypsy-registration/toggle-block/${id}`)
         .then((response) => {
@@ -929,7 +937,7 @@ export default {
           this.isError = true;
         })
         .finally(() => {
-          this.isSending = false;
+          this.isSending2 = false;
         });
     },
     getAppActive() {
@@ -940,7 +948,7 @@ export default {
           // console.log(data);
           this.resource.app = data
             .sort((a, b) => a.app_id < b.app_id)
-            .map((app) =>  app.app_name);
+            .map((app) => app.app_name);
           // console.log(this.items);
         })
         .catch((error) => {

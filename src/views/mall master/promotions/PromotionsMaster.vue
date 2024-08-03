@@ -51,7 +51,7 @@
           active-class="text-purple-accent-4"
           style="color: black"
           class="text-decoration-none"
-          to="/"
+          to="/manage_mall_promos"
         >
           <h4 class="mt-4">Manage Mall Promos</h4>
         </router-link>
@@ -79,7 +79,7 @@
           active-class="text-red-darken-4"
           style="color: black"
           class="text-decoration-none"
-          to="/"
+          to="/manage_jobs"
         >
           <h4 class="mt-4">Manage Jobs</h4>
         </router-link>
@@ -305,6 +305,7 @@
                               "
                               class="d-flex align-center"
                               v-model="item.isActive"
+                              :disabled="isSending2"
                               rounded="5"
                               @click="activePromotions(item.id)"
                             >
@@ -323,6 +324,7 @@
                               "
                               class="d-flex align-center"
                               v-model="item.isFeatured"
+                              :disabled="isSending2"
                               rounded="5"
                               @click="featuredPromotions(item.id)"
                             >
@@ -358,7 +360,7 @@
                           <td class="pt-2 pr-1 d-flex">
                             <h4 class="mt-2 mr-4">Tags</h4>
                             <v-autocomplete
-                              v-model="tagId"
+                              v-model="item.selectedTag"
                               class="form-control search-input"
                               item-title="name"
                               item-value="id"
@@ -399,9 +401,9 @@
                               style="text-transform: none"
                               type="submit"
                               variant="flat"
-                              @click="addTagById(item.id)"
-                              :disabled="isSending"
-                              :loading="isSending"
+                              @click="addTagById(item)"
+                              :disabled="item.loadingTag"
+                              :loading="item.loadingTag"
                             >
                               Add Tag
                             </v-btn>
@@ -797,6 +799,7 @@ export default {
     isLoading: false,
     requestCount: 0,
     isSending: false,
+    isSending2: false,
     isError: false,
     isEdit: false,
     isSuccess: false,
@@ -912,7 +915,6 @@ export default {
   mounted() {
     this.getItemsData();
     this.getPartnerData();
-    this.getTagsData();
   },
   computed: {
     filteredItems() {
@@ -1177,13 +1179,19 @@ export default {
       this.requestCount = 0; // Reset request count
       try {
         let items = await this.getPromotionsData();
+        this.items = items;
         this.requestCount++;
 
         items = await Promise.all(
           items.map(async (item) => {
             const tagHeaderItems = await this.getTagsHeaderDataById(item.id);
             this.requestCount++;
-            return { ...item, tagHeaderItems: tagHeaderItems };
+            return {
+              ...item,
+              loadingTag: false,
+              selectedTag: null,
+              tagHeaderItems: tagHeaderItems,
+            };
           })
         );
 
@@ -1201,6 +1209,7 @@ export default {
       try {
         const response = await axios.get(`/mall-promotions`);
         const data = response.data.data;
+        this.getTagsData();
         return data
           .sort((a, b) => b.promo_id - a.promo_id)
           .map((item) => {
@@ -1276,7 +1285,7 @@ export default {
         });
     },
     async getTagsHeaderDataById(id) {
-      this.isLoading = true;
+      //this.isLoading = true;
       try {
         const response = await axios.get(
           `/mall-promotion-tags/${id}/tags-by-tag-header`
@@ -1318,15 +1327,16 @@ export default {
       } catch (error) {
         console.log(error);
         throw error;
-      } finally {
-        this.isLoading = false;
       }
+      //finally {
+      //  this.isLoading = false;
+      //}
     },
-    addTagById(id) {
-      this.isSending = true;
+    addTagById(item) {
+      item.loadingTag = true;
       const payload = {
-        promo_id: id,
-        tag_id: this.tagId,
+        promo_id: item.id,
+        tag_id: item.selectedTag,
       };
       console.log(payload);
       axios
@@ -1336,7 +1346,7 @@ export default {
           this.successMessage = data.message;
           this.isSuccess = true;
           this.getItemsData();
-          this.tagId = null;
+          item.selectedTag = null;
         })
         .catch((error) => {
           // eslint-disable-next-line
@@ -1350,7 +1360,7 @@ export default {
           this.isError = true;
         })
         .finally(() => {
-          this.isSending = false;
+          item.loadingTag = false;
         });
     },
     deleteTagById(id) {
@@ -1409,7 +1419,7 @@ export default {
         });
     },
     activePromotions(id) {
-      this.isSending = true;
+      this.isSending2 = true;
       axios
         .get(`/mall-promotions/toggle-active/${id}`)
         .then((response) => {
@@ -1429,11 +1439,11 @@ export default {
           this.isError = true;
         })
         .finally(() => {
-          this.isSending = false;
+          this.isSending2 = false;
         });
     },
     featuredPromotions(id) {
-      this.isSending = true;
+      this.isSending2 = true;
       axios
         .get(`/mall-promotions/toggle-featured/${id}`)
         .then((response) => {
@@ -1453,7 +1463,7 @@ export default {
           this.isError = true;
         })
         .finally(() => {
-          this.isSending = false;
+          this.isSending2 = false;
         });
     },
   },

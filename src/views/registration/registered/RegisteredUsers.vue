@@ -193,6 +193,7 @@
                               "
                               class="d-flex align-center"
                               v-model="item.isActive"
+                    :disabled="isSending2"
                               rounded="5"
                               @click="activeUser(item.gypsy_id)"
                             >
@@ -212,6 +213,7 @@
                               class="d-flex align-center"
                               v-model="item.isBlock"
                               rounded="5"
+                    :disabled="isSending2"
                               @click="blockUser(item.gypsy_id)"
                             >
                               <v-btn size="27" :value="true"> Yes </v-btn>
@@ -339,6 +341,7 @@ export default {
     valid: false,
     isLoading: false,
     isSending: false,
+    isSending2: false,
     isEdit: false,
     isSuccess: false,
     isError: false,
@@ -705,7 +708,7 @@ export default {
         });
     },
     activeUser(id) {
-      this.isSending = true;
+      this.isSending2 = true;
       axios
         .get(`/gypsy-registration/toggle-active/${id}`)
         .then((response) => {
@@ -725,11 +728,11 @@ export default {
           this.isError = true;
         })
         .finally(() => {
-          this.isSending = false;
+          this.isSending2 = false;
         });
     },
     blockUser(id) {
-      this.isSending = true;
+      this.isSending2 = true;
       axios
         .get(`/gypsy-registration/toggle-block/${id}`)
         .then((response) => {
@@ -749,7 +752,7 @@ export default {
           this.isError = true;
         })
         .finally(() => {
-          this.isSending = false;
+          this.isSending2 = false;
         });
     },
   },

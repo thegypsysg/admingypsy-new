@@ -689,6 +689,100 @@ const routes = [
     },
   },
   {
+    name: 'manage parking info services',
+    path: '/manage_parking_info/services/:id',
+    component: () =>
+      import(
+        '@/views/mall master/manage parking info/services/ServicesContainer.vue'
+      ),
+    beforeEnter: (to, from, next) => {
+      // Pengecekan status login sebelum masuk ke halaman beranda
+      if (localStorage.getItem('token') == null) {
+        next('/auth/login'); // Alihkan ke halaman login jika belum masuk
+      } else {
+        next(); // Lanjutkan ke halaman beranda jika sudah masuk
+      }
+    },
+  },
+  {
+    name: 'manage parking info levels',
+    path: '/manage_parking_info/levels/:id',
+    component: () =>
+      import(
+        '@/views/mall master/manage parking info/levels/LevelsContainer.vue'
+      ),
+    beforeEnter: (to, from, next) => {
+      // Pengecekan status login sebelum masuk ke halaman beranda
+      if (localStorage.getItem('token') == null) {
+        next('/auth/login'); // Alihkan ke halaman login jika belum masuk
+      } else {
+        next(); // Lanjutkan ke halaman beranda jika sudah masuk
+      }
+    },
+  },
+  {
+    name: 'manage jobs',
+    path: '/manage_jobs',
+    component: () =>
+      import('@/views/mall master/manage jobs/ManageJobsContainer.vue'),
+    beforeEnter: (to, from, next) => {
+      // Pengecekan status login sebelum masuk ke halaman beranda
+      if (localStorage.getItem('token') == null) {
+        next('/auth/login'); // Alihkan ke halaman login jika belum masuk
+      } else {
+        next(); // Lanjutkan ke halaman beranda jika sudah masuk
+      }
+    },
+  },
+  {
+    name: 'manage jobs main info',
+    path: '/manage_jobs/main-info/:id',
+    component: () =>
+      import(
+        '@/views/mall master/manage jobs/main info/JobsMainInfoContainer.vue'
+      ),
+    beforeEnter: (to, from, next) => {
+      // Pengecekan status login sebelum masuk ke halaman beranda
+      if (localStorage.getItem('token') == null) {
+        next('/auth/login'); // Alihkan ke halaman login jika belum masuk
+      } else {
+        next(); // Lanjutkan ke halaman beranda jika sudah masuk
+      }
+    },
+  },
+  {
+    name: 'manage mall promos',
+    path: '/manage_mall_promos',
+    component: () =>
+      import(
+        '@/views/mall master/manage mall promos/ManageMallPromosContainer.vue'
+      ),
+    beforeEnter: (to, from, next) => {
+      // Pengecekan status login sebelum masuk ke halaman beranda
+      if (localStorage.getItem('token') == null) {
+        next('/auth/login'); // Alihkan ke halaman login jika belum masuk
+      } else {
+        next(); // Lanjutkan ke halaman beranda jika sudah masuk
+      }
+    },
+  },
+  {
+    name: 'manage mall promos main info',
+    path: '/manage_mall_promos/main-info/:id',
+    component: () =>
+      import(
+        '@/views/mall master/manage mall promos/main info/MallPromosMainInfoContainer.vue'
+      ),
+    beforeEnter: (to, from, next) => {
+      // Pengecekan status login sebelum masuk ke halaman beranda
+      if (localStorage.getItem('token') == null) {
+        next('/auth/login'); // Alihkan ke halaman login jika belum masuk
+      } else {
+        next(); // Lanjutkan ke halaman beranda jika sudah masuk
+      }
+    },
+  },
+  {
     name: 'manage levels',
     path: '/manage_levels',
     component: () =>

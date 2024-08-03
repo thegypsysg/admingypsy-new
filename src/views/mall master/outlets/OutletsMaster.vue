@@ -51,7 +51,7 @@
           active-class="text-purple-accent-4"
           style="color: black"
           class="text-decoration-none"
-          to="/"
+          to="/manage_mall_promos"
         >
           <h4 class="mt-4">Manage Mall Promos</h4>
         </router-link>
@@ -79,7 +79,7 @@
           active-class="text-red-darken-4"
           style="color: black"
           class="text-decoration-none"
-          to="/"
+          to="/manage_jobs"
         >
           <h4 class="mt-4">Manage Jobs</h4>
         </router-link>
@@ -280,6 +280,7 @@
                         width: 54px !important;
                       "
                       class="d-flex align-center"
+                      :disabled="isSending2"
                       v-model="item.isActive"
                       rounded="5"
                       @click="activeOutlets(item.id)"
@@ -334,6 +335,7 @@
                                   "
                                   class="d-flex align-center"
                                   v-model="item.isFeatured"
+                                  :disabled="isSending2"
                                   rounded="5"
                                   @click="featuredOutlets(item.id)"
                                 >
@@ -353,6 +355,7 @@
                                   "
                                   class="d-flex align-center"
                                   v-model="item.isPrivileged"
+                                  :disabled="isSending2"
                                   rounded="5"
                                   @click="privilegedOutlets(item.id)"
                                 >
@@ -372,6 +375,7 @@
                                   "
                                   class="d-flex align-center"
                                   v-model="item.isPlatinum"
+                                  :disabled="isSending2"
                                   rounded="5"
                                   @click="platinumOutlets(item.id)"
                                 >
@@ -499,6 +503,7 @@ export default {
     valid: false,
     isLoading: false,
     isSending: false,
+    isSending2: false,
     isError: false,
     isEdit: false,
     isSuccess: false,
@@ -1069,7 +1074,7 @@ export default {
         });
     },
     activeOutlets(id) {
-      this.isSending = true;
+      this.isSending2 = true;
       axios
         .get(`/mall-merchant-outlets/toggle-active/${id}`)
         .then((response) => {
@@ -1089,11 +1094,11 @@ export default {
           this.isError = true;
         })
         .finally(() => {
-          this.isSending = false;
+          this.isSending2 = false;
         });
     },
     featuredOutlets(id) {
-      this.isSending = true;
+      this.isSending2 = true;
       axios
         .get(`/mall-merchant-outlets/toggle-featured/${id}`)
         .then((response) => {
@@ -1113,11 +1118,11 @@ export default {
           this.isError = true;
         })
         .finally(() => {
-          this.isSending = false;
+          this.isSending2 = false;
         });
     },
     privilegedMerchants(id) {
-      this.isSending = true;
+      this.isSending2 = true;
       axios
         .get(`/mall-merchant-outlets/toggle-privileged/${id}`)
         .then((response) => {
@@ -1137,11 +1142,11 @@ export default {
           this.isError = true;
         })
         .finally(() => {
-          this.isSending = false;
+          this.isSending2 = false;
         });
     },
     platinumMerchants(id) {
-      this.isSending = true;
+      this.isSending2 = true;
       axios
         .get(`/mall-merchant-outlets/toggle-platinum/${id}`)
         .then((response) => {
@@ -1161,7 +1166,7 @@ export default {
           this.isError = true;
         })
         .finally(() => {
-          this.isSending = false;
+          this.isSending2 = false;
         });
     },
   },

@@ -225,6 +225,7 @@
                               "
                               class="d-flex align-center"
                               v-model="item.isActive"
+                              :disabled="isSending2"
                               rounded="5"
                               @click="activePartner(item.id)"
                             >
@@ -243,6 +244,7 @@
                               "
                               class="d-flex align-center"
                               v-model="item.isFav"
+                              :disabled="isSending2"
                               rounded="5"
                               @click="favoritePartner(item.id)"
                             >
@@ -428,6 +430,7 @@ export default {
     valid: false,
     isLoading: false,
     isSending: false,
+    isSending2: false,
     isEdit: false,
     isSuccess: false,
     isError: false,
@@ -1094,7 +1097,7 @@ export default {
         });
     },
     activePartner(id) {
-      this.isSending = true;
+      this.isSending2 = true;
       axios
         .get(`/partners/toggle-active/${id}`)
         .then((response) => {
@@ -1114,11 +1117,11 @@ export default {
           this.isError = true;
         })
         .finally(() => {
-          this.isSending = false;
+          this.isSending2 = false;
         });
     },
     favoritePartner(id) {
-      this.isSending = true;
+      this.isSending2 = true;
       axios
         .get(`/partners/toggle-favorite/${id}`)
         .then((response) => {
@@ -1138,7 +1141,7 @@ export default {
           this.isError = true;
         })
         .finally(() => {
-          this.isSending = false;
+          this.isSending2 = false;
         });
     },
   },

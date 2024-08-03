@@ -12,7 +12,7 @@
         <router-link
           style="color: #293fb8; font-size: 13px"
           class="text-decoration-none"
-          to="/manage_events"
+          to="/manage_parking_info"
         >
           <p>Back</p>
         </router-link>
@@ -27,19 +27,55 @@
         <!-- Phoenix Market City Mall -->
       </h4>
     </div>
-    <div
-      class="d-flex align-center justify-space-between pr-16 pl-4"
-      style="gap: 40px"
-    >
-      <div class="w-25">
-        <p class="mb-2">Grace Period</p>
-        <v-text-field
-          v-model="input.time"
-          variant="outlined"
-          density="compact"
-          required
-        ></v-text-field>
+    <div class="d-flex align-center justify-space-between pr-16 pl-4">
+      <div class="d-flex" style="gap: 10px">
+        <div style="min-width: 250px">
+          <p class="mb-2 font-weight-bold">Grace Period</p>
+          <v-text-field
+            v-model="input.grace"
+            variant="outlined"
+            density="compact"
+            required
+          ></v-text-field>
+        </div>
+        <div style="min-width: 100px">
+          <p class="mb-2 font-weight-bold">Total</p>
+          <v-text-field
+            v-model="input.total"
+            variant="outlined"
+            density="compact"
+            required
+          ></v-text-field>
+        </div>
+        <div style="min-width: 100px">
+          <p class="mb-2 font-weight-bold">Available</p>
+          <v-text-field
+            v-model="input.available"
+            variant="outlined"
+            density="compact"
+            required
+          ></v-text-field>
+        </div>
+        <div style="min-width: 100px">
+          <p class="mb-2 font-weight-bold">Handicap Lots</p>
+          <v-text-field
+            v-model="input.handicapLots"
+            variant="outlined"
+            density="compact"
+            required
+          ></v-text-field>
+        </div>
+        <div style="min-width: 100px">
+          <p class="mb-2 font-weight-bold">Family Lots</p>
+          <v-text-field
+            v-model="input.familyLots"
+            variant="outlined"
+            density="compact"
+            required
+          ></v-text-field>
+        </div>
       </div>
+
       <v-btn
         class="mt-n4"
         color="indigo-accent-2"
@@ -58,115 +94,98 @@
       <v-container>
         <v-row>
           <v-col cols="12" md="6">
-            <!-- <v-combobox
-              density="compact"
-              label="Employer Type"
-              placeholder="Type Employer Type"
-              :items="resource.type"
-              item-title="name"
-              item-value="id"
-              v-model="input.type"
-              variant="outlined"
-            ></v-combobox> -->
-
             <div class="d-flex justify-space-between">
-              <p class="mb-2">Free Parking</p>
+              <p class="mb-2 font-weight-bold">Car Park Info</p>
             </div>
             <v-textarea
               density="compact"
-              v-model="input.detail"
-              rows="4"
+              v-model="input.info"
+              rows="9"
+              variant="outlined"
+              required
+            ></v-textarea>
+          </v-col>
+          <v-col cols="12" md="4">
+            <div class="d-flex justify-space-between">
+              <p class="mb-2 font-weight-bold">Opening Hours</p>
+            </div>
+            <v-textarea
+              density="compact"
+              v-model="input.open"
+              rows="3"
               variant="outlined"
               required
             ></v-textarea>
             <div class="d-flex justify-space-between">
-              <p class="mb-2">Car Park Info</p>
+              <p class="mb-2 font-weight-bold">Free Parking</p>
             </div>
             <v-textarea
               density="compact"
-              v-model="input.detail"
-              rows="8"
+              v-model="input.free"
+              rows="3"
               variant="outlined"
               required
             ></v-textarea>
-            <div class="d-flex w-50" style="gap: 20px">
-              <p class="mb-2">EV Changes</p>
-              <v-text-field
-                v-model="input.time"
-                variant="outlined"
-                density="compact"
-                class="w-33"
-                required
-              ></v-text-field>
+          </v-col>
+        </v-row>
+        <v-row>
+          <v-col cols="12" md="6">
+            <div class="d-flex justify-space-between">
+              <p class="mb-2 font-weight-bold">Car Parking Charges & Lots</p>
             </div>
             <v-textarea
               density="compact"
-              v-model="input.detail"
-              rows="4"
+              v-model="input.carCharges"
+              rows="9"
               variant="outlined"
               required
             ></v-textarea>
           </v-col>
           <v-col cols="12" md="6">
-            <div class="d-flex pt-16 mt-4" style="gap: 20px">
-              <div class="w-25">
-                <p class="mb-2">Car Lots</p>
+            <div class="d-flex" style="gap: 20px">
+              <div class="w-66">
+                <p class="mb-2 font-weight-bold">Bike Charges</p>
+                <v-textarea
+                  density="compact"
+                  v-model="input.bikeChargesDetail"
+                  rows="3"
+                  variant="outlined"
+                  required
+                ></v-textarea>
+              </div>
+              <div class="w-33">
+                <p class="mb-2 font-weight-bold">Bike Lots</p>
                 <v-text-field
-                  v-model="input.time"
+                  v-model="input.bikeCharges"
                   variant="outlined"
                   density="compact"
+                  class=""
                   required
                 ></v-text-field>
               </div>
-              <div class="w-25">
-                <p class="mb-2">Handicap Lots</p>
-                <v-text-field
-                  v-model="input.time"
-                  variant="outlined"
+            </div>
+            <div class="d-flex" style="gap: 20px">
+              <div class="w-66">
+                <p class="mb-2 font-weight-bold">EV Parking Info</p>
+                <v-textarea
                   density="compact"
+                  v-model="input.evDetail"
+                  rows="3"
+                  variant="outlined"
                   required
-                ></v-text-field>
+                ></v-textarea>
               </div>
-              <div class="w-25">
-                <p class="mb-2">Family Lots</p>
+              <div class="w-33">
+                <p class="mb-2 font-weight-bold">EV Lots</p>
                 <v-text-field
-                  v-model="input.time"
+                  v-model="input.ev"
                   variant="outlined"
                   density="compact"
                   required
                 ></v-text-field>
               </div>
             </div>
-            <div class="d-flex justify-space-between">
-              <p class="mb-2">Car Changes</p>
-            </div>
-            <v-textarea
-              density="compact"
-              v-model="input.detail"
-              rows="8"
-              variant="outlined"
-              required
-            ></v-textarea>
-            <div class="d-flex w-50" style="gap: 20px">
-              <p class="mb-2">Bike Changes</p>
-              <v-text-field
-                v-model="input.time"
-                variant="outlined"
-                density="compact"
-                class="w-33"
-                required
-              ></v-text-field>
-            </div>
-            <v-textarea
-              density="compact"
-              v-model="input.detail"
-              rows="4"
-              variant="outlined"
-              required
-            ></v-textarea>
           </v-col>
-          <!-- <v-col class="ml-4" cols="12" md="2">
-          </v-col> -->
         </v-row>
       </v-container>
     </v-form>
@@ -199,16 +218,16 @@
 
 <script>
 import axios from '@/util/axios';
-import moment from 'moment';
+// import moment from 'moment';
 // import http from 'axios';
 import { setAuthHeader } from '@/util/axios';
 // import app from '@/util/eventBus';
 
 export default {
-  name: 'EventsMainInfo',
+  name: 'ParkingMainInfo',
   data: () => ({
     // fileURL: 'https://admin1.the-gypsy.sg/img/app/',
-    idEvent: null,
+    idParking: null,
     partnerName: [],
     valid: false,
     isLoading: false,
@@ -227,14 +246,20 @@ export default {
     errorMessage: '',
     input: {
       id: 0,
-      status: null,
-      paid: null,
-      detail: '',
-      location: '',
-      all: null,
-      start: null,
-      end: null,
-      time: '',
+      grace: '',
+      total: 0,
+      available: 0,
+      handicapLots: null,
+      familyLots: null,
+      free: '',
+      open: '',
+      info: '',
+      ev: null,
+      evDetail: '',
+      carLots: null,
+      carCharges: '',
+      bikeCharges: null,
+      bikeChargesDetail: '',
     },
     resource: {
       status: [
@@ -338,8 +363,8 @@ export default {
     setAuthHeader(token);
   },
   mounted() {
-    this.idEvent = parseInt(this.$route.params.id);
-    this.getEventData();
+    this.idParking = parseInt(this.$route.params.id);
+    this.getParkingData();
   },
   methods: {
     formatDate(date) {
@@ -349,36 +374,34 @@ export default {
 
       return `${day}/${month}/${year}`;
     },
-    getEventData() {
+    getParkingData() {
       this.isLoading = true;
       axios
-        .get(`/mall-events`)
+        .get(`/mall-parking`)
         .then((response) => {
           const data = response.data.data;
           // console.log(data);
-          const dataItem = data.filter((i) => i.event_id == this.idEvent);
+          const dataItem = data.filter((i) => i.parking_id == this.idParking);
           this.partnerName = dataItem.map((item) => {
             return {
-              id: item.event_id,
-              name: item.event_header,
+              id: item.parking_id,
+              name: item.parking_header,
               mall: item.mall_name || '',
             };
           });
           this.input = {
-            id: dataItem[0].event_id,
-            status: dataItem[0]?.event_status || null,
-            paid:
-              dataItem[0]?.paid_event == null ? 'F' : dataItem[0]?.paid_event,
-            detail: dataItem[0].event_details || '',
-            location: dataItem[0].event_location || '',
-            all: dataItem[0].all_day_event == 'Y' ? true : null,
-            start: dataItem[0].event_start_on
-              ? moment(dataItem[0].event_start_on, 'DD/MM/YYYY').toISOString()
-              : null,
-            end: dataItem[0].event_end_on
-              ? moment(dataItem[0].event_end_on, 'DD/MM/YYYY').toISOString()
-              : null,
-            time: dataItem[0].event_time || '',
+            id: dataItem[0].parking_id,
+            grace: dataItem[0].grace_period,
+            free: dataItem[0].free_parking,
+            info: dataItem[0].carpark_info,
+            ev: dataItem[0].ev_lots,
+            evDetail: dataItem[0].ev_charges,
+            carLots: dataItem[0].car_lots,
+            handicapLots: dataItem[0].handicap_lots,
+            familyLots: dataItem[0].family_lots,
+            carCharges: dataItem[0].car_charges,
+            bikeCharges: dataItem[0].bike_lots,
+            bikeChargesDetail: dataItem[0].bike_charges,
           };
         })
         .catch((error) => {
@@ -399,22 +422,21 @@ export default {
       if (this.valid) {
         this.isSending = true;
         const payload = {
-          event_id: this.idEvent,
-          paid_event: this.input.paid == 'F' ? null : this.input.paid,
-          event_status: this.input.status,
-          event_details: this.input.detail,
-          event_location: this.input.location,
-          event_start_on: this.input.start
-            ? moment(this.input.start).format('DD/MM/YYYY')
-            : this.input.start,
-          event_end_on: this.input.end
-            ? moment(this.input.end).format('DD/MM/YYYY')
-            : this.input.end,
-          event_time: this.input.time,
-          all_day_event: this.input.all == true ? 'Y' : null,
+          parking_id: this.idParking,
+          grace_period: this.input.grace,
+          free_parking: this.input.free,
+          carpark_info: this.input.info,
+          ev_lots: this.input.ev,
+          ev_charges: this.input.evDetail,
+          car_lots: this.input.carLots,
+          handicap_lots: this.input.handicapLots,
+          family_lots: this.input.familyLots,
+          car_charges: this.input.carCharges,
+          bike_lots: this.input.bikeCharges,
+          bike_charges: this.input.bikeChargesDetail,
         };
         axios
-          .post(`/mall-events/update`, payload)
+          .post(`/mall-parking/update`, payload)
           .then((response) => {
             const data = response.data;
             this.successMessage = data.message;

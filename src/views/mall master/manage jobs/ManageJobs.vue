@@ -135,14 +135,14 @@
       <v-container>
         <v-row>
           <v-col cols="12" md="4">
-            <h3>Mall Events</h3>
+            <h3>Manage Jobs</h3>
           </v-col>
         </v-row>
         <v-row>
           <v-col cols="12" md="4">
             <v-text-field
               v-model="input.name"
-              label="Event Name"
+              label="Position Title"
               variant="outlined"
               density="compact"
               required
@@ -151,8 +151,8 @@
           <v-col cols="12" md="4">
             <v-autocomplete
               density="compact"
-              label="Mall"
-              placeholder="Select Mall"
+              label="Partner Name"
+              placeholder="Select Partner Name"
               :items="resource.malls"
               item-title="name"
               item-value="id"
@@ -221,14 +221,20 @@
           <v-table class="country-table">
             <thead>
               <tr>
-                <th class="text-left font-weight-bold text-black">Event Id</th>
+                <th
+                  class="text-left font-weight-bold text-black"
+                  style="width: 100px"
+                >
+                  ID
+                </th>
                 <th class="text-left font-weight-bold text-black"></th>
                 <th class="text-left font-weight-bold text-black">
-                  Event Name
+                  Position Title
                 </th>
-                <th class="text-left font-weight-bold text-black">Mall</th>
+                <th class="text-left font-weight-bold text-black">
+                  Partner Name
+                </th>
                 <th class="text-left font-weight-bold text-black">Active</th>
-                <th class="text-left font-weight-bold text-black">Live</th>
                 <th class="text-left font-weight-bold text-black">Featured</th>
                 <th class="text-left font-weight-bold text-black">User</th>
                 <th class="text-left font-weight-bold text-black">Dated</th>
@@ -268,26 +274,7 @@
                       v-model="item.isActive"
                       :disabled="isSending2"
                       rounded="5"
-                      @click="activeEvents(item.id)"
-                    >
-                      <v-btn size="27" :value="true"> Yes </v-btn>
-
-                      <v-btn size="27" :value="false"> No </v-btn>
-                    </v-btn-toggle>
-                  </td>
-                  <td>
-                    <v-btn-toggle
-                      style="
-                        font-size: 10px !important;
-                        font-weight: 200 !important;
-                        height: 22px !important;
-                        width: 54px !important;
-                      "
-                      class="d-flex align-center"
-                      v-model="item.isLive"
-                      :disabled="isSending2"
-                      rounded="5"
-                      @click="liveEvents(item.id)"
+                      @click="activeJobs(item.id)"
                     >
                       <v-btn size="27" :value="true"> Yes </v-btn>
 
@@ -306,7 +293,7 @@
                       v-model="item.isFeatured"
                       :disabled="isSending2"
                       rounded="5"
-                      @click="featuredEvents(item.id)"
+                      @click="featuredJobs(item.id)"
                     >
                       <v-btn size="27" :value="true"> Yes </v-btn>
 
@@ -351,9 +338,54 @@
                 <tr>
                   <td colspan="10">
                     <div class="d-flex flex-column justify-start">
-                      <v-table class="text-left pt-8 px-16 w-50">
+                      <v-table class="text-left pl-16">
                         <tr>
-                          <td class="pt-2 pr-1 d-flex">
+                          <td class="pl-16 pb-4">
+                            <div
+                              class="d-flex justify-start pl-16"
+                              style="gap: 20px"
+                            >
+                              <p class="font-weight-bold">
+                                Views :
+                                <span class="text-blue-darken-4">{{
+                                  item?.views || 0
+                                }}</span>
+                              </p>
+                              <p>|</p>
+                              <p class="font-weight-bold">
+                                Likes :
+                                <span class="text-blue-darken-4">{{
+                                  item?.likes || 0
+                                }}</span>
+                              </p>
+                              <p>|</p>
+                              <p class="font-weight-bold">
+                                Shares :
+                                <span class="text-blue-darken-4">{{
+                                  item?.shares || 0
+                                }}</span>
+                              </p>
+                            </div>
+                          </td>
+                        </tr>
+                      </v-table>
+                      <v-table class="text-left pl-16">
+                        <tr>
+                          <td class="pr-6 pl-6 pt-2 pb-4">
+                            <div class="d-flex justify-start" style="gap: 20px">
+                              <router-link
+                                class="text-decoration-none"
+                                :to="`manage_jobs/main-info/${item.id}`"
+                              >
+                                <span>Main Info</span>
+                              </router-link>
+                            </div>
+                          </td>
+                        </tr>
+                      </v-table>
+                      <v-table class="text-left px-16 w-50">
+                        <tr>
+                          <td class="pr-1 d-flex">
                             <v-autocomplete
                               v-model="item.selectedTag"
                               class="form-control search-input"
@@ -422,7 +454,12 @@
                                   <v-icon
                                     color="red"
                                     small
-                                    @click="deleteTagById(tagItem.met_id)"
+                                    @click="
+                                      deleteTagById(
+                                        tagItem.mjt_id,
+                                        item.loadingTag
+                                      )
+                                    "
                                   >
                                     mdi-close
                                   </v-icon>
@@ -432,20 +469,6 @@
                           </td>
                         </tr>
                       </table>
-                      <v-table class="text-left pl-16 mt-2">
-                        <tr>
-                          <td class="pr-6 pl-6 pt-2 pb-4">
-                            <div class="d-flex justify-start" style="gap: 20px">
-                              <router-link
-                                class="text-decoration-none"
-                                :to="`manage_events/main-info/${item.id}`"
-                              >
-                                <span>Main Info</span>
-                              </router-link>
-                            </div>
-                          </td>
-                        </tr>
-                      </v-table>
                     </div>
                   </td>
                 </tr>
@@ -489,7 +512,7 @@
     <v-dialog persistent width="500" v-model="isDelete">
       <v-card>
         <v-card-title>Confirmation</v-card-title>
-        <v-card-text> Are you sure want to delete this event? </v-card-text>
+        <v-card-text> Are you sure want to delete this jobs? </v-card-text>
         <v-card-actions>
           <v-spacer></v-spacer>
           <v-btn color="error" text @click="cancelDelete">No</v-btn>
@@ -540,7 +563,7 @@ import { setAuthHeader } from '@/util/axios';
 // import app from '@/util/eventBus';
 
 export default {
-  name: 'ManageEvents',
+  name: 'ManageJobs',
   data: () => ({
     // fileURL: 'https://admin1.the-gypsy.sg/img/app/',
     partnerName: null,
@@ -650,7 +673,7 @@ export default {
   },
   mounted() {
     this.getItemsData();
-    this.getMallsData();
+    this.getPartnerData();
   },
   computed: {
     filteredItems() {
@@ -661,8 +684,7 @@ export default {
       return this.items.filter(
         (item) =>
           item.name.toLowerCase().includes(searchTextLower) ||
-          item.mall.toLowerCase().includes(searchTextLower) ||
-          item.unit_number.toLowerCase().includes(searchTextLower)
+          item.mall.toLowerCase().includes(searchTextLower)
       );
     },
     mallCountry() {
@@ -676,7 +698,7 @@ export default {
     deleteImageFile() {
       this.isSending = true;
       axios
-        .delete(`/mall-events/${this.partnerLocationDataToImage.id}/image`)
+        .delete(`/mall-jobs/${this.partnerLocationDataToImage.id}/image`)
         .then((response) => {
           const data = response.data;
           this.successMessage = data.message;
@@ -728,11 +750,11 @@ export default {
     saveImage() {
       this.isSending = true;
       const payload = {
-        event_id: this.partnerLocationDataToImage.id,
-        event_image: this.imageFile[0],
+        job_id: this.partnerLocationDataToImage.id,
+        image: this.imageFile[0],
       };
       http
-        .post(`/mall-events/update`, payload, {
+        .post(`/mall-jobs/update`, payload, {
           headers: {
             'Content-Type': 'multipart/form-data',
           },
@@ -769,7 +791,7 @@ export default {
       this.input = {
         id: item.id,
         name: item.name,
-        mall: item.mall_id,
+        mall: item.partner_id,
       };
     },
     cancelEdit() {
@@ -784,12 +806,12 @@ export default {
       if (this.valid) {
         this.isSending = true;
         const payload = {
-          event_id: this.input.id,
-          event_header: this.input.name,
-          mall_id: this.input.mall,
+          job_id: this.input.id,
+          position_title: this.input.name,
+          partner_id: this.input.mall,
         };
         axios
-          .post(`/mall-events/update`, payload)
+          .post(`/mall-jobs/update`, payload)
           .then((response) => {
             const data = response.data;
             this.successMessage = data.message;
@@ -828,11 +850,11 @@ export default {
       if (this.valid) {
         this.isSending = true;
         const payload = {
-          event_header: this.input.name,
-          mall_id: this.input.mall,
+          position_title: this.input.name,
+          partner_id: this.input.mall,
         };
         axios
-          .post(`/mall-events`, payload)
+          .post(`/mall-jobs`, payload)
           .then((response) => {
             const data = response.data;
             this.successMessage = data.message;
@@ -875,7 +897,7 @@ export default {
     deleteLocation() {
       this.isDeleteLoading = true;
       axios
-        .delete(`/mall-events/${this.locationIdToDelete}`)
+        .delete(`/mall-jobs/${this.locationIdToDelete}`)
         .then((response) => {
           const data = response.data;
           this.successMessage = data.message;
@@ -903,7 +925,7 @@ export default {
       this.isLoading = true;
       this.requestCount = 0; // Reset request count
       try {
-        let items = await this.getEventsData();
+        let items = await this.getJobsData();
         this.items = items;
         this.requestCount++;
 
@@ -913,8 +935,8 @@ export default {
             this.requestCount++;
             return {
               ...item,
-              loadingTag: false,
               selectedTag: null,
+              loadingTag: false,
               tagHeaderItems: tagHeaderItems,
             };
           })
@@ -928,23 +950,21 @@ export default {
         this.isLoading = false;
       }
     },
-    async getEventsData() {
+    async getJobsData() {
       this.isLoading = true;
       try {
-        const response = await axios.get(`/mall-events`);
+        const response = await axios.get(`/mall-jobs`);
         const data = response.data.data;
         this.getTagsData();
         return data.map((item) => {
           return {
             ...item,
-            id: item.event_id || 1,
-            mall_id: item.mall_id || 1,
+            id: item.job_id || 1,
+            partner_id: item.partner_id || 1,
             pl_id: item.pl_id || 1,
-            name: item.event_header || '',
+            name: item.position_title || '',
             mall: item.mall_name || '',
-            unit_number: item.unit_number || '',
-            image: item.event_image || null,
-            isLive: item.live == 'N' ? false : item.live == 'Y' ? true : null,
+            image: item.image || null,
             isActive:
               item.active == 'N' ? false : item.active == 'Y' ? true : null,
             isFeatured:
@@ -970,7 +990,7 @@ export default {
     async getTagsHeaderDataById(id) {
       //this.isLoading = true;
       try {
-        const response = await axios.get(`/mall-events-tags/${id}/tags`);
+        const response = await axios.get(`/mall-jobs-tags/${id}/tags`);
         const data = response.data.data;
 
         return data;
@@ -986,11 +1006,11 @@ export default {
       item.loadingTag = true;
       const payload = {
         tag_id: item.selectedTag,
-        event_id: item.id,
+        job_id: item.id,
       };
       console.log(payload);
       axios
-        .post(`/mall-events-tags`, payload)
+        .post(`/mall-jobs-tags`, payload)
         .then((response) => {
           const data = response.data;
           this.successMessage = data.message;
@@ -1001,11 +1021,10 @@ export default {
         .catch((error) => {
           // eslint-disable-next-line
           console.log(error);
-          const message = error.response.data.partner_id
-            ? error.response.data.partner_id[0]
-            : error.response.data.message === ''
-            ? 'Something Wrong!!!'
-            : error.response.data.message;
+          const message =
+            error.response.data.error === ''
+              ? 'Something Wrong!!!'
+              : error.response.data.error;
           this.errorMessage = message;
           this.isError = true;
         })
@@ -1013,10 +1032,11 @@ export default {
           item.loadingTag = false;
         });
     },
-    deleteTagById(id) {
-      this.isDeleteLoading = true;
+    deleteTagById(id, loading) {
+      // eslint-disable-next-line no-unused-vars
+      loading = true;
       axios
-        .delete(`/mall-events-tags/${id}`)
+        .delete(`/mall-jobs-tags/${id}`)
         .then((response) => {
           const data = response.data;
           this.successMessage = data.message;
@@ -1034,18 +1054,17 @@ export default {
           this.isError = true;
         })
         .finally(() => {
-          this.isDeleteLoading = false;
+          loading = false;
           this.isDelete = false;
         });
     },
     getTagsData() {
       this.isLoading = true;
       axios
-        .get(`/tags`)
+        .get(`/list-tags-by-tag-header/tag-header-short/Job`)
         .then((response) => {
           const data = response.data.data;
           this.resource.tags = data
-            .filter((d) => d.tag_header_id === 3)
             .sort((a, b) => a.tag_name.localeCompare(b.tag_name))
             .map((item) => {
               return {
@@ -1069,19 +1088,19 @@ export default {
           this.isLoading = false;
         });
     },
-    getMallsData() {
+    getPartnerData() {
       axios
-        .get(`/mall`)
+        .get(`/partners/mall-and-merchants`)
         .then((response) => {
           const data = response.data.data;
-          this.resource.malls = data
-            .sort((a, b) => a.partner_name.localeCompare(b.partner_name))
-            .map((item) => {
-              return {
-                id: item.mall_id || 1,
-                name: item.partner_name || '',
-              };
-            });
+          // console.log(data);
+          this.resource.malls = data.map((item) => {
+            return {
+              ...item,
+              id: item.partner_id || 1,
+              name: item.partner_name || '',
+            };
+          });
         })
         .catch((error) => {
           // eslint-disable-next-line
@@ -1094,10 +1113,10 @@ export default {
           this.isError = true;
         });
     },
-    activeEvents(id) {
+    activeJobs(id) {
       this.isSending2 = true;
       axios
-        .get(`/mall-events/toggle-active/${id}`)
+        .get(`/mall-jobs/toggle-active/${id}`)
         .then((response) => {
           const data = response.data;
           this.successMessage = data.message;
@@ -1118,34 +1137,10 @@ export default {
           this.isSending2 = false;
         });
     },
-    liveEvents(id) {
+    featuredJobs(id) {
       this.isSending2 = true;
       axios
-        .get(`/mall-events/toggle-live/${id}`)
-        .then((response) => {
-          const data = response.data;
-          this.successMessage = data.message;
-          this.isSuccess = true;
-          this.getItemsData();
-        })
-        .catch((error) => {
-          // eslint-disable-next-line
-          console.log(error);
-          const message =
-            error.response.data.message === ''
-              ? 'Something Wrong!!!'
-              : error.response.data.message;
-          this.errorMessage = message;
-          this.isError = true;
-        })
-        .finally(() => {
-          this.isSending2 = false;
-        });
-    },
-    featuredEvents(id) {
-      this.isSending2 = true;
-      axios
-        .get(`/mall-events/toggle-featured/${id}`)
+        .get(`/mall-jobs/toggle-featured/${id}`)
         .then((response) => {
           const data = response.data;
           this.successMessage = data.message;

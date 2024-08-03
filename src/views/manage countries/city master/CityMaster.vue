@@ -168,6 +168,7 @@
                     "
                     class="d-flex align-center"
                     v-model="item.isActive"
+                    :disabled="isSending2"
                     rounded="5"
                     @click="activeCity(item.id)"
                   >
@@ -186,6 +187,7 @@
                     "
                     class="d-flex align-center"
                     v-model="item.isFav"
+                    :disabled="isSending2"
                     rounded="5"
                     @click="favoriteCity(item.id)"
                   >
@@ -320,6 +322,7 @@ export default {
     valid: false,
     isLoading: false,
     isSending: false,
+    isSending2: false,
     isError: false,
     isEdit: false,
     isSuccess: false,
@@ -687,7 +690,7 @@ export default {
         });
     },
     activeCity(id) {
-      this.isSending = true;
+      this.isSending2 = true;
       axios
         .get(`/cities/toggle-active/${id}`)
         .then((response) => {
@@ -707,11 +710,11 @@ export default {
           this.isError = true;
         })
         .finally(() => {
-          this.isSending = false;
+          this.isSending2 = false;
         });
     },
     favoriteCity(id) {
-      this.isSending = true;
+      this.isSending2 = true;
       axios
         .get(`/cities/toggle-favorite/${id}`)
         .then((response) => {
@@ -731,7 +734,7 @@ export default {
           this.isError = true;
         })
         .finally(() => {
-          this.isSending = false;
+          this.isSending2 = false;
         });
     },
   },
