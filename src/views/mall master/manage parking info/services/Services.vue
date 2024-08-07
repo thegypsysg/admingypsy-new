@@ -13,10 +13,10 @@
         </router-link>
         <h4 class="ml-8 mb-6 text-red-accent-4">Parking Services</h4>
         <p class="text-blue-darken-1 ml-16">
-          Parking Info <span>in City Square</span>
+          {{ parkingName?.name }}
         </p>
       </div>
-      <p class="text-blue-darken-1">City Square Mall</p>
+      <p class="text-blue-darken-1">{{ parkingName?.mall }}</p>
     </div>
 
     <div class="d-flex">
@@ -35,10 +35,10 @@
               density="compact"
               label="Select Services"
               placeholder="Type Services"
-              :items="resource.malls"
+              :items="resource.services"
               item-title="name"
               item-value="id"
-              v-model="input.mall"
+              v-model="input.service"
               variant="outlined"
             ></v-autocomplete>
           </v-col>
@@ -107,30 +107,26 @@
               </tr>
             </thead>
             <tbody>
-              <!-- <tr v-for="item in filteredItems" :key="item.id"> -->
-              <tr v-for="item in 1" :key="item">
+              <tr v-for="item in filteredItems" :key="item.id">
+                <!-- <tr v-for="item in 1" :key="item"> -->
                 <td>
                   <div class="app-column">
-                    <!-- {{ item.id }} -->
-                    15
+                    {{ item.id }}
                   </div>
                 </td>
                 <td>
                   <div class="app-column">
-                    <!-- {{ item.mall }} -->
-                    Parkway Parade
+                    {{ item.name }}
                   </div>
                 </td>
                 <td>
                   <div class="app-column">
-                    <!-- {{ item.user }} -->
-                    Charlton
+                    {{ item.user }}
                   </div>
                 </td>
                 <td>
                   <div class="app-column">
-                    <!-- {{ item.dated }} -->
-                    17/07/2024
+                    {{ item.dated }}
                   </div>
                 </td>
                 <td>
@@ -191,12 +187,12 @@
       <v-card>
         <v-card-title>Confirmation</v-card-title>
         <v-card-text>
-          Are you sure want to delete this banner outlet?
+          Are you sure want to delete this banner service?
         </v-card-text>
         <v-card-actions>
           <v-spacer></v-spacer>
           <v-btn color="error" text @click="cancelDelete">No</v-btn>
-          <v-btn color="success" text @click="deleteOutlet">{{
+          <v-btn color="success" text @click="deleteService">{{
             isDeleteLoading ? 'Deleting...' : 'Yes'
           }}</v-btn>
         </v-card-actions>
@@ -246,7 +242,7 @@ export default {
   data: () => ({
     // fileURL: 'https://admin1.the-gypsy.sg/img/app/',
     idBanner: null,
-    idMerchant: null,
+    idParking: null,
     partnerName: null,
     bannerName: null,
     valid: false,
@@ -259,6 +255,7 @@ export default {
     isDeleteLoading: false,
     locationIdToDelete: null,
     tableHeaders: [{ text: 'Gambar', value: 'image' }],
+    parkingName: null,
     isOpenImage: false,
     successMessage: '',
     errorMessage: '',
@@ -276,8 +273,7 @@ export default {
     },
     input: {
       id: 0,
-      mall: null,
-      location: null,
+      service: null,
     },
     rules: {
       countryRules: [
@@ -333,8 +329,7 @@ export default {
     search: '',
     items: [],
     resource: {
-      mall: [],
-      locations: [],
+      services: [],
     },
     itemsTry: [
       {
@@ -359,11 +354,10 @@ export default {
     setAuthHeader(token);
   },
   mounted() {
-    this.idBanner = this.$route.params.id_banner;
-    this.idMerchant = this.$route.params.id_merchant;
-    this.getOutletsData();
-    this.getBannerData();
-    this.getPartnerData();
+    this.idParking = this.$route.params.id;
+    this.getServicesData();
+    this.getServicesItems();
+    this.getParkingData();
   },
   computed: {
     filteredItems() {
@@ -371,46 +365,61 @@ export default {
         return this.items;
       }
       const searchTextLower = this.search.toLowerCase();
-      return this.items.filter(
-        (item) =>
-          item.mall.toLowerCase().includes(searchTextLower) ||
-          item.unit_number.toLowerCase().includes(searchTextLower)
+      return this.items.filter((item) =>
+        item.name.toLowerCase().includes(searchTextLower)
       );
     },
   },
-  watch: {
-    'input.mall'() {
-      const filteredLocation = this.resource.malls
-        .filter((i) => i.id == this.input.mall)
-        .map((item) => {
-          return {
-            id: item.pl_id,
-            name: item.unit_number,
-          };
-        });
-      this.resource.locations = filteredLocation;
-    },
-  },
+
   methods: {
+    getParkingData() {
+      this.isLoading = true;
+      axios
+        .get(`/mall-parking`)
+        .then((response) => {
+          const data = response.data.data;
+          // console.log(data);
+          const dataItem = data.filter((i) => i.parking_id == this.idParking);
+          this.parkingName = dataItem.map((item) => {
+            return {
+              id: item.parking_id,
+              name: item.parking_header,
+              mall: item.mall_name || '',
+            };
+          })[0];
+          console.log(this.parkingName);
+        })
+        .catch((error) => {
+          // eslint-disable-next-line
+          console.log(error);
+          const message =
+            error.response.data.message === ''
+              ? 'Something Wrong!!!'
+              : error.response.data.message;
+          this.errorMessage = message;
+          this.isError = true;
+        })
+        .finally(() => {
+          this.isLoading = false;
+        });
+    },
     saveData() {
       if (this.valid) {
         this.isSending = true;
         const payload = {
-          merchant_id: this.idMerchant,
-          md_id: this.idBanner,
-          mmo_id: this.input.mall,
+          parking_id: this.idParking,
+          service_id: this.input.service,
         };
         axios
-          .post(`/mall-display-outlets`, payload)
+          .post(`/mall-parking-services`, payload)
           .then((response) => {
             const data = response.data;
             this.successMessage = data.message;
             this.isSuccess = true;
-            this.getOutletsData();
+            this.getServicesData();
             this.input = {
               id: 0,
-              mall: null,
-              location: null,
+              service: null,
             };
           })
           .catch((error) => {
@@ -441,15 +450,15 @@ export default {
       this.locationIdToDelete = null;
       this.isDelete = false;
     },
-    deleteOutlet() {
+    deleteService() {
       this.isDeleteLoading = true;
       axios
-        .delete(`/mall-display-outlets/${this.locationIdToDelete}`)
+        .delete(`/mall-parking-services/${this.locationIdToDelete}`)
         .then((response) => {
           const data = response.data;
           this.successMessage = data.message;
           this.isSuccess = true;
-          this.getOutletsData();
+          this.getServicesData();
         })
         .catch((error) => {
           // eslint-disable-next-line
@@ -467,31 +476,23 @@ export default {
           this.isDelete = false;
         });
     },
-    getOutletsData() {
+    getServicesData() {
       this.isLoading = true;
       axios
-        .get(`/mall-display-outlets`)
+        .get(`/mall-parking-services/${this.idParking}/services`)
         .then((response) => {
           const data = response.data.data;
           console.log(data);
-          this.items = data
-            .filter(
-              (i) =>
-                i.md_id == this.idBanner && i.merchant_id == this.idMerchant
-            )
-            .map((item) => {
-              return {
-                id: item.mdo_id || 1,
-                md_id: item.md_id || 1,
-                merchant_id: item.merchant_id || 1,
-                mall_id: item.mall_id || 1,
-                pl_id: item.pl_id || 1,
-                mall: item.mall || '',
-                unit_number: item.unit_number || '',
-                user: item.name || '',
-                dated: item.dated || '',
-              };
-            });
+          this.items = data.map((item) => {
+            return {
+              ...item,
+              id: item.mps_id || 1,
+              name: item.service_name || '',
+              user: item?.user?.name || '',
+              user_id: item?.user_id || '',
+              dated: item?.dated || '',
+            };
+          });
         })
         .catch((error) => {
           // eslint-disable-next-line
@@ -507,52 +508,16 @@ export default {
           this.isLoading = false;
         });
     },
-    getBannerData() {
-      this.isLoading = true;
+    getServicesItems() {
       axios
-        .get(`/mall-displays`)
+        .get(`/services`)
         .then((response) => {
           const data = response.data.data;
           // console.log(data);
-          const dataItem = data.filter((i) => i.md_id == this.idBanner);
-          this.partnerName = dataItem.map((item) => {
+          this.resource.services = data.map((item) => {
             return {
-              name: item.partner_name,
-            };
-          })[0].name;
-          this.bannerName = dataItem.map((item) => {
-            return {
-              id: item.md_id,
-              name: item.display_header,
-            };
-          })[0].name;
-        })
-        .catch((error) => {
-          // eslint-disable-next-line
-          console.log(error);
-          const message =
-            error.response.data.message === ''
-              ? 'Something Wrong!!!'
-              : error.response.data.message;
-          this.errorMessage = message;
-          this.isError = true;
-        })
-        .finally(() => {
-          this.isLoading = false;
-        });
-    },
-    getPartnerData() {
-      axios
-        .get(`/mall-merchant-outlets/${this.idMerchant}/list`)
-        .then((response) => {
-          const data = response.data.data;
-          // console.log(data);
-          this.resource.malls = data.map((item) => {
-            return {
-              id: item.mmo_id || 1,
-              name: item.mall || '',
-              pl_id: item.pl_id || 1,
-              unit_number: item.unit_number || '',
+              id: item.service_id || 1,
+              name: item.service_name || '',
             };
           });
         })

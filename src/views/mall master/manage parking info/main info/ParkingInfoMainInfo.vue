@@ -41,7 +41,7 @@
         <div style="min-width: 100px">
           <p class="mb-2 font-weight-bold">Total</p>
           <v-text-field
-            v-model="input.total"
+            v-model="input.carLots"
             variant="outlined"
             density="compact"
             required
@@ -50,7 +50,7 @@
         <div style="min-width: 100px">
           <p class="mb-2 font-weight-bold">Available</p>
           <v-text-field
-            v-model="input.available"
+            v-model="input.carAvailable"
             variant="outlined"
             density="compact"
             required
@@ -107,11 +107,11 @@
           </v-col>
           <v-col cols="12" md="4">
             <div class="d-flex justify-space-between">
-              <p class="mb-2 font-weight-bold">Opening Hours</p>
+              <p class="mb-2 font-weight-bold">Operating Hours</p>
             </div>
             <v-textarea
               density="compact"
-              v-model="input.open"
+              v-model="input.operatingHours"
               rows="3"
               variant="outlined"
               required
@@ -252,11 +252,12 @@ export default {
       handicapLots: null,
       familyLots: null,
       free: '',
-      open: '',
+      operatingHours: '',
       info: '',
       ev: null,
       evDetail: '',
       carLots: null,
+      carAvailable: null,
       carCharges: '',
       bikeCharges: null,
       bikeChargesDetail: '',
@@ -392,11 +393,13 @@ export default {
           this.input = {
             id: dataItem[0].parking_id,
             grace: dataItem[0].grace_period,
+            operatingHours: dataItem[0].operating_hours,
             free: dataItem[0].free_parking,
             info: dataItem[0].carpark_info,
             ev: dataItem[0].ev_lots,
             evDetail: dataItem[0].ev_charges,
             carLots: dataItem[0].car_lots,
+            carAvailable: dataItem[0].car_lots_available,
             handicapLots: dataItem[0].handicap_lots,
             familyLots: dataItem[0].family_lots,
             carCharges: dataItem[0].car_charges,
@@ -424,11 +427,13 @@ export default {
         const payload = {
           parking_id: this.idParking,
           grace_period: this.input.grace,
+          operating_hours: this.input.operatingHours,
           free_parking: this.input.free,
           carpark_info: this.input.info,
           ev_lots: this.input.ev,
           ev_charges: this.input.evDetail,
           car_lots: this.input.carLots,
+          car_lots_available: this.input.carAvailable,
           handicap_lots: this.input.handicapLots,
           family_lots: this.input.familyLots,
           car_charges: this.input.carCharges,
