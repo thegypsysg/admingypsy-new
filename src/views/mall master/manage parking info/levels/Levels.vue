@@ -13,20 +13,20 @@
         </router-link>
         <h4 class="ml-8 mb-6">Parking Levels</h4>
         <p class="text-blue-darken-1 ml-16">
-          Parking Info <span>in City Square</span>
+          {{ parkingName?.name }}
         </p>
       </div>
-      <p class="text-blue-darken-1">City Square Mall</p>
+      <p class="text-blue-darken-1">{{ parkingName?.mall }}</p>
     </div>
 
-    <div class="d-flex">
+    <!-- <div class="d-flex">
       <h4 class="ml-4 mb-6" style="color: #293fb8; font-weight: 400">
         {{ partnerName || '' }}
       </h4>
       <h4 class="ml-8 mb-6" style="color: #991728; font-weight: 400">
         {{ bannerName || '' }}
       </h4>
-    </div>
+    </div> -->
     <v-form v-model="valid" @submit.prevent>
       <v-container>
         <v-row>
@@ -35,10 +35,10 @@
               density="compact"
               label="Select Levels"
               placeholder="Type Levels"
-              :items="resource.malls"
+              :items="resource.levels"
               item-title="name"
               item-value="id"
-              v-model="input.mall"
+              v-model="input.level"
               variant="outlined"
             ></v-autocomplete>
           </v-col>
@@ -111,12 +111,11 @@
               </tr>
             </thead>
             <tbody>
-              <!-- <tr v-for="item in filteredItems" :key="item.id"> -->
-              <tr v-for="item in 1" :key="item">
+              <tr v-for="item in filteredItems" :key="item.id">
+                <!-- <tr v-for="item in 1" :key="item"> -->
                 <td>
                   <div class="app-column">
-                    <!-- {{ item.id }} -->
-                    15
+                    {{ item.id }}
                   </div>
                 </td>
 
@@ -125,7 +124,6 @@
                     <v-img
                       height="40"
                       width="60"
-                      @click="openImage(item)"
                       class="app-img"
                       :src="
                         item.image != null
@@ -139,20 +137,20 @@
                 </td>
                 <td>
                   <div class="app-column">
-                    <!-- {{ item.mall }} -->
-                    Basement (B1)
+                    {{ item.name }}
+                    <!-- Basement (B1) -->
                   </div>
                 </td>
                 <td>
                   <div class="app-column">
-                    <!-- {{ item.user }} -->
-                    Charlton
+                    {{ item.user }}
+                    <!-- Charlton -->
                   </div>
                 </td>
                 <td>
                   <div class="app-column">
-                    <!-- {{ item.dated }} -->
-                    17/07/2024
+                    {{ item.dated }}
+                    <!-- 17/07/2024 -->
                   </div>
                 </td>
                 <td>
@@ -213,12 +211,12 @@
       <v-card>
         <v-card-title>Confirmation</v-card-title>
         <v-card-text>
-          Are you sure want to delete this banner outlet?
+          Are you sure want to delete this banner level?
         </v-card-text>
         <v-card-actions>
           <v-spacer></v-spacer>
           <v-btn color="error" text @click="cancelDelete">No</v-btn>
-          <v-btn color="success" text @click="deleteOutlet">{{
+          <v-btn color="success" text @click="deleteLevel">{{
             isDeleteLoading ? 'Deleting...' : 'Yes'
           }}</v-btn>
         </v-card-actions>
@@ -269,7 +267,7 @@ export default {
   data: () => ({
     // fileURL: 'https://admin1.the-gypsy.sg/img/app/',
     idBanner: null,
-    idMerchant: null,
+    idParking: null,
     partnerName: null,
     bannerName: null,
     valid: false,
@@ -282,6 +280,7 @@ export default {
     isDeleteLoading: false,
     locationIdToDelete: null,
     tableHeaders: [{ text: 'Gambar', value: 'image' }],
+    parkingName: null,
     isOpenImage: false,
     successMessage: '',
     errorMessage: '',
@@ -299,8 +298,7 @@ export default {
     },
     input: {
       id: 0,
-      mall: null,
-      location: null,
+      level: null,
     },
     rules: {
       countryRules: [
@@ -356,8 +354,7 @@ export default {
     search: '',
     items: [],
     resource: {
-      mall: [],
-      locations: [],
+      levels: [],
     },
     itemsTry: [
       {
@@ -382,11 +379,10 @@ export default {
     setAuthHeader(token);
   },
   mounted() {
-    this.idBanner = this.$route.params.id_banner;
-    this.idMerchant = this.$route.params.id_merchant;
-    this.getOutletsData();
-    this.getBannerData();
-    this.getPartnerData();
+    this.idParking = this.$route.params.id;
+    this.getLevelsData();
+    this.getLevelsItems();
+    this.getParkingData();
   },
   computed: {
     filteredItems() {
@@ -394,26 +390,12 @@ export default {
         return this.items;
       }
       const searchTextLower = this.search.toLowerCase();
-      return this.items.filter(
-        (item) =>
-          item.mall.toLowerCase().includes(searchTextLower) ||
-          item.unit_number.toLowerCase().includes(searchTextLower)
+      return this.items.filter((item) =>
+        item.name.toLowerCase().includes(searchTextLower)
       );
     },
   },
-  watch: {
-    'input.mall'() {
-      const filteredLocation = this.resource.malls
-        .filter((i) => i.id == this.input.mall)
-        .map((item) => {
-          return {
-            id: item.pl_id,
-            name: item.unit_number,
-          };
-        });
-      this.resource.locations = filteredLocation;
-    },
-  },
+
   methods: {
     updateImageFile(newImageFile) {
       this.imageFile.push(newImageFile);
@@ -547,21 +529,19 @@ export default {
       if (this.valid) {
         this.isSending = true;
         const payload = {
-          merchant_id: this.idMerchant,
-          md_id: this.idBanner,
-          mmo_id: this.input.mall,
+          parking_id: this.idParking,
+          level_id: this.input.level,
         };
         axios
-          .post(`/mall-display-outlets`, payload)
+          .post(`/mall-parking-levels`, payload)
           .then((response) => {
             const data = response.data;
             this.successMessage = data.message;
             this.isSuccess = true;
-            this.getOutletsData();
+            this.getLevelsData();
             this.input = {
               id: 0,
-              mall: null,
-              location: null,
+              level: null,
             };
           })
           .catch((error) => {
@@ -592,15 +572,15 @@ export default {
       this.locationIdToDelete = null;
       this.isDelete = false;
     },
-    deleteOutlet() {
+    deleteLevel() {
       this.isDeleteLoading = true;
       axios
-        .delete(`/mall-display-outlets/${this.locationIdToDelete}`)
+        .delete(`/mall-parking-levels/${this.locationIdToDelete}`)
         .then((response) => {
           const data = response.data;
           this.successMessage = data.message;
           this.isSuccess = true;
-          this.getOutletsData();
+          this.getLevelsData();
         })
         .catch((error) => {
           // eslint-disable-next-line
@@ -618,92 +598,21 @@ export default {
           this.isDelete = false;
         });
     },
-    getOutletsData() {
+    getLevelsData() {
       this.isLoading = true;
       axios
-        .get(`/mall-display-outlets`)
+        .get(`/mall-parking-levels/${this.idParking}/levels`)
         .then((response) => {
           const data = response.data.data;
           console.log(data);
-          this.items = data
-            .filter(
-              (i) =>
-                i.md_id == this.idBanner && i.merchant_id == this.idMerchant
-            )
-            .map((item) => {
-              return {
-                id: item.mdo_id || 1,
-                md_id: item.md_id || 1,
-                merchant_id: item.merchant_id || 1,
-                mall_id: item.mall_id || 1,
-                pl_id: item.pl_id || 1,
-                mall: item.mall || '',
-                unit_number: item.unit_number || '',
-                user: item.name || '',
-                dated: item.dated || '',
-              };
-            });
-        })
-        .catch((error) => {
-          // eslint-disable-next-line
-          console.log(error);
-          const message =
-            error.response.data.message === ''
-              ? 'Something Wrong!!!'
-              : error.response.data.message;
-          this.errorMessage = message;
-          this.isError = true;
-        })
-        .finally(() => {
-          this.isLoading = false;
-        });
-    },
-    getBannerData() {
-      this.isLoading = true;
-      axios
-        .get(`/mall-displays`)
-        .then((response) => {
-          const data = response.data.data;
-          // console.log(data);
-          const dataItem = data.filter((i) => i.md_id == this.idBanner);
-          this.partnerName = dataItem.map((item) => {
+          this.items = data.map((item) => {
             return {
-              name: item.partner_name,
-            };
-          })[0].name;
-          this.bannerName = dataItem.map((item) => {
-            return {
-              id: item.md_id,
-              name: item.display_header,
-            };
-          })[0].name;
-        })
-        .catch((error) => {
-          // eslint-disable-next-line
-          console.log(error);
-          const message =
-            error.response.data.message === ''
-              ? 'Something Wrong!!!'
-              : error.response.data.message;
-          this.errorMessage = message;
-          this.isError = true;
-        })
-        .finally(() => {
-          this.isLoading = false;
-        });
-    },
-    getPartnerData() {
-      axios
-        .get(`/mall-merchant-outlets/${this.idMerchant}/list`)
-        .then((response) => {
-          const data = response.data.data;
-          // console.log(data);
-          this.resource.malls = data.map((item) => {
-            return {
-              id: item.mmo_id || 1,
-              name: item.mall || '',
-              pl_id: item.pl_id || 1,
-              unit_number: item.unit_number || '',
+              ...item,
+              id: item.mpl_id || 1,
+              name: item.level_name || '',
+              image: item.image || '',
+              user: item.user.name || '',
+              dated: item.dated || '',
             };
           });
         })
@@ -716,6 +625,64 @@ export default {
               : error.response.data.message;
           this.errorMessage = message;
           this.isError = true;
+        })
+        .finally(() => {
+          this.isLoading = false;
+        });
+    },
+    getLevelsItems() {
+      axios
+        .get(`/levels`)
+        .then((response) => {
+          const data = response.data.data;
+          // console.log(data);
+          this.resource.levels = data.map((item) => {
+            return {
+              id: item.level_id || 1,
+              name: item.level_name || '',
+            };
+          });
+        })
+        .catch((error) => {
+          // eslint-disable-next-line
+          console.log(error);
+          const message =
+            error.response.data.message === ''
+              ? 'Something Wrong!!!'
+              : error.response.data.message;
+          this.errorMessage = message;
+          this.isError = true;
+        });
+    },
+    getParkingData() {
+      this.isLoading = true;
+      axios
+        .get(`/mall-parking`)
+        .then((response) => {
+          const data = response.data.data;
+          // console.log(data);
+          const dataItem = data.filter((i) => i.parking_id == this.idParking);
+          this.parkingName = dataItem.map((item) => {
+            return {
+              id: item.parking_id,
+              name: item.parking_header,
+              mall: item.mall_name || '',
+            };
+          })[0];
+          console.log(this.parkingName);
+        })
+        .catch((error) => {
+          // eslint-disable-next-line
+          console.log(error);
+          const message =
+            error.response.data.message === ''
+              ? 'Something Wrong!!!'
+              : error.response.data.message;
+          this.errorMessage = message;
+          this.isError = true;
+        })
+        .finally(() => {
+          this.isLoading = false;
         });
     },
   },

@@ -19,14 +19,14 @@
       <p class="text-blue-darken-1">{{ parkingName?.mall }}</p>
     </div>
 
-    <div class="d-flex">
+    <!-- <div class="d-flex">
       <h4 class="ml-4 mb-6" style="color: #293fb8; font-weight: 400">
         {{ partnerName || '' }}
       </h4>
       <h4 class="ml-8 mb-6" style="color: #991728; font-weight: 400">
         {{ bannerName || '' }}
       </h4>
-    </div>
+    </div> -->
     <v-form v-model="valid" @submit.prevent>
       <v-container>
         <v-row>
