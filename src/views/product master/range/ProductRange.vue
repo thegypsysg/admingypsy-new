@@ -126,19 +126,21 @@
                 <tr class="country-table-body">
                   <td>{{ item.id }}</td>
                   <td>
-                    <v-img
-                      height="40"
-                      width="65"
-                      @click="openImage(item)"
-                      style="cursor: pointer"
-                      :src="
-                        item.image != null
-                          ? $fileURL + item.image
-                          : 'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png'
-                      "
-                      ><template #placeholder>
-                        <div class="skeleton" /> </template
-                    ></v-img>
+                    <div class="image-upload-cont">
+                      <v-img
+                        class="image-upload-item"
+                        height="40"
+                        @click="openImage(item)"
+                        style="cursor: pointer"
+                        :src="
+                          item.image != null
+                            ? $fileURL + item.image
+                            : 'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png'
+                        "
+                        ><template #placeholder>
+                          <div class="skeleton" /> </template
+                      ></v-img>
+                    </div>
                   </td>
                   <td>
                     {{ item.product }}

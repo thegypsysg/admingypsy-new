@@ -124,12 +124,11 @@
                   <v-table class="app-column-table"></v-table>
                 </td>
                 <td>
-                  <div class="app-column app-img-cont-1">
+                  <div class="image-upload-cont">
                     <v-img
+                      class="image-upload-item"
                       height="40"
-                      width="60"
                       @click="openLogo(item)"
-                      class="app-img"
                       :src="
                         item.logo != null
                           ? $fileURL + item.logo
@@ -168,12 +167,11 @@
                   </v-table>
                 </td>
                 <td>
-                  <div class="app-column app-img-cont-2">
+                  <div class="image-upload-cont">
                     <v-img
+                      class="image-upload-item"
                       height="40"
-                      width="60"
                       @click="openImage(item)"
-                      class="app-img-2"
                       :src="
                         item.image != null
                           ? $fileURL + item.image

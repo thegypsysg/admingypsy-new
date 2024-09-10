@@ -61,19 +61,21 @@
               <template v-for="item in filteredItems" :key="item.id">
                 <tr class="country-table-body">
                   <td>
-                    <v-img
-                      height="40"
-                      width="60"
-                      @click="openImage(item)"
-                      style="cursor: pointer"
-                      :src="
-                        item.image != null
-                          ? $fileURL + item.image
-                          : 'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png'
-                      "
-                      ><template #placeholder>
-                        <div class="skeleton" /> </template
-                    ></v-img>
+                    <div class="image-upload-cont">
+                      <v-img
+                        class="image-upload-item"
+                        height="40"
+                        @click="openImage(item)"
+                        style="cursor: pointer"
+                        :src="
+                          item.image != null
+                            ? $fileURL + item.image
+                            : 'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png'
+                        "
+                        ><template #placeholder>
+                          <div class="skeleton" /> </template
+                      ></v-img>
+                    </div>
                   </td>
                   <td class="text-blue-darken-4">
                     {{ item.id }}
@@ -92,33 +94,33 @@
                   </td>
                   <td>
                     <v-btn-toggle
-                              style="
-                                font-size: 10px !important;
-                                font-weight: 200 !important;
-                                height: 22px !important;
-                                width: 54px !important;
-                              "
-                              class="d-flex align-center"
-                              v-model="item.isEligible"
-                              rounded="5"
-                              @click="eligibleUser(item.gypsy_id)"
-                            >
-                              <v-btn size="27" :value="true"> Yes </v-btn>
+                      style="
+                        font-size: 10px !important;
+                        font-weight: 200 !important;
+                        height: 22px !important;
+                        width: 54px !important;
+                      "
+                      class="d-flex align-center"
+                      v-model="item.isEligible"
+                      rounded="5"
+                      @click="eligibleUser(item.gypsy_id)"
+                    >
+                      <v-btn size="27" :value="true"> Yes </v-btn>
 
-                              <v-btn size="27" :value="false"> No </v-btn>
-                            </v-btn-toggle>
+                      <v-btn size="27" :value="false"> No </v-btn>
+                    </v-btn-toggle>
                   </td>
                   <td>
                     <v-select
-                    style="min-width: 120px !important;"
-                  density="compact"
-                  placeholder="status"
-                  item-value="value"
-                  item-title="label"
-                  :items="resource.status"
-                  v-model="item.status"
-                  variant="outlined"
-                ></v-select>
+                      style="min-width: 120px !important"
+                      density="compact"
+                      placeholder="status"
+                      item-value="value"
+                      item-title="label"
+                      :items="resource.status"
+                      v-model="item.status"
+                      variant="outlined"
+                    ></v-select>
                   </td>
 
                   <!-- <td>
@@ -141,7 +143,7 @@
                 </tr>
 
                 <tr>
-                  <td colspan="8" >
+                  <td colspan="8">
                     <div class="d-flex justify-start">
                       <!-- <span
                         class="ml-2 mt-2 mr-16 text-blue-darken-4"
@@ -189,7 +191,7 @@
                             </v-btn-toggle>
                           </td>
                           <td class="pb-4 w-100 d-flex justify-end">
-                            <div style="min-width: 200px;"></div>
+                            <div style="min-width: 200px"></div>
                             <v-btn
                               color="indigo-accent-2"
                               style="text-transform: none"
@@ -335,13 +337,13 @@ export default {
       status: [
         {
           value: 'P',
-          label: 'Pending'
+          label: 'Pending',
         },
         {
           value: 'R',
-          label: 'Rejected'
-        }
-      ]
+          label: 'Rejected',
+        },
+      ],
     },
     rules: {
       nameRules: [
@@ -406,29 +408,27 @@ export default {
       if (!this.search && this.app === null && this.skills === null) {
         return this.items;
       } else if (this.search && this.app === null && this.skills === null) {
-      const searchTextLower = this.search.toLowerCase();
-      return this.items.filter(
-        (item) =>
-          item.id.toLowerCase().includes(searchTextLower) ||
-          item.applicant_id.toLowerCase().includes(searchTextLower) ||
-          item.name.toLowerCase().includes(searchTextLower) ||
-          item.email.toLowerCase().includes(searchTextLower) ||
-          item.mobile.toLowerCase().includes(searchTextLower) ||
-          item.whatsapp.toLowerCase().includes(searchTextLower)
-      );
+        const searchTextLower = this.search.toLowerCase();
+        return this.items.filter(
+          (item) =>
+            item.id.toLowerCase().includes(searchTextLower) ||
+            item.applicant_id.toLowerCase().includes(searchTextLower) ||
+            item.name.toLowerCase().includes(searchTextLower) ||
+            item.email.toLowerCase().includes(searchTextLower) ||
+            item.mobile.toLowerCase().includes(searchTextLower) ||
+            item.whatsapp.toLowerCase().includes(searchTextLower)
+        );
       } else if (!this.search && this.app === null && this.skills !== null) {
         const filteredData = this.items.filter((item) => {
           return this.skills
-            ? item.skills.toLowerCase() ===
-                this.skills.toLowerCase()
+            ? item.skills.toLowerCase() === this.skills.toLowerCase()
             : true;
         });
         return filteredData;
       } else if (!this.search && this.app !== null && this.skills === null) {
         const filteredData = this.items.filter((item) => {
           return this.app
-            ? item.appName.toLowerCase() ===
-                this.app.toLowerCase()
+            ? item.appName.toLowerCase() === this.app.toLowerCase()
             : true;
         });
         return filteredData;
@@ -437,13 +437,12 @@ export default {
         const filteredData = this.items.filter((item) => {
           return (
             (item.name.toLowerCase().includes(searchTextLower) ||
-            item.email.toLowerCase().includes(searchTextLower) ||
-            item.mobile.toLowerCase().includes(searchTextLower) ||
-            item.whatsapp.toLowerCase().includes(searchTextLower)) &&
+              item.email.toLowerCase().includes(searchTextLower) ||
+              item.mobile.toLowerCase().includes(searchTextLower) ||
+              item.whatsapp.toLowerCase().includes(searchTextLower)) &&
             (this.app
-            ? item.appName.toLowerCase() ===
-                this.app.toLowerCase()
-            : true)
+              ? item.appName.toLowerCase() === this.app.toLowerCase()
+              : true)
           );
         });
         return filteredData;
@@ -452,13 +451,12 @@ export default {
         const filteredData = this.items.filter((item) => {
           return (
             (item.name.toLowerCase().includes(searchTextLower) ||
-            item.email.toLowerCase().includes(searchTextLower) ||
-            item.mobile.toLowerCase().includes(searchTextLower) ||
-            item.whatsapp.toLowerCase().includes(searchTextLower)) &&
+              item.email.toLowerCase().includes(searchTextLower) ||
+              item.mobile.toLowerCase().includes(searchTextLower) ||
+              item.whatsapp.toLowerCase().includes(searchTextLower)) &&
             (this.skills
-            ? item.skills.toLowerCase() ===
-                this.skills.toLowerCase()
-            : true)
+              ? item.skills.toLowerCase() === this.skills.toLowerCase()
+              : true)
           );
         });
         return filteredData;
@@ -467,17 +465,15 @@ export default {
         const filteredData = this.items.filter((item) => {
           return (
             (item.name.toLowerCase().includes(searchTextLower) ||
-            item.email.toLowerCase().includes(searchTextLower) ||
-            item.mobile.toLowerCase().includes(searchTextLower) ||
-            item.whatsapp.toLowerCase().includes(searchTextLower)) &&
+              item.email.toLowerCase().includes(searchTextLower) ||
+              item.mobile.toLowerCase().includes(searchTextLower) ||
+              item.whatsapp.toLowerCase().includes(searchTextLower)) &&
             (this.skills
-            ? item.skills.toLowerCase() ===
-                this.skills.toLowerCase()
-            : true) && 
+              ? item.skills.toLowerCase() === this.skills.toLowerCase()
+              : true) &&
             (this.app
-            ? item.appName.toLowerCase() ===
-                this.app.toLowerCase()
-            : true)
+              ? item.appName.toLowerCase() === this.app.toLowerCase()
+              : true)
           );
         });
         return filteredData;
@@ -499,25 +495,25 @@ export default {
   },
   methods: {
     countAge(date) {
-     // if (!date) return null;
-//
-     // const today = new Date();
-     // const birthDate = new Date(date);
-     // let age = today.getFullYear() - birthDate.getFullYear();
-     // const monthDiff = today.getMonth() - birthDate.getMonth();
-//
-     // if (
-     //   monthDiff < 0 ||
-     //   (monthDiff === 0 && today.getDate() < birthDate.getDate())
-     // ) {
-     //   age--;
-     // }
-//
-     // return age;
+      // if (!date) return null;
+      //
+      // const today = new Date();
+      // const birthDate = new Date(date);
+      // let age = today.getFullYear() - birthDate.getFullYear();
+      // const monthDiff = today.getMonth() - birthDate.getMonth();
+      //
+      // if (
+      //   monthDiff < 0 ||
+      //   (monthDiff === 0 && today.getDate() < birthDate.getDate())
+      // ) {
+      //   age--;
+      // }
+      //
+      // return age;
 
-            if (!date) return null;
+      if (!date) return null;
 
-      const [day, month, year] = date.split("/").map(Number);
+      const [day, month, year] = date.split('/').map(Number);
       if (isNaN(day) || isNaN(month) || isNaN(year)) return null;
 
       const today = new Date();
@@ -712,9 +708,17 @@ export default {
               genderCode: item.gender || '',
               registered: item.dated || '',
               isEligible:
-                item.eligible == 'N' ? false : item.eligible == 'Y' ? true : null,
+                item.eligible == 'N'
+                  ? false
+                  : item.eligible == 'Y'
+                  ? true
+                  : null,
               isRegistrable:
-                item.registrable == 'N' ? false : item.registrable == 'Y' ? true : null,
+                item.registrable == 'N'
+                  ? false
+                  : item.registrable == 'Y'
+                  ? true
+                  : null,
               lastLogin: item.last_login || '',
               registeredBy:
                 item.social_type == 'G'
@@ -768,7 +772,7 @@ export default {
         });
     },
     eligibleUser(id) {
-      console.log(id)
+      console.log(id);
       //this.isSending = true;
       //axios
       //  .get(`/gypsy-registration/toggle-active/${id}`)
@@ -848,7 +852,7 @@ export default {
           // console.log(data);
           this.resource.app = data
             .sort((a, b) => a.app_id < b.app_id)
-            .map((app) =>  app.app_name);
+            .map((app) => app.app_name);
           // console.log(this.items);
         })
         .catch((error) => {

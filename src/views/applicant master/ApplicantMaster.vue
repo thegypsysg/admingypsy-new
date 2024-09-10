@@ -60,19 +60,21 @@
               <template v-for="item in filteredItems" :key="item.id">
                 <tr class="country-table-body">
                   <td>
-                    <v-img
-                      height="40"
-                      width="60"
-                      @click="openImage(item)"
-                      style="cursor: pointer"
-                      :src="
-                        item.image != null
-                          ? $fileURL + item.image
-                          : 'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png'
-                      "
-                      ><template #placeholder>
-                        <div class="skeleton" /> </template
-                    ></v-img>
+                    <div class="image-upload-cont">
+                      <v-img
+                        class="image-upload-item"
+                        height="40"
+                        @click="openImage(item)"
+                        style="cursor: pointer"
+                        :src="
+                          item.image != null
+                            ? $fileURL + item.image
+                            : 'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png'
+                        "
+                        ><template #placeholder>
+                          <div class="skeleton" /> </template
+                      ></v-img>
+                    </div>
                     <p class="text-blue-darken-4 text-center">
                       {{ item.gender }}
                     </p>
@@ -778,81 +780,83 @@ export default {
         .then((response) => {
           const data = response.data.data;
           console.log(data);
-          this.items = data.map((item) => {
-            return {
-              image: item.image || null,
-              appName: item.app_name || '',
-              gypsy_id: item.gypsy_id || 0,
-              id: item.gypsy_ref_no || '',
-              applicant_id: item.applicant_ref_no || '',
-              name: item.name || '',
-              email: item.email_id || '',
-              verifiedEmail:
-                item.email_verified == 'Y' ? 'verified' : 'Not verified',
-              country_id: item.country_current || null,
-              country: item.country?.country_name || '',
-              city: item.city_name || '',
-              town: item.town_name || '',
-              nationality: item.country?.nationality || '',
-              mobile: item.mobile_number || '',
-              verifiedMobile:
-                item.mobile_verified == 'Y' ? 'verified' : 'Not verified',
-              whatsapp: item.whats_app || '',
-              verifiedWhatsApp:
-                item.whatsapp_verified == 'Y' ? 'verified' : 'Not verified',
-              gender:
-                item.gender == 'M'
-                  ? 'Male'
-                  : item.gender == 'F'
-                  ? 'Female'
-                  : '',
-              genderCode: item.gender || '',
-              registered: item.registered_on || '',
-              isActive:
-                item.active == 'N' ? false : item.active == 'Y' ? true : null,
-              isBlock:
-                item.block == 'N' ? false : item.block == 'Y' ? true : null,
-              isEmployed:
-                item.employed == 'N'
-                  ? false
-                  : item.employed == 'Y'
-                  ? true
-                  : null,
-              lastLogin: item.last_login || '',
-              registeredBy:
-                item.social_type == 'G'
-                  ? 'Google'
-                  : item.social_type == 'L'
-                  ? 'LinkedIn'
-                  : item.social_type == 'X'
-                  ? 'Twitter'
-                  : item.social_type == 'F'
-                  ? 'Facebook'
-                  : item.social_type == 'T'
-                  ? 'Tiktok'
-                  : item.social_type == 'E'
-                  ? 'Email'
-                  : '',
-              registeredType:
-                item.registered_type == 'M'
-                  ? 'Mobile'
-                  : item.registered_type == 'W'
-                  ? 'Web'
-                  : '',
-              maritalStatus:
-                item.marital_status == 'M'
-                  ? 'Married'
-                  : item.marital_status == 'S'
-                  ? 'Single'
-                  : item.marital_status == 'O'
-                  ? 'Others'
-                  : '',
-              date: item.date_of_birth || '',
-              skills: item.skills_name || '',
-              position: item.position_name || '',
-              employer: item.employer_name || '',
-            };
-          });
+          this.items = data
+            .sort((a, b) => a.gypsy_id < b.gypsy_id)
+            .map((item) => {
+              return {
+                image: item.image || null,
+                appName: item.app_name || '',
+                gypsy_id: item.gypsy_id || 0,
+                id: item.gypsy_ref_no || '',
+                applicant_id: item.applicant_ref_no || '',
+                name: item.name || '',
+                email: item.email_id || '',
+                verifiedEmail:
+                  item.email_verified == 'Y' ? 'verified' : 'Not verified',
+                country_id: item.country_current || null,
+                country: item.country?.country_name || '',
+                city: item.city_name || '',
+                town: item.town_name || '',
+                nationality: item.country?.nationality || '',
+                mobile: item.mobile_number || '',
+                verifiedMobile:
+                  item.mobile_verified == 'Y' ? 'verified' : 'Not verified',
+                whatsapp: item.whats_app || '',
+                verifiedWhatsApp:
+                  item.whatsapp_verified == 'Y' ? 'verified' : 'Not verified',
+                gender:
+                  item.gender == 'M'
+                    ? 'Male'
+                    : item.gender == 'F'
+                    ? 'Female'
+                    : '',
+                genderCode: item.gender || '',
+                registered: item.registered_on || '',
+                isActive:
+                  item.active == 'N' ? false : item.active == 'Y' ? true : null,
+                isBlock:
+                  item.block == 'N' ? false : item.block == 'Y' ? true : null,
+                isEmployed:
+                  item.employed == 'N'
+                    ? false
+                    : item.employed == 'Y'
+                    ? true
+                    : null,
+                lastLogin: item.last_login || '',
+                registeredBy:
+                  item.social_type == 'G'
+                    ? 'Google'
+                    : item.social_type == 'L'
+                    ? 'LinkedIn'
+                    : item.social_type == 'X'
+                    ? 'Twitter'
+                    : item.social_type == 'F'
+                    ? 'Facebook'
+                    : item.social_type == 'T'
+                    ? 'Tiktok'
+                    : item.social_type == 'E'
+                    ? 'Email'
+                    : '',
+                registeredType:
+                  item.registered_type == 'M'
+                    ? 'Mobile'
+                    : item.registered_type == 'W'
+                    ? 'Web'
+                    : '',
+                maritalStatus:
+                  item.marital_status == 'M'
+                    ? 'Married'
+                    : item.marital_status == 'S'
+                    ? 'Single'
+                    : item.marital_status == 'O'
+                    ? 'Others'
+                    : '',
+                date: item.date_of_birth || '',
+                skills: item.skills_name || '',
+                position: item.position_name || '',
+                employer: item.employer_name || '',
+              };
+            });
         })
         .catch((error) => {
           // eslint-disable-next-line

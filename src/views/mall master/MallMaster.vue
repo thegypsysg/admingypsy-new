@@ -1075,6 +1075,7 @@ export default {
           const data = response.data.data;
           // console.log(data);
           this.resource.city = data
+            .filter((d) => d.active == 'Y')
             .sort((a, b) => a.city_name.localeCompare(b.city_name))
             .map((item) => {
               return {

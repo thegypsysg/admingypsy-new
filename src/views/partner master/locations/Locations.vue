@@ -226,12 +226,11 @@
                   </v-table>
                 </td>
                 <td>
-                  <div class="app-column">
+                  <div class="image-upload-cont">
                     <v-img
+                      class="image-upload-item"
                       height="40"
-                      width="60"
                       @click="openImage(item)"
-                      class="app-img"
                       :src="
                         item.image != null
                           ? $fileURL + item.image

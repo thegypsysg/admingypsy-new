@@ -1165,7 +1165,7 @@ export default {
           const data = response.data;
           this.successMessage = data.message;
           this.isSuccess = true;
-          this.getItemsData();
+          //this.getItemsData();
         })
         .catch((error) => {
           // eslint-disable-next-line
@@ -1189,7 +1189,7 @@ export default {
           const data = response.data;
           this.successMessage = data.message;
           this.isSuccess = true;
-          this.getItemsData();
+          //this.getItemsData();
         })
         .catch((error) => {
           // eslint-disable-next-line
@@ -1213,7 +1213,7 @@ export default {
           const data = response.data;
           this.successMessage = data.message;
           this.isSuccess = true;
-          this.getItemsData();
+          // this.getItemsData();
         })
         .catch((error) => {
           // eslint-disable-next-line
@@ -1237,7 +1237,7 @@ export default {
           const data = response.data;
           this.successMessage = data.message;
           this.isSuccess = true;
-          this.getMerchantData();
+          //this.getMerchantData();
         })
         .catch((error) => {
           // eslint-disable-next-line

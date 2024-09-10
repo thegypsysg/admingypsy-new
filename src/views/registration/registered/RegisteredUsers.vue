@@ -32,19 +32,21 @@
               <template v-for="item in filteredItems" :key="item.id">
                 <tr class="country-table-body">
                   <td>
-                    <v-img
-                      height="40"
-                      width="60"
-                      @click="openImage(item)"
-                      style="cursor: pointer"
-                      :src="
-                        item.image != null
-                          ? $fileURL + item.image
-                          : 'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png'
-                      "
-                      ><template #placeholder>
-                        <div class="skeleton" /> </template
-                    ></v-img>
+                    <div class="image-upload-cont">
+                      <v-img
+                        class="image-upload-item"
+                        height="40"
+                        @click="openImage(item)"
+                        style="cursor: pointer"
+                        :src="
+                          item.image != null
+                            ? $fileURL + item.image
+                            : 'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png'
+                        "
+                        ><template #placeholder>
+                          <div class="skeleton" /> </template
+                      ></v-img>
+                    </div>
                     <p class="text-blue-darken-4">{{ item.gender }}</p>
                   </td>
                   <td>
@@ -193,7 +195,7 @@
                               "
                               class="d-flex align-center"
                               v-model="item.isActive"
-                    :disabled="isSending2"
+                              :disabled="isSending2"
                               rounded="5"
                               @click="activeUser(item.gypsy_id)"
                             >
@@ -213,7 +215,7 @@
                               class="d-flex align-center"
                               v-model="item.isBlock"
                               rounded="5"
-                    :disabled="isSending2"
+                              :disabled="isSending2"
                               @click="blockUser(item.gypsy_id)"
                             >
                               <v-btn size="27" :value="true"> Yes </v-btn>
@@ -447,25 +449,25 @@ export default {
   },
   methods: {
     countAge(date) {
-     // if (!date) return null;
-//
-     // const today = new Date();
-     // const birthDate = new Date(date);
-     // let age = today.getFullYear() - birthDate.getFullYear();
-     // const monthDiff = today.getMonth() - birthDate.getMonth();
-//
-     // if (
-     //   monthDiff < 0 ||
-     //   (monthDiff === 0 && today.getDate() < birthDate.getDate())
-     // ) {
-     //   age--;
-     // }
-//
-     // return age;
+      // if (!date) return null;
+      //
+      // const today = new Date();
+      // const birthDate = new Date(date);
+      // let age = today.getFullYear() - birthDate.getFullYear();
+      // const monthDiff = today.getMonth() - birthDate.getMonth();
+      //
+      // if (
+      //   monthDiff < 0 ||
+      //   (monthDiff === 0 && today.getDate() < birthDate.getDate())
+      // ) {
+      //   age--;
+      // }
+      //
+      // return age;
 
-            if (!date) return null;
+      if (!date) return null;
 
-      const [day, month, year] = date.split("/").map(Number);
+      const [day, month, year] = date.split('/').map(Number);
       if (isNaN(day) || isNaN(month) || isNaN(year)) return null;
 
       const today = new Date();
@@ -629,69 +631,71 @@ export default {
         .then((response) => {
           const data = response.data.data;
           console.log(data);
-          this.items = data.map((item) => {
-            return {
-              image: item.image || null,
-              appName: item.app_name || '',
-              gypsy_id: item.gypsy_id || 0,
-              id: item.gypsy_ref_no || '',
-              name: item.name || '',
-              email: item.email_id || '',
-              verifiedEmail:
-                item.email_verified == 'Y' ? 'verified' : 'Not verified',
-              country_id: item.country_current || null,
-              country: item.country?.country_name || '',
-              nationality: item.country?.nationality || '',
-              mobile: item.mobile_number || '',
-              verifiedMobile:
-                item.mobile_verified == 'Y' ? 'verified' : 'Not verified',
-              whatsapp: item.whats_app || '',
-              verifiedWhatsApp:
-                item.whatsapp_verified == 'Y' ? 'verified' : 'Not verified',
-              gender:
-                item.gender == 'M'
-                  ? 'Male'
-                  : item.gender == 'F'
-                  ? 'Female'
-                  : '',
-              genderCode: item.gender || '',
-              registered: item.registered_on || '',
-              isActive:
-                item.active == 'N' ? false : item.active == 'Y' ? true : null,
-              isBlock:
-                item.block == 'N' ? false : item.block == 'Y' ? true : null,
-              lastLogin: item.last_login || '',
-              registeredBy:
-                item.social_type == 'G'
-                  ? 'Google'
-                  : item.social_type == 'L'
-                  ? 'LinkedIn'
-                  : item.social_type == 'X'
-                  ? 'Twitter'
-                  : item.social_type == 'F'
-                  ? 'Facebook'
-                  : item.social_type == 'T'
-                  ? 'Tiktok'
-                  : item.social_type == 'E'
-                  ? 'Email'
-                  : '',
-              registeredType:
-                item.registered_type == 'M'
-                  ? 'Mobile'
-                  : item.registered_type == 'W'
-                  ? 'Web'
-                  : '',
-              maritalStatus:
-                item.marital_status == 'M'
-                  ? 'Married'
-                  : item.marital_status == 'S'
-                  ? 'Single'
-                  : item.marital_status == 'O'
-                  ? 'Others'
-                  : '',
-              date: item.date_of_birth || '',
-            };
-          });
+          this.items = data
+            .sort((a, b) => a.gypsy_id < b.gypsy_id)
+            .map((item) => {
+              return {
+                image: item.image || null,
+                appName: item.app_name || '',
+                gypsy_id: item.gypsy_id || 0,
+                id: item.gypsy_ref_no || '',
+                name: item.name || '',
+                email: item.email_id || '',
+                verifiedEmail:
+                  item.email_verified == 'Y' ? 'verified' : 'Not verified',
+                country_id: item.country_current || null,
+                country: item.country?.country_name || '',
+                nationality: item.country?.nationality || '',
+                mobile: item.mobile_number || '',
+                verifiedMobile:
+                  item.mobile_verified == 'Y' ? 'verified' : 'Not verified',
+                whatsapp: item.whats_app || '',
+                verifiedWhatsApp:
+                  item.whatsapp_verified == 'Y' ? 'verified' : 'Not verified',
+                gender:
+                  item.gender == 'M'
+                    ? 'Male'
+                    : item.gender == 'F'
+                    ? 'Female'
+                    : '',
+                genderCode: item.gender || '',
+                registered: item.registered_on || '',
+                isActive:
+                  item.active == 'N' ? false : item.active == 'Y' ? true : null,
+                isBlock:
+                  item.block == 'N' ? false : item.block == 'Y' ? true : null,
+                lastLogin: item.last_login || '',
+                registeredBy:
+                  item.social_type == 'G'
+                    ? 'Google'
+                    : item.social_type == 'L'
+                    ? 'LinkedIn'
+                    : item.social_type == 'X'
+                    ? 'Twitter'
+                    : item.social_type == 'F'
+                    ? 'Facebook'
+                    : item.social_type == 'T'
+                    ? 'Tiktok'
+                    : item.social_type == 'E'
+                    ? 'Email'
+                    : '',
+                registeredType:
+                  item.registered_type == 'M'
+                    ? 'Mobile'
+                    : item.registered_type == 'W'
+                    ? 'Web'
+                    : '',
+                maritalStatus:
+                  item.marital_status == 'M'
+                    ? 'Married'
+                    : item.marital_status == 'S'
+                    ? 'Single'
+                    : item.marital_status == 'O'
+                    ? 'Others'
+                    : '',
+                date: item.date_of_birth || '',
+              };
+            });
         })
         .catch((error) => {
           // eslint-disable-next-line

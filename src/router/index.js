@@ -84,6 +84,36 @@ const routes = [
     },
   },
   {
+    name: 'app country',
+    path: '/app-country',
+    component: () =>
+      import(
+        '@/views/app master/app country city/country/AppCountryContainer.vue'
+      ),
+    beforeEnter: (to, from, next) => {
+      // Pengecekan status login sebelum masuk ke halaman beranda
+      if (localStorage.getItem('token') == null) {
+        next('/auth/login'); // Alihkan ke halaman login jika belum masuk
+      } else {
+        next(); // Lanjutkan ke halaman beranda jika sudah masuk
+      }
+    },
+  },
+  {
+    name: 'app city',
+    path: '/app-city',
+    component: () =>
+      import('@/views/app master/app country city/city/AppCityContainer.vue'),
+    beforeEnter: (to, from, next) => {
+      // Pengecekan status login sebelum masuk ke halaman beranda
+      if (localStorage.getItem('token') == null) {
+        next('/auth/login'); // Alihkan ke halaman login jika belum masuk
+      } else {
+        next(); // Lanjutkan ke halaman beranda jika sudah masuk
+      }
+    },
+  },
+  {
     name: 'industry master',
     path: '/industry_master',
     component: () =>

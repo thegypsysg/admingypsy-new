@@ -44,4 +44,18 @@ export default {
 <style lang="scss">
 $fa-font-path: '~font-awesome/fonts/';
 @import '~font-awesome/scss/font-awesome.scss';
+
+.image-upload-cont {
+  width: 70px;
+  height: 40px;
+  overflow: hidden;
+  border: 1px solid grey;
+}
+
+.image-upload-item {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+}
 </style>

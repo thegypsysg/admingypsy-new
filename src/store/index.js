@@ -21,8 +21,7 @@ export default createStore({
             open: false,
             subnav: [
               { title: 'App - New', path: '/app-new' },
-              { title: 'App - Country', path: '/app-country' },
-              { title: 'App - City', path: '/app-city' },
+              { title: 'App - Country & City', path: '/app-country' },
               { title: 'App - Socials', path: '/app-socials' },
             ],
           },

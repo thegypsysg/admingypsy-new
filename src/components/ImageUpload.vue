@@ -474,33 +474,34 @@ export default {
           const img = new Image();
           img.src = event.target.result;
           img.onload = () => {
-            if (img.width > img.height) {
-              this.fileUploaderSnackText = 'Please upload a vertical image.';
-              this.fileUploaderSnackBarAlert = true;
-              this.fileUploaderSnackBarAlertColor = 'red';
-              return;
-            } else if (files[0].size > 1242880) {
-              this.fileUploaderSnackText = 'File size cannot be more than 1 MB';
-              this.fileUploaderSnackBarAlert = true;
-              this.fileUploaderSnackBarAlertColor = 'red';
-              return;
-            } else {
-              this.image[0].image = files[0];
-              this.image[0].image_path = URL.createObjectURL(files[0]);
-            }
+            // if (img.width > img.height) {
+            //   this.fileUploaderSnackText = 'Please upload a vertical image.';
+            //   this.fileUploaderSnackBarAlert = true;
+            //   this.fileUploaderSnackBarAlertColor = 'red';
+            //   return;
+            // }
+            // else if (files[0].size > 1242880) {
+            //   this.fileUploaderSnackText = 'File size cannot be more than 1 MB';
+            //   this.fileUploaderSnackBarAlert = true;
+            //   this.fileUploaderSnackBarAlertColor = 'red';
+            //   return;
+            // } else {
+            this.image[0].image = files[0];
+            this.image[0].image_path = URL.createObjectURL(files[0]);
+            // }
           };
         };
         reader.readAsDataURL(files[0]);
       } else {
-        if (files[0].size > 1242880) {
-          this.fileUploaderSnackText = 'File size cannot be more than 1 MB';
-          this.fileUploaderSnackBarAlert = true;
-          this.fileUploaderSnackBarAlertColor = 'red';
-          return;
-        } else {
-          this.image[0].image = files[0];
-          this.image[0].image_path = URL.createObjectURL(files[0]);
-        }
+        // if (files[0].size > 1242880) {
+        //   this.fileUploaderSnackText = 'File size cannot be more than 1 MB';
+        //   this.fileUploaderSnackBarAlert = true;
+        //   this.fileUploaderSnackBarAlertColor = 'red';
+        //   return;
+        // } else {
+        this.image[0].image = files[0];
+        this.image[0].image_path = URL.createObjectURL(files[0]);
+        // }
       }
     },
 

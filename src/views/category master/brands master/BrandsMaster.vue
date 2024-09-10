@@ -172,10 +172,10 @@
                   <v-table class="app-column-table"></v-table>
                 </td>
                 <td>
-                  <div class="app-column">
+                  <div class="image-upload-cont">
                     <v-img
+                      class="image-upload-item"
                       height="40"
-                      width="65"
                       @click="openImage(item)"
                       style="cursor: pointer"
                       :src="
