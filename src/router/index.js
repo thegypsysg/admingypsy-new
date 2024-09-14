@@ -602,6 +602,36 @@ const routes = [
     },
   },
   {
+    name: 'property types',
+    path: '/property_types',
+    component: () =>
+      import('@/views/walls master/property types/PropertyTypesContainer.vue'),
+    beforeEnter: (to, from, next) => {
+      // Pengecekan status login sebelum masuk ke halaman beranda
+      if (localStorage.getItem('token') == null) {
+        next('/auth/login'); // Alihkan ke halaman login jika belum masuk
+      } else {
+        next(); // Lanjutkan ke halaman beranda jika sudah masuk
+      }
+    },
+  },
+  {
+    name: 'property developers',
+    path: '/property_developers',
+    component: () =>
+      import(
+        '@/views/walls master/property developers/PropertyDevelopersContainer.vue'
+      ),
+    beforeEnter: (to, from, next) => {
+      // Pengecekan status login sebelum masuk ke halaman beranda
+      if (localStorage.getItem('token') == null) {
+        next('/auth/login'); // Alihkan ke halaman login jika belum masuk
+      } else {
+        next(); // Lanjutkan ke halaman beranda jika sudah masuk
+      }
+    },
+  },
+  {
     name: 'mall master',
     path: '/mall_master',
     component: () => import('@/views/mall master/MallMasterContainer.vue'),
