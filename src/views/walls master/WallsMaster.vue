@@ -26,6 +26,15 @@
           active-class="text-blue-accent-4"
           style="color: black"
           class="text-decoration-none"
+          to="/property_developments"
+        >
+          <h4>New Projects</h4>
+        </router-link>
+      </div>
+      <div>
+        <router-link
+          active-class="text-blue-accent-4"
+          class="text-decoration-none"
           to=""
         >
           <h4>On-Board Agents</h4>
@@ -90,14 +99,72 @@
         >
           <h4>Property Types</h4>
         </router-link>
-        <!-- <router-link
-          active-class="text-purple-accent-4"
+        
+      </div>
+      <div>
+        <router-link
+          active-class="text-blue-accent-4"
           style="color: black"
           class="text-decoration-none"
-          to="/mall-country"
+          to="/main_categories"
         >
-          <h4 class="mt-4">Country / City</h4>
-        </router-link> -->
+          <h4>Main Categories</h4>
+        </router-link>
+      </div>
+      <div>
+        <router-link
+          active-class="text-blue-accent-4"
+          style="color: black"
+          class="text-decoration-none"
+          to="/construction_category"
+        >
+          <h4>Construction Category</h4>
+        </router-link>
+      </div>
+      
+      <div>
+        <router-link
+          active-class="text-blue-accent-4"
+          style="color: black"
+          class="text-decoration-none"
+          to="/construction_master"
+        >
+          <h4>Construction Master</h4>
+        </router-link>
+      </div>
+      <div>
+        <router-link
+          active-class="text-blue-accent-4"
+          style="color: black"
+          class="text-decoration-none"
+          to="/building_type"
+        >
+          <h4>Building Type</h4>
+        </router-link>
+      </div>
+    </div>
+    <div class="d-flex ml-4 mb-4" style="gap: 30px">
+      <div>
+        <router-link
+          active-class="text-blue-accent-4"
+          style="color: black"
+          class="text-decoration-none"
+          to="/facilities"
+        >
+          <h4>Facilities</h4>
+        </router-link>
+        
+      </div>
+      <div>
+        <router-link
+          active-class="text-blue-accent-4"
+          style="color: black"
+          class="text-decoration-none"
+          to="/property_master"
+        >
+          <h4>On-Board Property</h4>
+        </router-link>
+        
       </div>
     </div>
     <!-- <v-form v-model="valid" @submit.prevent>

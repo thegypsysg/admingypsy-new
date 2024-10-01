@@ -109,6 +109,7 @@
                 <th class="text-left">City</th>
                 <th class="text-left">App Name</th>
                 <th class="text-left">Active</th>
+                <th class="text-left">Featured</th>
                 <th class="text-left">User</th>
                 <th class="text-left">Dated</th>
                 <th class="text-left"></th>
@@ -146,6 +147,25 @@
                   >
                     <v-btn size="27" :value="true"> Yes </v-btn>
 
+                    <v-btn size="27" :value="false"> No </v-btn>
+                  </v-btn-toggle>
+                </td>
+                <td>
+                  <v-btn-toggle
+                    mandatory
+                    style="
+                      font-size: 10px !important;
+                      font-weight: 200 !important;
+                      height: 22px !important;
+                      width: 54px !important;
+                    "
+                    class="d-flex align-center"
+                    v-model="item.isFeatured"
+                    @click="featuredCity(item.id)"
+                    :disabled="isSending2"
+                    rounded="5"
+                  >
+                    <v-btn size="27" :value="true"> Yes </v-btn>
                     <v-btn size="27" :value="false"> No </v-btn>
                   </v-btn-toggle>
                 </td>
@@ -404,6 +424,8 @@ export default {
               app: item.app_name || '',
               isActive:
                 item.active == 'N' ? false : item.active == 'Y' ? true : null,
+              isFeatured:
+                item.featured == 'N' ? false : item.featured == 'Y' ? true : null,
               user: item.name || '',
               dated: item.dated || '',
             };
@@ -512,6 +534,24 @@ export default {
       this.isSending2 = true;
       axios
         .get(`/app-cities/toggle-active/${id}`)
+        .then((response) => {
+          const data = response.data;
+          this.successMessage = data.message;
+          this.isSuccess = true;
+          this.getCityData();
+        })
+        .catch((error) => {
+          // eslint-disable-next-line
+          console.log(error);
+        })
+        .finally(() => {
+          this.isSending2 = false;
+        });
+    },
+    featuredCity(id) {
+      this.isSending2 = true;
+      axios
+        .get(`/app-cities/toggle-featured/${id}`)
         .then((response) => {
           const data = response.data;
           this.successMessage = data.message;

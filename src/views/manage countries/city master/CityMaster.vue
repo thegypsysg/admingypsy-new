@@ -125,6 +125,7 @@
             <thead>
               <tr>
                 <th class="text-left">Image</th>
+                <th class="text-left">Long Image</th>
                 <th class="text-left">City Name</th>
                 <th class="text-left">Country</th>
                 <th class="text-left">Active</th>
@@ -148,6 +149,23 @@
                       :src="
                         item.image != null
                           ? $fileURL + item.image
+                          : 'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png'
+                      "
+                      ><template #placeholder>
+                        <div class="skeleton" /> </template
+                    ></v-img>
+                  </div>
+                </td>
+                <td>
+                  <div class="image-upload-cont">
+                    <v-img
+                      class="image-upload-item"
+                      height="40"
+                      @click="openWebLongImage(item)"
+                      style="cursor: pointer"
+                      :src="
+                        item.web_long_image != null
+                          ? $fileURL + item.web_long_image
                           : 'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png'
                       "
                       ><template #placeholder>
@@ -307,6 +325,36 @@
         </v-card-actions>
       </v-card>
     </v-dialog>
+    <v-dialog persistent width="auto" v-model="isOpenWebLongImage">
+      <v-card width="750">
+        <v-card-title class="upload-title px-6 py-4">
+          Upload Long Image - City</v-card-title
+        >
+        <v-card-text>
+          <image-upload
+            :image-file="webLongImageFile"
+            @update-image-file="updateWebLongImageFile"
+            @delete-image-file="deleteWebLongImageFile"
+          />
+        </v-card-text>
+        <v-card-actions class="mt-16">
+          <v-spacer></v-spacer>
+          <v-btn
+            style="text-transform: none"
+            color="error"
+            text
+            @click="closeWebLongImage"
+            >Cancel</v-btn
+          >
+          <v-btn
+            style="background-color: #9ddcff; text-transform: none"
+            color="black"
+            @click="saveWebLongImage()"
+            >Save</v-btn
+          >
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
   </v-container>
 </template>
 
@@ -334,12 +382,19 @@ export default {
     cityIdToDelete: null,
     tableHeaders: [{ text: 'Gambar', value: 'image' }],
     imageFile: [],
+    webLongImageFile: [],
     cityDataToImage: {
       id: 0,
       city: null,
       country: null,
     },
+    cityDataToWebLongImage: {
+      id: 0,
+      city: null,
+      country: null,
+    },
     isOpenImage: false,
+    isOpenWebLongImage: false,
     successMessage: '',
     errorMessage: '',
     input: {
@@ -402,6 +457,9 @@ export default {
     updateImageFile(newImageFile) {
       this.imageFile.push(newImageFile);
     },
+    updateWebLongImageFile(newWebLongImageFile) {
+      this.webLongImageFile.push(newWebLongImageFile);
+    },
     deleteImageFile() {
       this.isSending = true;
       axios
@@ -424,10 +482,64 @@ export default {
           this.isError = true;
         })
         .finally(() => {
-          this.isEdit = false;
           this.isSending = false;
           this.imageFile = [];
         });
+    },
+    deleteWebLongImageFile() {
+      this.isSending = true;
+      axios
+        .delete(`/cities/${this.cityDataToWebLongImage.id}/web_long_image`)
+        .then((response) => {
+          const data = response.data;
+          this.successMessage = data.message;
+          this.isSuccess = true;
+          this.getCityData();
+          // app.config.globalProperties.$eventBus.$emit('update-image');
+        })
+        .catch((error) => {
+          // eslint-disable-next-line
+          console.log(error);
+          const message =
+            error.response.data.message === ''
+              ? 'Something Wrong!!!'
+              : error.response.data.message;
+          this.errorMessage = message;
+          this.isError = true;
+        })
+        .finally(() => {
+          this.isEdit = false;
+          this.isSending = false;
+          this.webLongImageFile = [];
+        });
+    },
+    openWebLongImage(item) {
+      this.isOpenWebLongImage = true;
+      this.cityDataToWebLongImage = {
+        id: item.id,
+      };
+      this.webLongImageFile =
+        item.web_long_image != null
+          ? [
+              {
+                file: {
+                  name: item.web_long_image,
+                  size: '',
+                  base64: '',
+                  format: '',
+                },
+              },
+            ]
+          : [];
+    },
+    closeWebLongImage() {
+      this.isOpenWebLongImage = false;
+      this.webLongImageFile = [];
+      this.cityDataToWebLongImage = {
+        id: 0,
+        city: null,
+        country: null,
+      };
     },
     openImage(item) {
       this.isOpenImage = true;
@@ -492,6 +604,44 @@ export default {
             };
             this.isOpenImage = false;
             this.imageFile = [];
+          });
+      }
+    },
+    saveWebLongImage() {
+      const payload = {
+        city_id: this.cityDataToWebLongImage.id,
+        web_long_image: this.webLongImageFile[0],
+      };
+
+      if (this.isError == false) {
+        this.isSending = true;
+        http
+          .post(`/cities/update`, payload, {
+            headers: {
+              'Content-Type': 'multipart/form-data',
+            },
+          })
+          .then((response) => {
+            const data = response.data;
+            this.successMessage = data.message;
+            this.isSuccess = true;
+            this.getCityData();
+            // app.config.globalProperties.$eventBus.$emit('update-image');
+          })
+          .catch((error) => {
+            // eslint-disable-next-line
+            console.log(error);
+          })
+          .finally(() => {
+            this.isEdit = false;
+            this.isSending = false;
+            this.cityDataToWebLongImage = {
+              id: 0,
+              city: null,
+              country: null,
+            };
+            this.isOpenWebLongImage = false;
+            this.webLongImageFile = [];
           });
       }
     },
@@ -636,6 +786,7 @@ export default {
               city: item.city_name || '',
               country: item.country.country_name || '',
               image: item.city_image || null,
+              web_long_image: item.web_long_image || null,
               country_id: item.country_id || 1,
               isActive:
                 item.active == 'N' ? false : item.active == 'Y' ? true : null,

@@ -34,7 +34,6 @@
       <div>
         <router-link
           active-class="text-blue-accent-4"
-          style="color: black"
           class="text-decoration-none"
           to=""
         >
@@ -100,14 +99,7 @@
         >
           <h4>Property Types</h4>
         </router-link>
-        <!-- <router-link
-          active-class="text-purple-accent-4"
-          style="color: black"
-          class="text-decoration-none"
-          to="/mall-country"
-        >
-          <h4 class="mt-4">Country / City</h4>
-        </router-link> -->
+        
       </div>
       <div>
         <router-link
@@ -134,7 +126,7 @@
           active-class="text-blue-accent-4"
           style="color: black"
           class="text-decoration-none"
-          to="/construction_category"
+          to="/construction_master"
         >
           <h4>Construction Master</h4>
         </router-link>
@@ -165,19 +157,16 @@
     </div>
     <v-form v-model="valid" @submit.prevent>
       <v-container>
-        <v-row class="mt-n4">
+        <v-row>
           <v-col cols="12" md="4">
-            <v-autocomplete
+            <v-text-field
               class="mt-8"
-              density="compact"
-              label="Property Developer Name"
-              placeholder="Property Developer Name"
-              :items="resource.partners"
-              item-title="name"
-              item-value="id"
-              v-model="input.partner_id"
+              v-model="input.category_name"
+              label="Category Name"
               variant="outlined"
-            ></v-autocomplete>
+              density="compact"
+              required
+            ></v-text-field>
           </v-col>
           <v-col cols="12" md="2">
             <v-btn
@@ -240,12 +229,9 @@
           <v-table class="country-table">
             <thead>
               <tr>
-                <th class="text-left font-weight-bold text-black">
-                  Property Developer Name
-                </th>
-                <th class="text-left font-weight-bold text-black">Country</th>
-                <th class="text-left font-weight-bold text-black">Active</th>
-                <th class="text-left font-weight-bold text-black">Featured</th>
+                <th class="text-left font-weight-bold text-black">id</th>
+                <th class="text-left font-weight-bold text-black">Image</th>
+                <th class="text-left font-weight-bold text-black">Category Name</th>
                 <th class="text-left font-weight-bold text-black">User</th>
                 <th class="text-left font-weight-bold text-black">Dated</th>
                 <th class="text-left font-weight-bold text-black">Actions</th>
@@ -254,66 +240,46 @@
             <tbody>
               <template v-for="item in filteredItems" :key="item.id">
                 <tr class="country-table-body">
-                  <td>{{ item.partner_name }}</td>
-                  <td>{{ item.country_name }} </td>
+                  <td>{{ item.cc_id }}</td>
                   <td>
-                    <v-btn-toggle
-                      style="
-                        font-size: 10px !important;
-                        font-weight: 200 !important;
-                        height: 22px !important;
-                        width: 54px !important;
-                      "
-                      class="d-flex align-center"
-                      v-model="item.isActive"
-                      :disabled="isSending2"
-                      rounded="5"
-                      @click="activePropertyDeveloper(item.developer_id)"
-                    >
-                      <v-btn size="27" :value="true"> Yes </v-btn>
-
-                      <v-btn size="27" :value="false"> No </v-btn>
-                    </v-btn-toggle>
+                    <div class="image-upload-cont">
+                      <v-img
+                        class="image-upload-item"
+                        height="40"
+                        @click="openImage(item)"
+                        style="cursor: pointer"
+                        :src="
+                          item.image != null
+                            ? $fileURL + item.image
+                            : 'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png'
+                        "
+                      >
+                        <template #placeholder>
+                          <div class="skeleton" /> </template
+                      ></v-img>
+                    </div>
                   </td>
+                  <td>{{ item.category_name }}</td>
                   <td>
-                    <v-btn-toggle
-                      style="
-                        font-size: 10px !important;
-                        font-weight: 200 !important;
-                        height: 22px !important;
-                        width: 54px !important;
-                      "
-                      class="d-flex align-center"
-                      v-model="item.isFeatured"
-                      :disabled="isSending2"
-                      rounded="5"
-                      @click="featuredPropertyDeveloper(item.developer_id)"
-                    >
-                      <v-btn size="27" :value="true"> Yes </v-btn>
-
-                      <v-btn size="27" :value="false"> No </v-btn>
-                    </v-btn-toggle>
-                  </td>
-                  <td>
-                    {{ item.user_name }}
+                    {{ item.user }}
                   </td>
                   <td>
                     {{ item.dated }}
                   </td>
                   <td>
                     <div class="d-flex">
-                      <!-- <v-tooltip location="top">
+                      <v-tooltip location="top">
                         <template v-slot:activator="{ props }">
                           <v-btn
                             color="green"
                             variant="text"
                             v-bind="props"
-                            @click="editPropertyDeveloper(item)"
+                            @click="editConstructionCategory(item)"
                             icon="mdi-pencil-outline"
                           ></v-btn>
                         </template>
                         <span>Edit</span>
-                      </v-tooltip> -->
+                      </v-tooltip>
                       <v-tooltip location="top">
                         <template v-slot:activator="{ props }">
                           <v-btn
@@ -321,7 +287,7 @@
                             v-bind="props"
                             variant="text"
                             :disabled="isDeleteLoading"
-                            @click="openDeleteConfirm(item.developer_id)"
+                            @click="openDeleteConfirm(item.cc_id)"
                             icon="mdi-trash-can-outline"
                           ></v-btn>
                         </template>
@@ -330,7 +296,6 @@
                     </div>
                   </td>
                 </tr>
-
               </template>
               <tr v-if="isLoading">
                 <td :colspan="6" class="text-center">
@@ -371,7 +336,7 @@
     <v-dialog persistent width="500" v-model="isDelete">
       <v-card>
         <v-card-title>Confirmation</v-card-title>
-        <v-card-text> Are you sure want to delete this property developer? </v-card-text>
+        <v-card-text> Are you sure want to delete this construction category? </v-card-text>
         <v-card-actions>
           <v-spacer></v-spacer>
           <v-btn color="error" text @click="cancelDelete">No</v-btn>
@@ -384,7 +349,7 @@
     <v-dialog persistent width="auto" v-model="isOpenImage">
       <v-card width="750">
         <v-card-title class="upload-title px-6 py-4">
-          Upload Image - Partner Location</v-card-title
+          Upload Image - Construction Category</v-card-title
         >
         <v-card-text>
           <image-upload
@@ -421,11 +386,10 @@ import { setAuthHeader } from '@/util/axios';
 // import app from '@/util/eventBus';
 
 export default {
-  name: 'LocationsVue',
+  name: 'ConstructionCategory',
   data: () => ({
     // fileURL: 'https://admin1.the-gypsy.sg/img/app/',
-    idPartnerLocations: null,
-    partnerName: null,
+    idConstructionCategory: null,
     valid: false,
     isLoading: false,
     isSending: false,
@@ -435,109 +399,44 @@ export default {
     isSuccess: false,
     isDelete: false,
     isDeleteLoading: false,
-    developerIdToDelete: null,
+    locationIdToDelete: null,
     tableHeaders: [{ text: 'Gambar', value: 'image' }],
     isOpenImage: false,
     successMessage: '',
     errorMessage: '',
     imageFile: [],
+    propertyDataToImage: {
+      cc_id: 1,
+      category_name: null,
+      image: null,
+    },
+
 
     input: {
-      developer_id:0,
-      partner_name:'',
-      partner_id:null,
-      country_id:0,
-      active:'',
-      featured:'',
-      user_id:0,
-      dated:''
+      cc_id: 0,
+      category_name: null
     },
     rules: {
-      countryRules: [
+      category_nameRules: [
         (value) => {
           if (value) return true;
-          return 'Country is required.';
-        },
-      ],
-      townRules: [
-        (value) => {
-          if (value) return true;
-          return 'Town is required.';
-        },
-      ],
-
-      cityRules: [
-        (value) => {
-          if (value) return true;
-          return 'City is required.';
-        },
-      ],
-      zoneRules: [
-        (value) => {
-          if (value) return true;
-          return 'Zone is required.';
-        },
-      ],
-      locationRules: [
-        (value) => {
-          if (value) return true;
-          return 'Location is required.';
-        },
-      ],
-      latitudeRules: [
-        (value) => {
-          if (value) return true;
-          return 'Latitude is required.';
-        },
-      ],
-      longitudeRules: [
-        (value) => {
-          if (value) return true;
-          return 'Longitude is required.';
-        },
-      ],
-      addressRules: [
-        (value) => {
-          if (value) return true;
-          return 'Address is required.';
+          return 'Category Name is required.';
         },
       ],
     },
     search: '',
     items: [],
     resource: {
-      partners: [],
-      propertyDevelopers: [],
+      construction_category: [],
     },
-    // itemsTry: [
-    //   {
-    //     id: 1,
-    //     name: 'Parkway Parade',
-    //     town: 'Marine Parade',
-    //     city: 'Singapore',
-    //     country: 'Singapore',
-    //     isActive: false,
-    //     isFeatured: false,
-    //     user: 'Charlton',
-    //     dated: '15/08/2023',
-    //     type: 'Mall',
-    //     latitude: 1.3019,
-    //     longitude: 103.9028,
-    //     managed: 'Lendlease Pte Ltd',
-    //     events: 4,
-    //     offers: 2,
-    //     merchants: 14,
-    //   },
-    // ],
   }),
   created() {
     const token = JSON.parse(localStorage.getItem('token'));
     setAuthHeader(token);
   },
   mounted() {
-    this.idPartnerLocations = this.$route.params.id;
-    this.getPropertyDevelopersData();
-    this.getPartnerData();
+    this.idConstructionCategory = this.$route.params.id;
+    this.getConstructionCategoryData();
   },
   computed: {
     filteredItems() {
@@ -547,125 +446,86 @@ export default {
       const searchTextLower = this.search.toLowerCase();
       return this.items.filter(
         (item) =>
-          item.partner_name.toLowerCase().includes(searchTextLower) ||
-          item.country_name.toLowerCase().includes(searchTextLower) ||
-          item.user_name.toLowerCase().includes(searchTextLower)
+          item.category_name.toLowerCase().includes(searchTextLower) 
       );
     },
   },
   methods: {
-    editPropertyDeveloper(prop) {
+    editConstructionCategory(item) {
       this.isEdit = true;
       this.input = {
-        developer_id: prop.developer_id,
-        partner_id: prop.partner_id,
-        country_id: prop.country_id,
-        active: prop.active,
-        featured: prop.featured,
-        user_id: prop.user_id,
-        dated: prop.dated,
-        partner_name: prop.partner_name,
+        cc_id: item.cc_id,
+        category_name: item.category_name,
       };
     },
     cancelEdit() {
       this.isEdit = false;
       this.input = {
-        developer_id:0,
-        partner_id:null,
-        country_id:0,
-        active:'',
-        featured:'',
-        user_id:0,
-        dated:''
+        cc_id: 0,
+        category_name: null,
+        user: null,
+        dated: null,
+        city: null,
+        image: null,
       };
     },
     saveEdit() {
       if (this.valid) {
         this.isSending = true;
         const payload = {
-          developer_id:this.input.developer_id,
-          partner_id:this.input.partner_id,
-          country_id:this.input.country_id,
-          active: this.input.active,
-          featured: this.input.featured,
-          user_id: this.input.user_id,
-          dated: this.input.dated,
+          cc_id: this.input.cc_id,
+          category_name: this.input.category_name,
         };
         axios
-          .post(`/4walls-property-developers/update`, payload)
+          .post(`/4walls-construction-categories/update`, payload)
           .then((response) => {
             const data = response.data;
             this.successMessage = data.message;
             this.isSuccess = true;
-            this.getPropertyDevelopersData();
+            this.getConstructionCategoryData();
             this.input = {
-              developer_id:0,
-              partner_id:null,
-              country_id:0,
-              active:'',
-              featured:'',
-              user_id:0,
-              dated:''
+              cc_id: 0,
+              category_name: null
             };
           })
           .catch((error) => {
-            // eslint-disable-next-line
             console.log(error);
-            const message = error.response.data.partner_id
-              ? error.response.data.partner_id[0]
-              : error.response.data.new_city
-              ? error.response.data.new_city[0]
-              : error.response.data.new_town
-              ? error.response.data.new_town[0]
-              : error.response.data.message
-              ? error.response.data.message
-              : 'Something Wrong!!!';
+            const message = error.response.data.category_name
+              ? 'Please fill the category name field'
+              : error.response.data.message;
             this.errorMessage = message;
             this.isError = true;
-            this.input = {
-              developer_id:0,
-              partner_id:null,
-              country_id:0,
-              active:'',
-              featured:'',
-              user_id:0,
-              dated:''
-            };
           })
           .finally(() => {
-            this.isEdit = false;
             this.isSending = false;
           });
-      }
+      } 
+
     },
     saveData() {
       if (this.valid) {
         this.isSending = true;
         const payload = {
-          partner_id:this.input.partner_id,
+          cc_id: this.input.cc_id,
+          category_name: this.input.category_name,
         };
         axios
-          .post(`/4walls-property-developers`, payload)
+          .post(`/4walls-construction-categories`, payload)
           .then((response) => {
             const data = response.data;
             this.successMessage = data.message;
             this.isSuccess = true;
-            this.getPropertyDevelopersData();
+            this.getConstructionCategoryData();
             this.input = {
-              developer_id:0,
-              partner_id:null,
-              country_id:0,
-              active:'',
-              featured:'',
-              user_id:0,
-              dated:''
+              cc_id: 0,
+              category_name: null
             };
           })
           .catch((error) => {
             // eslint-disable-next-line
             console.log(error);
-            const message = error.response.data.partner_id
-              ? error.response.data.partner_id[0]
+            const message = error.response.data.category_name
+              ? error.response.data.category_name[0]
               : 'Something Wrong!!!';
             this.errorMessage = message;
             this.isError = true;
@@ -676,26 +536,26 @@ export default {
       }
     },
     cancelDelete() {
-      this.developerIdToDelete = null;
+      this.idConstructionCategory = null;
       this.isDelete = false;
     },
     openDeleteConfirm(itemId) {
-      this.developerIdToDelete = itemId;
+      this.idConstructionCategory = itemId;
       this.isDelete = true;
     },
     cancelConfirmation() {
-      this.developerIdToDelete = null;
+      this.idConstructionCategory = null;
       this.isDelete = false;
     },
     deleteLocation() {
       this.isDeleteLoading = true;
       axios
-        .delete(`/4walls-property-developers/${this.developerIdToDelete}`)
+        .delete(`/4walls-construction-categories/${this.idConstructionCategory}`)
         .then((response) => {
           const data = response.data;
           this.successMessage = data.message;
           this.isSuccess = true;
-          this.getPropertyDevelopersData();
+          this.getConstructionCategoryData();
         })
         .catch((error) => {
           // eslint-disable-next-line
@@ -709,35 +569,24 @@ export default {
         })
         .finally(() => {
           this.isDeleteLoading = false;
-          this.developerIdToDelete = null;
+          this.idConstructionCategory = null;
           this.isDelete = false;
         });
     },
 
-    getPropertyDevelopersData() {
+    getConstructionCategoryData() {
       this.isLoading = true;
       axios
-        .get(`/4walls-property-developers`)
+        .get(`/4walls-construction-categories`)
         .then((response) => {
           const data = response.data.data;
-          // console.log(data);
+          console.log(data);
           this.items = data.map((item) => {
-            console.log(item);
             return {
-              developer_id: item.developer_id || 1,
-              partner_id: item.partner_id || 1,
-              partner_name: item.partner_name || '',
-              country_id: item.country_id || 1,
-              country_name: item.country_name || '',
-              user_name: item.user.name || '',
-              isActive:
-                item.active == 'N' ? false : item.active == 'Y' ? true : null,
-              isFeatured:
-                item.featured == 'N'
-                  ? false
-                  : item.featured == 'Y'
-                  ? true
-                  : null,
+              cc_id: item.cc_id || 1,
+              image: item.image || null,
+              category_name: item.category_name || '',
+              user: item.user.name || '',
               dated: item.dated || '',
             };
           });
@@ -756,39 +605,55 @@ export default {
           this.isLoading = false;
         });
     },
-    getPartnerData() {
-      axios
-        .get(`/partners`)
-        .then((response) => {
-          const data = response.data.data;
-          // console.log(data);
-          this.resource.partners = data.map((item) => {
-            return {
-              id: item.partner_id || 1,
-              name: item.partner_name || '',
-            };
-          });
-        })
-        .catch((error) => {
-          // eslint-disable-next-line
-          console.log(error);
-          const message =
-            error.response.data.message === ''
-              ? 'Something Wrong!!!'
-              : error.response.data.message;
-          this.errorMessage = message;
-          this.isError = true;
-        });
+    openImage(prop) {
+      this.isOpenImage = true;
+      this.propertyDataToImage = {
+        cc_id: prop.cc_id,
+        category_name: prop.category_name,
+        image: prop.image,
+      };
+      this.imageFile =
+        prop.image != null
+          ? [
+              {
+                file: {
+                  name: prop.image,
+                  size: '',
+                  base64: '',
+                  format: '',
+                },
+              },
+            ]
+          : [];
     },
-    featuredPropertyDeveloper(id) {
-      this.isSending2 = true;
+    closeImage() {
+      this.isOpenImage = false;
+      this.imageFile = [];
+      this.propertyDataToImage = {
+        cc_id: 1,
+        category_name: null,
+        image: null,
+      };
+    },
+    saveImage() {
+      this.isSending = true;
+      const payload = {
+        cc_id: this.propertyDataToImage.cc_id,
+        category_name: this.propertyDataToImage.category_name,
+        image: this.imageFile[0],
+      };
+
       axios
-        .get(`/4walls-property-developers/toggle-featured/${id}`)
+        .post(`/4walls-construction-categories/update`, payload, {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+        })
         .then((response) => {
           const data = response.data;
           this.successMessage = data.message;
           this.isSuccess = true;
-          this.getPropertyDevelopersData();
+          this.getConstructionCategoryData();
         })
         .catch((error) => {
           // eslint-disable-next-line
@@ -801,18 +666,31 @@ export default {
           this.isError = true;
         })
         .finally(() => {
-          this.isSending2 = false;
+          this.isEdit = false;
+          this.isSending = false;
+          this.propertyDataToImage = {
+            cc_id: 1,
+            category_name: null,
+            image: null,
+          };
+          this.isOpenImage = false;
+          this.imageFile = [];
         });
     },
-    activePropertyDeveloper(developer_id) {
-      this.isSending2 = true;
+    updateImageFile(newImageFile) {
+      this.imageFile.push(newImageFile);
+    },
+    deleteImageFile() {
+      this.isSending = true;
       axios
-        .get(`/4walls-property-developers/toggle-active/${developer_id}`)
+        .delete(
+          `/4walls-construction-categories/${this.propertyDataToImage.cc_id}/image`
+        )
         .then((response) => {
           const data = response.data;
           this.successMessage = data.message;
           this.isSuccess = true;
-          this.getPropertyDevelopersData();
+          this.getConstructionCategoryData();
         })
         .catch((error) => {
           // eslint-disable-next-line
@@ -825,9 +703,19 @@ export default {
           this.isError = true;
         })
         .finally(() => {
-          this.isSending2 = false;
+          this.isEdit = false;
+          this.isSending = false;
+          // this.propertyDataToImage = {
+          //   app_id: 1,
+          //   app_group_id: 1,
+          //   app_name: '',
+          //   app_description: '',
+          //   app_detail: '',
+          // };
+          this.imageFile = [];
         });
     },
+    
   },
   components: { ImageUpload },
 };

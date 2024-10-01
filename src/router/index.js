@@ -632,6 +632,176 @@ const routes = [
     },
   },
   {
+    name: 'property developments',
+    path: '/property_developments',
+    component: () =>
+      import(
+        '@/views/walls master/property developments/PropertyDevelopmentsContainer.vue'
+      ),
+    beforeEnter: (to, from, next) => {
+      // Pengecekan status login sebelum masuk ke halaman beranda
+      if (localStorage.getItem('token') == null) {
+        next('/auth/login'); // Alihkan ke halaman login jika belum masuk
+      } else {
+        next(); // Lanjutkan ke halaman beranda jika sudah masuk
+      }
+    },
+  },
+  {
+    name: 'property developments main info',
+    path: '/property_developments/main-info/:id',
+    component: () =>
+      import(
+        '@/views/walls master/property developments/main info/PropertyDevelopmentsMainInfoContainer.vue'
+      ),
+    beforeEnter: (to, from, next) => {
+      // Pengecekan status login sebelum masuk ke halaman beranda
+      if (localStorage.getItem('token') == null) {
+        next('/auth/login'); // Alihkan ke halaman login jika belum masuk
+      } else {
+        next(); // Lanjutkan ke halaman beranda jika sudah masuk
+      }
+    },
+  },
+  {
+    name: 'construction master main info',
+    path: '/construction_master/main_info/:id',
+    component: () =>
+      import(
+        '@/views/walls master/construction master/main info/ConstructionMasterMainInfoContainer.vue'
+      ),
+    beforeEnter: (to, from, next) => {
+      // Pengecekan status login sebelum masuk ke halaman beranda
+      if (localStorage.getItem('token') == null) {
+        next('/auth/login'); // Alihkan ke halaman login jika belum masuk
+      } else {
+        next(); // Lanjutkan ke halaman beranda jika sudah masuk
+      }
+    },
+  },
+  {
+    name: 'main categories',
+    path: '/main_categories',
+    component: () =>
+      import(
+        '@/views/walls master/main categories/MainCategoriesContainer.vue'
+      ),
+    beforeEnter: (to, from, next) => {
+      // Pengecekan status login sebelum masuk ke halaman beranda
+      if (localStorage.getItem('token') == null) {
+        next('/auth/login'); // Alihkan ke halaman login jika belum masuk
+      } else {
+        next(); // Lanjutkan ke halaman beranda jika sudah masuk
+      }
+    },
+  },
+  {
+    name: 'construction category',
+    path: '/construction_category',
+    component: () =>
+      import(
+        '@/views/walls master/construction category/ConstructionCategoryContainer.vue'
+      ),
+    beforeEnter: (to, from, next) => {
+      // Pengecekan status login sebelum masuk ke halaman beranda
+      if (localStorage.getItem('token') == null) {
+        next('/auth/login'); // Alihkan ke halaman login jika belum masuk
+      } else {
+        next(); // Lanjutkan ke halaman beranda jika sudah masuk
+      }
+    },
+  },
+  {
+    name: 'construction master',
+    path: '/construction_master',
+    component: () =>
+      import('@/views/walls master/construction master/ConstructionMasterContainer.vue'),
+    beforeEnter: (to, from, next) => {
+      // Pengecekan status login sebelum masuk ke halaman beranda
+      if (localStorage.getItem('token') == null) {
+        next('/auth/login'); // Alihkan ke halaman login jika belum masuk
+      } else {
+        next(); // Lanjutkan ke halaman beranda jika sudah masuk
+      }
+    },
+  },
+  {
+    name: 'building type',
+    path: '/building_type',
+    component: () =>
+      import('@/views/walls master/building type/BuildingTypeContainer.vue'),
+    beforeEnter: (to, from, next) => {
+      // Pengecekan status login sebelum masuk ke halaman beranda
+      if (localStorage.getItem('token') == null) {
+        next('/auth/login'); // Alihkan ke halaman login jika belum masuk
+      } else {
+        next(); // Lanjutkan ke halaman beranda jika sudah masuk
+      }
+    },
+  },
+  {
+    name: 'facilities',
+    path: '/facilities',
+    component: () =>
+      import('@/views/walls master/facility/FacilityContainer.vue'),
+    beforeEnter: (to, from, next) => {
+      // Pengecekan status login sebelum masuk ke halaman beranda
+      if (localStorage.getItem('token') == null) {
+        next('/auth/login'); // Alihkan ke halaman login jika belum masuk
+      } else {
+        next(); // Lanjutkan ke halaman beranda jika sudah masuk
+      }
+    },
+  },
+  {
+    name: 'development construction',
+    path: '/property_developments/development_construction/:id',
+    component: () =>
+      import(
+        '@/views/walls master/property developments/development construction/DevelopmentConstructionContainer.vue'
+      ),
+      beforeEnter: (to, from, next) => {
+        // Pengecekan status login sebelum masuk ke halaman beranda
+        if (localStorage.getItem('token') == null) {
+          next('/auth/login'); // Alihkan ke halaman login jika belum masuk
+        } else {
+          next(); // Lanjutkan ke halaman beranda jika sudah masuk
+        }
+      }, 
+  },
+  {
+    name: 'construction facility',
+    path: '/construction_master/facility/:id',
+    component: () =>
+      import(
+        '@/views/walls master/construction master/construction facility/ConstructionFacilityContainer.vue'
+      ),
+      beforeEnter: (to, from, next) => {
+        // Pengecekan status login sebelum masuk ke halaman beranda
+        if (localStorage.getItem('token') == null) {
+          next('/auth/login'); // Alihkan ke halaman login jika belum masuk
+        } else {
+          next(); // Lanjutkan ke halaman beranda jika sudah masuk
+        }
+      }, 
+  },
+  {
+    name: 'property master',
+    path: '/property_master',
+    component: () =>
+      import(
+        '@/views/walls master/property master/PropertyMasterContainer.vue'
+      ),
+      beforeEnter: (to, from, next) => {
+        // Pengecekan status login sebelum masuk ke halaman beranda
+        if (localStorage.getItem('token') == null) {
+          next('/auth/login'); // Alihkan ke halaman login jika belum masuk
+        } else {
+          next(); // Lanjutkan ke halaman beranda jika sudah masuk
+        }
+      }, 
+  },
+  {
     name: 'mall master',
     path: '/mall_master',
     component: () => import('@/views/mall master/MallMasterContainer.vue'),
