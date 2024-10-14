@@ -226,7 +226,7 @@
           </v-col>
         </v-row>
         <v-row>
-          <v-col cols="12" md="2">
+          <v-col cols="12" md="3">
             <v-select
               v-model="input.country_id"
               :rules="rules.countryRules"
@@ -315,9 +315,9 @@
               </tr>
             </thead>
             <tbody>
-              <template v-for="item in filteredItems" :key="item.id">
+              <template v-for="(item, index) in filteredItems" :key="index">
                 <tr class="country-table-body">
-                  <td>{{ item.cc_id }}</td>
+                  <td>{{ item.property_id }}</td>
                   <td>{{ item.property_ref_no }}</td>
                   <td>
                     <div class="image-upload-cont">
@@ -378,14 +378,126 @@
                   </td>
                 </tr>
                 <tr>
-                  <td colspan="6">
+                  <td  style="border-bottom: none !important;">
+                    <label class="font-weight-bold">Tagline</label>
+                  </td>
+                  <td style="border-bottom: none !important;">
+                    <div class="d-flex align-center">
+                      <h3>Active</h3> 
+                      <v-btn-toggle
+                        style="
+                          font-size: 10px !important;
+                          font-weight: 200 !important;
+                          height: 22px !important;
+                          width: 54px !important;
+                          margin-left: 10px;
+                        "
+                        class="d-flex align-center"
+                        v-model="item.isActive"
+                        rounded="5"
+                        @click="activePropertyMaster(item.property_id)"
+                      >
+                        <v-btn size="27" :value="true"> Yes </v-btn>
+
+                        <v-btn size="27" :value="false"> No </v-btn>
+                      </v-btn-toggle>
+                    </div>
+                    
+                  </td>
+                  <td colspan="8"  style="border-bottom: none !important;">
+                    <div class="d-flex align-center">
+                      <h3>Featured</h3> 
+                      <v-btn-toggle
+                        style="
+                          font-size: 10px !important;
+                          font-weight: 200 !important;
+                          height: 22px !important;
+                          width: 54px !important;
+                          margin-left: 10px;
+                        "
+                        class="d-flex align-center"
+                        v-model="item.isFeatured"
+                        rounded="5"
+                        @click="featuredPropertyMaster(item.property_id)"
+                      >
+                        <v-btn size="27" :value="true"> Yes </v-btn>
+
+                        <v-btn size="27" :value="false"> No </v-btn>
+                      </v-btn-toggle>
+                    </div>
+                  </td>
+                </tr>
+                <tr>
+                  <td colspan="4" style="border-bottom: none !important;">
+                    <v-text-field
+                          v-model="item.tag_line"
+                          label="Tagline"
+                          variant="outlined"
+                          density="compact"
+                          hide-details
+                          clearable
+                          @focusout="updateTagline(item.property_id, item.tag_line)"
+                        ></v-text-field>
+                  </td>
+                  <td colspan="6" style="border-bottom: none !important;">
+                    <v-row>
+                      <v-col cols="12" md="4">
+                        <v-autocomplete
+                          density="compact"
+                          label="Country"
+                          placeholder="Country"
+                          :items="country"
+                          item-title="country_name"
+                          item-value="country_id"
+                          v-model="item.country_id"
+                          variant="outlined"
+                          clearable
+                          class="mt-5"
+                          @update:modelValue="updateCountry(item)"
+                        ></v-autocomplete>
+                      </v-col>
+                      
+                      <v-col cols="12" md="4">
+                        <v-select
+                          v-model="item.city_id"
+                          item-title="city_name"
+                          item-value="city_id"
+                          label="City"
+                          variant="outlined"
+                          density="compact"
+                          required
+                          :items="filterCity(item.country_id)"
+                          clearable
+                          class="mt-5"
+                          @update:modelValue="updateCity(item)"
+                        ></v-select>
+                      </v-col>
+
+                      <v-col cols="12" md="4">
+                        <v-select
+                          v-model="item.town_id"
+                          item-title="town_name"
+                          item-value="town_id"
+                          label="Town"
+                          variant="outlined"
+                          density="compact"
+                          required
+                          :items="filterTown(item.city_id)"
+                          clearable
+                          class="mt-5"
+                          @update:modelValue="updateTown(item)"
+                        ></v-select>
+                      </v-col>
+                    </v-row>
+                  </td>
+                  <!-- <td colspan="10">
                     <v-row class="mt-4">
                       <v-col cols="12" md="1" class="font-weight-bold align-center ">
-                        Tagline
+                        <h3>Tagline</h3>
                       </v-col>
                       <v-col cols="12" md="3">
                         <div class="d-flex align-center">
-                          Active 
+                          <h3>Active</h3> 
                           <v-btn-toggle
                             style="
                               font-size: 10px !important;
@@ -407,7 +519,7 @@
                       </v-col>
                       <v-col cols="12" md="3">
                         <div class="d-flex align-center">
-                          Featured 
+                          <h3>Featured</h3> 
                           <v-btn-toggle
                             style="
                               font-size: 10px !important;
@@ -436,39 +548,27 @@
                           variant="outlined"
                           density="compact"
                           hide-details
+                          clearable
                           @focusout="updateTagline(item.property_id, item.tag_line)"
                         ></v-text-field>
                       </v-col>
                       
-                      <v-col cols="12" md="3">
-                        <v-select
-                          v-model="item.country_id"
+                      <v-col cols="12" md="1">
+                        <v-autocomplete
+                          density="compact"
+                          label="Country"
+                          placeholder="Country"
+                          :items="country"
                           item-title="country_name"
                           item-value="country_id"
-                          label="Country"
+                          v-model="item.country_id"
                           variant="outlined"
-                          density="compact"
-                          required
-                          :items="country"
-                          @update:modelValue="updateCountry(item.property_id, item.country_id)"
-                        ></v-select>
+                          clearable
+                          @update:modelValue="updateCountry(item)"
+                        ></v-autocomplete>
                       </v-col>
                       
-                      <v-col cols="12" md="3">
-                        <v-select
-                          v-model="item.town_id"
-                          item-title="town_name"
-                          item-value="town_id"
-                          label="Town"
-                          variant="outlined"
-                          density="compact"
-                          required
-                          :items="town"
-                          @update:modelValue="updateTown(item.property_id, item.town_id)"
-                        ></v-select>
-                      </v-col>
-                      
-                      <v-col cols="12" md="3">
+                      <v-col cols="12" md="2">
                         <v-select
                           v-model="item.city_id"
                           item-title="city_name"
@@ -477,20 +577,115 @@
                           variant="outlined"
                           density="compact"
                           required
-                          :items="city"
-                          @update:modelValue="updateCity(item.property_id, item.city_id)"
+                          :items="filterCity(item.country_id)"
+                          clearable
+                          @update:modelValue="updateCity(item)"
                         ></v-select>
+                      </v-col>
+
+                      <v-col cols="12" md="2">
+                        <v-select
+                          v-model="item.town_id"
+                          item-title="town_name"
+                          item-value="town_id"
+                          label="Town"
+                          variant="outlined"
+                          density="compact"
+                          required
+                          :items="filterTown(item.city_id)"
+                          clearable
+                          @update:modelValue="updateTown(item)"
+                        ></v-select>
+                      </v-col>
+                      <v-col cols="12" md="2">
+                        <v-text-field
+                          v-model="item.latitude"
+                          label="Latitude"
+                          variant="outlined"
+                          density="compact"
+                          hide-details
+                          clearable
+                          @focusout="saveLatitude(item.latitude, item)"
+                        ></v-text-field>
+                      </v-col>
+                      <v-col cols="12" md="2">
+                        <v-text-field
+                          v-model="item.longitude"
+                          label="Longitude"
+                          variant="outlined"
+                          density="compact"
+                          hide-details
+                          clearable
+                          @focusout="saveLongitude(item.longitude, item)"
+                        ></v-text-field>
                       </v-col>
                     </v-row>
                     <v-row>
                       <v-col cols="12" md="2">
-                        Main Info
+                        <router-link :to="`/property_master/main-info/${item.property_id}`" class="align-center" style="text-decoration: none; color: blue;">
+                          <h3>Main Info</h3>
+                        </router-link>
                       </v-col>
                       <v-col cols="12" md="2">
-                        Images
+                        <h3 class="align-center">Images</h3>
                       </v-col>
                       <v-col cols="12" md="2">
-                        Video
+                        <h3 class="align-center">Video</h3>
+                        
+                      </v-col>
+                    </v-row>
+                  </td> -->
+                </tr>
+                <tr>
+                  <td colspan="4">
+                    <v-text-field
+                      v-model="item.video_link"
+                      label="Video Link"
+                      variant="outlined"
+                      density="compact"
+                      hide-details
+                      clearable
+                      @focusout="saveVideoLink(item.video_link, item)"
+                    ></v-text-field>
+                  </td>
+                  <td colspan="6">
+                    <v-row>
+                      <v-col cols="12" md="4">
+                        <v-text-field
+                          v-model="item.latitude"
+                          label="Latitude"
+                          variant="outlined"
+                          density="compact"
+                          hide-details
+                          clearable
+                          class="mt-5"
+                          @focusout="saveLatitude(item.latitude, item)"
+                        ></v-text-field>
+                      </v-col>
+                      <v-col cols="12" md="4">
+                        <v-text-field
+                          v-model="item.longitude"
+                          label="Longitude"
+                          variant="outlined"
+                          density="compact"
+                          hide-details
+                          clearable
+                          @focusout="saveLongitude(item.longitude, item)"
+                          class="mt-5"
+                        ></v-text-field>
+                      </v-col>
+                      <v-col cols="12" md="4">
+                        <v-select
+                          v-model="item.agent_id"
+                          label="Agent"
+                          variant="outlined"
+                          density="compact"
+                          item-title="agent_name"
+                          item-value="pa_id"
+                          :items="agent"
+                          class="mt-5"
+                          @update:modelValue="saveAgent(item.agent_id, item)"
+                        ></v-select>
                       </v-col>
                     </v-row>
                   </td>
@@ -539,7 +734,7 @@
         <v-card-actions>
           <v-spacer></v-spacer>
           <v-btn color="error" text @click="cancelDelete">No</v-btn>
-          <v-btn color="success" text @click="deleteLocation">{{
+          <v-btn color="success" text @click="deletePropertyMaster">{{
             isDeleteLoading ? 'Deleting...' : 'Yes'
           }}</v-btn>
         </v-card-actions>
@@ -609,6 +804,7 @@ export default {
     buildingType: [],
     constructionCategory: [],
     propertyMaster: [],
+    agent: [],
     country: [],
     town: [],
     city: [],
@@ -672,16 +868,18 @@ export default {
     const token = JSON.parse(localStorage.getItem('token'));
     setAuthHeader(token);
   },
-  mounted() {
+  async mounted() {
     this.idConstructionCategory = this.$route.params.id;
     this.getConstructionCategoryData();
     this.getMainCategoryData();
     this.getPropertyTypeData();
     this.getBuildingTypeData();
-    this.getPropertyMasterData();
-    this.getCountryData();
-    this.getTownData();
-    this.getCityData();
+    await this.getCountryData();
+    await this.getCityData();
+    await this.getTownData();
+    await this.getPropertyMasterData();
+    await this.getAgentData();
+
   },
   computed: {
     filteredItems() {
@@ -694,6 +892,7 @@ export default {
           item.property_name.toLowerCase().includes(searchTextLower) 
       );
     },
+    
   },
   methods: {
     editPropertyMaster(item) {
@@ -756,8 +955,129 @@ export default {
           .finally(() => {
             this.isSending = false;
           });
-      } 
+      }
 
+    },
+    saveLatitude(latitude, item){
+      const payload = {
+          property_id: item.property_id,
+          category_id: item.category_id,
+          cc_id: item.cc_id,
+          bt_id: item.bt_id,
+          country_id: item.country_id,
+          property_type_id: item.property_type_id,
+          latitude: latitude,
+        };
+      axios
+        .post(`/4walls-property-master/update`, payload)
+        .then((response) => {
+          const data = response.data;
+          this.successMessage = data.message;
+          this.isSuccess = true;
+          this.getConstructionCategoryData();
+        })
+        .catch((error) => {
+          console.log(error);
+          const message = error.response.data.category_name
+            ? 'Please fill the category name field'
+            : error.response.data.message;
+          this.errorMessage = message;
+          this.isError = true;
+        })
+        .finally(() => {
+          this.isSending = false;
+        });
+    },
+    saveLongitude(longitude, item){
+      const payload = {
+          property_id: item.property_id,
+          category_id: item.category_id,
+          cc_id: item.cc_id,
+          bt_id: item.bt_id,
+          country_id: item.country_id,
+          property_type_id: item.property_type_id,
+          longitude: longitude,
+        };
+        axios
+          .post(`/4walls-property-master/update`, payload)
+          .then((response) => {
+            const data = response.data;
+            this.successMessage = data.message;
+            this.isSuccess = true;
+            this.getConstructionCategoryData();
+          })
+          .catch((error) => {
+            console.log(error);
+            const message = error.response.data.category_name
+              ? 'Please fill the category name field'
+              : error.response.data.message;
+            this.errorMessage = message;
+            this.isError = true;
+          })
+          .finally(() => {
+            this.isSending = false;
+          });
+    },
+    
+    saveAgent(agent, item){
+      const payload = {
+          property_id: item.property_id,
+          category_id: item.category_id,
+          cc_id: item.cc_id,
+          bt_id: item.bt_id,
+          country_id: item.country_id,
+          property_type_id: item.property_type_id,
+          agent_id: agent,
+        };
+        axios
+          .post(`/4walls-property-master/update`, payload)
+          .then((response) => {
+            const data = response.data;
+            this.successMessage = data.message;
+            this.isSuccess = true;
+            this.getConstructionCategoryData();
+          })
+          .catch((error) => {
+            console.log(error);
+            const message = error.response.data.category_name
+              ? 'Please fill the category name field'
+              : error.response.data.message;
+            this.errorMessage = message;
+            this.isError = true;
+          })
+          .finally(() => {
+            this.isSending = false;
+          });
+    },
+    saveVideoLink(videoLink, item){
+      const payload = {
+          property_id: item.property_id,
+          category_id: item.category_id,
+          cc_id: item.cc_id,
+          bt_id: item.bt_id,
+          country_id: item.country_id,
+          property_type_id: item.property_type_id,
+          video_link: videoLink,
+        };
+        axios
+          .post(`/4walls-property-master/update`, payload)
+          .then((response) => {
+            const data = response.data;
+            this.successMessage = data.message;
+            this.isSuccess = true;
+            this.getConstructionCategoryData();
+          })
+          .catch((error) => {
+            console.log(error);
+            const message = error.response.data.category_name
+              ? 'Please fill the category name field'
+              : error.response.data.message;
+            this.errorMessage = message;
+            this.isError = true;
+          })
+          .finally(() => {
+            this.isSending = false;
+          });
     },
     saveData() {
       if (this.valid) {
@@ -800,21 +1120,21 @@ export default {
       }
     },
     cancelDelete() {
-      this.idConstructionCategory = null;
+      this.idPropertyMaster = null;
       this.isDelete = false;
     },
     openDeleteConfirm(itemId) {
-      this.idConstructionCategory = itemId;
+      this.idPropertyMaster = itemId;
       this.isDelete = true;
     },
     cancelConfirmation() {
-      this.idConstructionCategory = null;
+      this.idPropertyMaster = null;
       this.isDelete = false;
     },
-    deleteLocation() {
+    deletePropertyMaster() {
       this.isDeleteLoading = true;
       axios
-        .delete(`/4walls-property-master/${this.idConstructionCategory}`)
+        .delete(`/4walls-property-master/${this.idPropertyMaster}`)
         .then((response) => {
           const data = response.data;
           this.successMessage = data.message;
@@ -833,7 +1153,7 @@ export default {
         })
         .finally(() => {
           this.isDeleteLoading = false;
-          this.idConstructionCategory = null;
+          this.idPropertyMaster = null;
           this.isDelete = false;
         });
     },
@@ -843,7 +1163,6 @@ export default {
         .get(`/4walls-main-categories`)
         .then((response) => {
           const data = response.data.data;
-          console.log(data);
           this.mainCategory = data.map((item) => {
             return {
               category_id: item.category_id || 1,
@@ -897,7 +1216,6 @@ export default {
         .get(`/4walls-construction-categories`)
         .then((response) => {
           const data = response.data.data;
-          console.log(data);
           this.constructionCategory = data.map((item) => {
             return {
               cc_id: item.cc_id || 1,
@@ -953,13 +1271,23 @@ export default {
         .get(`/4walls-property-master`)
         .then((response) => {
           this.propertyMaster = response.data.data.map((item) => {
+            console.log({
+              ...item,
+              isActive:
+                item.active == 'N' ? false : item.active == 'Y' ? true : null,
+              isFeatured:
+                item.featured == 'N' ? false : item.featured == 'Y' ? true : null,
+              city_id: item.city_id || null,
+              town_id: item.town_id || null,
+            })
             return {
               ...item,
               isActive:
                 item.active == 'N' ? false : item.active == 'Y' ? true : null,
               isFeatured:
                 item.featured == 'N' ? false : item.featured == 'Y' ? true : null,
-
+              city_id: item.city_id || null,
+              town_id: item.town_id || null,
             };
           });
         })
@@ -977,13 +1305,33 @@ export default {
           this.isLoading = false;
         });
     },
+    async getAgentData(){
+      this.isLoading = true;
+      await axios
+        .get(`/4walls-agent-masters/list`)
+        .then((response) => {
+          const data = response.data.data;
+          this.agent = data.map((item) => {
+            return {
+              pa_id: item.pa_id || 1,
+              agent_name: item.agent_name || '',
+            };
+          });
+        })
+        .catch((error) => {
+          // eslint-disable-next-line
+          console.log(error);
+        })
+        .finally(() => {
+          this.isLoading = false;
+        });
+    },
     getCountryData() {
       this.isLoading = true;
       axios
         .get(`/countries`)
         .then((response) => {
           const data = response.data.data;
-          console.log(data);
           this.country = data.map((item) => {
             return {
               country_id: item.country_id || 1,
@@ -1015,9 +1363,9 @@ export default {
             return {
               town_id: item.town_id || 1,
               town_name: item.town_name || '',
+              city_id: item.city_id || 1,
             };
           });
-          console.log(data);
         }).catch((error) => {
           // eslint-disable-next-line
           console.log(error);
@@ -1037,11 +1385,11 @@ export default {
         .get(`/cities`)
         .then((response) => {
           const data = response.data.data;
-          console.log(data);
           this.city = data.map((item) => {
             return {
               city_id: item.city_id || 1,
               city_name: item.city_name || '',
+              country_id: item.country_id || 1,
             };
           });
         })
@@ -1116,13 +1464,20 @@ export default {
           this.isSending2 = false;
         });
     },
-    updateCountry(id, country_id) {
+    updateCountry(item) {
       this.isSending2 = true;
       const payload = {
-        country_id: country_id,
+        property_id: item.property_id,
+        category_id: item.category_id,
+        cc_id: item.cc_id,
+        bt_id: item.bt_id,
+        country_id: item.country_id,
+        property_type_id: item.property_type_id,
+        city_id: null,
+        town_id: null,
       };
       axios
-        .post(`/4walls-property-master/update-country/${id}`, payload)
+        .post(`/4walls-property-master/update`, payload)
         .then((response) => {
           const data = response.data;
           this.successMessage = data.message;
@@ -1137,13 +1492,20 @@ export default {
           this.isSending2 = false;
         });
     },
-    updateCity(id, city_id) {
+    updateCity(item) {
       this.isSending2 = true;
       const payload = {
-        city_id: city_id,
+        property_id: item.property_id,
+        category_id: item.category_id,
+        cc_id: item.cc_id,
+        bt_id: item.bt_id,
+        country_id: item.country_id,
+        property_type_id: item.property_type_id,
+        city_id: item.city_id,
+        town_id: null,
       };
       axios
-        .post(`/4walls-property-master/update-city/${id}`, payload)
+        .post(`/4walls-property-master/update`, payload)
         .then((response) => {
           const data = response.data;
           this.successMessage = data.message;
@@ -1158,13 +1520,20 @@ export default {
           this.isSending2 = false;
         });
     },
-    updateTown(id, town_id) {
+    updateTown(item) {
       this.isSending2 = true;
       const payload = {
-        town_id: town_id,
+        property_id: item.property_id,
+        category_id: item.category_id,
+        cc_id: item.cc_id,
+        bt_id: item.bt_id,
+        country_id: item.country_id,
+        property_type_id: item.property_type_id,
+        city_id: item.city_id,
+        town_id: item.town_id,
       };
       axios
-        .post(`/4walls-property-master/update-town/${id}`, payload)
+        .post(`/4walls-property-master/update`, payload)
         .then((response) => {
           const data = response.data;
           this.successMessage = data.message;
@@ -1179,6 +1548,12 @@ export default {
           this.isSending2 = false;
         });
     },
+    filterCity(country_id) {
+      return this.city.filter((item) => item.country_id === country_id);
+    },
+    filterTown(city_id) {
+      return this.town.filter((item) => item.city_id === city_id);
+    },  
     openMainImage(prop) {
       this.isOpenImage = true;
       this.propertyDataToMainImage = {

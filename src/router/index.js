@@ -754,6 +754,20 @@ const routes = [
     },
   },
   {
+    name: 'apartment type master',
+    path: '/apartment_type_master',
+    component: () =>
+      import('@/views/walls master/apartment type master/ApartmentTypeMasterContainer.vue'),
+    beforeEnter: (to, from, next) => {
+      // Pengecekan status login sebelum masuk ke halaman beranda
+      if (localStorage.getItem('token') == null) {
+        next('/auth/login'); // Alihkan ke halaman login jika belum masuk
+      } else {
+        next(); // Lanjutkan ke halaman beranda jika sudah masuk
+      }
+    },
+  },
+  {
     name: 'development construction',
     path: '/property_developments/development_construction/:id',
     component: () =>
@@ -786,6 +800,22 @@ const routes = [
       }, 
   },
   {
+    name: 'construction apartment',
+    path: '/construction_master/apartment/:id',
+    component: () =>
+      import(
+        '@/views/walls master/construction master/construction apartment/ConstructionApartmentContainer.vue'
+      ),
+      beforeEnter: (to, from, next) => {
+        // Pengecekan status login sebelum masuk ke halaman beranda
+        if (localStorage.getItem('token') == null) {
+          next('/auth/login'); // Alihkan ke halaman login jika belum masuk
+        } else {
+          next(); // Lanjutkan ke halaman beranda jika sudah masuk
+        }
+      }, 
+  },
+  {
     name: 'property master',
     path: '/property_master',
     component: () =>
@@ -800,6 +830,64 @@ const routes = [
           next(); // Lanjutkan ke halaman beranda jika sudah masuk
         }
       }, 
+  },
+  {
+    name: 'property master main info',
+    path: '/property_master/main-info/:id',
+    component: () =>
+      import(
+        '@/views/walls master/property master/main info/PropertyMastersMainInfoContainer.vue'
+      ),
+    beforeEnter: (to, from, next) => {
+      // Pengecekan status login sebelum masuk ke halaman beranda
+      if (localStorage.getItem('token') == null) {
+        next('/auth/login'); // Alihkan ke halaman login jika belum masuk
+      } else {
+        next(); // Lanjutkan ke halaman beranda jika sudah masuk
+      }
+    },
+  },
+  {
+    name: 'agent master',
+    path: '/agent_master',
+    component: () =>
+      import(
+        '@/views/walls master/agent master/AgentMasterContainer.vue'
+      ),
+      beforeEnter: (to, from, next) => {
+        // Pengecekan status login sebelum masuk ke halaman beranda
+        if (localStorage.getItem('token') == null) {
+          next('/auth/login'); // Alihkan ke halaman login jika belum masuk
+        } else {
+          next(); // Lanjutkan ke halaman beranda jika sudah masuk
+        }
+      }, 
+  },
+  {
+    name: 'biryani run',
+    path: '/biryani-home',
+    component: () => import('@/views/biryani run/BiryaniRunContainer.vue'),
+    beforeEnter: (to, from, next) => {
+      // Pengecekan status login sebelum masuk ke halaman beranda
+      if (localStorage.getItem('token') == null) {
+        next('/auth/login'); // Alihkan ke halaman login jika belum masuk
+      } else {
+        next(); // Lanjutkan ke halaman beranda jika sudah masuk
+      }
+    },
+  },
+  {
+    name: 'main categories',
+    path: '/biryani-home/main-categories',
+    component: () => import('@/views/biryani run/main categories/MainCategoriesContainer.vue'),
+    beforeEnter: (to, from, next) => {
+      // Pengecekan status login sebelum masuk ke halaman beranda
+      if (localStorage.getItem('token') == null) {
+        next('/auth/login'); // Alihkan ke halaman login jika belum masuk
+      } else {
+        next(); // Lanjutkan ke halaman beranda jika sudah masuk
+      }
+    },
   },
   {
     name: 'mall master',

@@ -154,6 +154,17 @@
         </router-link>
         
       </div>
+      <div>
+        <router-link
+          active-class="text-blue-accent-4"
+          style="color: black"
+          class="text-decoration-none"
+          to="/property_master"
+        >
+          <h4>On-Board Property</h4>
+        </router-link>
+        
+      </div>
     </div>
     <v-form v-model="valid" @submit.prevent>
       <v-container>

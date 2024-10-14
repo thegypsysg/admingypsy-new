@@ -128,13 +128,13 @@
               </v-col>
             </v-row>
             <v-row>
-              <v-col cols="12" md="6">
+              <v-col cols="12" md="2">
                 <div class="d-flex justify-space-between">
                   <p class="mb-2 font-weight-bold">Total Floor</p>
                 </div>
                 <v-text-field
                   density="compact"
-                  v-model="input.total_floor"
+                  v-model="input.total_floors"
                   variant="outlined"
                   required
                 ></v-text-field>
@@ -192,7 +192,7 @@ import axios from '@/util/axios';
 // import http from 'axios';
 import { setAuthHeader } from '@/util/axios';
 // import app from '@/util/eventBus';
-
+import moment from 'moment';
 export default {
   name: 'ConstructionMasterMainInfo',
   data: () => ({
@@ -239,9 +239,9 @@ export default {
         this.constructionData = response.data.data;
         this.input.under_construction = this.constructionData.under_construction == 'Y' ? true : false;
         this.input.top = this.constructionData.top == 'Y' ? true : false;
-        this.input.total_floor = this.constructionData.total_floor;
-        this.input.project_start_on = this.constructionData.project_start_on;
-        this.input.project_completion_on = this.constructionData.project_completion_on;
+        this.input.total_floors = this.constructionData.total_floors;
+        this.input.project_start_on = this.formatDateDisplay(this.constructionData.project_start_on);
+        this.input.project_completion_on = this.formatDateDisplay(this.constructionData.project_completion_on);
         this.input.tag_line = this.constructionData.tag_line;
         this.input.brief_details = this.constructionData.brief_details;
       })
@@ -253,7 +253,12 @@ export default {
       });
 
     },
-    
+    formatDateDatabase(date) {
+      return moment(date).format('DD/MM/YYYY');
+    },
+    formatDateDisplay(date) {
+      return date.split('/')[2] + '-' + date.split('/')[1] + '-' + date.split('/')[0];
+    },
     saveData() {
       if (this.valid) {
         this.isSending = true;
@@ -264,11 +269,11 @@ export default {
           construction_name: this.constructionData.construction_name,
           tag_line: this.input.tag_line,
           brief_details: this.input.brief_details,
-          project_start_on: this.input.project_start_on,
-          project_completion_on: this.input.project_completion_on,
+          project_start_on: this.formatDateDatabase(this.input.project_start_on),
+          project_completion_on: this.formatDateDatabase(this.input.project_completion_on),
           under_construction: this.input.under_construction ? "Y" : "N",
           top: this.input.top ? "Y" : "N",
-          total_floors: this.input.total_floor,
+          total_floors: this.input.total_floors,
         };
         axios
           .post(`/4walls-construction-masters/update`, payload)

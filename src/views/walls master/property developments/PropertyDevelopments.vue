@@ -419,7 +419,75 @@
                       <v-btn size="27" :value="false"> No </v-btn>
                     </v-btn-toggle>
                   </td>
-                  <td colspan="2" style="border-bottom: none !important;"></td>
+                  <td style="border-bottom: none !important;">
+                    <span class="font-weight-bold">Under Construction</span>
+                    <v-btn-toggle
+                      style="
+                        font-size: 10px !important;
+                        font-weight: 200 !important;
+                        height: 22px !important;
+                        width: 54px !important;
+                      "
+                      class="d-flex align-center"
+                      v-model="item.isUnderConstruction"
+                      :disabled="isSending2"
+                      rounded="5"
+                      @click="underConstructionPropertyDevelopment(item.development_id)"
+                    >
+                      <v-btn size="27" :value="true"> Yes </v-btn>
+
+                      <v-btn size="27" :value="false"> No </v-btn>
+                    </v-btn-toggle>
+                  </td>
+                  <td style="border-bottom: none !important;"></td>
+                </tr>
+                <tr>
+                  <td style="border-bottom: none !important;"></td>
+                  <td style="border-bottom: none !important;"></td>
+                  <td style="border-bottom: none !important;">
+                    <v-text-field 
+                      density="compact"
+                      v-model="item.latitude"
+                      label="Latitude"
+                      variant="outlined"
+                      hide-details
+                      @blur="saveLatitude(item.latitude, item)"
+                    ></v-text-field>
+                  </td>
+                  <td style="border-bottom: none !important;">
+                    <v-text-field 
+                      density="compact"
+                      v-model="item.longitude"
+                      label="Longitude"
+                      variant="outlined"
+                      hide-details
+                      @blur="saveLongitude(item.longitude, item)"
+                    ></v-text-field>
+                  </td>
+                  <td style="border-bottom: none !important;">
+                    <span class="font-weight-bold">Completion :</span>
+                  </td>
+                  <td style="border-bottom: none !important;">
+                    <span class="font-weight-bold">Month :</span>
+                    <v-text-field 
+                      density="compact"
+                      v-model="item.completion_month"
+                      variant="outlined"
+                      hide-details
+                      @blur="saveCompletionMonth(item.completion_month, item)"
+                    ></v-text-field>
+                  </td>
+                  <td style="border-bottom: none !important;">
+                    <span class="font-weight-bold">Year :</span>
+                    <v-text-field 
+                      density="compact"
+                      v-model="item.completion_year"
+                      variant="outlined"
+                      hide-details
+                      @blur="saveCompletionYear(item.completion_year, item)"
+                    ></v-text-field>
+                  </td>
+                  <td style="border-bottom: none !important;"></td>
                 </tr>
                 <tr>
                   <td>
@@ -1183,7 +1251,17 @@ export default {
                   : item.featured == 'Y'
                   ? true
                   : null,
+              isUnderConstruction:
+                item.under_construction == 'N'
+                  ? false
+                  : item.under_construction == 'Y'
+                  ? true
+                  : null,
               dated: item.dated || '',
+              latitude: item.latitude || '',
+              longitude: item.longitude || '',
+              completion_month: item.completion_month || '',
+              completion_year: item.completion_year || '',
             };
           });
         })
@@ -1278,6 +1356,30 @@ export default {
           this.isSending2 = false;
         });
     },
+    underConstructionPropertyDevelopment(id) {
+      this.isSending2 = true;
+      axios
+        .get(`/4walls-property-developments/toggle-under-construction/${id}`)
+        .then((response) => {
+          const data = response.data;
+          this.successMessage = data.message;
+          this.isSuccess = true;
+          this.getPropertyDevelopersData();
+        })
+        .catch((error) => {
+          // eslint-disable-next-line
+          console.log(error);
+          const message =
+            error.response.data.message === ''
+              ? 'Something Wrong!!!'
+              : error.response.data.message;
+          this.errorMessage = message;
+          this.isError = true;
+        })
+        .finally(() => {
+          this.isSending2 = false;
+        });
+    },
     activePropertyDevelopment(developer_id) {
       this.isSending2 = true;
       axios
@@ -1287,6 +1389,122 @@ export default {
           this.successMessage = data.message;
           this.isSuccess = true;
           this.getPropertyDevelopersData();
+        })
+        .catch((error) => {
+          // eslint-disable-next-line
+          console.log(error);
+          const message =
+            error.response.data.message === ''
+              ? 'Something Wrong!!!'
+              : error.response.data.message;
+          this.errorMessage = message;
+          this.isError = true;
+        })
+        .finally(() => {
+          this.isSending2 = false;
+        });
+    },
+    saveLatitude(latitude, item) {
+      this.isSending2 = true;
+      axios
+        .post(`/4walls-property-developments/update`, {
+          development_id: item.development_id,
+          project_name: item.project_name,
+          developer_id: item.developer_id,
+          latitude: latitude,
+        })
+        .then((response) => {
+          const data = response.data;
+          this.successMessage = data.message;
+          this.isSuccess = true;
+          this.getPropertyDevelopmentsData();
+        })
+        .catch((error) => {
+          // eslint-disable-next-line
+          console.log(error);
+          const message =
+            error.response.data.message === ''
+              ? 'Something Wrong!!!'
+              : error.response.data.message;
+          this.errorMessage = message;
+          this.isError = true;
+        })
+        .finally(() => {
+          this.isSending2 = false;
+        });
+    },
+    saveLongitude(longitude, item) {
+      this.isSending2 = true;
+      axios
+        .post(`/4walls-property-developments/update`, {
+          development_id: item.development_id,
+          project_name: item.project_name,
+          developer_id: item.developer_id,
+          longitude: longitude,
+        })
+        .then((response) => {
+          const data = response.data;
+          this.successMessage = data.message;
+          this.isSuccess = true;
+          this.getPropertyDevelopmentsData();
+        })
+        .catch((error) => {
+          // eslint-disable-next-line
+          console.log(error);
+          const message =
+            error.response.data.message === ''
+              ? 'Something Wrong!!!'
+              : error.response.data.message;
+          this.errorMessage = message;
+          this.isError = true;
+        })
+        .finally(() => {
+          this.isSending2 = false;
+        });
+    },
+    saveCompletionMonth(completion_month, item) {
+      this.isSending2 = true;
+      axios
+        .post(`/4walls-property-developments/update`, {
+          development_id: item.development_id,
+          project_name: item.project_name,
+          developer_id: item.developer_id,
+          completion_month: completion_month,
+        })
+        .then((response) => {
+          const data = response.data;
+          this.successMessage = data.message;
+          this.isSuccess = true;
+          this.getPropertyDevelopmentsData();
+        })
+        .catch((error) => {
+          // eslint-disable-next-line
+          console.log(error);
+          const message =
+            error.response.data.message === ''
+              ? 'Something Wrong!!!'
+              : error.response.data.message;
+          this.errorMessage = message;
+          this.isError = true;
+        })
+        .finally(() => {
+          this.isSending2 = false;
+        });
+    },
+    saveCompletionYear(completion_year, item) {
+      this.isSending2 = true;
+      axios
+        .post(`/4walls-property-developments/update`, {
+          development_id: item.development_id,
+          project_name: item.project_name,
+          developer_id: item.developer_id,
+          completion_year: completion_year,
+        })
+        .then((response) => {
+          const data = response.data;
+          this.successMessage = data.message;
+          this.isSuccess = true;
+          this.getPropertyDevelopmentsData();
         })
         .catch((error) => {
           // eslint-disable-next-line

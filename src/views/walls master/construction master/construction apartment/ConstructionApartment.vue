@@ -12,20 +12,20 @@
         <router-link
           style="color: #293fb8; font-size: 13px"
           class="text-decoration-none"
-          to="/property_developments"
+          to="/construction_master"
         >
           <p>Back</p>
         </router-link>
-        <h3 class="ml-4 mr-10 mb-6">Construction</h3>
+        <h3 class="ml-4 mr-10 mb-6">Main Info</h3>
       </div>
     </div>
     <div class="d-flex align-center justify-space-between pr-16 pl-4">
       <div class="d-flex" style="gap: 10px">
         <div style="min-width: 100px">
-          <h3 style="color: blue">{{ this.developementData.project_name }}</h3>
+          <h3 style="color: blue">{{ this.constructionData?.construction_name }}</h3>
         </div>
         <div style="min-width: 100px">
-          <h3 style="color: blue">{{ this.developementData.developer?.partner?.partner_name }}</h3>
+          <h3 style="color: blue">{{ this.constructionData?.construction_category?.category_name }}</h3>
         </div>
       </div>
     </div>
@@ -35,15 +35,29 @@
           <v-col cols="12" md="4">
             <v-autocomplete
               class="mt-8"
-              v-model="input.construction_id"
-              :rules="rules.construction_idRules"
-              item-title="construction_name"
-              item-value="construction_id"
-              label="Construction Name"
+              v-model="input.atm_id"
+              :rules="rules.atm_idRules"
+              item-title="apartment_type_name"
+              item-value="atm_id"
+              label="Apartment Type Name"
               variant="outlined"
               density="compact"
               required
-              :items="constructionData"
+              :items="apartmentTypeMasterData"
+            ></v-autocomplete>
+          </v-col>
+          <v-col cols="12" md="4">
+            <v-autocomplete
+              class="mt-8"
+              v-model="input.property_type_id"
+              :rules="rules.property_type_idRules"
+              item-title="property_name"
+              item-value="property_type_id"
+              label="Property Type Name"
+              variant="outlined"
+              density="compact"
+              required
+              :items="propertyTypeMasterData"
             ></v-autocomplete>
           </v-col>
           <v-col cols="12" md="2">
@@ -108,28 +122,30 @@
             <thead>
               <tr>
                 <th class="text-left font-weight-bold text-black">id</th>
-                <th class="text-left font-weight-bold text-black">Image</th>
-                <th class="text-left font-weight-bold text-black">Construction Name</th>
-                <th class="text-left font-weight-bold text-black">Construction Category</th>
-                <th class="text-left font-weight-bold text-black">Building Type</th>
-                <th class="text-left font-weight-bold text-black">User</th>
-                <th class="text-left font-weight-bold text-black">Dated</th>
+                <th class="text-left font-weight-bold text-black">Main Image</th>
+                <th class="text-left font-weight-bold text-black">Apartment Type Name</th>
+                <th class="text-left font-weight-bold text-black">Property Type Name</th>
+                <th class="text-left font-weight-bold text-black">Bedroom</th>
+                <th class="text-left font-weight-bold text-black">Bathroom</th>
+                <th class="text-left font-weight-bold text-black">Area</th>
+                <th class="text-left font-weight-bold text-black">Price Range</th>
                 <th class="text-left font-weight-bold text-black">Actions</th>
               </tr>
             </thead>
             <tbody>
-              <template v-for="item in filteredItems" :key="item.pdc_id">
+              <template v-for="item in filteredItems" :key="item.ca_id">
                 <tr class="country-table-body">
-                  <td>{{ item.pdc_id }}</td>
+                  <td>{{ item.ca_id }}</td>
                   <td>
                     <div class="image-upload-cont">
                       <v-img
                         class="image-upload-item"
                         height="40"
+                        @click="openMainImage(item)"
                         style="cursor: pointer"
                         :src="
-                          item.construction.main_image != null
-                            ? $fileURL + item.construction.main_image
+                          item.main_image != null && item.main_image != ''
+                            ? $fileURL + item.main_image
                             : 'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png'
                         "
                       >
@@ -138,33 +154,48 @@
                       ></v-img>
                     </div>
                   </td>
-                  <td>{{ item?.construction?.construction_name }}</td>
+                  <td>{{ item?.apartment_type_master?.apartment_type_name }}</td>
                   <td>
-                    {{ item?.construction?.construction_category?.category_name }}
+                    {{ item?.property_type_master?.property_name }}
                   </td>
                   <td>
-                    {{ item?.construction?.building_type?.building_type }}
+                    <v-text-field
+                      v-model="item.bedrooms"
+                      variant="outlined"
+                      density="compact"
+                      hide-details
+                      @blur="saveBedrooms(item, item.bedrooms)"
+                    ></v-text-field>
                   </td>
                   <td>
-                    {{ item?.user.name }}
+                    <v-text-field
+                      v-model="item.bathrooms"
+                      variant="outlined"
+                      density="compact"
+                      hide-details
+                      @blur="saveBathrooms(item, item.bathrooms)"
+                    ></v-text-field>
                   </td>
                   <td>
-                    {{ item?.dated }}
+                    <v-text-field
+                      v-model="item.area"
+                      variant="outlined"
+                      density="compact"
+                      hide-details
+                      @blur="saveArea(item, item.area)"
+                    ></v-text-field>
+                  </td>
+                  <td>
+                    <v-text-field
+                      v-model="item.price_range"
+                      variant="outlined"
+                      density="compact"
+                      hide-details
+                      @blur="savePriceRange(item, item.price_range)"
+                    ></v-text-field>
                   </td>
                   <td>
                     <div class="d-flex">
-                      <v-tooltip location="top">
-                        <template v-slot:activator="{ props }">
-                          <v-btn
-                            color="green"
-                            variant="text"
-                            v-bind="props"
-                            @click="editDevelopmentConstruction(item)"
-                            icon="mdi-pencil-outline"
-                          ></v-btn>
-                        </template>
-                        <span>Edit</span>
-                      </v-tooltip>
                       <v-tooltip location="top">
                         <template v-slot:activator="{ props }">
                           <v-btn
@@ -172,7 +203,7 @@
                             v-bind="props"
                             variant="text"
                             :disabled="isDeleteLoading"
-                            @click="openDeleteConfirm(item.pdc_id)"
+                            @click="openDeleteConfirm(item.ca_id)"
                             icon="mdi-trash-can-outline"
                           ></v-btn>
                         </template>
@@ -180,6 +211,26 @@
                       </v-tooltip>
                     </div>
                   </td>
+                </tr>
+                <tr>
+                  <td></td>
+                  <td colspan="4">
+                    <br/>
+                    <label class="font-weight-bold text-black">Video Link</label>
+                    <br/>
+                    <v-text-field
+                      v-model="item.video_link"
+                      variant="outlined"
+                      density="compact"
+                      hide-details
+                      @blur="saveVideoLink(item, item.video_link)"
+                      class="mb-5"
+                    ></v-text-field>
+                  </td>
+                  <td></td>
+                  <td></td>
+                  <td></td>
+                  <td></td>
                 </tr>
               </template>
               <tr v-if="isLoading">
@@ -231,16 +282,16 @@
         </v-card-actions>
       </v-card>
     </v-dialog>
-    <v-dialog persistent width="auto" v-model="isOpenImage">
+    <v-dialog persistent width="auto" v-model="isOpenMainImage">
       <v-card width="750">
         <v-card-title class="upload-title px-6 py-4">
-          Upload Image - Development Construction </v-card-title
+          Upload Image - Construction Apartment </v-card-title
         >
         <v-card-text>
           <image-upload
-            :image-file="imageFile"
-            @update-image-file="updateImageFile"
-            @delete-image-file="deleteImageFile"
+            :image-file="mainImageFile"
+            @update-image-file="updateMainImageFile"
+            @delete-image-file="deleteMainImageFile"
           />
         </v-card-text>
         <v-card-actions class="mt-16">
@@ -249,13 +300,13 @@
             style="text-transform: none"
             color="error"
             text
-            @click="closeImage"
+            @click="closeMainImage"
             >Cancel</v-btn
           >
           <v-btn
             style="background-color: #9ddcff; text-transform: none"
             color="black"
-            @click="saveImage()"
+            @click="saveMainImage()"
             >Save</v-btn
           >
         </v-card-actions>
@@ -276,11 +327,12 @@ export default {
   name: 'DevelopmentConstruction',
   data: () => ({
     // fileURL: 'https://admin1.the-gypsy.sg/img/app/',
-    idDevelopmentConstruction: null,
-    developmentId: null,
-    developementData: [],
-    developmentConstructionData: [],
-    constructionData: [],
+    constructionId: null,
+    caId: null,
+    constructionData: null,
+    apartmentTypeMasterData: [],
+    propertyTypeMasterData: [],
+    constructionApartmentData: [],
     valid: false,
     isLoading: false,
     isSending: false,
@@ -289,25 +341,33 @@ export default {
     isSuccess: false,
     isDelete: false,
     isDeleteLoading: false,
-    isOpenImage: false,
-    imageFile: [],
+    isOpenMainImage: false,
+    mainImageFile: [],
     successMessage: '',
     errorMessage: '',
-    propertyDataToImage: {
-      pdc_id: null,
+    propertyDataToMainImage: {
+      ca_id: null,
       construction_id: null,
-      image: null,
+      atm_id: null,
+      property_type_id: null,
     },
     input: {
-      development_id: 0,
-      project_header: '',
-      project_description: '',
+      cf_id: 0,
+      construction_id: 0,
+      atm_id: null,
+      property_type_id: null, 
     },
     rules: {
-      construction_idRules: [
+      atm_idRules: [
         (value) => {
           if (value) return true;
-          return 'Construction Name is required.';
+          return 'Apartment Type Name is required.';
+        },
+      ],
+      property_type_idRules: [
+        (value) => {
+          if (value) return true;
+          return 'Property Type Name is required.';
         },
       ],
     },
@@ -319,10 +379,10 @@ export default {
   computed: {
     filteredItems() {
       if (!this.search) {
-        return this.developmentConstructionData;
+        return this.constructionApartmentData;
       }
       const searchTextLower = this.search.toLowerCase();
-      return this.developmentConstructionData.filter(
+      return this.constructionFacilityData.filter(
         (item) =>
           item.construction.construction_name.toLowerCase().includes(searchTextLower) 
       );
@@ -330,18 +390,17 @@ export default {
   },
   mounted() {
     this.isLoading = true;
-    this.developmentId = parseInt(this.$route.params.id);
-    this.getDevelopementData();
-    this.getDevelopmentConstructionData();
+    this.constructionId = parseInt(this.$route.params.id);
     this.getConstructionData();
+    this.getConstructionApartmentData();
+    this.getApartmentTypeMasterData();
+    this.getPropertyTypeMasterData();
   },
   methods: {
-    getDevelopementData() {
+    getConstructionData() {
       this.isLoading = true;
-      axios.get(`/4walls-property-developments/${this.developmentId}`).then((response) => {
-        this.developementData = response.data.data;
-        this.input.project_header = this.developementData.project_header;
-        this.input.project_description = this.developementData.project_description;
+      axios.get(`/4walls-construction-masters/${this.constructionId}`).then((response) => {
+        this.constructionData = response.data.data;
       })
       .catch((error) => {
         console.log(error);
@@ -351,9 +410,9 @@ export default {
       });
 
     },
-    getDevelopmentConstructionData() {
-      axios.get(`/4walls-development-constructions/${this.developmentId}`).then((response) => {
-        this.developmentConstructionData = response.data.data;
+    getConstructionApartmentData() {
+      axios.get(`/4walls-construction-apartment/${this.constructionId}`).then((response) => {
+        this.constructionApartmentData = response.data.data;
       })
       .catch((error) => {
         console.log(error);
@@ -362,9 +421,20 @@ export default {
         this.isLoading = false;
       });
     },
-    getConstructionData() {
-      axios.get(`/4walls-construction-masters`).then((response) => {
-        this.constructionData = response.data.data;
+    getApartmentTypeMasterData() {
+      axios.get(`/4walls-apartment-type-masters`).then((response) => {
+        this.apartmentTypeMasterData = response.data.data;
+      })
+      .catch((error) => {
+        console.log(error);
+      })
+      .finally(() => {
+        this.isLoading = false;
+      });
+    },
+    getPropertyTypeMasterData() {
+      axios.get(`/four-walls-property-types`).then((response) => {
+        this.propertyTypeMasterData = response.data.data;
       })
       .catch((error) => {
         console.log(error);
@@ -377,16 +447,19 @@ export default {
       if (this.valid) {
         this.isSending = true;
         const payload = {
-          development_id: this.developmentId,
-          construction_id: this.input.construction_id,
+          construction_id: this.constructionId,
+          atm_id: this.input.atm_id,
+          property_type_id: this.input.property_type_id,
         };
         axios
-          .post(`/4walls-development-constructions`, payload)
+          .post(`/4walls-construction-apartment`, payload)
           .then((response) => {
             const data = response.data;
             this.successMessage = data.message;
             this.isSuccess = true;
-            this.getDevelopmentConstructionData();
+            this.getConstructionApartmentData();
+            this.input.atm_id = null;
+            this.input.property_type_id = null;
           })
           .catch((error) => {
             // eslint-disable-next-line
@@ -404,74 +477,28 @@ export default {
           });
       }
     },
-    editDevelopmentConstruction(item) {
-      this.isEdit = true;
-      this.input = {
-        pdc_id: item.pdc_id,
-        construction_id: item.construction_id,
-      };
-    },
-    cancelEdit() {
-      this.isEdit = false;
-      this.input = {
-        pdc_id: 0,
-        construction_id: null,
-      };
-    },
-    saveEdit() {
-      if (this.valid) {
-        this.isSending = true;
-        const payload = {
-          pdc_id: this.input.pdc_id,
-          construction_id: this.input.construction_id,
-        };
-        axios
-          .post(`/4walls-development-constructions/update`, payload)
-          .then((response) => {
-            const data = response.data;
-            this.successMessage = data.message;
-            this.isSuccess = true;
-            this.getDevelopmentConstructionData();
-            this.input = {
-              pdc_id: 0,
-              construction_id: null,
-            };
-          })
-          .catch((error) => {
-            // eslint-disable-next-line
-            console.log(error);
-            const message = error.response.data.construction_id
-              ? 'Please fill the construction field'
-              : error.response.data.message;
-            this.errorMessage = message;
-            this.isError = true;
-          })
-          .finally(() => {
-            this.isSending = false;
-          });
-      }
-    },
+    
     cancelDelete() {
-      this.idDevelopmentConstruction = null;
+      this.caId = null;
       this.isDelete = false;
     },
     openDeleteConfirm(itemId) {
-      this.idDevelopmentConstruction = itemId;
+      this.caId = itemId;
       this.isDelete = true;
     },
     cancelConfirmation() {
-      this.idDevelopmentConstruction = null;
+      this.caId = null;
       this.isDelete = false;
     },
     deleteDevelopmentConstruction() {
       this.isDeleteLoading = true;
       axios
-        .delete(`/4walls-development-constructions/${this.idDevelopmentConstruction}`)
+        .delete(`/4walls-construction-apartment/${this.caId}`)
         .then((response) => {
           const data = response.data;
           this.successMessage = data.message;
           this.isSuccess = true;
-          this.getDevelopmentConstructionData();
+          this.getConstructionApartmentData();
           this.cancelDelete();
         })
         .catch((error) => {
@@ -483,19 +510,20 @@ export default {
           this.isDeleteLoading = false;
         });
     },
-    openImage(prop) {
-      this.isOpenImage = true;
-      this.propertyDataToImage = {
-        pdc_id: prop.pdc_id,
+    openMainImage(prop) {
+      this.isOpenMainImage = true;
+      this.propertyDataToMainImage = {
+        ca_id: prop.ca_id,
         construction_id: prop.construction_id,
-        image: prop.image,
+        atm_id: prop.atm_id,
+        property_type_id: prop.property_type_id,
       };
-      this.imageFile =
-        prop.image != null
+      this.mainImageFile =
+        prop.main_image != null && prop.main_image != ''
           ? [
               {
                 file: {
-                  name: prop.image,
+                  name: prop.main_image,
                   size: '',
                   base64: '',
                   format: '',
@@ -504,25 +532,28 @@ export default {
             ]
           : [];
     },
-    closeImage() {
-      this.isOpenImage = false;
-      this.imageFile = [];
-      this.propertyDataToImage = {
-        pdc_id: 1,
+    closeMainImage() {
+      this.isOpenMainImage = false;
+      this.mainImageFile = [];
+      this.propertyDataToMainImage = {
+        ca_id: null,
         construction_id: null,
-        image: null,
+        atm_id: null,
+        property_type_id: null,
       };
     },
-    saveImage() {
+    saveMainImage() {
       this.isSending = true;
       const payload = {
-        pdc_id: this.propertyDataToImage.pdc_id,
-        construction_id: this.propertyDataToImage.construction_id,
-        image: this.imageFile[0],
+        ca_id: this.propertyDataToMainImage.ca_id,
+        construction_id: this.propertyDataToMainImage.construction_id,
+        atm_id: this.propertyDataToMainImage.atm_id,
+        property_type_id: this.propertyDataToMainImage.property_type_id,
+        main_image: this.mainImageFile[0],
       };
 
       axios
-        .post(`/4walls-development-constructions/update`, payload, {
+        .post(`/4walls-construction-apartment/update`, payload, {
           headers: {
             'Content-Type': 'multipart/form-data',
           },
@@ -531,7 +562,7 @@ export default {
           const data = response.data;
           this.successMessage = data.message;
           this.isSuccess = true;
-          this.getDevelopmentConstructionData();
+          this.getConstructionApartmentData();
         })
         .catch((error) => {
           // eslint-disable-next-line
@@ -546,29 +577,29 @@ export default {
         .finally(() => {
           this.isEdit = false;
           this.isSending = false;
-          this.propertyDataToImage = {
-            pdc_id: 1,
+          this.propertyDataToMainImage = {
+            cf_id: 1,
             construction_id: null,
             image: null,
           };
-          this.isOpenImage = false;
-          this.imageFile = [];
+          this.isOpenMainImage = false;
+          this.mainImageFile = [];
         });
     },
-    updateImageFile(newImageFile) {
-      this.imageFile.push(newImageFile);
+    updateMainImageFile(newImageFile) {
+      this.mainImageFile.push(newImageFile);
     },
-    deleteImageFile() {
+    deleteMainImageFile() {
       this.isSending = true;
       axios
         .delete(
-          `/4walls-development-constructions/${this.propertyDataToImage.pdc_id}/image`
+          `/4walls-construction-apartment/${this.propertyDataToMainImage.ca_id}/main_image`
         )
         .then((response) => {
           const data = response.data;
           this.successMessage = data.message;
           this.isSuccess = true;
-          this.getDevelopmentConstructionData();
+          this.getConstructionApartmentData();
         })
         .catch((error) => {
           // eslint-disable-next-line
@@ -583,15 +614,93 @@ export default {
         .finally(() => {
           this.isEdit = false;
           this.isSending = false;
-          // this.propertyDataToImage = {
-          //   app_id: 1,
-          //   app_group_id: 1,
-          //   app_name: '',
-          //   app_description: '',
-          //   app_detail: '',
-          // };
-          this.imageFile = [];
+          this.mainImageFile = [];
         });
+    },
+    saveBedrooms(item, bedrooms) {
+      const payload = {
+        ca_id: item.ca_id,
+        construction_id: item.construction_id,
+        atm_id: item.atm_id,
+        property_type_id: item.property_type_id,
+        bedrooms: bedrooms,
+      };
+      axios.post(`/4walls-construction-apartment/update`, payload).then((response) => {
+        const data = response.data;
+        this.successMessage = data.message;
+        this.isSuccess = true;
+        this.getConstructionApartmentData();
+      }).catch((error) => {
+        console.log(error);
+      });
+    },
+    saveBathrooms(item, bathrooms) {
+      const payload = {
+        ca_id: item.ca_id,
+        construction_id: item.construction_id,
+        atm_id: item.atm_id,
+        property_type_id: item.property_type_id,
+        bathrooms: bathrooms,
+      };
+      axios.post(`/4walls-construction-apartment/update`, payload).then((response) => {
+        const data = response.data;
+        this.successMessage = data.message;
+        this.isSuccess = true;
+        this.getConstructionApartmentData();
+      }).catch((error) => {
+        console.log(error);
+      });
+    },
+    saveArea(item, area) {
+      const payload = {
+        ca_id: item.ca_id,
+        construction_id: item.construction_id,
+        atm_id: item.atm_id,
+        property_type_id: item.property_type_id,
+        area: area,
+      };
+      axios.post(`/4walls-construction-apartment/update`, payload).then((response) => { 
+        const data = response.data;
+        this.successMessage = data.message;
+        this.isSuccess = true;
+        this.getConstructionApartmentData();
+      }).catch((error) => {
+        console.log(error);
+      });
+    },
+    savePriceRange(item, priceRange) {
+      const payload = {
+        ca_id: item.ca_id,
+        construction_id: item.construction_id,
+        atm_id: item.atm_id,
+        property_type_id: item.property_type_id,
+        price_range: priceRange,
+      };
+      axios.post(`/4walls-construction-apartment/update`, payload).then((response) => {
+        const data = response.data;
+        this.successMessage = data.message;
+        this.isSuccess = true;
+        this.getConstructionApartmentData();
+      }).catch((error) => {
+        console.log(error);
+      });
+    },
+    saveVideoLink(item, videoLink) {
+      const payload = {
+        ca_id: item.ca_id,
+        construction_id: item.construction_id,
+        atm_id: item.atm_id,
+        property_type_id: item.property_type_id,
+        video_link: videoLink,
+      };
+      axios.post(`/4walls-construction-apartment/update`, payload).then((response) => {
+        const data = response.data;
+        this.successMessage = data.message;
+        this.isSuccess = true;
+        this.getConstructionApartmentData();
+      }).catch((error) => {
+        console.log(error);
+      });
     },
   },
   components: { ImageUpload },

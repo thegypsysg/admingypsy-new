@@ -154,6 +154,17 @@
         </router-link>
         
       </div>
+      <div>
+        <router-link
+          active-class="text-blue-accent-4"
+          style="color: black"
+          class="text-decoration-none"
+          to="/property_master"
+        >
+          <h4>On-Board Property</h4>
+        </router-link>
+        
+      </div>
     </div>
     <v-form v-model="valid" @submit.prevent>
       <v-container>
@@ -274,7 +285,7 @@
               </tr>
             </thead>
             <tbody>
-              <template v-for="item in filteredItems" :key="item.id">
+              <template v-for="(item, index) in filteredItems" :key="item.id">
                 <tr class="country-table-body">
                   <td>{{ item.construction_id }}</td>
                   <td>
@@ -349,6 +360,143 @@
                   </td>
                 </tr>
                 <tr>
+                  <td style="border-bottom: none !important;">
+                  </td>
+                  <td style="border-bottom: none !important;">
+                    <label>Country</label>
+                    <v-select
+                      v-model="item.country_id"
+                      variant="outlined"
+                      density="compact"
+                      item-title="country_name"
+                      item-value="country_id"
+                      :items="resource.countries"
+                      @update:modelValue="saveCountry(item.country_id, index, item.bt_id, item.cc_id, item.construction_name)"
+                    ></v-select>
+                  </td>
+                  <td style="border-bottom: none !important;">
+                    <label>City</label>
+                    <v-select
+                      v-model="item.city_id"
+                      variant="outlined"
+                      density="compact"
+                      :items="filterCity(item.country_id)"
+                      item-title="city_name"
+                      item-value="city_id"
+                      @update:modelValue="saveCity(item.city_id, index, item.bt_id, item.cc_id, item.construction_name)"
+                    ></v-select>
+                  </td>
+                  <td style="border-bottom: none !important;">
+                    <label>Town</label>
+                    <v-select
+                      v-model="item.town_id"
+                      variant="outlined"
+                      density="compact"
+                      :items="filterTown(item.city_id)"
+                      item-title="town_name"
+                      item-value="town_id"
+                      @update:modelValue="saveTown(item.town_id, index, item.bt_id, item.cc_id, item.construction_name)"
+                    ></v-select>
+                  </td>
+                  <td colspan="2"  style="border-bottom: none !important;">
+                    <label>Latitude</label>
+                    <v-text-field
+                      v-model="item.latitude"
+                      variant="outlined"
+                      density="compact"
+                      @change="saveLatitude(item.latitude, index, item.bt_id, item.cc_id, item.construction_name)"
+                    ></v-text-field>
+                  </td>
+                  <td colspan="2"  style="border-bottom: none !important;">
+                    <label>Longitude</label>
+                    <v-text-field
+                      v-model="item.longitude"
+                      variant="outlined"
+                      density="compact"
+                      @change="saveLongitude(item.longitude, index, item.bt_id, item.cc_id, item.construction_name)"
+                    ></v-text-field>
+                  </td>
+                </tr>
+                <tr>
+                  <td  style="border-bottom: none !important;"></td>
+                  <td class="justify-center align-center"  style="border-bottom: none !important;">
+                    <span class="font-weight-bold">Under Construction</span>
+                    <v-btn-toggle
+                      style="
+                        font-size: 10px !important;
+                        font-weight: 200 !important;
+                        height: 22px !important;
+                        width: 54px !important;
+                      "
+                      class="d-flex align-center"
+                      v-model="item.isUnderConstruction"
+                      :disabled="isSending2"
+                      rounded="5"
+                      @click="underConstructionConstructionMaster(item.construction_id)"
+                    >
+                      <v-btn size="27" :value="true"> Yes </v-btn>
+
+                      <v-btn size="27" :value="false"> No </v-btn>
+                    </v-btn-toggle>
+                  </td>
+                  <td colspan="2"  style="border-bottom: none !important;">
+                    <v-row>
+                      <v-col cols="12" md="4" class="d-flex justify-center align-center">
+                        <span class="font-weight-bold align-center">Completion :</span>
+                      </v-col>
+                      <v-col cols="12" md="4">
+                        <label class="font-weight-bold">Month</label>
+                        <v-text-field
+                          v-model="item.completion_month"
+                          variant="outlined"
+                          density="compact"
+                          @change="saveCompletionMonth(item.completion_month, item)"
+                        ></v-text-field>
+                      </v-col>
+                      <v-col cols="12" md="4">
+                        <label class="font-weight-bold">Year</label>
+                        <v-text-field
+                          v-model="item.completion_year"
+                          variant="outlined"
+                          density="compact"
+                          @change="saveCompletionYear(item.completion_year, item)"
+                        ></v-text-field>
+                      </v-col>
+                    </v-row>
+                  </td>
+                  <td class="justify-center align-center" style="border-bottom: none !important;">
+                    <span class="font-weight-bold">Move In</span>
+                    <v-btn-toggle
+                      style="
+                        font-size: 10px !important;
+                        font-weight: 200 !important;
+                        height: 22px !important;
+                        width: 54px !important;
+                      "
+                      class="d-flex align-center"
+                      v-model="item.isMoveIn"
+                      :disabled="isSending2"
+                      rounded="5"
+                      @click="moveInConstructionMaster(item.construction_id)"
+                    >
+                      <v-btn size="27" :value="true"> Yes </v-btn>
+
+                      <v-btn size="27" :value="false"> No </v-btn>
+                    </v-btn-toggle>
+                  </td>
+                  <td style="border-bottom: none !important;">
+                    <label>Year Built</label>
+                    <v-text-field
+                      v-model="item.year_built"
+                      variant="outlined"
+                      density="compact"
+                      @change="saveYearBuilt(item.construction_id, item.year_built, item.construction_category.cc_id, item.building_type.bt_id, item.construction_name)"
+                    ></v-text-field>
+                  </td>
+                  <td colspan="3" style="border-bottom: none !important;">
+                  </td>
+                </tr>
+                <tr>
                   <td>
                     <router-link
                       active-class="text-blue-accent-4"
@@ -360,7 +508,7 @@
                       <h4>Main Info</h4>
                     </router-link>
                   </td>
-                  <td colspan="8">
+                  <td>
                     <router-link
                       active-class="text-blue-accent-4"
                       style="color: blue"
@@ -369,6 +517,17 @@
                       :to="`/construction_master/facility/${item.construction_id}`"
                     >
                       <h4>Facility</h4>
+                    </router-link>
+                  </td>
+                  <td colspan="7">
+                    <router-link
+                      active-class="text-blue-accent-4"
+                      style="color: blue"
+                      font-weight="bold"
+                      class="text-decoration-none"
+                      :to="`/construction_master/apartment/${item.construction_id}`"
+                    >
+                      <h4>Apartment Type</h4>
                     </router-link>
                   </td>
                 </tr>
@@ -558,17 +717,22 @@ export default {
     items: [],
     resource: {
       construction_master: [],
+      countries: [],
+      cities: [],
+      towns: [],
     },
   }),
   created() {
     const token = JSON.parse(localStorage.getItem('token'));
     setAuthHeader(token);
   },
-  mounted() {
-    this.idConstructionMaster = this.$route.params.id;
-    this.getConstructionMasterData();
-    this.getConstructionCategoryData();
-    this.getBuildingTypeData();
+  async mounted() {
+    await this.getConstructionCategoryData();
+    await this.getBuildingTypeData();
+    await this.getCountryData();
+    await this.getCityData();
+    await this.getTownData();
+    await this.getConstructionMasterData();
   },
   computed: {
     filteredItems() {
@@ -713,40 +877,63 @@ export default {
           this.isDelete = false;
         });
     },
-
-    getConstructionMasterData() {
+    async getConstructionMasterData() {
       this.isLoading = true;
-      axios
-        .get(`/4walls-construction-masters`)
-        .then((response) => {
-          const data = response.data.data;
-          console.log(data);
-          this.items = data.map((item) => {
-            return {
-              construction_id: item.construction_id || 1,
-              main_image: item.main_image || null,
-              long_image: item.long_image || null,
-              construction_name: item.construction_name || '',
-              construction_category: item.construction_category || null,
-              building_type: item.building_type || null,
-              user: item.user.name || '',
-              dated: item.dated || '',
-            };
-          });
-        })
-        .catch((error) => {
-          // eslint-disable-next-line
-          console.log(error);
-          const message =
-            error.response.data.message === ''
-              ? 'Something Wrong!!!'
-              : error.response.data.message;
-          this.errorMessage = message;
-          this.isError = true;
-        })
-        .finally(() => {
-          this.isLoading = false;
+      try {
+        const response = await axios.get(`/4walls-construction-masters`);
+        const data = response.data.data;
+        console.log(data);
+        this.items = data.map((item) => {
+          let city_id = this.resource.cities.filter(city => city.country_id === item.country_id).filter(city => city.city_id === item.city_id)[0]?.city_id;
+          let town_id = null;
+          if (city_id !== null) {
+            town_id = this.resource.towns.filter(town => town.city_id === city_id).filter(town => town.town_id === item.town_id)[0]?.town_id;
+          }
+          return {
+            construction_id: item.construction_id || 1,
+            bt_id: item.bt_id || null,
+            cc_id: item.cc_id || null,
+            main_image: item.main_image || null,
+            long_image: item.long_image || null,
+            construction_name: item.construction_name || '',
+            construction_category: item.construction_category || null,
+            building_type: item.building_type || null,
+            user: item.user.name || '',
+            dated: item.dated || '',
+            year_built: item.year_built || '',
+            country_id: item.country_id || null,
+            city_id: city_id || null,
+            town_id: town_id || null,
+            latitude: item.latitude || null,
+            longitude: item.longitude || null,
+            isUnderConstruction:
+                item.under_construction == 'N'
+                  ? false
+                  : item.under_construction == 'Y'
+                  ? true
+                  : null,
+            isMoveIn:
+                item.move_in == 'N'
+                  ? false
+                  : item.move_in == 'Y'
+                  ? true
+                  : null,
+            completion_month: item.completion_month || '',
+            completion_year: item.completion_year || '',
+          };
         });
+      } catch (error) {
+        // eslint-disable-next-line
+        console.log(error);
+        const message =
+          error.response.data.message === ''
+            ? 'Something Wrong!!!'
+            : error.response.data.message;
+        this.errorMessage = message;
+        this.isError = true;
+      } finally {
+        this.isLoading = false;
+      }
     },
     getConstructionCategoryData() {
       axios.get(`/4walls-construction-categories/list`).then((response) => {
@@ -769,6 +956,192 @@ export default {
       .catch((error) => {
         console.log(error);
       });
+    },
+    async getCountryData() {
+      try {
+        const response = await axios.get(`/countries`);
+        const data = response.data.data;
+        if (data) {
+          this.resource.countries = data;
+        }
+      } catch (error) {
+        console.log(error);
+      }
+    },
+    async getCityData() {
+      try {
+        const response = await axios.get(`/cities`);
+        const data = response.data.data;
+        if (data) {
+          this.resource.cities = data;
+        }
+      } catch (error) {
+        console.log(error);
+      }
+    },
+    async getTownData() {
+      try {
+        const response = await axios.get(`/towns`);
+        const data = response.data.data;
+        if (data) {
+          this.resource.towns = data;
+        }
+      } catch (error) {
+        console.log(error);
+      }
+    },
+    filterCity(country_id) {
+      return this.resource.cities.filter(
+        (item) => item.country_id === country_id
+      );
+    },
+    filterTown(city_id) {
+      return this.resource.towns.filter(
+        (item) => item.city_id === city_id
+      );
+    },
+    saveCountry(country_id, index, bt_id, cc_id, construction_name) {
+      this.items[index].city_id = null;
+      this.items[index].town_id = null;
+      const payload = {
+        construction_id: this.items[index].construction_id,
+        country_id: country_id,
+        bt_id: bt_id,
+        cc_id: cc_id,
+        construction_name: construction_name,
+      };
+      axios.post(`/4walls-construction-masters/update`, payload)
+        .then((response) => {
+          const data = response.data;
+          this.successMessage = data.message;
+          this.isSuccess = true;
+        })
+        .catch((error) => {
+          console.log(error);
+        });
+    },
+    saveCity(city_id, index, bt_id, cc_id, construction_name) {
+      this.items[index].town_id = null;
+      const payload = {
+        construction_id: this.items[index].construction_id,
+        city_id: city_id,
+        bt_id: bt_id,
+        cc_id: cc_id,
+        construction_name: construction_name,
+      };
+      axios.post(`/4walls-construction-masters/update`, payload)
+        .then((response) => {
+          const data = response.data;
+          this.successMessage = data.message;
+          this.isSuccess = true;
+        })
+        .catch((error) => {
+          console.log(error);
+        });
+    },
+    saveTown(town_id, index, bt_id, cc_id, construction_name) {
+      const payload = {
+        construction_id: this.items[index].construction_id,
+        town_id: town_id,
+        bt_id: bt_id,
+        cc_id: cc_id,
+        construction_name: construction_name,
+      };
+      axios.post(`/4walls-construction-masters/update`, payload)
+        .then((response) => {
+          const data = response.data;
+          this.successMessage = data.message;
+          this.isSuccess = true;
+        })
+        .catch((error) => {
+          console.log(error);
+        });
+    },
+    saveLatitude(latitude, index, bt_id, cc_id, construction_name) {
+      this.items[index].latitude = latitude;
+      const payload = {
+        construction_id: this.items[index].construction_id,
+        latitude: latitude,
+        bt_id: bt_id,
+        cc_id: cc_id,
+        construction_name: construction_name,
+      };
+      axios.post(`/4walls-construction-masters/update`, payload)
+        .then((response) => {
+          const data = response.data;
+          this.successMessage = data.message;
+          this.isSuccess = true;
+        })
+        .catch((error) => {
+          console.log(error);
+        });
+    },
+    saveLongitude(longitude, index, bt_id, cc_id, construction_name) {
+      this.items[index].longitude = longitude;
+      const payload = {
+        construction_id: this.items[index].construction_id,
+        longitude: longitude,
+        bt_id: bt_id,
+        cc_id: cc_id,
+        construction_name: construction_name,
+      };
+      axios.post(`/4walls-construction-masters/update`, payload)
+        .then((response) => {
+          const data = response.data;
+          this.successMessage = data.message;
+          this.isSuccess = true;
+        })
+        .catch((error) => {
+          console.log(error);
+        });
+    },
+    underConstructionConstructionMaster(id) {
+      this.isSending2 = true;
+      axios
+        .get(`/4walls-construction-masters/toggle-under-construction/${id}`)
+        .then((response) => {
+          const data = response.data;
+          this.successMessage = data.message;
+          this.isSuccess = true;
+          this.getConstructionMasterData();
+        })
+        .catch((error) => {
+          // eslint-disable-next-line
+          console.log(error);
+          const message =
+            error.response.data.message === ''
+              ? 'Something Wrong!!!'
+              : error.response.data.message;
+          this.errorMessage = message;
+          this.isError = true;
+        })
+        .finally(() => {
+          this.isSending2 = false;
+        });
+    },
+    moveInConstructionMaster(id){
+      this.isSending2 = true;
+      axios
+        .get(`/4walls-construction-masters/toggle-move-in/${id}`)
+        .then((response) => {
+          const data = response.data;
+          this.successMessage = data.message;
+          this.isSuccess = true;
+          this.getConstructionMasterData();
+        })
+        .catch((error) => {
+          // eslint-disable-next-line
+          console.log(error);
+          const message =
+            error.response.data.message === ''
+              ? 'Something Wrong!!!'
+              : error.response.data.message;
+          this.errorMessage = message;
+          this.isError = true;
+        })
+        .finally(() => {
+          this.isSending2 = false;
+        });
     },
     openMainImage(prop) {
       this.isOpenMainImage = true;
@@ -803,6 +1176,37 @@ export default {
         bt_id: null,
         construction_name: null,
       };
+    },
+    saveYearBuilt(construction_id, year_built, cc_id, bt_id, construction_name) {
+      this.isSending = true;
+      const payload = {
+        construction_id: construction_id,
+        year_built: year_built,
+        cc_id: cc_id,
+        bt_id: bt_id,
+        construction_name: construction_name,
+      };
+      axios
+        .post(`/4walls-construction-masters/update`, payload)
+        .then((response) => {
+          const data = response.data;
+          this.successMessage = data.message;
+          this.isSuccess = true;
+          this.getConstructionMasterData();
+        })
+        .catch((error) => {
+          // eslint-disable-next-line
+          console.log(error);
+          const message =
+            error.response.data.message === ''
+              ? 'Something Wrong!!!'
+              : error.response.data.message;
+          this.errorMessage = message;
+          this.isError = true;
+        })
+        .finally(() => {
+          this.isSending = false;
+        });
     },
     saveMainImage() {
       this.isSending = true;
@@ -1004,6 +1408,66 @@ export default {
           //   app_detail: '',
           // };
           this.imageFile = [];
+        });
+    },
+    saveCompletionMonth(completion_month, item) {
+      this.isSending2 = true;
+      axios
+        .post(`/4walls-construction-masters/update`, {
+          construction_id: item.construction_id,
+          cc_id: item.construction_category.cc_id,
+          bt_id: item.building_type.bt_id,
+          construction_name: item.construction_name,
+          completion_month: completion_month,
+        })
+        .then((response) => {
+          const data = response.data;
+          this.successMessage = data.message;
+          this.isSuccess = true;
+          this.getConstructionMasterData();
+        })
+        .catch((error) => {
+          // eslint-disable-next-line
+          console.log(error);
+          const message =
+            error.response.data.message === ''
+              ? 'Something Wrong!!!'
+              : error.response.data.message;
+          this.errorMessage = message;
+          this.isError = true;
+        })
+        .finally(() => {
+          this.isSending2 = false;
+        });
+    },
+    saveCompletionYear(completion_year, item) {
+      this.isSending2 = true;
+      axios
+        .post(`/4walls-construction-masters/update`, {
+          construction_id: item.construction_id,
+          cc_id: item.construction_category.cc_id,
+          bt_id: item.building_type.bt_id,
+          construction_name: item.construction_name,
+          completion_year: completion_year,
+        })
+        .then((response) => {
+          const data = response.data;
+          this.successMessage = data.message;
+          this.isSuccess = true;
+          this.getConstructionMasterData();
+        })
+        .catch((error) => {
+          // eslint-disable-next-line
+          console.log(error);
+          const message =
+            error.response.data.message === ''
+              ? 'Something Wrong!!!'
+              : error.response.data.message;
+          this.errorMessage = message;
+          this.isError = true;
+        })
+        .finally(() => {
+          this.isSending2 = false;
         });
     },
   },
