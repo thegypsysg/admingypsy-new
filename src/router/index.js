@@ -877,7 +877,7 @@ const routes = [
     },
   },
   {
-    name: 'main categories',
+    name: 'biryani main categories',
     path: '/biryani-home/main-categories',
     component: () => import('@/views/biryani run/main categories/MainCategoriesContainer.vue'),
     beforeEnter: (to, from, next) => {
@@ -886,6 +886,45 @@ const routes = [
         next('/auth/login'); // Alihkan ke halaman login jika belum masuk
       } else {
         next(); // Lanjutkan ke halaman beranda jika sudah masuk
+      }
+    },
+  },
+  {
+    name: 'restaurant master',
+    path: '/biryani-home/restaurant-master',
+    component: () => import('@/views/biryani run/restaurant master/RestaurantMasterContainer.vue'),
+    beforeEnter: (to, from, next) => {
+      // Pengecekan status login sebelum masuk ke halaman beranda
+      if (localStorage.getItem('token') == null) {
+        next('/auth/login'); // Alihkan ke halaman login jika belum masuk
+      } else {
+        next(); // Lanjutkan ke halaman beranda jika sudah masuk
+      }
+    },
+  },
+  {
+    name: 'dish master',
+    path: '/biryani-home/dish-master',
+    component: () => import('@/views/biryani run/dish master/DishMasterContainer.vue'),
+    beforeEnter: (to, from, next) => {
+      // Pengecekan status login sebelum masuk ke halaman beranda
+      if (localStorage.getItem('token') == null) {
+        next('/auth/login'); // Alihkan ke halaman login jika belum masuk
+      } else {
+        next(); // Lanjutkan ke halaman beranda jika sudah masuk
+      }
+    },
+  },
+  {
+    name: 'restaurant dish',
+    path: '/biryani-home/restaurant-dish',
+    component: () => import('@/views/biryani run/restaurant dish/RestaurantDishContainer.vue'),
+    beforeEnter: (to, from, next) => {
+      // Pengecekan status login sebelum masuk ke halaman beranda
+      if (localStorage.getItem('token') == null) {
+        next('/auth/login'); // Alihkan ke halaman login jika belum masuk
+      } else {
+        next(); // Lanjutkan ke halaman beranda jika sudah masuk  
       }
     },
   },

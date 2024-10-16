@@ -23,33 +23,59 @@
           <h4>Restaurant Master</h4>
         </router-link>
       </div>
+      <div>
+        <router-link
+          active-class="text-blue-accent-4"
+          style="color: black"
+          class="text-decoration-none"
+          to="/biryani-home/dish-master"
+        >
+          <h4>Dish Master</h4>
+        </router-link>
+      </div>
+      <div>
+        <router-link
+          active-class="text-blue-accent-4"
+          style="color: black"
+          class="text-decoration-none"
+          to="/biryani-home/restaurant-dish"
+        >
+          <h4>Biryani Promotion</h4>
+        </router-link>
+      </div>
     </div>
     <v-form v-model="valid" @submit.prevent>
       <v-container>
         <v-row>
           <v-col cols="12" md="4">
-            <v-text-field
-              v-model="input.category_name"
-              :rules="rules.nameRules"
-              label="Category Name"
+            <v-select
+              v-model="input.restaurant_id"
+              :rules="rules.restaurantRules"
+              label="Restaurant Name"
               variant="outlined"
               density="compact"
               required
-            ></v-text-field>
+              :items="resource.restaurant"
+              item-title="restaurant_name"
+              item-value="restaurant_id"
+            ></v-select>
           </v-col>
         </v-row>
         <v-row class="d-flex align-baseline mt-n4">
           <v-col cols="12" md="4">
-            <v-textarea
-              density="compact"
-              v-model="input.description"
-              label="Category Description"
-              rows="3"
+            <v-select
+              v-model="input.dish_id"
+              :rules="rules.dishRules"
+              label="Dish Name"
               variant="outlined"
+              density="compact"
+              :items="resource.dish"
+              item-title="dish_name"
+              item-value="dish_id"
               required
-              style="height: 100px !important;"
-            ></v-textarea>
+            ></v-select>
           </v-col>
+          
           <v-col cols="12" md="2">
             <v-btn
               :prepend-icon="
@@ -112,17 +138,18 @@
               <tr>
                 <th class="text-left">Id</th>
                 <th class="text-left">Main Image</th>
-                <th class="text-left">Category Name</th>
-                <th class="text-left">Category Description</th>
+                <th class="text-left">Restaurant Name</th>
+                <th class="text-left">Dish Name</th>
+                <th class="text-left">Price</th>
                 <th class="text-left">User</th>
                 <th class="text-left">Dated</th>
                 <th class="text-center">Actions</th>
               </tr>
             </thead>
             <tbody>
-              <template v-for="item in filteredItems" :key="item.id">
+              <template v-for="item in filteredItems" :key="item.brd_id">
                 <tr>
-                  <td style="border-bottom: none !important;">{{ item.bmc_id }}</td>
+                  <td style="border-bottom: none !important;">{{ item.brd_id }}</td>
                   
                   <td style="border-bottom: none !important;">
                     <div class="image-upload-cont">
@@ -143,10 +170,24 @@
                     </div>
                   </td>
                   <td style="font-weight: 500 !important;border-bottom: none !important;">
-                    {{ item.category_name }}
+                    {{ item.restaurant.partner?.partner_name }}
                   </td>
-                  <td style="font-weight: 500 !important;border-bottom: none !important; max-width: 300px;">
-                    {{ item.description }}
+                  
+                  <td style="font-weight: 500 !important;border-bottom: none !important;">
+                    {{ item.dish?.dish_name }}
+                  </td>
+                  <td style="font-weight: 500 !important;border-bottom: none !important;">
+                    <v-text-field
+                      v-model="item.price"
+                      placeholder="Price"
+                      variant="outlined"
+                      density="compact"
+                      type="number"
+                      class="mt-5"
+                      :prefix="item.restaurant?.country?.currency_symbol"
+                      @change="savePrice(item.price, item)"
+                    >
+                    </v-text-field>
                   </td>
                   <td style="font-weight: 500 !important;border-bottom: none !important;">
                     {{ item.user.name }}
@@ -162,7 +203,7 @@
                             color="green"
                             variant="text"
                             v-bind="props"
-                            @click="editMainCategory(item)"
+                            @click="editRestaurantDish(item)"
                             icon="mdi-pencil-outline"
                           ></v-btn>
                         </template>
@@ -175,7 +216,7 @@
                             v-bind="props"
                             variant="text"
                             :disabled="isDeleteLoading"
-                            @click="openDeleteConfirm(item.bmc_id)"
+                            @click="openDeleteConfirm(item.brd_id)"
                             icon="mdi-trash-can-outline"
                           ></v-btn>
                         </template>
@@ -183,23 +224,6 @@
                       </v-tooltip>
                     </div>
                   </td>
-                </tr>
-                <tr>
-                  <td colspan="4">
-                    <v-text-field
-                      class="mt-4"
-                      v-model="item.tag_line"
-                      label="Tagline"
-                      variant="outlined"
-                      density="compact"
-                      required
-                      style="max-width: 500px;"
-                      @change="saveTagLine(item.bmc_id, item.category_name, item.tag_line)"
-                    ></v-text-field>
-                  </td>
-                  <td></td>
-                  <td></td>
-                  <td></td>
                 </tr>
               </template>
               <tr v-if="isLoading">
@@ -247,7 +271,7 @@
         <v-card-actions>
           <v-spacer></v-spacer>
           <v-btn color="error" text @click="cancelDelete">No</v-btn>
-          <v-btn color="success" text @click="deleteMainCategory">Yes</v-btn>
+          <v-btn color="success" text @click="deleteRestaurantDish">Yes</v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
@@ -281,75 +305,15 @@
         </v-card-actions>
       </v-card>
     </v-dialog>
-    <v-dialog persistent width="auto" v-model="isOpenLongImage">
-      <v-card width="750">
-        <v-card-title class="upload-title px-6 py-4">
-          Upload Long Image - Main Categories</v-card-title
-        >
-        <v-card-text>
-          <image-upload
-            :image-file="longImageFile"
-            @update-image-file="updateLongImageFile"
-            @delete-image-file="deleteLongImageFile"
-          />
-        </v-card-text>
-        <v-card-actions class="mt-16">
-          <v-spacer></v-spacer>
-          <v-btn
-            style="text-transform: none"
-            color="error"
-            text
-            @click="closeLogo"
-            >Cancel</v-btn
-          >
-          <v-btn
-            style="background-color: #9ddcff; text-transform: none"
-            color="black"
-            @click="saveLongImage"
-            >Save</v-btn
-          >
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
-    <v-dialog persistent width="auto" v-model="isOpenIconImage">
-      <v-card width="750">
-        <v-card-title class="upload-title px-6 py-4">
-          Upload Icon Image - Main Categories</v-card-title
-        >
-        <v-card-text>
-          <image-upload
-            :image-file="iconImageFile"
-            @update-image-file="updateIconImageFile"
-            @delete-image-file="deleteIconImageFile"
-          />
-        </v-card-text>
-        <v-card-actions class="mt-16">
-          <v-spacer></v-spacer>
-          <v-btn
-            style="text-transform: none"
-            color="error"
-            text
-            @click="closeIconImage"
-            >Cancel</v-btn
-          >
-          <v-btn
-            style="background-color: #9ddcff; text-transform: none"
-            color="black"
-            @click="saveIconImage"
-            >Save</v-btn
-          >
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
   </v-container>
 </template>
 
 <script>
 import ImageUpload from '@/components/ImageUpload.vue';
 import axios from '@/util/axios';
-import http from 'axios';
 import { setAuthHeader } from '@/util/axios';
 // import app from '@/util/eventBus';
+
 
 export default {
   name: 'PropertyTypes',
@@ -368,20 +332,11 @@ export default {
     mainImageFile: [],
     longImageFile: [],
     iconImageFile: [],
+    countries: [],
     propertyDataToMainImage: {
-      bmc_id: 0,
-      category_name: null,
-      description: null,
-    },
-    propertyDataToLongImage: {
-      bmc_id: 0,
-      category_name: null,
-      description: null,
-    },
-    propertyDataToIconImage: {
-      bmc_id: 0,
-      category_name: null,
-      description: null,
+      brd_id: 0,
+      restaurant_id: null,
+      dish_id: null,
     },
     isOpenMainImage: false,
     isOpenLongImage: false,
@@ -389,24 +344,27 @@ export default {
     successMessage: '',
     errorMessage: '',
     input: {
-      bmc_id: 0,
-      category_name: null,
-      description: null,
+      brd_id: 0,
+      restaurant_id: null,
+      dish_id: null,
     },
     resource: {
-      app: [],
+      restaurant: [],
+      dish: [],
+      country: [],
+      city: [],
     },
     rules: {
-      nameRules: [
+      restaurantRules : [
         (value) => {
           if (value) return true;
-          return 'Category name is required.';
+            return 'Restaurant is required.';
         },
       ],
-      descriptionRules: [
+      dishRules: [
         (value) => {
           if (value) return true;
-          return 'Category description is required.';
+          return 'Dish is required.';
         },
       ],
     },
@@ -418,7 +376,9 @@ export default {
     setAuthHeader(token);
   },
   mounted() {
-    this.getMainCategoriesData();
+    this.getRestaurantMasterData();
+    this.getRestaurantDishData();
+    this.getDishMasterData();
   },
   computed: {
     filteredItems() {
@@ -443,37 +403,6 @@ export default {
 
       return errorMessage;
     },
-    updateLongImageFile(newImageFile) {
-      this.longImageFile.push(newImageFile);
-    },
-    deleteLongImageFile() {
-      this.isSending = true;
-      axios
-        .delete(
-          `/biryani-main-categories/${this.propertyDataToLongImage.bmc_id}/long-image`
-        )
-        .then((response) => {
-          const data = response.data;
-          this.successMessage = data.message;
-          this.isSuccess = true;
-          this.getMainCategoriesData();
-        })
-        .catch((error) => {
-          // eslint-disable-next-line
-          console.log(error);
-          const message =
-            error.response.data.message === ''
-              ? 'Something Wrong!!!'
-              : error.response.data.message;
-          this.errorMessage = message;
-          this.isError = true;
-        })
-        .finally(() => {
-          this.isEdit = false;
-          this.isSending = false;
-          this.longImageFile = [];
-        });
-    },
     updateMainImageFile(newImageFile) {
       this.mainImageFile.push(newImageFile);
     },
@@ -481,13 +410,13 @@ export default {
       this.isSending = true;
       axios
         .delete(
-          `/biryani-main-categories/${this.propertyDataToMainImage.bmc_id}/main-image`
+          `/biryani-restaurant-dishes/${this.propertyDataToMainImage.brd_id}/main-image`
         )
         .then((response) => {
           const data = response.data;
           this.successMessage = data.message;
           this.isSuccess = true;
-          this.getMainCategoriesData();
+          this.getRestaurantDishData();
         })
         .catch((error) => {
           // eslint-disable-next-line
@@ -505,187 +434,12 @@ export default {
           this.imageFile = [];
         });
     },
-    updateIconImageFile(newImageFile) {
-      this.iconImageFile.push(newImageFile);
-    },
-    deleteIconImageFile() {
-      this.isSending = true;
-      axios
-        .delete(
-          `/biryani-main-categories/${this.propertyDataToIconImage.bmc_id}/icon-image`
-        )
-        .then((response) => {
-          const data = response.data;
-          this.successMessage = data.message;
-          this.isSuccess = true;
-          this.getMainCategoriesData();
-        })
-        .catch((error) => {
-          // eslint-disable-next-line
-          console.log(error);
-          const message =
-            error.response.data.message === ''
-              ? 'Something Wrong!!!'
-              : error.response.data.message;
-          this.errorMessage = message;
-          this.isError = true;
-        })
-        .finally(() => {
-          this.isEdit = false;
-          this.isSending = false;
-          this.iconImageFile = [];
-        });
-    },
-    openIconImage(prop) {
-      this.isOpenIconImage = true;
-      this.propertyDataToIconImage = {
-        bmc_id: prop.bmc_id,
-        category_name: prop.category_name,
-        description: prop.description,
-      };
-      this.iconImageFile =
-        prop.icon_image != null
-          ? [
-              {
-                file: {
-                  name: prop.icon_image,
-                  size: '',
-                  base64: '',
-                  format: '',
-                },
-              },
-            ]
-          : [];
-    },
-    closeIconImage() {
-      this.isOpenIconImage = false;
-      this.iconImageFile = [];
-      this.propertyDataToIconImage = {
-        bmc_id: 0,
-        category_name: null,
-        description: null,
-      };
-    },
-    saveIconImage() {
-      this.isSending = true;
-      const payload = {
-        bmc_id: this.propertyDataToIconImage.bmc_id,
-        category_name: this.propertyDataToIconImage.category_name,
-        description: this.propertyDataToIconImage.description,
-        icon_image: this.iconImageFile[0],  
-      };
-      http
-        .post(`/biryani-main-categories/update`, payload, {
-          headers: {
-            'Content-Type': 'multipart/form-data',
-          },
-        })
-        .then((response) => { 
-          const data = response.data;
-          this.successMessage = data.message;
-          this.isSuccess = true;
-          this.getMainCategoriesData();
-        })
-        .catch((error) => {
-          // eslint-disable-next-line
-          console.log(error);
-          const message =
-            error.response.data.message === ''
-              ? 'Something Wrong!!!'
-              : error.response.data.message;
-          this.errorMessage = message;
-          this.isError = true;
-        })
-        .finally(() => {
-          this.isEdit = false;
-          this.isSending = false;
-          this.propertyDataToIconImage = {
-            bmc_id: 0,
-            category_name: null,
-            description: null,
-          };
-          this.isOpenIconImage = false;
-          this.iconImageFile = [];
-        });
-    },
-    openLongImage(prop) {
-      this.isOpenLongImage = true;
-      this.propertyDataToLongImage = {
-        bmc_id: prop.bmc_id,
-        category_name: prop.category_name,
-        description: prop.description,
-      };
-      this.longImageFile =
-        prop.long_image != null
-          ? [
-              {
-                file: {
-                  name: prop.long_image,
-                  size: '',
-                  base64: '',
-                  format: '',
-                },
-              },
-            ]
-          : [];
-    },
-    closeLongImage() {
-      this.isOpenLongImage = false;
-      this.longImageFile = [];
-      this.propertyDataToLongImage = {
-        bmc_id: 0,
-        category_name: null,
-        description: null, 
-      };
-    },
-    saveLongImage() { 
-      this.isSending = true;
-      const payload = {
-        bmc_id: this.propertyDataToLongImage.bmc_id,
-        category_name: this.propertyDataToLongImage.category_name,
-        description: this.propertyDataToLongImage.description,
-        long_image: this.longImageFile[0],
-      };
-      http
-        .post(`/biryani-main-categories/update`, payload, {
-          headers: {
-            'Content-Type': 'multipart/form-data',
-          },
-        })
-        .then((response) => {
-          const data = response.data;
-          this.successMessage = data.message;
-          this.isSuccess = true;
-          this.getMainCategoriesData();
-        })
-        .catch((error) => {
-          // eslint-disable-next-line
-          console.log(error);
-          const message =
-            error.response.data.message === ''
-              ? 'Something Wrong!!!'
-              : error.response.data.message;
-          this.errorMessage = message;
-          this.isError = true;
-        })
-        .finally(() => {
-          this.isEdit = false;
-          this.isSending = false;
-          this.propertyDataToLongImage = {
-            bmc_id: 0,
-            category_name: null,
-            description: null,
-          };
-          this.isOpenLongImage = false;
-          this.longImageFile = [];
-        });
-    },
     openMainImage(prop) {
       this.isOpenMainImage = true;
       this.propertyDataToMainImage = {
-        bmc_id: prop.bmc_id,
-        category_name: prop.category_name,
-        description: prop.description,
+        brd_id: prop.brd_id,
+        restaurant_id: prop.restaurant_id,
+        dish_id: prop.dish_id,
       };
       this.mainImageFile =
         prop.main_image != null
@@ -705,21 +459,21 @@ export default {
       this.isOpenMainImage = false;
       this.mainImageFile = [];
       this.propertyDataToMainImage = {
-        bmc_id: 0,
-        category_name: null,
-        description: null,
+        dish_id: 0,
+        dish_name: null,
+        origin_country: null,
       };
     },
     saveMainImage() {
       this.isSending = true;
       const payload = {
-        bmc_id: this.propertyDataToMainImage.bmc_id,
-        category_name: this.propertyDataToMainImage.category_name,
-        description: this.propertyDataToMainImage.description,
+        brd_id: this.propertyDataToMainImage.brd_id,
+        dish_id: this.propertyDataToMainImage.dish_id,
+        restaurant_id: this.propertyDataToMainImage.restaurant_id,
         main_image: this.mainImageFile[0],
       };
-      http
-        .post(`/biryani-main-categories/update`, payload, {
+      axios
+        .post(`/biryani-restaurant-dishes/update`, payload, {
           headers: {
             'Content-Type': 'multipart/form-data',
           },
@@ -728,7 +482,7 @@ export default {
           const data = response.data;
           this.successMessage = data.message;
           this.isSuccess = true;
-          this.getMainCategoriesData();
+          this.getRestaurantDishData();
         })
         .catch((error) => {
           // eslint-disable-next-line
@@ -744,55 +498,49 @@ export default {
           this.isEdit = false;
           this.isSending = false;
           this.propertyDataToMainImage = {
-            bmc_id: 0,
-            category_name: null,
-            description: null,
+            dish_id: 0,
+            dish_name: null,
+            origin_country: null,
           };
           this.isOpenMainImage = false;
           this.mainImageFile = [];
         });
     },
-    editMainCategory(prop) {
+    editRestaurantDish(prop) {
       this.isEdit = true;
       this.input = {
-        bmc_id: prop.bmc_id,
-        category_name: prop.category_name,
-        description: prop.description,
-        main_image: prop.main_image,
-        long_image: prop.long_image,
+        brd_id: prop.brd_id,
+        restaurant_id: prop.restaurant_id,
+        dish_id: prop.dish_id,
       };
     },
     cancelEdit() {
       this.isEdit = false;
       this.input = {
-        bmc_id: 0,
-        category_name: null,
-        description: null,
-        main_image: null,
-        long_image: null,
+        brd_id: 0,
+        restaurant_id: null,
+        dish_id: null,
       };
     },
     saveEdit() {
       if (this.valid) {
         this.isSending = true;
         const payload = {
-          bmc_id: this.input.bmc_id,
-          category_name: this.input.category_name,
-          description: this.input.description,
+          brd_id: this.input.brd_id,
+          restaurant_id: this.input.restaurant_id,
+          dish_id: this.input.dish_id,
         };
         axios
-          .post(`/biryani-main-categories/update`, payload)
+          .post(`/biryani-restaurant-dishes/update`, payload)
           .then((response) => {
             const data = response.data;
             this.successMessage = data.message;
             this.isSuccess = true;
-            this.getMainCategoriesData();
+            this.getRestaurantDishData();
             this.input = {
-              bmc_id: 0,
-              category_name: null,
-              description: null,
-              main_image: null,
-              long_image: null,
+              brd_id: 0,
+              restaurant_id: null,
+              dish_id: null,
             };
           })
           .catch((error) => {
@@ -811,113 +559,24 @@ export default {
           });
       }
     },
-    saveTagLine(bmc_id, category_name, tag_line) {
-      this.isSending = true;
-      const payload = {
-        bmc_id: bmc_id,
-        category_name: category_name,
-        tag_line: tag_line,
-      };
-      axios
-        .post(`/biryani-main-categories/update`, payload)
-        .then((response) => {
-          const data = response.data;
-          this.successMessage = data.message;
-          this.isSuccess = true;
-          this.getMainCategoriesData();
-        })
-        .catch((error) => {
-          // eslint-disable-next-line
-          console.log(error);
-          const message =
-            error.response.data.message === ''
-              ? 'Something Wrong!!!'
-              : error.response.data.message;
-          this.errorMessage = message;
-          this.isError = true;
-        })
-        .finally(() => {
-          this.isSending = false;
-        });
-    },
-    saveLinkName(bmc_id, category_name, link_name) {
-      this.isSending = true;
-      const payload = {
-        bmc_id: bmc_id,
-        category_name: category_name,
-        link_name: link_name,
-      };
-      axios
-        .post(`/biryani-main-categories/update`, payload)
-        .then((response) => {
-          const data = response.data;
-          this.successMessage = data.message;
-          this.isSuccess = true;
-          this.getMainCategoriesData();
-        })
-        .catch((error) => {
-          // eslint-disable-next-line
-          console.log(error);
-          const message =
-            error.response.data.message === ''
-              ? 'Something Wrong!!!'
-              : error.response.data.message;
-          this.errorMessage = message;
-          this.isError = true;
-        })
-        .finally(() => {
-          this.isSending = false;
-        });
-    },
-    saveButtonName(bmc_id, category_name, button_name) {
-      this.isSending = true;
-      const payload = {
-        bmc_id: bmc_id,
-        category_name: category_name,
-        button_name: button_name,
-      };
-      axios
-        .post(`/biryani-main-categories/update`, payload)
-        .then((response) => {
-          const data = response.data;
-          this.successMessage = data.message;
-          this.isSuccess = true;
-          this.getMainCategoriesData();
-        })
-        .catch((error) => {
-          // eslint-disable-next-line
-          console.log(error);
-          const message =
-            error.response.data.message === ''
-              ? 'Something Wrong!!!'
-              : error.response.data.message;
-          this.errorMessage = message;
-          this.isError = true;
-        })
-        .finally(() => {
-          this.isSending = false;
-        });
-    },
     saveData() {
       if (this.valid) {
         this.isSending = true;
         const payload = {
-          category_name: this.input.category_name,
-          description: this.input.description,
+          restaurant_id: this.input.restaurant_id,
+          dish_id: this.input.dish_id,
         };
         axios
-          .post(`/biryani-main-categories`, payload)
+          .post(`/biryani-restaurant-dishes`, payload)
           .then((response) => {
             const data = response.data;
             this.successMessage = data.message;
             this.isSuccess = true;
-            this.getMainCategoriesData();
+            this.getRestaurantDishData();
             this.input = {
-              bmc_id: 0,
-              category_name: null,
-              description: null,
-              main_image: null,
-              long_image: null,
+              brd_id: 0,
+              restaurant_id: null,
+              dish_id: null,
             };
           })
           .catch((error) => {
@@ -947,15 +606,15 @@ export default {
       this.propertyIdToDelete = null;
       this.isDelete = false;
     },
-    deleteMainCategory() {
+    deleteRestaurantDish() {
       this.isDeleteLoading = true;
       axios
-        .delete(`/biryani-main-categories/${this.propertyIdToDelete}`)
+        .delete(`/biryani-restaurant-dishes/${this.propertyIdToDelete}`)
         .then((response) => {
           const data = response.data;
           this.successMessage = data.message;
           this.isSuccess = true;
-          this.getMainCategoriesData();
+          this.getRestaurantDishData();
         })
         .catch((error) => {
           // eslint-disable-next-line
@@ -973,28 +632,39 @@ export default {
           this.isDelete = false;
         });
     },
-    getMainCategoriesData() {
-      this.isLoading = true;
+    getRestaurantMasterData() {
       axios
-        .get(`/biryani-main-categories`)
+        .get(`/biryani-restaurant-masters`)
         .then((response) => {
           const data = response.data.data;
-          this.items = data.map((item) => {
+          this.resource.restaurant = data.map((item) => {
             console.log(item);
             return {
-              bmc_id: item.bmc_id || 1,
-              category_name: item.category_name || '',
-              description: item.description || '',
-              long_image: item.long_image || null,
-              main_image: item.main_image || null,
-              icon_image: item.icon_image || null,
-              isActive:
-                item.active == 'N' ? false : item.active == 'Y' ? true : null,
-              user: item.user || '',
-              dated: item.dated || '',
-              tag_line: item.tag_line || '',
-              link_name: item.link_name || '',
-              button_name: item.button_name || '',
+              restaurant_id: item.restaurant_id || 1,
+              restaurant_name: item.partner.partner_name || ''
+            };
+          });
+        });
+    },
+    getRestaurantDishData() {
+      axios
+        .get(`/biryani-restaurant-dishes`)
+        .then((response) => {
+          const data = response.data.data;
+          this.items = data;
+        });
+    },
+    getDishMasterData() {
+      this.isLoading = true;
+      axios
+        .get(`/biryani-dish-masters`)
+        .then((response) => {
+          const data = response.data.data;
+          this.resource.dish = data.map((item) => {
+            console.log(item);
+            return {
+              dish_id: item.dish_id || 1,
+              dish_name: item.dish_name || ''
             };
           });
         })
@@ -1012,15 +682,70 @@ export default {
           this.isLoading = false;
         });
     },
-    activeMainCategory(bmc_id) {
+    savePrice(price, item) {
       this.isSending2 = true;
+      const payload = {
+        brd_id: item.brd_id,
+        restaurant_id: item.restaurant_id,
+        dish_id: item.dish_id,
+        price: price,
+      };
       axios
-        .get(`/biryani-main-categories/toggle-active/${bmc_id}`)
+        .post(`/biryani-restaurant-dishes/update`, payload)
         .then((response) => {
           const data = response.data;
           this.successMessage = data.message;
           this.isSuccess = true;
-          this.getMainCategoriesData();
+          this.getRestaurantDishData();
+        })
+        .catch((error) => {
+          // eslint-disable-next-line
+          console.log(error);
+          const message =
+            error.response.data.message === ''
+              ? 'Something Wrong!!!'
+              : error.response.data.message;
+          this.errorMessage = message;
+          this.isError = true;
+        })
+        .finally(() => {
+          this.isSending2 = false;
+        });
+    },
+
+    activeRestaurantDish(brd_id) {
+      this.isSending2 = true;
+      axios
+        .get(`/biryani-restaurant-dishes/toggle-active/${brd_id}`)
+        .then((response) => {
+          const data = response.data;
+          this.successMessage = data.message;
+          this.isSuccess = true;
+          this.getRestaurantDishData();
+        })
+        .catch((error) => {
+          // eslint-disable-next-line
+          console.log(error);
+          const message =
+            error.response.data.message === ''
+              ? 'Something Wrong!!!'
+              : error.response.data.message;
+          this.errorMessage = message;
+          this.isError = true;
+        })
+        .finally(() => {
+          this.isSending2 = false;
+        });
+    },
+    featuredRestaurantDish(brd_id) {
+      this.isSending2 = true;
+      axios
+        .get(`/biryani-restaurant-dishes/toggle-featured/${brd_id}`)
+        .then((response) => {
+          const data = response.data;
+          this.successMessage = data.message;
+          this.isSuccess = true;
+          this.getRestaurantDishData();
         })
         .catch((error) => {
           // eslint-disable-next-line

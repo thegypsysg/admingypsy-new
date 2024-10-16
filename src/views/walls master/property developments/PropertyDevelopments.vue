@@ -1,168 +1,7 @@
 <!-- eslint-disable vue/no-deprecated-v-bind-sync -->
 <template>
   <v-container>
-    <div class="d-flex ml-4 mb-4" style="gap: 30px">
-      <div>
-        <router-link
-          active-class="text-blue-accent-4"
-          style="color: black"
-          class="text-decoration-none"
-          to="/property_developers"
-        >
-          <h4>On Board Property Developers</h4>
-        </router-link>
-        <!-- <router-link
-          active-class="text-purple-accent-4"
-          style="color: black"
-          class="text-decoration-none"
-          to="/mall-country"
-        >
-          <h4 class="mt-4">Country / City</h4>
-        </router-link> -->
-      </div>
-      <div>
-        <router-link
-          active-class="text-blue-accent-4"
-          style="color: black"
-          class="text-decoration-none"
-          to="/property_developments"
-        >
-          <h4>New Projects</h4>
-        </router-link>
-        <!-- <router-link
-          active-class="text-purple-accent-4"
-          style="color: black"
-          class="text-decoration-none"
-          to="/mall-country"
-        >
-          <h4 class="mt-4">Country / City</h4>
-        </router-link> -->
-      </div>
-      <div>
-        <router-link
-          active-class="text-blue-accent-4"
-          style="color: black"
-          class="text-decoration-none"
-          to=""
-        >
-          <h4>On-Board Agents</h4>
-        </router-link>
-
-        <!-- <router-link
-          active-class="text-purple-accent-4"
-          style="color: black"
-          class="text-decoration-none"
-          to="/manage_events"
-        >
-          <h4 class="mt-4">Manage Events</h4>
-        </router-link> -->
-      </div>
-
-      <div>
-        <router-link
-          active-class="text-blue-accent-4"
-          style="color: black"
-          class="text-decoration-none"
-          to=""
-        >
-          <h4>Manage Tenants</h4>
-        </router-link>
-
-        <!-- <router-link
-          active-class="text-red-darken-4"
-          style="color: black"
-          class="text-decoration-none"
-          to="/manage_levels"
-        >
-          <h4 class="mt-4">Manage Levels</h4>
-        </router-link> -->
-      </div>
-      <div>
-        <router-link
-          active-class="text-blue-accent-4"
-          style="color: black"
-          class="text-decoration-none"
-          to=""
-        >
-          <h4>Country/City</h4>
-        </router-link>
-
-        <!-- <router-link
-          active-class="text-blue-darken-4"
-          style="color: black"
-          class="text-decoration-none"
-          to="/manage_services"
-        >
-          <h4 class="mt-4">Manage Services</h4>
-        </router-link> -->
-      </div>
-    </div>
-    <div class="d-flex ml-4 mb-4" style="gap: 30px">
-      <div>
-        <router-link
-          active-class="text-blue-accent-4"
-          style="color: black"
-          class="text-decoration-none"
-          to="/property_types"
-        >
-          <h4>Property Types</h4>
-        </router-link>
-        
-      </div>
-      <div>
-        <router-link
-          active-class="text-blue-accent-4"
-          style="color: black"
-          class="text-decoration-none"
-          to="/main_categories"
-        >
-          <h4>Main Categories</h4>
-        </router-link>
-      </div>
-      <div>
-        <router-link
-          active-class="text-blue-accent-4"
-          style="color: black"
-          class="text-decoration-none"
-          to="/construction_category"
-        >
-          <h4>Construction Category</h4>
-        </router-link>
-      </div>
-      <div>
-        <router-link
-          active-class="text-blue-accent-4"
-          style="color: black"
-          class="text-decoration-none"
-          to="/construction_category"
-        >
-          <h4>Construction Master</h4>
-        </router-link>
-      </div>
-      <div>
-        <router-link
-          active-class="text-blue-accent-4"
-          style="color: black"
-          class="text-decoration-none"
-          to="/building_type"
-        >
-          <h4>Building Type</h4>
-        </router-link>
-      </div>
-    </div>
-    <div class="d-flex ml-4 mb-4" style="gap: 30px">
-      <div>
-        <router-link
-          active-class="text-blue-accent-4"
-          style="color: black"
-          class="text-decoration-none"
-          to="/facilities"
-        >
-          <h4>Facilities</h4>
-        </router-link>
-        
-      </div>
-    </div>
+    <HeaderWallMaster />
     <v-form v-model="valid" @submit.prevent>
       <v-container>
         <v-row>
@@ -442,8 +281,19 @@
                   <td style="border-bottom: none !important;"></td>
                 </tr>
                 <tr>
-                  <td style="border-bottom: none !important;"></td>
-                  <td style="border-bottom: none !important;"></td>
+                  <td style="border-bottom: none !important;" colspan="2">
+                    <v-select
+                      density="compact"
+                      v-model="item.agent_id"
+                      label="Agent"
+                      variant="outlined"
+                      hide-details
+                      :items="resource.agents"
+                      item-title="agent_name"
+                      item-value="pa_id"
+                      @update:modelValue="saveAgent(item.agent_id, item)"
+                    ></v-select>
+                  </td>
                   <td style="border-bottom: none !important;">
                     <v-text-field 
                       density="compact"
@@ -634,6 +484,7 @@ import ImageUpload from '@/components/ImageUpload.vue';
 import axios from '@/util/axios';
 import http from 'axios';
 import { setAuthHeader } from '@/util/axios';
+import HeaderWallMaster from '@/components/HeaderWallMaster.vue';
 // import app from '@/util/eventBus';
 
 export default {
@@ -684,6 +535,7 @@ export default {
     },
     resource: {
       app: [],
+      agents: [],
     },
     rules: {
       nameRules: [
@@ -711,6 +563,7 @@ export default {
     this.getPropertyDevelopmentsData();
     this.getCityData();
     this.getTownData();
+    this.getAgentsData();
   },
   computed: {
     filteredItems() {
@@ -1262,6 +1115,8 @@ export default {
               longitude: item.longitude || '',
               completion_month: item.completion_month || '',
               completion_year: item.completion_year || '',
+              pa_id: item.agent_id || null,
+              agent_id: item.agent_id || null,
             };
           });
         })
@@ -1331,6 +1186,36 @@ export default {
           this.errorMessage = message;
           this.isError = true;
         });
+    },
+    getAgentsData() {
+      axios.get(`/4walls-agent-masters`).then((response) => {
+        this.resource.agents = response.data.data;
+      });
+    },
+    saveAgent(agent_id, item) {
+      this.isSending2 = true;
+      axios.post(`/4walls-property-developments/update`, {
+        development_id: item.development_id,
+        project_name: item.project_name,
+        developer_id: item.developer_id,
+        agent_id: agent_id,
+      }).then((response) => {
+        const data = response.data;
+        this.successMessage = data.message;
+        this.isSuccess = true;
+        this.getPropertyDevelopmentsData();
+      }).catch((error) => {
+        // eslint-disable-next-line
+        console.log(error);
+        const message =
+          error.response.data.message === ''
+            ? 'Something Wrong!!!'
+            : error.response.data.message;
+        this.errorMessage = message;
+        this.isError = true;
+      }).finally(() => {
+        this.isSending2 = false;
+      });
     },
     featuredPropertyDevelopment(id) {
       this.isSending2 = true;
@@ -1521,7 +1406,7 @@ export default {
         });
     },
   },
-  components: { ImageUpload },
+  components: { ImageUpload, HeaderWallMaster },
 };
 </script>
 
