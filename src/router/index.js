@@ -216,6 +216,50 @@ const routes = [
     },
   },
   {
+    name: 'email master',
+    path: '/email-master',
+    component: () =>
+      import('@/views/email master/email master/EmailMasterContainer.vue'),
+    beforeEnter: (to, from, next) => {
+      // Pengecekan status login sebelum masuk ke halaman beranda
+      if (localStorage.getItem('token') == null) {
+        next('/auth/login'); // Alihkan ke halaman login jika belum masuk
+      } else {
+        next(); // Lanjutkan ke halaman beranda jika sudah masuk
+      }
+    },
+  },
+  {
+    name: 'email master main info',
+    path: '/email-master/main-info/:id',
+    component: () =>
+      import(
+        '@/views/email master/email master/main info/MainInfoContainer.vue'
+      ),
+    beforeEnter: (to, from, next) => {
+      // Pengecekan status login sebelum masuk ke halaman beranda
+      if (localStorage.getItem('token') == null) {
+        next('/auth/login'); // Alihkan ke halaman login jika belum masuk
+      } else {
+        next(); // Lanjutkan ke halaman beranda jika sudah masuk
+      }
+    },
+  },
+  {
+    name: 'smtp master',
+    path: '/smtp-master',
+    component: () =>
+      import('@/views/email master/smtp master/SMTPMasterContainer.vue'),
+    beforeEnter: (to, from, next) => {
+      // Pengecekan status login sebelum masuk ke halaman beranda
+      if (localStorage.getItem('token') == null) {
+        next('/auth/login'); // Alihkan ke halaman login jika belum masuk
+      } else {
+        next(); // Lanjutkan ke halaman beranda jika sudah masuk
+      }
+    },
+  },
+  {
     name: 'healthcare settings',
     path: '/healthcare-settings',
     component: () =>
@@ -715,7 +759,9 @@ const routes = [
     name: 'construction master',
     path: '/construction_master',
     component: () =>
-      import('@/views/walls master/construction master/ConstructionMasterContainer.vue'),
+      import(
+        '@/views/walls master/construction master/ConstructionMasterContainer.vue'
+      ),
     beforeEnter: (to, from, next) => {
       // Pengecekan status login sebelum masuk ke halaman beranda
       if (localStorage.getItem('token') == null) {
@@ -757,7 +803,9 @@ const routes = [
     name: 'apartment type master',
     path: '/apartment_type_master',
     component: () =>
-      import('@/views/walls master/apartment type master/ApartmentTypeMasterContainer.vue'),
+      import(
+        '@/views/walls master/apartment type master/ApartmentTypeMasterContainer.vue'
+      ),
     beforeEnter: (to, from, next) => {
       // Pengecekan status login sebelum masuk ke halaman beranda
       if (localStorage.getItem('token') == null) {
@@ -774,14 +822,14 @@ const routes = [
       import(
         '@/views/walls master/property developments/development construction/DevelopmentConstructionContainer.vue'
       ),
-      beforeEnter: (to, from, next) => {
-        // Pengecekan status login sebelum masuk ke halaman beranda
-        if (localStorage.getItem('token') == null) {
-          next('/auth/login'); // Alihkan ke halaman login jika belum masuk
-        } else {
-          next(); // Lanjutkan ke halaman beranda jika sudah masuk
-        }
-      }, 
+    beforeEnter: (to, from, next) => {
+      // Pengecekan status login sebelum masuk ke halaman beranda
+      if (localStorage.getItem('token') == null) {
+        next('/auth/login'); // Alihkan ke halaman login jika belum masuk
+      } else {
+        next(); // Lanjutkan ke halaman beranda jika sudah masuk
+      }
+    },
   },
   {
     name: 'construction facility',
@@ -790,14 +838,14 @@ const routes = [
       import(
         '@/views/walls master/construction master/construction facility/ConstructionFacilityContainer.vue'
       ),
-      beforeEnter: (to, from, next) => {
-        // Pengecekan status login sebelum masuk ke halaman beranda
-        if (localStorage.getItem('token') == null) {
-          next('/auth/login'); // Alihkan ke halaman login jika belum masuk
-        } else {
-          next(); // Lanjutkan ke halaman beranda jika sudah masuk
-        }
-      }, 
+    beforeEnter: (to, from, next) => {
+      // Pengecekan status login sebelum masuk ke halaman beranda
+      if (localStorage.getItem('token') == null) {
+        next('/auth/login'); // Alihkan ke halaman login jika belum masuk
+      } else {
+        next(); // Lanjutkan ke halaman beranda jika sudah masuk
+      }
+    },
   },
   {
     name: 'construction apartment',
@@ -806,14 +854,14 @@ const routes = [
       import(
         '@/views/walls master/construction master/construction apartment/ConstructionApartmentContainer.vue'
       ),
-      beforeEnter: (to, from, next) => {
-        // Pengecekan status login sebelum masuk ke halaman beranda
-        if (localStorage.getItem('token') == null) {
-          next('/auth/login'); // Alihkan ke halaman login jika belum masuk
-        } else {
-          next(); // Lanjutkan ke halaman beranda jika sudah masuk
-        }
-      }, 
+    beforeEnter: (to, from, next) => {
+      // Pengecekan status login sebelum masuk ke halaman beranda
+      if (localStorage.getItem('token') == null) {
+        next('/auth/login'); // Alihkan ke halaman login jika belum masuk
+      } else {
+        next(); // Lanjutkan ke halaman beranda jika sudah masuk
+      }
+    },
   },
   {
     name: 'property master',
@@ -822,14 +870,14 @@ const routes = [
       import(
         '@/views/walls master/property master/PropertyMasterContainer.vue'
       ),
-      beforeEnter: (to, from, next) => {
-        // Pengecekan status login sebelum masuk ke halaman beranda
-        if (localStorage.getItem('token') == null) {
-          next('/auth/login'); // Alihkan ke halaman login jika belum masuk
-        } else {
-          next(); // Lanjutkan ke halaman beranda jika sudah masuk
-        }
-      }, 
+    beforeEnter: (to, from, next) => {
+      // Pengecekan status login sebelum masuk ke halaman beranda
+      if (localStorage.getItem('token') == null) {
+        next('/auth/login'); // Alihkan ke halaman login jika belum masuk
+      } else {
+        next(); // Lanjutkan ke halaman beranda jika sudah masuk
+      }
+    },
   },
   {
     name: 'property master main info',
@@ -851,17 +899,15 @@ const routes = [
     name: 'agent master',
     path: '/agent_master',
     component: () =>
-      import(
-        '@/views/walls master/agent master/AgentMasterContainer.vue'
-      ),
-      beforeEnter: (to, from, next) => {
-        // Pengecekan status login sebelum masuk ke halaman beranda
-        if (localStorage.getItem('token') == null) {
-          next('/auth/login'); // Alihkan ke halaman login jika belum masuk
-        } else {
-          next(); // Lanjutkan ke halaman beranda jika sudah masuk
-        }
-      }, 
+      import('@/views/walls master/agent master/AgentMasterContainer.vue'),
+    beforeEnter: (to, from, next) => {
+      // Pengecekan status login sebelum masuk ke halaman beranda
+      if (localStorage.getItem('token') == null) {
+        next('/auth/login'); // Alihkan ke halaman login jika belum masuk
+      } else {
+        next(); // Lanjutkan ke halaman beranda jika sudah masuk
+      }
+    },
   },
   {
     name: 'biryani run',
@@ -879,7 +925,8 @@ const routes = [
   {
     name: 'biryani main categories',
     path: '/biryani-home/main-categories',
-    component: () => import('@/views/biryani run/main categories/MainCategoriesContainer.vue'),
+    component: () =>
+      import('@/views/biryani run/main categories/MainCategoriesContainer.vue'),
     beforeEnter: (to, from, next) => {
       // Pengecekan status login sebelum masuk ke halaman beranda
       if (localStorage.getItem('token') == null) {
@@ -892,7 +939,10 @@ const routes = [
   {
     name: 'restaurant master',
     path: '/biryani-home/restaurant-master',
-    component: () => import('@/views/biryani run/restaurant master/RestaurantMasterContainer.vue'),
+    component: () =>
+      import(
+        '@/views/biryani run/restaurant master/RestaurantMasterContainer.vue'
+      ),
     beforeEnter: (to, from, next) => {
       // Pengecekan status login sebelum masuk ke halaman beranda
       if (localStorage.getItem('token') == null) {
@@ -905,7 +955,8 @@ const routes = [
   {
     name: 'dish master',
     path: '/biryani-home/dish-master',
-    component: () => import('@/views/biryani run/dish master/DishMasterContainer.vue'),
+    component: () =>
+      import('@/views/biryani run/dish master/DishMasterContainer.vue'),
     beforeEnter: (to, from, next) => {
       // Pengecekan status login sebelum masuk ke halaman beranda
       if (localStorage.getItem('token') == null) {
@@ -918,13 +969,14 @@ const routes = [
   {
     name: 'restaurant dish',
     path: '/biryani-home/restaurant-dish',
-    component: () => import('@/views/biryani run/restaurant dish/RestaurantDishContainer.vue'),
+    component: () =>
+      import('@/views/biryani run/restaurant dish/RestaurantDishContainer.vue'),
     beforeEnter: (to, from, next) => {
       // Pengecekan status login sebelum masuk ke halaman beranda
       if (localStorage.getItem('token') == null) {
         next('/auth/login'); // Alihkan ke halaman login jika belum masuk
       } else {
-        next(); // Lanjutkan ke halaman beranda jika sudah masuk  
+        next(); // Lanjutkan ke halaman beranda jika sudah masuk
       }
     },
   },

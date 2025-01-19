@@ -69,6 +69,10 @@ export default createStore({
             title: 'Manage Countries',
             path: '/country-master',
           },
+          {
+            title: 'Manage Emails',
+            path: '/email-master',
+          },
         ],
       },
       {
