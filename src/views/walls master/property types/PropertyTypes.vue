@@ -1,104 +1,7 @@
 <!-- eslint-disable vue/no-deprecated-v-bind-sync -->
 <template>
   <v-container>
-    <div class="d-flex ml-4 mb-4" style="gap: 30px">
-      <div>
-        <router-link
-          active-class="text-blue-accent-4"
-          style="color: black"
-          class="text-decoration-none"
-          to="/property_developers"
-        >
-          <h4>On Board Property Developers</h4>
-        </router-link>
-        <!-- <router-link
-          active-class="text-purple-accent-4"
-          style="color: black"
-          class="text-decoration-none"
-          to="/mall-country"
-        >
-          <h4 class="mt-4">Country / City</h4>
-        </router-link> -->
-      </div>
-      <div>
-        <router-link
-          active-class="text-blue-accent-4"
-          style="color: black"
-          class="text-decoration-none"
-          to=""
-        >
-          <h4>On-Board Agents</h4>
-        </router-link>
-
-        <!-- <router-link
-          active-class="text-purple-accent-4"
-          style="color: black"
-          class="text-decoration-none"
-          to="/manage_events"
-        >
-          <h4 class="mt-4">Manage Events</h4>
-        </router-link> -->
-      </div>
-
-      <div>
-        <router-link
-          active-class="text-blue-accent-4"
-          style="color: black"
-          class="text-decoration-none"
-          to=""
-        >
-          <h4>Manage Tenants</h4>
-        </router-link>
-
-        <!-- <router-link
-          active-class="text-red-darken-4"
-          style="color: black"
-          class="text-decoration-none"
-          to="/manage_levels"
-        >
-          <h4 class="mt-4">Manage Levels</h4>
-        </router-link> -->
-      </div>
-      <div>
-        <router-link
-          active-class="text-blue-accent-4"
-          style="color: black"
-          class="text-decoration-none"
-          to=""
-        >
-          <h4>Country/City</h4>
-        </router-link>
-
-        <!-- <router-link
-          active-class="text-blue-darken-4"
-          style="color: black"
-          class="text-decoration-none"
-          to="/manage_services"
-        >
-          <h4 class="mt-4">Manage Services</h4>
-        </router-link> -->
-      </div>
-    </div>
-    <div class="d-flex ml-4 mb-4" style="gap: 30px">
-      <div>
-        <router-link
-          active-class="text-blue-accent-4"
-          style="color: black"
-          class="text-decoration-none"
-          to="/property_types"
-        >
-          <h4>Property Types</h4>
-        </router-link>
-        <!-- <router-link
-          active-class="text-purple-accent-4"
-          style="color: black"
-          class="text-decoration-none"
-          to="/mall-country"
-        >
-          <h4 class="mt-4">Country / City</h4>
-        </router-link> -->
-      </div>
-    </div>
+    <HeaderWallMaster />
     <v-form v-model="valid" @submit.prevent>
       <v-container>
         <v-row>
@@ -340,6 +243,7 @@ import ImageUpload from '@/components/ImageUpload.vue';
 import axios from '@/util/axios';
 import http from 'axios';
 import { setAuthHeader } from '@/util/axios';
+import HeaderWallMaster from '@/components/HeaderWallMaster.vue';
 // import app from '@/util/eventBus';
 
 export default {
@@ -700,7 +604,7 @@ export default {
         });
     },
   },
-  components: { ImageUpload },
+  components: { ImageUpload, HeaderWallMaster },
 };
 </script>
 

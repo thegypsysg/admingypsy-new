@@ -122,6 +122,8 @@ export default {
                     ? '/mall_master'
                     : app.app_name == '4 Walls'
                     ? '/walls_master'
+                    : app.app_name == 'Biryani Run'
+                    ? '/biryani-home'
                     : app.app_name == 'i-Study'
                     ? '/course_master'
                     : app.app_name == 'Boozards'

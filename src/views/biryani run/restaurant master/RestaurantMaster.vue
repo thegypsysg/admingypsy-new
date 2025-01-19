@@ -1,25 +1,79 @@
-<!-- eslint-disable vue/multi-word-component-names -->
 <!-- eslint-disable vue/no-deprecated-v-bind-sync -->
 <template>
   <v-container>
-    <HeaderWallMaster />
+    
+    <div class="d-flex ml-4 mb-4" style="gap: 30px">
+      <div>
+        <router-link
+          active-class="text-blue-accent-4"
+          style="color: black"
+          class="text-decoration-none"
+          to="/biryani-home/main-categories"
+        >
+          <h4>Main Category</h4>
+        </router-link>
+      </div>
+      <div>
+        <router-link
+          active-class="text-blue-accent-4"
+          style="color: black"
+          class="text-decoration-none"
+          to="/biryani-home/restaurant-master"
+        >
+          <h4>Restaurant Master</h4>
+        </router-link>
+      </div>
+      <div>
+        <router-link
+          active-class="text-blue-accent-4"
+          style="color: black"
+          class="text-decoration-none"
+          to="/biryani-home/dish-master"
+        >
+          <h4>Dish Master</h4>
+        </router-link>
+      </div>
+      <div>
+        <router-link
+          active-class="text-blue-accent-4"
+          style="color: black"
+          class="text-decoration-none"
+          to="/biryani-home/restaurant-dish"
+        >
+          <h4>Biryani Promotion</h4>
+        </router-link>
+      </div>
+    </div>
     <v-form v-model="valid" @submit.prevent>
       <v-container>
-        <v-row class="mt-n4">
+        <v-row class="d-flex align-baseline mt-n4">
           <v-col cols="12" md="4">
             <v-autocomplete
-              class="mt-8"
               density="compact"
-              label="Property Developer Name"
-              placeholder="Property Developer Name"
-              :items="resource.partners"
-              item-title="name"
-              item-value="id"
               v-model="input.partner_id"
+              label="Restaurant Name"
               variant="outlined"
+              required
+              :items="resource.partner"
+              item-title="partner_name"
+              item-value="partner_id"
+              :rules="rules.partnerRules"
             ></v-autocomplete>
           </v-col>
-          <v-col cols="12" md="2">
+          <v-col cols="12" md="4">
+            <v-autocomplete
+              density="compact"
+              v-model="input.country_id"
+              label="Country"
+              variant="outlined"
+              required
+              :items="resource.country"
+              item-title="name"
+              item-value="id"
+              :rules="rules.countryRules"
+            ></v-autocomplete>
+          </v-col>
+          <v-col cols="12" md="2" class="align-center">
             <v-btn
               :prepend-icon="
                 isEdit
@@ -27,10 +81,10 @@
                   : 'mdi-account-multiple-plus'
               "
               color="indigo-accent-2"
-              style="text-transform: none"
+              style="text-transform: none;margin-top: -30px !important;"
               type="submit"
               variant="flat"
-              class="w-100 mt-8"
+              class="w-100"
               @click="isEdit ? saveEdit() : saveData()"
               :disabled="isSending"
               :loading="isSending"
@@ -42,12 +96,12 @@
               {{ isEdit ? 'Save' : 'Add' }}
             </v-btn>
           </v-col>
-          <v-col cols="12" md="2">
+          <v-col cols="12" md="1">
             <v-btn
               v-if="isEdit"
               prepend-icon="mdi-account-multiple-remove"
               color="red"
-              style="text-transform: none"
+              style="text-transform: none;margin-top: -30px !important;"
               variant="flat"
               class="w-100 mt-8"
               @click="cancelEdit"
@@ -56,14 +110,13 @@
               <template v-slot:prepend>
                 <v-icon color="white"></v-icon>
               </template>
-
               CANCEL
             </v-btn>
           </v-col>
         </v-row>
       </v-container>
     </v-form>
-    <v-sheet class="py-6 px-4 mt-10" border rounded width="100%">
+    <v-sheet class="py-6 px-4 mt-6" border rounded width="100%">
       <v-row>
         <v-col cols="12" md="4">
           <v-text-field
@@ -80,24 +133,29 @@
           <v-table class="country-table">
             <thead>
               <tr>
-                <th class="text-left font-weight-bold text-black">
-                  Property Developer Name
-                </th>
-                <th class="text-left font-weight-bold text-black">Country</th>
-                <th class="text-left font-weight-bold text-black">Active</th>
-                <th class="text-left font-weight-bold text-black">Featured</th>
-                <th class="text-left font-weight-bold text-black">User</th>
-                <th class="text-left font-weight-bold text-black">Dated</th>
-                <th class="text-left font-weight-bold text-black">Actions</th>
+                <th class="text-left">Id</th>
+                <th class="text-left">Restaurant Name</th>
+                <th class="text-left">Country</th>
+                <th class="text-left">Active</th>
+                <th class="text-left">Featured</th>
+                <th class="text-left">User</th>
+                <th class="text-left">Dated</th>
+                <th class="text-center">Actions</th>
               </tr>
             </thead>
             <tbody>
               <template v-for="(item, index) in filteredItems" :key="item.id">
-                <tr class="country-table-body">
-                  <td>{{ item.partner_name }}</td>
-                  <td>{{ item.country_name }} </td>
+                <tr>
+                  <td style="border-bottom: none !important;">{{ item.restaurant_id }}</td>
+                  <td style="font-weight: 500 !important;border-bottom: none !important;">
+                    {{ item.partner?.partner_name }}
+                  </td>
+                  <td style="font-weight: 500 !important;border-bottom: none !important;">
+                    {{ item.country?.country_name }}
+                  </td>
                   <td>
                     <v-btn-toggle
+                      mandatory
                       style="
                         font-size: 10px !important;
                         font-weight: 200 !important;
@@ -105,10 +163,10 @@
                         width: 54px !important;
                       "
                       class="d-flex align-center"
+                      @click="activeRestaurant(item.restaurant_id)"
                       v-model="item.isActive"
                       :disabled="isSending2"
                       rounded="5"
-                      @click="activePropertyDeveloper(item.developer_id)"
                     >
                       <v-btn size="27" :value="true"> Yes </v-btn>
 
@@ -117,6 +175,7 @@
                   </td>
                   <td>
                     <v-btn-toggle
+                      mandatory
                       style="
                         font-size: 10px !important;
                         font-weight: 200 !important;
@@ -124,36 +183,36 @@
                         width: 54px !important;
                       "
                       class="d-flex align-center"
+                      @click="featuredRestaurant(item.restaurant_id)"
                       v-model="item.isFeatured"
                       :disabled="isSending2"
                       rounded="5"
-                      @click="featuredPropertyDeveloper(item.developer_id)"
                     >
                       <v-btn size="27" :value="true"> Yes </v-btn>
 
                       <v-btn size="27" :value="false"> No </v-btn>
                     </v-btn-toggle>
                   </td>
-                  <td>
-                    {{ item.user_name }}
+                  <td style="font-weight: 500 !important;border-bottom: none !important;">
+                    {{ item.user.name }}
                   </td>
-                  <td>
+                  <td style="font-weight: 500 !important;border-bottom: none !important;">
                     {{ item.dated }}
                   </td>
-                  <td>
+                  <td style="border-bottom: none !important;">
                     <div class="d-flex">
-                      <!-- <v-tooltip location="top">
+                      <v-tooltip location="top">
                         <template v-slot:activator="{ props }">
                           <v-btn
                             color="green"
                             variant="text"
                             v-bind="props"
-                            @click="editPropertyDeveloper(item)"
+                            @click="editRestaurant(item)"
                             icon="mdi-pencil-outline"
                           ></v-btn>
                         </template>
                         <span>Edit</span>
-                      </v-tooltip> -->
+                      </v-tooltip>
                       <v-tooltip location="top">
                         <template v-slot:activator="{ props }">
                           <v-btn
@@ -161,7 +220,7 @@
                             v-bind="props"
                             variant="text"
                             :disabled="isDeleteLoading"
-                            @click="openDeleteConfirm(item.developer_id)"
+                            @click="openDeleteConfirm(item.restaurant_id)"
                             icon="mdi-trash-can-outline"
                           ></v-btn>
                         </template>
@@ -171,46 +230,45 @@
                   </td>
                 </tr>
                 <tr>
-                  <td></td>
-                  <td>
+                  <td colspan="2">
                     <v-select
+                      density="compact"
                       v-model="item.city_id"
+                      label="City"
+                      variant="outlined"
                       :items="filterCity(item.country_id)"
                       item-title="city_name"
                       item-value="city_id"
-                      variant="outlined"
-                      density="compact"
-                      label="City"
                       @update:modelValue="saveCity(item.city_id, index)"
                     ></v-select>
                   </td>
-                  <td>
+                  <td colspan="2">
                     <v-select
+                      density="compact"
                       v-model="item.town_id"
+                      label="Town"
+                      variant="outlined"
                       :items="filterTown(item.city_id)"
                       item-title="town_name"
                       item-value="town_id"
-                      variant="outlined"
-                      density="compact"
-                      label="Town"
                       @update:modelValue="saveTown(item.town_id, index)"
                     ></v-select>
                   </td>
                   <td colspan="2">
                     <v-text-field
-                      v-model="item.latitude"
-                      variant="outlined"
                       density="compact"
+                      v-model="item.latitude"
                       label="Latitude"
+                      variant="outlined"
                       @change="saveLatitude(item.latitude, index)"
                     ></v-text-field>
                   </td>
                   <td colspan="2">
                     <v-text-field
-                      v-model="item.longitude"
-                      variant="outlined"
                       density="compact"
+                      v-model="item.longitude"
                       label="Longitude"
+                      variant="outlined"
                       @change="saveLongitude(item.longitude, index)"
                     ></v-text-field>
                   </td>
@@ -255,26 +313,26 @@
     <v-dialog persistent width="500" v-model="isDelete">
       <v-card>
         <v-card-title>Confirmation</v-card-title>
-        <v-card-text> Are you sure want to delete this property developer? </v-card-text>
+        <v-card-text>
+          Are you sure want to delete this property type?
+        </v-card-text>
         <v-card-actions>
           <v-spacer></v-spacer>
           <v-btn color="error" text @click="cancelDelete">No</v-btn>
-          <v-btn color="success" text @click="deleteLocation">{{
-            isDeleteLoading ? 'Deleting...' : 'Yes'
-          }}</v-btn>
+          <v-btn color="success" text @click="deleteRestaurant">Yes</v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
-    <v-dialog persistent width="auto" v-model="isOpenImage">
+    <v-dialog persistent width="auto" v-model="isOpenMainImage">
       <v-card width="750">
         <v-card-title class="upload-title px-6 py-4">
-          Upload Image - Partner Location</v-card-title
+          Upload Main Image - Main Categories</v-card-title
         >
         <v-card-text>
           <image-upload
-            :image-file="imageFile"
-            @update-image-file="updateImageFile"
-            @delete-image-file="deleteImageFile"
+            :image-file="mainImageFile"
+            @update-image-file="updateMainImageFile"
+            @delete-image-file="deleteMainImageFile"
           />
         </v-card-text>
         <v-card-actions class="mt-16">
@@ -283,13 +341,73 @@
             style="text-transform: none"
             color="error"
             text
-            @click="closeImage"
+            @click="closeMainImage"
             >Cancel</v-btn
           >
           <v-btn
             style="background-color: #9ddcff; text-transform: none"
             color="black"
-            @click="saveImage()"
+            @click="saveMainImage()"
+            >Save</v-btn
+          >
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+    <v-dialog persistent width="auto" v-model="isOpenLongImage">
+      <v-card width="750">
+        <v-card-title class="upload-title px-6 py-4">
+          Upload Long Image - Main Categories</v-card-title
+        >
+        <v-card-text>
+          <image-upload
+            :image-file="longImageFile"
+            @update-image-file="updateLongImageFile"
+            @delete-image-file="deleteLongImageFile"
+          />
+        </v-card-text>
+        <v-card-actions class="mt-16">
+          <v-spacer></v-spacer>
+          <v-btn
+            style="text-transform: none"
+            color="error"
+            text
+            @click="closeLogo"
+            >Cancel</v-btn
+          >
+          <v-btn
+            style="background-color: #9ddcff; text-transform: none"
+            color="black"
+            @click="saveLongImage"
+            >Save</v-btn
+          >
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+    <v-dialog persistent width="auto" v-model="isOpenIconImage">
+      <v-card width="750">
+        <v-card-title class="upload-title px-6 py-4">
+          Upload Icon Image - Main Categories</v-card-title
+        >
+        <v-card-text>
+          <image-upload
+            :image-file="iconImageFile"
+            @update-image-file="updateIconImageFile"
+            @delete-image-file="deleteIconImageFile"
+          />
+        </v-card-text>
+        <v-card-actions class="mt-16">
+          <v-spacer></v-spacer>
+          <v-btn
+            style="text-transform: none"
+            color="error"
+            text
+            @click="closeIconImage"
+            >Cancel</v-btn
+          >
+          <v-btn
+            style="background-color: #9ddcff; text-transform: none"
+            color="black"
+            @click="saveIconImage"
             >Save</v-btn
           >
         </v-card-actions>
@@ -302,132 +420,63 @@
 import ImageUpload from '@/components/ImageUpload.vue';
 import axios from '@/util/axios';
 import { setAuthHeader } from '@/util/axios';
-import HeaderWallMaster from '@/components/HeaderWallMaster.vue';
 // import app from '@/util/eventBus';
 
 export default {
-  name: 'LocationsVue',
+  name: 'PropertyTypes',
   data: () => ({
-    // fileURL: 'https://admin1.the-gypsy.sg/img/app/',
-    idPartnerLocations: null,
-    partnerName: null,
+    //fileURL: 'https://admin1.the-gypsy.sg/img/app/',
     valid: false,
     isLoading: false,
     isSending: false,
-    isSending2: false,
-    isError: false,
     isEdit: false,
     isSuccess: false,
+    isError: false,
     isDelete: false,
     isDeleteLoading: false,
-    developerIdToDelete: null,
+    propertyIdToDelete: null,
     tableHeaders: [{ text: 'Gambar', value: 'image' }],
-    isOpenImage: false,
     successMessage: '',
     errorMessage: '',
-    imageFile: [],
-
     input: {
-      developer_id:0,
-      partner_name:'',
-      partner_id:null,
-      country_id:0,
-      active:'',
-      featured:'',
-      user_id:0,
-      dated:''
+      restaurant_id: 0,
+      partner_id: null,
+      country_id: null,
+    },
+    resource: {
+      app: [],
+      partner: [],
+      country: [],
+      city: [],
+      town: [],
     },
     rules: {
+      partnerRules: [
+        (value) => {
+          if (value) return true;
+          return 'Restaurant name is required.';
+        },
+      ],
       countryRules: [
         (value) => {
           if (value) return true;
           return 'Country is required.';
         },
       ],
-      townRules: [
-        (value) => {
-          if (value) return true;
-          return 'Town is required.';
-        },
-      ],
-
-      cityRules: [
-        (value) => {
-          if (value) return true;
-          return 'City is required.';
-        },
-      ],
-      zoneRules: [
-        (value) => {
-          if (value) return true;
-          return 'Zone is required.';
-        },
-      ],
-      locationRules: [
-        (value) => {
-          if (value) return true;
-          return 'Location is required.';
-        },
-      ],
-      latitudeRules: [
-        (value) => {
-          if (value) return true;
-          return 'Latitude is required.';
-        },
-      ],
-      longitudeRules: [
-        (value) => {
-          if (value) return true;
-          return 'Longitude is required.';
-        },
-      ],
-      addressRules: [
-        (value) => {
-          if (value) return true;
-          return 'Address is required.';
-        },
-      ],
     },
     search: '',
     items: [],
-    resource: {
-      partners: [],
-      propertyDevelopers: [],
-      cities: [],
-      towns: [],
-    },
-    // itemsTry: [
-    //   {
-    //     id: 1,
-    //     name: 'Parkway Parade',
-    //     town: 'Marine Parade',
-    //     city: 'Singapore',
-    //     country: 'Singapore',
-    //     isActive: false,
-    //     isFeatured: false,
-    //     user: 'Charlton',
-    //     dated: '15/08/2023',
-    //     type: 'Mall',
-    //     latitude: 1.3019,
-    //     longitude: 103.9028,
-    //     managed: 'Lendlease Pte Ltd',
-    //     events: 4,
-    //     offers: 2,
-    //     merchants: 14,
-    //   },
-    // ],
   }),
   created() {
     const token = JSON.parse(localStorage.getItem('token'));
     setAuthHeader(token);
   },
-  async mounted() {
-    this.idPartnerLocations = this.$route.params.id;
-    await this.getPartnerData();
-    await this.getCityData();
-    await this.getTownData();
-    await this.getPropertyDevelopersData();
-
+  mounted() {
+    this.getRestaurantData();
+    this.getPartnerData();
+    this.getCountry();
+    this.getCity();
+    this.getTown();
   },
   computed: {
     filteredItems() {
@@ -437,90 +486,67 @@ export default {
       const searchTextLower = this.search.toLowerCase();
       return this.items.filter(
         (item) =>
-          item.partner_name.toLowerCase().includes(searchTextLower) ||
-          item.country_name.toLowerCase().includes(searchTextLower) ||
-          item.user_name.toLowerCase().includes(searchTextLower)
+          item.category_name.toLowerCase().includes(searchTextLower) ||
+          item.description.toLowerCase().includes(searchTextLower)
       );
     },
   },
   methods: {
-    editPropertyDeveloper(prop) {
+    saveErrorResponse(response) {
+      let errorMessage = '';
+
+      for (const key in response.data) {
+        errorMessage += `${key}: ${response.data[key][0]}\n`;
+      }
+
+      return errorMessage;
+    },
+    editRestaurant(prop) {
       this.isEdit = true;
       this.input = {
-        developer_id: prop.developer_id,
+        restaurant_id: prop.restaurant_id,
         partner_id: prop.partner_id,
         country_id: prop.country_id,
-        active: prop.active,
-        featured: prop.featured,
-        user_id: prop.user_id,
-        dated: prop.dated,
-        partner_name: prop.partner_name,
       };
     },
     cancelEdit() {
       this.isEdit = false;
       this.input = {
-        developer_id:0,
-        partner_id:null,
-        country_id:0,
-        active:'',
-        featured:'',
-        user_id:0,
-        dated:''
+        restaurant_id: 0,
+        partner_id: null,
+        country_id: null,
       };
     },
     saveEdit() {
       if (this.valid) {
         this.isSending = true;
         const payload = {
-          developer_id:this.input.developer_id,
-          partner_id:this.input.partner_id,
-          country_id:this.input.country_id,
-          active: this.input.active,
-          featured: this.input.featured,
-          user_id: this.input.user_id,
-          dated: this.input.dated,
+          restaurant_id: this.input.restaurant_id,
+          partner_id: this.input.partner_id,
+          country_id: this.input.country_id,
         };
         axios
-          .post(`/4walls-property-developers/update`, payload)
+          .post(`/biryani-restaurant-masters/update`, payload)
           .then((response) => {
             const data = response.data;
             this.successMessage = data.message;
             this.isSuccess = true;
-            this.getPropertyDevelopersData();
+            this.getRestaurantData();
             this.input = {
-              developer_id:0,
-              partner_id:null,
-              country_id:0,
-              active:'',
-              featured:'',
-              user_id:0,
-              dated:''
+              restaurant_id: 0,
+              partner_id: null,
+              country_id: null,
             };
           })
           .catch((error) => {
             // eslint-disable-next-line
             console.log(error);
-            const message = error.response.data.partner_id
-              ? error.response.data.partner_id[0]
-              : error.response.data.new_city
-              ? error.response.data.new_city[0]
-              : error.response.data.new_town
-              ? error.response.data.new_town[0]
-              : error.response.data.message
-              ? error.response.data.message
-              : 'Something Wrong!!!';
+            const message =
+              error.response.data.message === ''
+                ? 'Something Wrong!!!'
+                : error.response.data.message;
             this.errorMessage = message;
             this.isError = true;
-            this.input = {
-              developer_id:0,
-              partner_id:null,
-              country_id:0,
-              active:'',
-              featured:'',
-              user_id:0,
-              dated:''
-            };
           })
           .finally(() => {
             this.isEdit = false;
@@ -532,31 +558,29 @@ export default {
       if (this.valid) {
         this.isSending = true;
         const payload = {
-          partner_id:this.input.partner_id,
+          partner_id: this.input.partner_id,
+          country_id: this.input.country_id,
         };
         axios
-          .post(`/4walls-property-developers`, payload)
+          .post(`/biryani-restaurant-masters`, payload)
           .then((response) => {
             const data = response.data;
             this.successMessage = data.message;
             this.isSuccess = true;
-            this.getPropertyDevelopersData();
+            this.getRestaurantData();
             this.input = {
-              developer_id:0,
-              partner_id:null,
-              country_id:0,
-              active:'',
-              featured:'',
-              user_id:0,
-              dated:''
+              restaurant_id: 0,
+              partner_id: null,
+              country_id: null,
             };
           })
           .catch((error) => {
             // eslint-disable-next-line
             console.log(error);
-            const message = error.response.data.partner_id
-              ? error.response.data.partner_id[0]
-              : 'Something Wrong!!!';
+            const message =
+              error.response.data.message === ''
+                ? 'Something Wrong!!!'
+                : error.response.data.message;
             this.errorMessage = message;
             this.isError = true;
           })
@@ -566,26 +590,26 @@ export default {
       }
     },
     cancelDelete() {
-      this.developerIdToDelete = null;
+      this.propertyIdToDelete = null;
       this.isDelete = false;
     },
     openDeleteConfirm(itemId) {
-      this.developerIdToDelete = itemId;
+      this.propertyIdToDelete = itemId;
       this.isDelete = true;
     },
     cancelConfirmation() {
-      this.developerIdToDelete = null;
+      this.propertyIdToDelete = null;
       this.isDelete = false;
     },
-    deleteLocation() {
+    deleteRestaurant() {
       this.isDeleteLoading = true;
       axios
-        .delete(`/4walls-property-developers/${this.developerIdToDelete}`)
+        .delete(`/biryani-restaurant-masters/${this.propertyIdToDelete}`)
         .then((response) => {
           const data = response.data;
           this.successMessage = data.message;
           this.isSuccess = true;
-          this.getPropertyDevelopersData();
+          this.getRestaurantData();
         })
         .catch((error) => {
           // eslint-disable-next-line
@@ -599,140 +623,168 @@ export default {
         })
         .finally(() => {
           this.isDeleteLoading = false;
-          this.developerIdToDelete = null;
+          this.propertyIdToDelete = null;
           this.isDelete = false;
         });
     },
-    async getPropertyDevelopersData() {
+    getPartnerData() {
+      axios
+        .get(`/partners`)
+        .then((response) => {
+          const data = response.data.data;
+          this.resource.partner = data;
+        })
+        .catch((error) => {
+          // eslint-disable-next-line
+          console.log(error);
+        }); 
+    },
+    getRestaurantData() {
       this.isLoading = true;
-      try {
-        const response = await axios.get(`/4walls-property-developers`);
-        const data = response.data.data;
-        // console.log(data);
-        this.items = data.map((item) => {
-          return {
-            developer_id: item.developer_id || 1,
-            partner_id: item.partner_id || 1,
-            partner_name: item.partner_name || '',
-            country_id: item.country_id || 1,
-            country_name: item.country_name || '',
-            user_name: item.user.name || '',
-            isActive:
-              item.active == 'N' ? false : item.active == 'Y' ? true : null,
-            isFeatured:
-              item.featured == 'N'
-                ? false
-                : item.featured == 'Y'
-                ? true
-                : null,
-            dated: item.dated || '',
-            city_id: item.city_id || null,
-            town_id: this.resource.towns.filter(town => town.city_id === item.city_id).filter(town => town.town_id === item.town_id)[0]?.town_id || null,
-            latitude: item.latitude || null,
-            longitude: item.longitude || null,
-          };
+      axios
+        .get(`/biryani-restaurant-masters`)
+        .then((response) => {
+          this.items = response.data.data.map(item => ({
+            ...item,
+            isActive: item.active !== 'Y' ? false : true,
+            isFeatured: item.featured !== 'Y' ? false : true,
+          }));
+        })
+        .catch((error) => {
+          // eslint-disable-next-line
+          console.log(error);
+          const message =
+            error.response.data.message === ''
+              ? 'Something Wrong!!!'
+              : error.response.data.message;
+          this.errorMessage = message;
+          this.isError = true;
+        })
+        .finally(() => {
+          this.isLoading = false;
         });
-      } catch (error) {
-        // eslint-disable-next-line
-        console.log(error);
-        const message =
-          error.response.data.message === ''
-            ? 'Something Wrong!!!'
-            : error.response.data.message;
-        this.errorMessage = message;
-        this.isError = true;
-      } finally {
-        this.isLoading = false;
-      }
     },
-    async getPartnerData() {
-      try {
-        const response = await axios.get(`/partners`);
-        const data = response.data.data;
-        // console.log(data);
-        this.resource.partners = data.map((item) => {
-          return {
-            id: item.partner_id || 1,
-            name: item.partner_name || '',
-          };
+    getCountry() {
+      axios
+        .get(`/country`)
+        .then((response) => {
+          const data = response.data.data;
+          this.resource.country = data
+            .sort((a, b) => a.country_name.localeCompare(b.country_name))
+            .map((country) => {
+              return {
+                id: country.country_id,
+                name: country.country_name,
+              };
+            });
+        })
+        .catch((error) => {
+          // eslint-disable-next-line
+          console.log(error);
+          const message =
+            error.response.data.message === ''
+              ? 'Something Wrong!!!'
+              : error.response.data.message;
+          this.errorMessage = message;
+          this.isError = true;
         });
-      } catch (error) {
-        // eslint-disable-next-line
-        console.log(error);
-        const message =
-          error.response.data.message === ''
-            ? 'Something Wrong!!!'
-            : error.response.data.message;
-        this.errorMessage = message;
-        this.isError = true;
-      }
     },
-    async getCityData() {
-      try {
-        const response = await axios.get(`/cities`);
-        const data = response.data.data;
-        this.resource.cities = data.map((item) => {
-          return {
-            city_id: item.city_id || 1,
-            city_name: item.city_name || '',
-            country_id: item.country_id || 1,
-          };
+    getCity() {
+      axios
+        .get(`/cities`)
+        .then((response) => {
+          const data = response.data.data;
+          this.resource.city = data;
+        })
+        .catch((error) => {
+          // eslint-disable-next-line
+          console.log(error);
         });
-      } catch (error) {
-        // eslint-disable-next-line
-        console.log(error);
-        const message =
-          error.response.data.message === ''
-            ? 'Something Wrong!!!'
-            : error.response.data.message;
-        this.errorMessage = message;
-        this.isError = true;
-      }
     },
-    async getTownData() {
-      try {
-        const response = await axios.get(`/towns`);
-        const data = response.data.data;
-        this.resource.towns = data.map((item) => {
-          return {
-            town_id: item.town_id || 1,
-            town_name: item.town_name || '',
-            city_id: item.city_id || 1,
-          };
+    getTown() {
+      axios
+        .get(`/towns`)
+        .then((response) => {
+          const data = response.data.data;
+          this.resource.town = data;
+        })
+        .catch((error) => {
+          // eslint-disable-next-line
+          console.log(error);
         });
-      } catch (error) {
-        // eslint-disable-next-line
-        console.log(error);
-        const message =
-          error.response.data.message === ''
-            ? 'Something Wrong!!!'
-            : error.response.data.message;
-        this.errorMessage = message;
-        this.isError = true;
-      }
     },
     filterCity(country_id) {
-      return this.resource.cities.filter(
+      return this.resource.city.filter(
         (item) => item.country_id === country_id
       );
     },
     filterTown(city_id) {
-      return this.resource.towns.filter(
+      return this.resource.town.filter(
         (item) => item.city_id === city_id
       );
     },
-    saveCity(city_id, index) {
-      let payload = {
-        developer_id: this.items[index].developer_id,
-        city_id: city_id,
-      };
+    activeRestaurant(restaurant_id) {
+      this.isSending2 = true;
       axios
-        .post(`/4walls-property-developers/update`, payload)
+        .get(`/biryani-restaurant-masters/toggle-active/${restaurant_id}`)
         .then((response) => {
           const data = response.data;
           this.successMessage = data.message;
           this.isSuccess = true;
-          this.getPropertyDevelopersData();
+          this.getRestaurantData();
+        })
+        .catch((error) => {
+          // eslint-disable-next-line
+          console.log(error);
+          const message =
+            error.response.data.message === ''
+              ? 'Something Wrong!!!'
+              : error.response.data.message;
+          this.errorMessage = message;
+          this.isError = true;
+        })
+        .finally(() => {
+          this.isSending2 = false;
+        });
+    },
+    featuredRestaurant(restaurant_id) {
+      this.isSending2 = true;
+      axios
+        .get(`/biryani-restaurant-masters/toggle-featured/${restaurant_id}`)
+        .then((response) => {
+          const data = response.data;
+          this.successMessage = data.message;
+          this.isSuccess = true;
+          this.getRestaurantData();
+        })
+        .catch((error) => {
+          // eslint-disable-next-line
+          console.log(error);
+          const message =
+            error.response.data.message === ''
+              ? 'Something Wrong!!!'
+              : error.response.data.message;
+          this.errorMessage = message;
+          this.isError = true;
+        })
+        .finally(() => {
+          this.isSending2 = false;
+        });
+    },
+    saveCity(city_id, index) {
+      this.items[index].town_id = null;
+      let payload = {
+        restaurant_id: this.items[index].restaurant_id,
+        city_id: city_id,
+        town_id: null,
+      };
+      axios
+        .post(`/biryani-restaurant-masters/update`, payload)
+        .then((response) => {
+          const data = response.data;
+          this.successMessage = data.message;
+          this.isSuccess = true;
+          this.getRestaurantData();
         })
         .catch((error) => {
           // eslint-disable-next-line
@@ -747,16 +799,16 @@ export default {
     },
     saveTown(town_id, index) {
       let payload = {
-        developer_id: this.items[index].developer_id,
+        restaurant_id: this.items[index].restaurant_id,
         town_id: town_id,
       };
       axios
-        .post(`/4walls-property-developers/update`, payload)
+        .post(`/biryani-restaurant-masters/update`, payload)
         .then((response) => {
           const data = response.data;
           this.successMessage = data.message;
           this.isSuccess = true;
-          this.getPropertyDevelopersData();
+          this.getRestaurantData();
         })
         .catch((error) => {
           // eslint-disable-next-line
@@ -771,139 +823,47 @@ export default {
     },
     saveLatitude(latitude, index) {
       let payload = {
-        developer_id: this.items[index].developer_id,
+        restaurant_id: this.items[index].restaurant_id,
         latitude: latitude,
       };
       axios
-        .post(`/4walls-property-developers/update`, payload)
+        .post(`/biryani-restaurant-masters/update`, payload)
         .then((response) => {
           const data = response.data;
           this.successMessage = data.message;
           this.isSuccess = true;
-          this.getPropertyDevelopersData();
+          this.getRestaurantData();
         })
-        .catch((error) => {
-          // eslint-disable-next-line
-          console.log(error);
-          const message =
-            error.response.data.message === ''
-              ? 'Something Wrong!!!'
-              : error.response.data.message;
-          this.errorMessage = message;
-          this.isError = true;
-        });
     },
     saveLongitude(longitude, index) {
       let payload = {
-        developer_id: this.items[index].developer_id,
+        restaurant_id: this.items[index].restaurant_id,
         longitude: longitude,
       };
       axios
-        .post(`/4walls-property-developers/update`, payload)
+        .post(`/biryani-restaurant-masters/update`, payload)
         .then((response) => {
           const data = response.data;
           this.successMessage = data.message;
           this.isSuccess = true;
-          this.getPropertyDevelopersData();
+          this.getRestaurantData();
         })
-        .catch((error) => {
-          // eslint-disable-next-line
-          console.log(error);
-          const message =
-            error.response.data.message === ''
-              ? 'Something Wrong!!!'
-              : error.response.data.message;
-          this.errorMessage = message;
-          this.isError = true;
-        });
-    },
-    featuredPropertyDeveloper(id) {
-      this.isSending2 = true;
-      axios
-        .get(`/4walls-property-developers/toggle-featured/${id}`)
-        .then((response) => {
-          const data = response.data;
-          this.successMessage = data.message;
-          this.isSuccess = true;
-          this.getPropertyDevelopersData();
-        })
-        .catch((error) => {
-          // eslint-disable-next-line
-          console.log(error);
-          const message =
-            error.response.data.message === ''
-              ? 'Something Wrong!!!'
-              : error.response.data.message;
-          this.errorMessage = message;
-          this.isError = true;
-        })
-        .finally(() => {
-          this.isSending2 = false;
-        });
-    },
-    activePropertyDeveloper(developer_id) {
-      this.isSending2 = true;
-      axios
-        .get(`/4walls-property-developers/toggle-active/${developer_id}`)
-        .then((response) => {
-          const data = response.data;
-          this.successMessage = data.message;
-          this.isSuccess = true;
-          this.getPropertyDevelopersData();
-        })
-        .catch((error) => {
-          // eslint-disable-next-line
-          console.log(error);
-          const message =
-            error.response.data.message === ''
-              ? 'Something Wrong!!!'
-              : error.response.data.message;
-          this.errorMessage = message;
-          this.isError = true;
-        })
-        .finally(() => {
-          this.isSending2 = false;
-        });
     },
   },
-  components: { ImageUpload, HeaderWallMaster },
+  
+  components: { ImageUpload },
 };
 </script>
 
 <style lang="scss" scoped>
 .country-table {
   font-size: 12px;
-  color: rgb(100, 100, 100) !important;
+  color: black !important;
 }
 
 .country-table-body {
   margin-top: 50px !important;
   margin-bottom: 50px !important;
-}
-
-.country-table-body td {
-  border-bottom: none !important;
-}
-.app-column {
-  display: flex;
-  align-items: center;
-  min-height: 70px;
-  margin-bottom: 10px;
-}
-
-.app-column-table {
-  min-height: 70px;
-  margin-bottom: 10px !important;
-}
-.app-img {
-  border: 1px solid grey !important;
-  cursor: pointer !important;
-}
-
-.app-column-table th {
-  text-align: left;
-  font-weight: 600;
-  padding-bottom: 5px !important;
 }
 
 .upload-title {
@@ -934,5 +894,14 @@ export default {
   background-size: 400% 400%;
   animation: skeleton 1.6s ease infinite;
   margin: 0 auto;
+}
+
+@keyframes skeleton {
+  0% {
+    background-position: 100% 0;
+  }
+  100% {
+    background-position: -100% 0;
+  }
 }
 </style>

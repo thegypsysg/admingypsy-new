@@ -211,7 +211,7 @@
                   <td>
                     <v-card-subtitle
                       v-if="
-                        Number((attachment.file.size / 1000).toFixed(1)) < 1024
+                        Number((attachment.file.size / 1000).toFixed(1)) < 1024 * 10
                       "
                       class="mt2"
                     >
@@ -225,7 +225,7 @@
                     </v-card-subtitle>
                     <v-card-subtitle
                       v-if="
-                        Number((attachment.file.size / 1000).toFixed(1)) > 1024
+                        Number((attachment.file.size / 1000).toFixed(1)) > 1024 * 10
                       "
                     >
                       <v-chip color="teal lighten-2" label text-color="white">

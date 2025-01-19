@@ -2,7 +2,49 @@
 <!-- eslint-disable vue/no-deprecated-v-bind-sync -->
 <template>
   <v-container>
-    <HeaderWallMaster />
+    <div class="d-flex ml-4 mb-4" style="gap: 30px">
+      <div>
+        <router-link
+          active-class="text-blue-accent-4"
+          style="color: black"
+          class="text-decoration-none"
+          to="/biryani-home/main-categories"
+        >
+          <h4>Main Category</h4>
+        </router-link>
+      </div>
+      <div>
+        <router-link
+          active-class="text-blue-accent-4"
+          style="color: black"
+          class="text-decoration-none"
+          to="/biryani-home/restaurant-master"
+        >
+          <h4>Restaurant Master</h4>
+        </router-link>
+      </div>
+      <div>
+        <router-link
+          active-class="text-blue-accent-4"
+          style="color: black"
+          class="text-decoration-none"
+          to="/biryani-home/dish-master"
+        >
+          <h4>Dish Master</h4>
+        </router-link>
+      </div>
+      
+      <div>
+        <router-link
+          active-class="text-blue-accent-4"
+          style="color: black"
+          class="text-decoration-none"
+          to="/biryani-home/restaurant-dish"
+        >
+          <h4>Biryani Promotion</h4>
+        </router-link>
+      </div>
+    </div>
     <!-- <v-form v-model="valid" @submit.prevent>
       <v-container>
         <v-row>
@@ -483,12 +525,11 @@
 </template>
 
 <script>
-
-import HeaderWallMaster from '@/components/HeaderWallMaster.vue';
 import ImageUpload from '@/components/ImageUpload.vue';
 import axios from '@/util/axios';
 import { setAuthHeader } from '@/util/axios';
 // import app from '@/util/eventBus';
+
 
 export default {
   name: 'LocationsVue',
@@ -1115,7 +1156,7 @@ export default {
         });
     },
   },
-  components: { ImageUpload, HeaderWallMaster },
+  components: { ImageUpload },
 };
 </script>
 
