@@ -449,12 +449,12 @@ export default {
       var files = e.target.files || e.dataTransfer.files;
       // console.log(files);
       if (!files.length) return;
-      else if (files[0].size > 5242880) {
-        this.fileUploaderSnackText = 'File size cannot more than 5 mb';
-        this.fileUploaderSnackBarAlert = true;
-        this.fileUploaderSnackBarAlertColor = 'red';
-        return;
-      }
+      // else if (files[0].size > 5242880) {
+      //   this.fileUploaderSnackText = 'File size cannot more than 5 mb';
+      //   this.fileUploaderSnackBarAlert = true;
+      //   this.fileUploaderSnackBarAlertColor = 'red';
+      //   return;
+      // }
       // this.image[0].image = files[0];
       // this.image[0].image_path = URL.createObjectURL(files[0]);
       const newImage = {
