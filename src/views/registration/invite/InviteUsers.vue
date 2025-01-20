@@ -227,13 +227,20 @@
                     {{ item.gender }}
                   </td>
                   <td>
-                    {{ item.code + item.phone
-                    }}<v-icon
-                      v-if="item.phone"
-                      color="#4EC053"
-                      size="20"
-                      class="ml-2 fab fa-whatsapp"
-                    ></v-icon>
+                    <a
+                      :href="`https://api.whatsapp.com/send?phone=${
+                        item.code + item.phone
+                      }&text=Hello`"
+                      class="text-decoration-none text-grey-darken-1"
+                    >
+                      {{ item.code + item.phone
+                      }}<v-icon
+                        v-if="item.phone"
+                        color="#4EC053"
+                        size="20"
+                        class="ml-2 fab fa-whatsapp"
+                      ></v-icon>
+                    </a>
                   </td>
                   <td>{{ item.country_name }}</td>
                   <td>{{ item.registered_on }}</td>
@@ -264,7 +271,7 @@
                           <td style="width: 60px"></td>
                           <td class="pr-6 pt-2 pb-4">
                             <p class="text-blue-accent-4">
-                              Met in a Networking group
+                              {{ item?.remarks || '-' }}
                             </p>
                           </td>
                           <td style="width: 220px"></td>
@@ -822,34 +829,37 @@ export default {
         .then((response) => {
           const data = response.data.data;
           console.log(data);
-          this.items = data.map((item) => {
-            return {
-              id: item.invite_id || 0,
-              name: item.full_name || '',
-              email: item.email || '',
-              code:
-                this.resource.code.filter((i) => i.id == item.from_country)[0]
-                  ?.code || '',
-              phone: item.mobile_number || '',
-              gender:
-                item.gender == 'M'
-                  ? 'Male'
-                  : item.gender == 'F'
-                  ? 'Female'
-                  : '',
-              genderCode: item.gender || '',
-              skills_id: item.skills_id || null,
-              skills: item.skills?.skills_name || '',
-              app_id: item.app_id || null,
-              app: item.app?.app_name || '',
-              image: item.image || null,
-              country_id: item.from_country || null,
-              country_name: item.country?.country_name || '',
-              registered_on: item.invited_on || '',
-              user_id: item.user_id || null,
-              user: item.user?.name || '',
-            };
-          });
+          this.items = data
+            .sort((a, b) => b.invite_id - a.invite_id)
+            .map((item) => {
+              return {
+                id: item.invite_id || 0,
+                name: item.full_name || '',
+                email: item.email || '',
+                code:
+                  this.resource.code.filter((i) => i.id == item.from_country)[0]
+                    ?.code || '',
+                phone: item.mobile_number || '',
+                gender:
+                  item.gender == 'M'
+                    ? 'Male'
+                    : item.gender == 'F'
+                    ? 'Female'
+                    : '',
+                genderCode: item.gender || '',
+                skills_id: item.skills_id || null,
+                skills: item.skills?.skills_name || '',
+                app_id: item.app_id || null,
+                app: item.app?.app_name || '',
+                image: item.image || null,
+                country_id: item.from_country || null,
+                country_name: item.country?.country_name || '',
+                registered_on: item.invited_on || '',
+                user_id: item.user_id || null,
+                user: item.user?.name || '',
+              };
+            })
+            .slice(0, 10);
           console.log(this.items);
         })
         .catch((error) => {

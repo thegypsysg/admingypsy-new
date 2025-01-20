@@ -200,7 +200,7 @@
                             variant="text"
                             v-bind="props"
                             :disabled="isDeleteLoading"
-                            @click="deleteEmail(item.id)"
+                            @click="openDeleteConfirm(item.id)"
                             icon="mdi-trash-can-outline"
                           ></v-btn>
                         </template>

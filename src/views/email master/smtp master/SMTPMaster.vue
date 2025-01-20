@@ -22,18 +22,55 @@
     <v-form v-model="valid" @submit.prevent>
       <v-container>
         <v-row>
-          <v-col cols="12" md="3">
+          <v-col cols="12" md="4">
+            <v-label class="text-black text-body-2 mb-2">App Name</v-label>
+            <v-autocomplete
+              density="compact"
+              placeholder="--- App Id ---"
+              :items="apps"
+              item-title="name"
+              item-value="id"
+              v-model="input.app"
+              variant="outlined"
+            ></v-autocomplete>
+          </v-col>
+          <v-col cols="12" md="4">
+            <v-label class="text-black text-body-2 mb-2"
+              >User Name (Email)</v-label
+            >
             <v-text-field
-              v-model="input.zone"
-              label="Type a Zone Name"
+              v-model="input.username"
               variant="outlined"
               density="compact"
               required
             ></v-text-field>
           </v-col>
         </v-row>
-        <v-row class="mt-n2">
-          <v-col cols="12" md="3">
+        <v-row>
+          <v-col cols="12" md="4">
+            <v-label class="text-black text-body-2 mb-2"
+              >Incoming Server</v-label
+            >
+            <v-text-field
+              v-model="input.incoming"
+              variant="outlined"
+              density="compact"
+              required
+            ></v-text-field>
+          </v-col>
+          <v-col cols="12" md="4">
+            <v-label class="text-black text-body-2 mb-2"
+              >Outgoing Server</v-label
+            >
+            <v-text-field
+              v-model="input.outgoing"
+              variant="outlined"
+              density="compact"
+              required
+            ></v-text-field>
+          </v-col>
+
+          <v-col cols="12" md="2">
             <v-btn
               :prepend-icon="
                 isEdit
@@ -44,7 +81,7 @@
               style="text-transform: none"
               type="submit"
               variant="flat"
-              class="w-100"
+              class="w-100 mt-8"
               @click="isEdit ? saveEdit() : saveData()"
               :disabled="isSending"
               :loading="isSending"
@@ -56,13 +93,13 @@
               {{ isEdit ? 'Save' : 'Add' }}
             </v-btn>
           </v-col>
-          <v-col v-if="isEdit" cols="12" md="3">
+          <v-col v-if="isEdit" cols="12" md="2">
             <v-btn
               prepend-icon="mdi-account-multiple-remove"
               color="red"
               style="text-transform: none"
               variant="flat"
-              class="w-100"
+              class="w-100 mt-8"
               @click="cancelEdit"
               :disabled="isSending"
             >
@@ -82,7 +119,7 @@
           <v-text-field
             density="compact"
             v-model="search"
-            label="Search a Zone"
+            label="Search"
             variant="outlined"
             hide-details
           ></v-text-field>
@@ -93,52 +130,190 @@
           <v-table class="country-table">
             <thead>
               <tr>
-                <th class="text-left">Zone Name</th>
+                <th class="text-left text-no-wrap">SMTP ID</th>
+                <th class="text-left">App Name</th>
+                <th class="text-left">User Name</th>
+                <th class="text-left">Incoming Server</th>
+                <th class="text-left">Outgoing Server</th>
+                <th class="text-left">User</th>
+                <th class="text-left">Dated</th>
                 <th class="text-left">Actions</th>
               </tr>
             </thead>
             <tbody>
-              <tr
-                class="country-table-body"
-                v-for="item in filteredItems"
-                :key="item.id"
-              >
-                <td style="font-weight: 500 !important">
-                  {{ item.zone }}
-                </td>
+              <template v-for="item in filteredItems" :key="item.id">
+                <tr class="country-table-body">
+                  <td
+                    style="
+                      font-weight: 500 !important;
+                      border-bottom: none !important;
+                    "
+                  >
+                    {{ item.id }}
+                  </td>
+                  <td
+                    class="text-no-wrap"
+                    style="
+                      font-weight: 500 !important;
+                      border-bottom: none !important;
+                    "
+                  >
+                    {{ item.app_name }}
+                  </td>
+                  <td
+                    class="text-no-wrap"
+                    style="
+                      font-weight: 500 !important;
+                      border-bottom: none !important;
+                    "
+                  >
+                    <!-- {{ item.email_subject }} -->
+                    support@the-syringe.com
+                  </td>
+                  <td
+                    class="text-no-wrap"
+                    style="
+                      font-weight: 500 !important;
+                      border-bottom: none !important;
+                    "
+                  >
+                    <!-- {{ item.app_name }} -->
+                    mail@the-syringe.com
+                  </td>
+                  <td
+                    class="text-no-wrap"
+                    style="
+                      font-weight: 500 !important;
+                      border-bottom: none !important;
+                    "
+                  >
+                    <!-- {{ item.app_name }} -->
+                    mail@the-syringe.com
+                  </td>
+                  <td
+                    class="text-no-wrap"
+                    style="
+                      font-weight: 500 !important;
+                      border-bottom: none !important;
+                    "
+                  >
+                    {{ item.name }}
+                  </td>
+                  <td
+                    style="
+                      font-weight: 500 !important;
+                      border-bottom: none !important;
+                    "
+                  >
+                    {{ item.dated }}
+                  </td>
 
-                <td>
-                  <div class="d-flex">
-                    <v-tooltip location="top">
-                      <template v-slot:activator="{ props }">
-                        <v-btn
-                          color="green"
-                          variant="text"
-                          v-bind="props"
-                          @click="editZone(item)"
-                          icon="mdi-pencil-outline"
-                        ></v-btn>
-                      </template>
-                      <span>Edit</span>
-                    </v-tooltip>
-                    <v-tooltip location="top">
-                      <template v-slot:activator="{ props }">
-                        <v-btn
-                          color="red"
-                          variant="text"
-                          v-bind="props"
-                          :disabled="isDeleteLoading"
-                          @click="openDeleteConfirm(item.id)"
-                          icon="mdi-trash-can-outline"
-                        ></v-btn>
-                      </template>
-                      <span>Delete</span>
-                    </v-tooltip>
-                  </div>
-                </td>
-              </tr>
+                  <td style="border-bottom: none !important">
+                    <div class="d-flex">
+                      <v-tooltip location="top">
+                        <template v-slot:activator="{ props }">
+                          <v-btn
+                            color="green"
+                            variant="text"
+                            v-bind="props"
+                            @click="editSMTP(item)"
+                            icon="mdi-pencil-outline"
+                          ></v-btn>
+                        </template>
+                        <span>Edit</span>
+                      </v-tooltip>
+                      <v-tooltip location="top">
+                        <template v-slot:activator="{ props }">
+                          <v-btn
+                            color="red"
+                            variant="text"
+                            v-bind="props"
+                            :disabled="isDeleteLoading"
+                            @click="openDeleteConfirm(item.id)"
+                            icon="mdi-trash-can-outline"
+                          ></v-btn>
+                        </template>
+                        <span>Delete</span>
+                      </v-tooltip>
+                    </div>
+                  </td>
+                </tr>
+
+                <tr>
+                  <td
+                    style="
+                      border-bottom: 1px solid rgb(188, 188, 188) !important;
+                    "
+                    colspan="8"
+                  >
+                    <div class="d-flex justify-start" style="gap: 20px">
+                      <v-table class="text-left">
+                        <tr>
+                          <td style="width: 180px"></td>
+                          <td class="pr-16">
+                            <v-label
+                              class="text-black text-caption font-weight-medium mb-2"
+                              >Password</v-label
+                            >
+                            <v-text-field
+                              v-model="item.pass"
+                              variant="outlined"
+                              type="text"
+                              style="min-width: 150px"
+                              density="compact"
+                              required
+                            ></v-text-field>
+                          </td>
+                          <td class="pr-4">
+                            <v-label
+                              class="text-black text-caption font-weight-medium mb-2"
+                              >IMAP Port</v-label
+                            >
+                            <v-text-field
+                              v-model="item.imap"
+                              variant="outlined"
+                              type="text"
+                              style="min-width: 100px"
+                              density="compact"
+                              required
+                            ></v-text-field>
+                          </td>
+                          <td class="pr-4">
+                            <v-label
+                              class="text-black text-caption font-weight-medium mb-2"
+                              >POP3 Port</v-label
+                            >
+                            <v-text-field
+                              v-model="item.pop3"
+                              variant="outlined"
+                              type="text"
+                              style="min-width: 100px"
+                              density="compact"
+                              required
+                            ></v-text-field>
+                          </td>
+                          <td class="">
+                            <v-label
+                              class="text-black text-caption font-weight-medium mb-2"
+                              >SMTP Port</v-label
+                            >
+                            <v-text-field
+                              v-model="item.smtp"
+                              variant="outlined"
+                              type="text"
+                              style="min-width: 100px"
+                              density="compact"
+                              required
+                            ></v-text-field>
+                          </td>
+                        </tr>
+                      </v-table>
+                    </div>
+                  </td>
+                </tr>
+              </template>
               <tr v-if="isLoading">
-                <td :colspan="6" class="text-center">
+                <td :colspan="8" class="text-center">
                   <v-progress-circular
                     indeterminate
                     color="indigo-accent-2"
@@ -176,11 +351,11 @@
     <v-dialog persistent width="500" v-model="isDelete">
       <v-card>
         <v-card-title>Confirmation</v-card-title>
-        <v-card-text> Are you sure want to delete this zone? </v-card-text>
+        <v-card-text> Are you sure want to delete this SMTP? </v-card-text>
         <v-card-actions>
           <v-spacer></v-spacer>
           <v-btn color="error" text @click="cancelDelete">No</v-btn>
-          <v-btn color="success" text @click="deleteZone">Yes</v-btn>
+          <v-btn color="success" text @click="deleteSMTP">Yes</v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
@@ -194,7 +369,7 @@ import { setAuthHeader } from '@/util/axios';
 // import app from '@/util/eventBus';
 
 export default {
-  name: 'ZoneMaster',
+  name: 'SMTPMaster',
   data: () => ({
     // fileURL: 'https://admin1.the-gypsy.sg/img/app/',
     valid: false,
@@ -205,7 +380,7 @@ export default {
     isSuccess: false,
     isDelete: false,
     isDeleteLoading: false,
-    zoneIdToDelete: null,
+    smtpIdToDelete: null,
     tableHeaders: [{ text: 'Gambar', value: 'image' }],
     imageFile: [],
     isOpenImage: false,
@@ -213,31 +388,24 @@ export default {
     errorMessage: '',
     input: {
       id: 0,
-      zone: null,
-    },
-    rules: {
-      zoneRules: [
-        (value) => {
-          if (value) return true;
-          return 'Country code is requred.';
-        },
-      ],
+      app: null,
+      username: null,
+      incoming: null,
+      outgoing: null,
     },
     search: '',
     items: [],
-    // itemsTry: [
-    //   {
-    //     id: 1,
-    //     zone: 'North',
-    //   },
-    // ],
+    templates: [],
+    apps: [],
+    dummyPass: null,
   }),
   created() {
     const token = JSON.parse(localStorage.getItem('token'));
     setAuthHeader(token);
   },
   mounted() {
-    this.getZoneData();
+    this.getSMTPData();
+    this.getAppActive();
   },
   computed: {
     filteredItems() {
@@ -245,50 +413,67 @@ export default {
         return this.items;
       }
       const searchTextLower = this.search.toLowerCase();
-      return this.items.filter((item) =>
-        item.zone.toLowerCase().includes(searchTextLower)
+      return this.items.filter(
+        (item) =>
+          item.template_name.toLowerCase().includes(searchTextLower) ||
+          item.app_name.toLowerCase().includes(searchTextLower) ||
+          item.email_subject.toLowerCase().includes(searchTextLower)
       );
     },
   },
   methods: {
-    editZone(zone) {
+    editSMTP(smtp) {
       this.isEdit = true;
       this.input = {
-        id: zone.id,
-        zone: zone.zone,
+        id: smtp.id,
+        template: smtp.template_name,
+        app: smtp.app_id,
+        subject: smtp.email_subject,
       };
     },
     cancelEdit() {
       this.isEdit = false;
       this.input = {
         id: 0,
-        zone: null,
+        app: null,
+        username: null,
+        incoming: null,
+        outgoing: null,
       };
     },
     saveEdit() {
       if (this.valid) {
         this.isSending = true;
         const payload = {
-          zone_id: this.input.id,
-          zone_name: this.input.zone,
+          template_id: this.input.id,
+          template_name: this.input.template,
+          app_id: this.input.app,
+          email_subject: this.input.subject,
         };
         axios
-          .post(`/zones/update`, payload)
+          .post(`/email-masters/update`, payload)
           .then((response) => {
             const data = response.data;
             this.successMessage = data.message;
             this.isSuccess = true;
-            this.getZoneData();
+            this.getSMTPData();
             this.input = {
               id: 0,
-              zone: null,
+              app: null,
+              username: null,
+              incoming: null,
+              outgoing: null,
             };
           })
           .catch((error) => {
             // eslint-disable-next-line
             console.log(error);
-            const message = error.response.data.zone_name
-              ? error.response.data.zone_name[0]
+            const message = error.response.data.template_name
+              ? error.response.data.template_name[0]
+              : error.response.data.email_subject
+              ? error.response.data.email_subject[0]
+              : error.response.data.app_id
+              ? error.response.data.app_id[0]
               : error.response.data.message
               ? error.response.data.message
               : 'Something Wrong!!!';
@@ -305,25 +490,34 @@ export default {
       if (this.valid) {
         this.isSending = true;
         const payload = {
-          zone_name: this.input.zone,
+          template_name: this.input.template,
+          app_id: this.input.app,
+          email_subject: this.input.subject,
         };
         axios
-          .post(`/zones`, payload)
+          .post(`/email-masters`, payload)
           .then((response) => {
             const data = response.data;
             this.successMessage = data.message;
             this.isSuccess = true;
-            this.getZoneData();
+            this.getSMTPData();
             this.input = {
               id: 0,
-              zone: null,
+              app: null,
+              username: null,
+              incoming: null,
+              outgoing: null,
             };
           })
           .catch((error) => {
             // eslint-disable-next-line
             console.log(error);
-            const message = error.response.data.zone_name
-              ? error.response.data.zone_name[0]
+            const message = error.response.data.template_name
+              ? error.response.data.template_name[0]
+              : error.response.data.email_subject
+              ? error.response.data.email_subject[0]
+              : error.response.data.app_id
+              ? error.response.data.app_id[0]
               : error.response.data.message
               ? error.response.data.message
               : 'Something Wrong!!!';
@@ -336,26 +530,26 @@ export default {
       }
     },
     cancelDelete() {
-      this.zoneIdToDelete = null;
+      this.smtpIdToDelete = null;
       this.isDelete = false;
     },
     openDeleteConfirm(itemId) {
-      this.zoneIdToDelete = itemId;
+      this.smtpIdToDelete = itemId;
       this.isDelete = true;
     },
     cancelConfirmation() {
-      this.zoneIdToDelete = null;
+      this.smtpIdToDelete = null;
       this.isDelete = false;
     },
-    deleteZone() {
+    deleteSMTP() {
       this.isDeleteLoading = true;
       axios
-        .delete(`/zones/${this.zoneIdToDelete}`)
+        .delete(`/email-masters/${this.smtpIdToDelete}`)
         .then((response) => {
           const data = response.data;
           this.successMessage = data.message;
           this.isSuccess = true;
-          this.getZoneData();
+          this.getSMTPData();
         })
         .catch((error) => {
           // eslint-disable-next-line
@@ -369,23 +563,31 @@ export default {
         })
         .finally(() => {
           this.isDeleteLoading = false;
-          this.zoneIdToDelete = null;
+          this.smtpIdToDelete = null;
           this.isDelete = false;
         });
     },
-    getZoneData() {
+    getSMTPData() {
       this.isLoading = true;
       axios
-        .get(`/zones`)
+        .get(`/email-masters`)
         .then((response) => {
           const data = response.data.data;
           // console.log(data);
-          this.items = data.map((item) => {
-            return {
-              id: item.zone_id || 1,
-              zone: item.zone_name || '',
-            };
-          });
+          this.items = data
+            .sort((a, b) => b.template_id - a.template_id)
+            .map((item) => {
+              return {
+                id: item.template_id || 1,
+                ...item,
+                pass: '',
+                imap: '',
+                pop3: '',
+                smtp: '',
+              };
+            })
+            .slice(0, 10);
+          this.templates = data.map((item) => item.template_name);
         })
         .catch((error) => {
           // eslint-disable-next-line
@@ -399,6 +601,33 @@ export default {
         })
         .finally(() => {
           this.isLoading = false;
+        });
+    },
+    getAppActive() {
+      axios
+        .get(`/app/active`)
+        .then((response) => {
+          const data = response.data.data;
+          // console.log(data);
+          this.apps = data
+            .sort((a, b) => a.app_id < b.app_id)
+            .map((app) => {
+              return {
+                id: app.app_id || 0,
+                name: app.app_name || '',
+              };
+            });
+          // console.log(this.items);
+        })
+        .catch((error) => {
+          // eslint-disable-next-line
+          console.log(error);
+          const message =
+            error.response.data.message === ''
+              ? 'Something Wrong!!!'
+              : error.response.data.message;
+          this.errorMessage = message;
+          this.isError = true;
         });
     },
   },

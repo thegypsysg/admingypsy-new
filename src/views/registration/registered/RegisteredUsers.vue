@@ -84,7 +84,10 @@
                     </p>
                   </td>
                   <td>
-                    <p>
+                    <a
+                      :href="`https://api.whatsapp.com/send?phone=${item.whatsapp}&text=Hello`"
+                      class="text-decoration-none text-grey-darken-1"
+                    >
                       {{ item.whatsapp
                       }}<v-icon
                         v-if="item.whatsapp"
@@ -92,7 +95,7 @@
                         size="20"
                         class="ml-2 fab fa-whatsapp"
                       ></v-icon>
-                    </p>
+                    </a>
                     <p
                       class="mt-2"
                       :class="{
@@ -439,6 +442,7 @@ export default {
         (item) =>
           item.id.toLowerCase().includes(searchTextLower) ||
           item.name.toLowerCase().includes(searchTextLower) ||
+          item.appName.toLowerCase().includes(searchTextLower) ||
           item.email.toLowerCase().includes(searchTextLower) ||
           item.country.toLowerCase().includes(searchTextLower) ||
           item.mobile.toLowerCase().includes(searchTextLower) ||
@@ -632,7 +636,7 @@ export default {
           const data = response.data.data;
           console.log(data);
           this.items = data
-            .sort((a, b) => a.gypsy_id < b.gypsy_id)
+            .sort((a, b) => b.gypsy_id - a.gypsy_id)
             .map((item) => {
               return {
                 image: item.image || null,
@@ -695,7 +699,8 @@ export default {
                     : '',
                 date: item.date_of_birth || '',
               };
-            });
+            })
+            .slice(0, 10);
         })
         .catch((error) => {
           // eslint-disable-next-line
