@@ -22,25 +22,23 @@
     <v-form v-model="valid" @submit.prevent>
       <v-container>
         <v-row>
-          <v-col cols="12" md="4">
-            <v-autocomplete
+          <v-col cols="12" md="5">
+            <v-combobox
               density="compact"
               label="Email Template Name"
               placeholder="Type Email Template Name"
-              :items="[]"
-              item-title="name"
-              item-value="id"
+              :items="templates"
               v-model="input.template"
               variant="outlined"
               required
-            ></v-autocomplete>
+            ></v-combobox>
           </v-col>
           <v-col cols="12" md="4">
             <v-autocomplete
               density="compact"
               label="App Name"
               placeholder="Type App Name"
-              :items="[]"
+              :items="apps"
               item-title="name"
               item-value="id"
               v-model="input.app"
@@ -49,7 +47,7 @@
           </v-col>
         </v-row>
         <v-row>
-          <v-col cols="12" md="8">
+          <v-col cols="12" md="9">
             <v-text-field
               v-model="input.subject"
               label="Email Subject"
@@ -146,8 +144,7 @@
                       border-bottom: none !important;
                     "
                   >
-                    <!-- {{ item.qualification }} -->
-                    Marketing Email to Clients (Syringe)
+                    {{ item.template_name }}
                   </td>
                   <td
                     style="
@@ -155,8 +152,7 @@
                       border-bottom: none !important;
                     "
                   >
-                    <!-- {{ item.qualification }} -->
-                    Inquiry from Singapore - Job Portal for Healthcare
+                    {{ item.email_subject }}
                   </td>
                   <td
                     style="
@@ -164,8 +160,7 @@
                       border-bottom: none !important;
                     "
                   >
-                    <!-- {{ item.qualification }} -->
-                    The Syringe
+                    {{ item.app_name }}
                   </td>
                   <td
                     style="
@@ -173,8 +168,7 @@
                       border-bottom: none !important;
                     "
                   >
-                    <!-- {{ item.user }} -->
-                    Charlton
+                    {{ item.name }}
                   </td>
                   <td
                     style="
@@ -182,8 +176,7 @@
                       border-bottom: none !important;
                     "
                   >
-                    <!-- {{ item.dated }} -->
-                    17/01/2025
+                    {{ item.dated }}
                   </td>
 
                   <td style="border-bottom: none !important">
@@ -283,13 +276,11 @@
     <v-dialog persistent width="500" v-model="isDelete">
       <v-card>
         <v-card-title>Confirmation</v-card-title>
-        <v-card-text>
-          Are you sure want to delete this qualification?
-        </v-card-text>
+        <v-card-text> Are you sure want to delete this email? </v-card-text>
         <v-card-actions>
           <v-spacer></v-spacer>
           <v-btn color="error" text @click="cancelDelete">No</v-btn>
-          <v-btn color="success" text @click="deleteQualification">Yes</v-btn>
+          <v-btn color="success" text @click="deleteEmail">Yes</v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
@@ -326,16 +317,10 @@ export default {
       app: null,
       subject: null,
     },
-    rules: {
-      emailRules: [
-        (value) => {
-          if (value) return true;
-          return 'Country code is requred.';
-        },
-      ],
-    },
     search: '',
     items: [],
+    templates: [],
+    apps: [],
   }),
   created() {
     const token = JSON.parse(localStorage.getItem('token'));
@@ -343,6 +328,7 @@ export default {
   },
   mounted() {
     this.getEmailData();
+    this.getAppActive();
   },
   computed: {
     filteredItems() {
@@ -350,8 +336,11 @@ export default {
         return this.items;
       }
       const searchTextLower = this.search.toLowerCase();
-      return this.items.filter((item) =>
-        item.zone.toLowerCase().includes(searchTextLower)
+      return this.items.filter(
+        (item) =>
+          item.template_name.toLowerCase().includes(searchTextLower) ||
+          item.app_name.toLowerCase().includes(searchTextLower) ||
+          item.email_subject.toLowerCase().includes(searchTextLower)
       );
     },
   },
@@ -360,9 +349,9 @@ export default {
       this.isEdit = true;
       this.input = {
         id: email.id,
-        template: email.name,
-        app: email.app,
-        subject: email.subject,
+        template: email.template_name,
+        app: email.app_id,
+        subject: email.email_subject,
       };
     },
     cancelEdit() {
@@ -378,11 +367,13 @@ export default {
       if (this.valid) {
         this.isSending = true;
         const payload = {
-          zone_id: this.input.id,
-          zone_name: this.input.zone,
+          template_id: this.input.id,
+          template_name: this.input.template,
+          app_id: this.input.app,
+          email_subject: this.input.subject,
         };
         axios
-          .post(`/zones/update`, payload)
+          .post(`/email-masters/update`, payload)
           .then((response) => {
             const data = response.data;
             this.successMessage = data.message;
@@ -398,8 +389,12 @@ export default {
           .catch((error) => {
             // eslint-disable-next-line
             console.log(error);
-            const message = error.response.data.zone_name
-              ? error.response.data.zone_name[0]
+            const message = error.response.data.template_name
+              ? error.response.data.template_name[0]
+              : error.response.data.email_subject
+              ? error.response.data.email_subject[0]
+              : error.response.data.app_id
+              ? error.response.data.app_id[0]
               : error.response.data.message
               ? error.response.data.message
               : 'Something Wrong!!!';
@@ -416,10 +411,12 @@ export default {
       if (this.valid) {
         this.isSending = true;
         const payload = {
-          zone_name: this.input.zone,
+          template_name: this.input.template,
+          app_id: this.input.app,
+          email_subject: this.input.subject,
         };
         axios
-          .post(`/zones`, payload)
+          .post(`/email-masters`, payload)
           .then((response) => {
             const data = response.data;
             this.successMessage = data.message;
@@ -435,8 +432,12 @@ export default {
           .catch((error) => {
             // eslint-disable-next-line
             console.log(error);
-            const message = error.response.data.zone_name
-              ? error.response.data.zone_name[0]
+            const message = error.response.data.template_name
+              ? error.response.data.template_name[0]
+              : error.response.data.email_subject
+              ? error.response.data.email_subject[0]
+              : error.response.data.app_id
+              ? error.response.data.app_id[0]
               : error.response.data.message
               ? error.response.data.message
               : 'Something Wrong!!!';
@@ -463,7 +464,7 @@ export default {
     deleteEmail() {
       this.isDeleteLoading = true;
       axios
-        .delete(`/zones/${this.emailIdToDelete}`)
+        .delete(`/email-masters/${this.emailIdToDelete}`)
         .then((response) => {
           const data = response.data;
           this.successMessage = data.message;
@@ -489,19 +490,20 @@ export default {
     getEmailData() {
       this.isLoading = true;
       axios
-        .get(`/zones`)
+        .get(`/email-masters`)
         .then((response) => {
           const data = response.data.data;
           // console.log(data);
           this.items = data
-            .sort((a, b) => b.zone_id - a.zone_id)
+            .sort((a, b) => b.template_id - a.template_id)
             .map((item) => {
               return {
-                id: item.zone_id || 1,
-                zone: item.zone_name || '',
+                id: item.template_id || 1,
+                ...item,
               };
             })
             .slice(0, 10);
+          this.templates = data.map((item) => item.template_name);
         })
         .catch((error) => {
           // eslint-disable-next-line
@@ -515,6 +517,33 @@ export default {
         })
         .finally(() => {
           this.isLoading = false;
+        });
+    },
+    getAppActive() {
+      axios
+        .get(`/app/active`)
+        .then((response) => {
+          const data = response.data.data;
+          // console.log(data);
+          this.apps = data
+            .sort((a, b) => a.app_id < b.app_id)
+            .map((app) => {
+              return {
+                id: app.app_id || 0,
+                name: app.app_name || '',
+              };
+            });
+          // console.log(this.items);
+        })
+        .catch((error) => {
+          // eslint-disable-next-line
+          console.log(error);
+          const message =
+            error.response.data.message === ''
+              ? 'Something Wrong!!!'
+              : error.response.data.message;
+          this.errorMessage = message;
+          this.isError = true;
         });
     },
   },
