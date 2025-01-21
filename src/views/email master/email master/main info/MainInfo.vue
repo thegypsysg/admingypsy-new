@@ -35,23 +35,12 @@
       </v-col>
     </v-row>
     <h4 class="ml-4 mb-6" style="color: #293fb8; font-weight: 400">
-      <!-- {{ emailName[0]?.name || '' }} -->
-      Marketing Emails to Clients - The Syringe
+      {{ emailName || '' }}
     </h4>
     <v-form v-model="valid" @submit.prevent>
       <v-container>
         <v-row>
           <v-col cols="12" md="6">
-            <!-- <v-combobox
-              density="compact"
-              label="Employer Type"
-              placeholder="Type Employer Type"
-              :items="resource.type"
-              item-title="name"
-              item-value="id"
-              v-model="input.type"
-              variant="outlined"
-            ></v-combobox> -->
             <v-label class="text-black text-body-2 mb-2">Email Subject</v-label>
             <v-text-field
               v-model="input.subject"
@@ -70,112 +59,30 @@
               variant="outlined"
               required
             ></v-textarea>
-
-            <!-- <v-text-field
-              v-model="input.whatsapp"
-              label="What'sApp"
-              type="phone"
-              variant="outlined"
-              density="compact"
-              required
-            ></v-text-field>
-            <v-textarea
-              density="compact"
-              v-model="input.hours"
-              label="Official Hours"
-              rows="3"
-              variant="outlined"
-              required
-            ></v-textarea>
-            <v-textarea
-              density="compact"
-              v-model="input.shift"
-              label="Shift Details"
-              rows="3"
-              variant="outlined"
-              required
-            ></v-textarea> -->
           </v-col>
           <v-col cols="12" md="4">
-            <!-- <v-textarea
-              density="compact"
-              v-model="input.about"
-              label="About Us"
-              rows="3"
-              variant="outlined"
-              required
-            ></v-textarea>
-            <v-text-field
-              v-model="input.website"
-              label="Website"
-              variant="outlined"
-              density="compact"
-              required
-            ></v-text-field
-            > -->
             <v-label class="text-black text-body-2 mb-2">Email Sender</v-label>
             <v-autocomplete
               v-model="input.sender"
-              :items="[]"
+              :items="senders"
               item-title="name"
               item-value="id"
               placeholder="Select SMTP User Email"
               variant="outlined"
               density="compact"
+              @update:modelValue="handleSender"
               required
             ></v-autocomplete>
             <v-label class="text-black text-body-2 mb-2">Reply To</v-label>
             <v-text-field
               v-model="input.reply"
               type="email"
+              readonly
               density="compact"
               variant="outlined"
               required
             ></v-text-field>
-            <!-- <v-textarea
-              density="compact"
-              v-model="input.benefits"
-              label="Benefits"
-              rows="3"
-              class="mt-13"
-              variant="outlined"
-              required
-            ></v-textarea>
-            <v-combobox
-              density="compact"
-              label="Select Country"
-              placeholder="Type Country"
-              :items="resource.country"
-              item-title="name"
-              item-value="id"
-              v-model="input.country"
-              variant="outlined"
-            ></v-combobox>
-            <v-combobox
-              density="compact"
-              label="Select Town"
-              placeholder="Type Town"
-              :items="resource.town"
-              item-title="name"
-              item-value="id"
-              v-model="input.town"
-              variant="outlined"
-            ></v-combobox> -->
           </v-col>
-          <!-- <v-col class="ml-4" cols="12" md="2">
-            <v-btn
-              color="indigo-accent-2"
-              style="text-transform: none"
-              type="submit"
-              variant="flat"
-              class="w-100"
-              @click="saveData()"
-              :disabled="isSending"
-              :loading="isSending"
-            >
-              Save
-            </v-btn>
-          </v-col> -->
         </v-row>
       </v-container>
     </v-form>
@@ -235,81 +142,13 @@ export default {
     errorMessage: '',
     input: {
       id: 0,
-      address: null,
-      telephone: null,
-      whatsapp: null,
-      hours: null,
-      about: null,
-      website: null,
-      email: null,
-      manage: null,
-      shitf: null,
-      benefits: null,
+      subject: null,
+      desc: null,
+      sender: null,
+      reply: null,
     },
-    resource: {
-      type: [
-        {
-          name: 'Super Admin',
-          id: 1,
-        },
-        {
-          name: 'Admin',
-          id: 2,
-        },
-      ],
-      country: [
-        {
-          name: 'Indonesia',
-          id: 1,
-        },
-        {
-          name: 'India',
-          id: 2,
-        },
-        {
-          name: 'Singapore',
-          id: 3,
-        },
-      ],
-      city: [
-        {
-          name: 'Jakarta',
-          id: 1,
-        },
-        {
-          name: 'Semarang',
-          id: 2,
-        },
-        {
-          name: 'Singapore',
-          id: 3,
-        },
-      ],
-      town: [
-        {
-          name: 'Kota Tua',
-          id: 1,
-        },
-        {
-          name: 'Kota Lama',
-          id: 2,
-        },
-        {
-          name: 'Woodlands',
-          id: 3,
-        },
-      ],
-      zone: [
-        {
-          name: 'North',
-          id: 1,
-        },
-        {
-          name: 'South',
-          id: 2,
-        },
-      ],
-    },
+    senders: [],
+    senderEmails: [],
     emailRules: [
       (value) => {
         if (/.+@.+\..+/.test(value)) return true;
@@ -324,36 +163,64 @@ export default {
     setAuthHeader(token);
   },
   mounted() {
-    this.idEmail = parseInt(this.$route.params.id);
-    this.getEmailData();
+    const id = parseInt(this.$route.params.id);
+    this.idEmail = id;
+    this.getEmailData(id);
+    this.getSenders();
   },
   methods: {
-    getEmailData() {
-      this.isLoading = true;
+    getSenders() {
       axios
-        .get(`/partners`)
+        .get(`/smtp-masters`)
         .then((response) => {
           const data = response.data.data;
           // console.log(data);
-          const dataItem = data.filter((i) => i.partner_id == this.idEmail);
-          this.emailName = data.map((item) => {
+          this.senders = data.map((app) => {
             return {
-              id: item.partner_id,
-              name: item.partner_name,
+              id: app.smtp_id || 0,
+              name:
+                app.sender_name && app.user_name
+                  ? `${app.sender_name} | ${app.user_name}`
+                  : !app.sender_name && app.user_name
+                  ? `${app.user_name}`
+                  : app.sender_name && !app.user_name
+                  ? `${app.sender_name}`
+                  : '-',
             };
           });
+          this.senderEmails = data.map((app) => {
+            return {
+              id: app.smtp_id || 0,
+              email: app.sender_email || '-',
+            };
+          });
+          // console.log(this.items);
+        })
+        .catch((error) => {
+          // eslint-disable-next-line
+          console.log(error);
+          const message =
+            error.response.data.message === ''
+              ? 'Something Wrong!!!'
+              : error.response.data.message;
+          this.errorMessage = message;
+          this.isError = true;
+        });
+    },
+    getEmailData(id) {
+      this.isLoading = true;
+      axios
+        .get(`/email-masters/${id}`)
+        .then((response) => {
+          const data = response.data.data;
+          console.log(data);
+          this.emailName = data.template_name;
           this.input = {
-            id: dataItem[0].partner_id,
-            address: dataItem[0].address,
-            telephone: dataItem[0].telephone,
-            whatsapp: dataItem[0].whats_app,
-            hours: dataItem[0].official_hours || null,
-            about: dataItem[0].about_us,
-            website: dataItem[0].website,
-            email: dataItem[0].official_email,
-            manage: dataItem[0].managed_by,
-            shift: dataItem[0].shift,
-            benefits: dataItem[0].benefits,
+            id: data.template_id,
+            subject: data.email_subject,
+            desc: data.email_description,
+            sender: data.smtp_id,
+            reply: data.sender_email,
           };
         })
         .catch((error) => {
@@ -370,24 +237,22 @@ export default {
           this.isLoading = false;
         });
     },
+    handleSender() {
+      this.input.reply =
+        this.senderEmails.find((app) => app.id === this.input.sender).email ||
+        '';
+    },
     saveData() {
       if (this.valid) {
         this.isSending = true;
         const payload = {
-          partner_id: this.idEmail,
-          address: this.input.address,
-          about_us: this.input.about,
-          telephone: this.input.telephone,
-          whats_app: this.input.whatsapp,
-          official_email: this.input.email,
-          official_hours: this.input.hours,
-          website: this.input.website,
-          managed_by: this.input.manage,
-          shift: this.input.shift,
-          benefits: this.input.benefits,
+          template_id: this.idEmail,
+          email_subject: this.input.subject,
+          email_description: this.input.desc,
+          smtp_id: this.input.sender,
         };
         axios
-          .post(`/partners/update`, payload)
+          .post(`/email-masters/update`, payload)
           .then((response) => {
             const data = response.data;
             this.successMessage = data.message;

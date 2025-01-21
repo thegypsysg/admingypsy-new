@@ -167,8 +167,7 @@
                       border-bottom: none !important;
                     "
                   >
-                    <!-- {{ item.email_subject }} -->
-                    support@the-syringe.com
+                    {{ item.user_name }}
                   </td>
                   <td
                     class="text-no-wrap"
@@ -177,8 +176,7 @@
                       border-bottom: none !important;
                     "
                   >
-                    <!-- {{ item.app_name }} -->
-                    mail@the-syringe.com
+                    {{ item.incoming_server }}
                   </td>
                   <td
                     class="text-no-wrap"
@@ -187,8 +185,7 @@
                       border-bottom: none !important;
                     "
                   >
-                    <!-- {{ item.app_name }} -->
-                    mail@the-syringe.com
+                    {{ item.outgoing_server }}
                   </td>
                   <td
                     class="text-no-wrap"
@@ -240,12 +237,7 @@
                 </tr>
 
                 <tr>
-                  <td
-                    style="
-                      border-bottom: 1px solid rgb(188, 188, 188) !important;
-                    "
-                    colspan="8"
-                  >
+                  <td style="border-bottom: none !important" colspan="8">
                     <div class="d-flex justify-start" style="gap: 20px">
                       <v-table class="text-left">
                         <tr>
@@ -256,7 +248,7 @@
                               >Password</v-label
                             >
                             <v-text-field
-                              v-model="item.pass"
+                              v-model="item.password"
                               variant="outlined"
                               type="text"
                               style="min-width: 150px"
@@ -270,7 +262,7 @@
                               >IMAP Port</v-label
                             >
                             <v-text-field
-                              v-model="item.imap"
+                              v-model="item.imap_port"
                               variant="outlined"
                               type="text"
                               style="min-width: 100px"
@@ -284,7 +276,7 @@
                               >POP3 Port</v-label
                             >
                             <v-text-field
-                              v-model="item.pop3"
+                              v-model="item.pop3_port"
                               variant="outlined"
                               type="text"
                               style="min-width: 100px"
@@ -298,10 +290,56 @@
                               >SMTP Port</v-label
                             >
                             <v-text-field
-                              v-model="item.smtp"
+                              v-model="item.smtp_port"
                               variant="outlined"
                               type="text"
                               style="min-width: 100px"
+                              density="compact"
+                              required
+                            ></v-text-field>
+                          </td>
+                        </tr>
+                      </v-table>
+                    </div>
+                  </td>
+                </tr>
+
+                <tr>
+                  <td
+                    style="
+                      border-bottom: 1px solid rgb(188, 188, 188) !important;
+                    "
+                    colspan="8"
+                  >
+                    <div class="d-flex justify-start" style="gap: 20px">
+                      <v-table class="text-left">
+                        <tr>
+                          <td style="width: 180px"></td>
+
+                          <td class="pr-4">
+                            <v-label
+                              class="text-black text-caption font-weight-medium mb-2"
+                              >Sender Name</v-label
+                            >
+                            <v-text-field
+                              v-model="item.sender_name"
+                              variant="outlined"
+                              type="text"
+                              style="min-width: 250px"
+                              density="compact"
+                              required
+                            ></v-text-field>
+                          </td>
+                          <td class="pr-4">
+                            <v-label
+                              class="text-black text-caption font-weight-medium mb-2"
+                              >Sender Email</v-label
+                            >
+                            <v-text-field
+                              v-model="item.sender_email"
+                              variant="outlined"
+                              type="text"
+                              style="min-width: 250px"
                               density="compact"
                               required
                             ></v-text-field>
@@ -395,9 +433,7 @@ export default {
     },
     search: '',
     items: [],
-    templates: [],
     apps: [],
-    dummyPass: null,
   }),
   created() {
     const token = JSON.parse(localStorage.getItem('token'));
@@ -570,24 +606,25 @@ export default {
     getSMTPData() {
       this.isLoading = true;
       axios
-        .get(`/email-masters`)
+        .get(`/smtp-masters`)
         .then((response) => {
           const data = response.data.data;
           // console.log(data);
           this.items = data
-            .sort((a, b) => b.template_id - a.template_id)
+            .sort((a, b) => b.smtp_id - a.smtp_id)
             .map((item) => {
               return {
-                id: item.template_id || 1,
+                id: item.smtp_id || 1,
                 ...item,
-                pass: '',
-                imap: '',
-                pop3: '',
-                smtp: '',
+                // pass: '',
+                // imap: '',
+                // pop3: '',
+                // smtp: '',
+                // senderName: '',
+                // senderEmail: '',
               };
             })
             .slice(0, 10);
-          this.templates = data.map((item) => item.template_name);
         })
         .catch((error) => {
           // eslint-disable-next-line
