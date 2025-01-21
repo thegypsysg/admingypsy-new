@@ -261,10 +261,17 @@ export default {
           .catch((error) => {
             // eslint-disable-next-line
             console.log(error);
-            const message =
-              error.response.data.message === ''
-                ? 'Something Wrong!!!'
-                : error.response.data.message;
+            const message = error.response.data.template_name
+              ? 'Template Name is Required'
+              : error.response.data.email_subject
+              ? 'Email Subject is Required'
+              : error.response.data.smtp_id
+              ? 'Email Sender is Required'
+              : error.response.data.email_description
+              ? 'Email Description is Required'
+              : error.response.data.message === ''
+              ? 'Something Wrong!!!'
+              : error.response.data.message;
             this.errorMessage = message;
             this.isError = true;
           })

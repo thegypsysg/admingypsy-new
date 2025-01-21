@@ -451,9 +451,8 @@ export default {
       const searchTextLower = this.search.toLowerCase();
       return this.items.filter(
         (item) =>
-          item.template_name.toLowerCase().includes(searchTextLower) ||
           item.app_name.toLowerCase().includes(searchTextLower) ||
-          item.email_subject.toLowerCase().includes(searchTextLower)
+          item.user_name.toLowerCase().includes(searchTextLower)
       );
     },
   },
