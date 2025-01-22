@@ -263,8 +263,9 @@
                     </div>
                   </td>
                 </tr>
+
                 <tr>
-                  <td class="has-border" colspan="8">
+                  <td style="border-bottom: none !important" colspan="8">
                     <div class="d-flex justify-start" style="gap: 20px">
                       <v-table class="text-left font-weight-bold">
                         <tr>
@@ -286,6 +287,118 @@
                             <span class="text-blue-accent-4">{{
                               item.app
                             }}</span>
+                          </td>
+                          <td class="pr-10 pt-2 pb-4">
+                            Registered:
+                            <span class="text-blue-accent-4">
+                              <!-- {{item.app}} -->
+                              Yes
+                            </span>
+                          </td>
+                        </tr>
+                      </v-table>
+                    </div>
+                  </td>
+                </tr>
+
+                <tr>
+                  <td style="border-bottom: none !important" colspan="8">
+                    <div class="d-flex justify-start" style="gap: 20px">
+                      <v-table class="text-left font-weight-bold">
+                        <tr>
+                          <td style="width: 60px"></td>
+                          <td class="pr-6 pt-2 pb-4">
+                            <div class="d-flex align-center">
+                              <div class="mr-2">
+                                <v-label class="text-black text-body-2 mb-2"
+                                  >Select Template</v-label
+                                >
+                                <v-autocomplete
+                                  density="compact"
+                                  placeholder="Type Template"
+                                  :items="resource.emails"
+                                  item-title="name"
+                                  item-value="id"
+                                  style="min-width: 300px !important"
+                                  v-model="item.template"
+                                  variant="outlined"
+                                ></v-autocomplete>
+                              </div>
+                              <v-btn
+                                color="indigo-accent-2"
+                                style="text-transform: none"
+                                type="submit"
+                                variant="flat"
+                                :disabled="isSendTemplate"
+                                :loading="isSendTemplate"
+                              >
+                                Send Email
+                              </v-btn>
+                            </div>
+                          </td>
+                        </tr>
+                      </v-table>
+                    </div>
+                  </td>
+                </tr>
+
+                <tr>
+                  <td class="has-border" colspan="8">
+                    <div class="d-flex justify-start" style="gap: 20px">
+                      <v-table class="text-left font-weight-bold">
+                        <tr>
+                          <td style="width: 60px"></td>
+                          <td
+                            style="width: 400px; overflow: hidden"
+                            class="pt-2 pb-4"
+                          >
+                            <v-row>
+                              <v-col cols="4">
+                                <p class="text-caption font-weight-bold">
+                                  Email Sent On
+                                </p>
+                              </v-col>
+                              <v-col cols="4">
+                                <p class="text-caption font-weight-bold">
+                                  App Name
+                                </p>
+                              </v-col>
+                              <v-col cols="4">
+                                <p class="text-caption font-weight-bold">
+                                  Subject
+                                </p>
+                              </v-col>
+                            </v-row>
+                            <v-row class="py-0">
+                              <v-col cols="4">
+                                <p class="text-caption text-grey">17/01/2025</p>
+                              </v-col>
+                              <v-col cols="4">
+                                <p class="text-caption text-grey">
+                                  The Syringe
+                                </p>
+                              </v-col>
+                              <v-col cols="4">
+                                <p class="text-caption text-grey">
+                                  Resume Request
+                                </p>
+                              </v-col>
+                            </v-row>
+                            <v-row class="py-0">
+                              <v-col cols="4">
+                                <p class="text-caption text-grey">17/01/2025</p>
+                              </v-col>
+                              <v-col cols="4">
+                                <p class="text-caption text-grey">
+                                  The Syringe
+                                </p>
+                              </v-col>
+                              <v-col cols="4">
+                                <p class="text-caption text-grey">
+                                  Resume Request
+                                </p>
+                              </v-col>
+                            </v-row>
                           </td>
                         </tr>
                       </v-table>
@@ -386,6 +499,7 @@ export default {
     valid: false,
     isLoading: false,
     isSending: false,
+    isSendTemplate: false,
     isEdit: false,
     isSuccess: false,
     isError: false,
@@ -427,6 +541,7 @@ export default {
       code: [],
       skills: [],
       app: [],
+      emails: [],
       gender: [
         {
           name: 'Male',
@@ -494,6 +609,7 @@ export default {
       this.getCountry();
       this.getPrimarySkillData();
       this.getAppActive();
+      this.getEmail();
     }, 500);
   },
   computed: {
@@ -857,6 +973,7 @@ export default {
                 registered_on: item.invited_on || '',
                 user_id: item.user_id || null,
                 user: item.user?.name || '',
+                template: null,
               };
             })
             .slice(0, 10);
@@ -985,6 +1102,38 @@ export default {
                 name: app.app_name || '',
               };
             });
+          // console.log(this.items);
+        })
+        .catch((error) => {
+          // eslint-disable-next-line
+          console.log(error);
+          const message =
+            error.response.data.message === ''
+              ? 'Something Wrong!!!'
+              : error.response.data.message;
+          this.errorMessage = message;
+          this.isError = true;
+        });
+    },
+    getEmail() {
+      axios
+        .get(`/email-masters`)
+        .then((response) => {
+          const data = response.data.data;
+          // console.log(data);
+          this.resource.emails = data.map((app) => {
+            return {
+              id: app.app_id || 0,
+              name:
+                app.app_name && app.email_subject
+                  ? `${app.app_name} | ${app.email_subject}`
+                  : !app.app_name && app.email_subject
+                  ? `${app.email_subject}`
+                  : app.app_name && !app.email_subject
+                  ? `${app.app_name}`
+                  : '-',
+            };
+          });
           // console.log(this.items);
         })
         .catch((error) => {

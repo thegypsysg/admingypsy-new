@@ -254,6 +254,13 @@
                               style="min-width: 150px"
                               density="compact"
                               required
+                              @input="
+                                debouncedUpdate(
+                                  item.id,
+                                  item.password,
+                                  'password'
+                                )
+                              "
                             ></v-text-field>
                           </td>
                           <td class="pr-4">
@@ -268,6 +275,9 @@
                               style="min-width: 100px"
                               density="compact"
                               required
+                              @input="
+                                debouncedUpdate(item.id, item.imap_port, 'imap')
+                              "
                             ></v-text-field>
                           </td>
                           <td class="pr-4">
@@ -282,6 +292,9 @@
                               style="min-width: 100px"
                               density="compact"
                               required
+                              @input="
+                                debouncedUpdate(item.id, item.pop3_port, 'pop3')
+                              "
                             ></v-text-field>
                           </td>
                           <td class="">
@@ -296,6 +309,9 @@
                               style="min-width: 100px"
                               density="compact"
                               required
+                              @input="
+                                debouncedUpdate(item.id, item.smtp_port, 'smtp')
+                              "
                             ></v-text-field>
                           </td>
                         </tr>
@@ -328,6 +344,13 @@
                               style="min-width: 250px"
                               density="compact"
                               required
+                              @input="
+                                debouncedUpdate(
+                                  item.id,
+                                  item.sender_name,
+                                  'sender name'
+                                )
+                              "
                             ></v-text-field>
                           </td>
                           <td class="pr-4">
@@ -342,6 +365,13 @@
                               style="min-width: 250px"
                               density="compact"
                               required
+                              @input="
+                                debouncedUpdate(
+                                  item.id,
+                                  item.sender_email,
+                                  'sender email'
+                                )
+                              "
                             ></v-text-field>
                           </td>
                         </tr>
@@ -434,6 +464,7 @@ export default {
     search: '',
     items: [],
     apps: [],
+    debounceTimers: {},
   }),
   created() {
     const token = JSON.parse(localStorage.getItem('token'));
@@ -461,9 +492,10 @@ export default {
       this.isEdit = true;
       this.input = {
         id: smtp.id,
-        template: smtp.template_name,
         app: smtp.app_id,
-        subject: smtp.email_subject,
+        username: smtp.user_name,
+        incoming: smtp.incoming_server,
+        outgoing: smtp.outgoing_server,
       };
     },
     cancelEdit() {
@@ -480,13 +512,14 @@ export default {
       if (this.valid) {
         this.isSending = true;
         const payload = {
-          template_id: this.input.id,
-          template_name: this.input.template,
+          smtp_id: this.input.id,
           app_id: this.input.app,
-          email_subject: this.input.subject,
+          user_name: this.input.username,
+          incoming_server: this.input.incoming,
+          outgoing_server: this.input.outgoing,
         };
         axios
-          .post(`/email-masters/update`, payload)
+          .post(`/smtp-masters/update`, payload)
           .then((response) => {
             const data = response.data;
             this.successMessage = data.message;
@@ -503,12 +536,14 @@ export default {
           .catch((error) => {
             // eslint-disable-next-line
             console.log(error);
-            const message = error.response.data.template_name
-              ? error.response.data.template_name[0]
-              : error.response.data.email_subject
-              ? error.response.data.email_subject[0]
-              : error.response.data.app_id
+            const message = error.response.data.app_id
               ? error.response.data.app_id[0]
+              : error.response.data.user_name
+              ? error.response.data.user_name[0]
+              : error.response.data.incoming_server
+              ? error.response.data.incoming_server[0]
+              : error.response.data.outgoing_server
+              ? error.response.data.outgoing_server[0]
               : error.response.data.message
               ? error.response.data.message
               : 'Something Wrong!!!';
@@ -521,16 +556,92 @@ export default {
           });
       }
     },
+    debouncedUpdate(id, value, type) {
+      // Hapus timer sebelumnya jika ada
+      if (this.debounceTimers[id + type]) {
+        clearTimeout(this.debounceTimers[id + type]);
+      }
+
+      // Buat timer baru untuk debounce
+      this.debounceTimers[id + type] = setTimeout(() => {
+        this.updateData(id, value, type);
+      }, 500); // Tunggu 500ms sebelum memanggil updateData
+    },
+    updateData(id, body, desc) {
+      let payload = null;
+      if (desc == 'password') {
+        payload = {
+          smtp_id: id,
+          password: body,
+        };
+      } else if (desc == 'imap') {
+        payload = {
+          smtp_id: id,
+          imap_port: body,
+        };
+      } else if (desc == 'pop3') {
+        payload = {
+          smtp_id: id,
+          pop3_port: body,
+        };
+      } else if (desc == 'smtp') {
+        payload = {
+          smtp_id: id,
+          smtp_port: body,
+        };
+      } else if (desc == 'sender name') {
+        payload = {
+          smtp_id: id,
+          sender_name: body,
+        };
+      } else if (desc == 'sender email') {
+        payload = {
+          smtp_id: id,
+          sender_email: body,
+        };
+      }
+
+      axios
+        .post(`/smtp-masters/update`, payload)
+        .then((response) => {
+          const data = response.data;
+          this.successMessage = data.message;
+          this.isSuccess = true;
+          // this.getSMTPData();
+        })
+        .catch((error) => {
+          // eslint-disable-next-line
+          console.log(error);
+          const message = error.response.data.password
+            ? error.response.data.password[0]
+            : error.response.data.imap_port
+            ? error.response.data.imap_port[0]
+            : error.response.data.pop3_port
+            ? error.response.data.pop3_port[0]
+            : error.response.data.smtp_port
+            ? error.response.data.smtp_port[0]
+            : error.response.data.sender_name
+            ? error.response.data.sender_name[0]
+            : error.response.data.sender_email
+            ? error.response.data.sender_email[0]
+            : error.response.data.message
+            ? error.response.data.message
+            : 'Something Wrong!!!';
+          this.errorMessage = message;
+          this.isError = true;
+        });
+    },
     saveData() {
       if (this.valid) {
         this.isSending = true;
         const payload = {
-          template_name: this.input.template,
           app_id: this.input.app,
-          email_subject: this.input.subject,
+          user_name: this.input.username,
+          incoming_server: this.input.incoming,
+          outgoing_server: this.input.outgoing,
         };
         axios
-          .post(`/email-masters`, payload)
+          .post(`/smtp-masters`, payload)
           .then((response) => {
             const data = response.data;
             this.successMessage = data.message;
@@ -547,12 +658,14 @@ export default {
           .catch((error) => {
             // eslint-disable-next-line
             console.log(error);
-            const message = error.response.data.template_name
-              ? error.response.data.template_name[0]
-              : error.response.data.email_subject
-              ? error.response.data.email_subject[0]
-              : error.response.data.app_id
+            const message = error.response.data.app_id
               ? error.response.data.app_id[0]
+              : error.response.data.user_name
+              ? error.response.data.user_name[0]
+              : error.response.data.incoming_server
+              ? error.response.data.incoming_server[0]
+              : error.response.data.outgoing_server
+              ? error.response.data.outgoing_server[0]
               : error.response.data.message
               ? error.response.data.message
               : 'Something Wrong!!!';
@@ -579,7 +692,7 @@ export default {
     deleteSMTP() {
       this.isDeleteLoading = true;
       axios
-        .delete(`/email-masters/${this.smtpIdToDelete}`)
+        .delete(`/smtp-masters/${this.smtpIdToDelete}`)
         .then((response) => {
           const data = response.data;
           this.successMessage = data.message;
@@ -615,12 +728,6 @@ export default {
               return {
                 id: item.smtp_id || 1,
                 ...item,
-                // pass: '',
-                // imap: '',
-                // pop3: '',
-                // smtp: '',
-                // senderName: '',
-                // senderEmail: '',
               };
             })
             .slice(0, 10);
