@@ -231,7 +231,7 @@
                       :href="`https://api.whatsapp.com/send?phone=${
                         item.code + item.phone
                       }&text=Hello`"
-                      class="text-decoration-none text-grey-darken-1"
+                      class="text-decoration-none text-grey-darken-1 text-no-wrap"
                     >
                       {{ item.code + item.phone
                       }}<v-icon
@@ -244,7 +244,7 @@
                   </td>
                   <td>{{ item.country_name }}</td>
                   <td>{{ item.registered_on }}</td>
-                  <td>{{ item.user }}</td>
+                  <td>{{ item?.user?.name }}</td>
                   <td>
                     <div class="d-flex">
                       <v-btn
@@ -279,13 +279,13 @@
                           <td class="pr-10 pt-2 pb-4">
                             Skills:
                             <span class="text-blue-accent-4">{{
-                              item.skills
+                              item?.skills?.skills_name
                             }}</span>
                           </td>
                           <td class="pr-10 pt-2 pb-4">
                             App Id:
                             <span class="text-blue-accent-4">{{
-                              item.app
+                              item?.app?.app_name
                             }}</span>
                           </td>
                           <td class="pr-10 pt-2 pb-4">
@@ -329,8 +329,9 @@
                                 style="text-transform: none"
                                 type="submit"
                                 variant="flat"
-                                :disabled="isSendTemplate"
-                                :loading="isSendTemplate"
+                                @click="sendEmail(item)"
+                                :disabled="item.loading"
+                                :loading="item.loading"
                               >
                                 Send Email
                               </v-btn>
@@ -349,16 +350,18 @@
                         <tr>
                           <td style="width: 60px"></td>
                           <td
-                            style="width: 400px; overflow: hidden"
+                            style="width: 600px; overflow: hidden"
                             class="pt-2 pb-4"
                           >
                             <v-row>
-                              <v-col cols="4">
-                                <p class="text-caption font-weight-bold">
+                              <v-col cols="2">
+                                <p
+                                  class="text-caption font-weight-bold text-no-wrap"
+                                >
                                   Email Sent On
                                 </p>
                               </v-col>
-                              <v-col cols="4">
+                              <v-col cols="2">
                                 <p class="text-caption font-weight-bold">
                                   App Name
                                 </p>
@@ -368,34 +371,45 @@
                                   Subject
                                 </p>
                               </v-col>
-                            </v-row>
-                            <v-row class="py-0">
-                              <v-col cols="4">
-                                <p class="text-caption text-grey">17/01/2025</p>
-                              </v-col>
-                              <v-col cols="4">
-                                <p class="text-caption text-grey">
-                                  The Syringe
+                              <v-col cols="2">
+                                <p class="text-caption font-weight-bold">
+                                  User
                                 </p>
                               </v-col>
-                              <v-col cols="4">
-                                <p class="text-caption text-grey">
-                                  Resume Request
+                              <v-col cols="2">
+                                <p class="text-caption font-weight-bold">
+                                  Dated
                                 </p>
                               </v-col>
                             </v-row>
-                            <v-row class="py-0">
-                              <v-col cols="4">
-                                <p class="text-caption text-grey">17/01/2025</p>
-                              </v-col>
-                              <v-col cols="4">
+                            <v-row
+                              v-for="(data, index) in item.emailSentItems"
+                              :key="index"
+                              class="py-0"
+                            >
+                              <v-col cols="2">
                                 <p class="text-caption text-grey">
-                                  The Syringe
+                                  {{ data?.sent_on || '-' }}
+                                </p>
+                              </v-col>
+                              <v-col cols="2">
+                                <p class="text-caption text-grey">
+                                  {{ data?.app_name || '-' }}
                                 </p>
                               </v-col>
                               <v-col cols="4">
                                 <p class="text-caption text-grey">
-                                  Resume Request
+                                  {{ data?.email_subject || '-' }}
+                                </p>
+                              </v-col>
+                              <v-col cols="2">
+                                <p class="text-caption text-grey">
+                                  {{ data?.name || '-' }}
+                                </p>
+                              </v-col>
+                              <v-col cols="2">
+                                <p class="text-caption text-grey">
+                                  {{ data?.dated || '-' }}
                                 </p>
                               </v-col>
                             </v-row>
@@ -453,6 +467,18 @@
         </v-card-actions>
       </v-card>
     </v-dialog>
+    <v-dialog persistent width="400" v-model="isSuccessEmail">
+      <v-card class="py-8 px-4">
+        <v-card-title class="text-center"
+          >Email has been successfully sent</v-card-title
+        >
+        <v-card-actions class="d-flex justify-center mt-8">
+          <v-btn class="w-100 bg-primary" text @click="closeSuccessEmail"
+            >OK</v-btn
+          >
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
     <v-dialog persistent width="auto" v-model="isOpenImage">
       <v-card width="750">
         <v-card-title class="upload-title px-6 py-4">
@@ -497,11 +523,13 @@ export default {
   data: () => ({
     // fileURL: 'https://admin1.the-gypsy.sg/img/app/',
     valid: false,
+    requestCount: 0,
     isLoading: false,
     isSending: false,
     isSendTemplate: false,
     isEdit: false,
     isSuccess: false,
+    isSuccessEmail: false,
     isError: false,
     isDelete: false,
     isDeleteLoading: false,
@@ -597,6 +625,11 @@ export default {
       // this.getCityData(newVal);
       this.getCountryCode(newVal);
     },
+    requestCount() {
+      if (this.requestCount === 0) {
+        this.isLoading = false;
+      }
+    },
   },
   created() {
     const token = JSON.parse(localStorage.getItem('token'));
@@ -605,7 +638,7 @@ export default {
   mounted() {
     this.getCountryCode2();
     setTimeout(() => {
-      this.getUserData();
+      this.getItemsData();
       this.getCountry();
       this.getPrimarySkillData();
       this.getAppActive();
@@ -644,7 +677,7 @@ export default {
           const data = response.data;
           this.successMessage = data.message;
           this.isSuccess = true;
-          this.getUserData();
+          this.getItemsData();
         })
         .catch((error) => {
           // eslint-disable-next-line
@@ -738,7 +771,7 @@ export default {
           const data = response.data;
           this.successMessage = data.message;
           this.isSuccess = true;
-          this.getUserData();
+          this.getItemsData();
         })
         .catch((error) => {
           // eslint-disable-next-line
@@ -820,7 +853,7 @@ export default {
             const data = response.data;
             this.successMessage = data.message;
             this.isSuccess = true;
-            this.getUserData();
+            this.getItemsData();
             this.input = {
               id: 0,
               fullName: null,
@@ -870,7 +903,7 @@ export default {
             const data = response.data;
             this.successMessage = data.message;
             this.isSuccess = true;
-            this.getUserData();
+            this.getItemsData();
             this.input = {
               id: 0,
               fullName: null,
@@ -920,7 +953,7 @@ export default {
           const data = response.data;
           this.successMessage = data.message;
           this.isSuccess = true;
-          this.getUserData();
+          this.getItemsData();
         })
         .catch((error) => {
           // eslint-disable-next-line
@@ -938,60 +971,136 @@ export default {
           this.isDelete = false;
         });
     },
-    getUserData() {
-      this.isLoading = true;
+    sendEmail(item) {
+      item.loading = true;
+      const payload = {
+        invite_id: item.invite_id,
+        template_id: item.template,
+      };
+      console.log(payload);
       axios
-        .get(`/invites`)
+        .post(`/invites/send-mail`, payload)
         .then((response) => {
-          const data = response.data.data;
+          const data = response.data;
           console.log(data);
-          this.items = data
-            .sort((a, b) => b.invite_id - a.invite_id)
-            .map((item) => {
-              return {
-                id: item.invite_id || 0,
-                name: item.full_name || '',
-                email: item.email || '',
-                code:
-                  this.resource.code.filter((i) => i.id == item.from_country)[0]
-                    ?.code || '',
-                phone: item.mobile_number || '',
-                gender:
-                  item.gender == 'M'
-                    ? 'Male'
-                    : item.gender == 'F'
-                    ? 'Female'
-                    : '',
-                genderCode: item.gender || '',
-                skills_id: item.skills_id || null,
-                skills: item.skills?.skills_name || '',
-                app_id: item.app_id || null,
-                app: item.app?.app_name || '',
-                image: item.image || null,
-                country_id: item.from_country || null,
-                country_name: item.country?.country_name || '',
-                registered_on: item.invited_on || '',
-                user_id: item.user_id || null,
-                user: item.user?.name || '',
-                template: null,
-              };
-            })
-            .slice(0, 10);
-          console.log(this.items);
+          item.template = null;
+          this.isSuccessEmail = true;
+          this.getItemsData();
         })
         .catch((error) => {
           // eslint-disable-next-line
           console.log(error);
-          const message =
-            error.response.data.message === ''
-              ? 'Something Wrong!!!'
-              : error.response.data.message;
+          const message = error.response.data.invite_id
+            ? error.response.data.invite_id[0]
+            : error.response.data.message === ''
+            ? 'Something Wrong!!!'
+            : error.response.data.message;
           this.errorMessage = message;
           this.isError = true;
         })
         .finally(() => {
-          this.isLoading = false;
+          item.loading = false;
         });
+    },
+    closeSuccessEmail() {
+      this.isSuccessEmail = false;
+      // this.getItemsData();
+    },
+    async getItemsData() {
+      this.isLoading = true;
+      this.requestCount = 0; // Reset request count
+      try {
+        let items = await this.getUserData();
+        this.items = items.sort((a, b) => b.invite_id - a.invite_id);
+        this.requestCount++;
+
+        items = await Promise.all(
+          items.map(async (item) => {
+            const emailSentItems = await this.getEmailSentDataById(
+              item.invite_id
+            );
+            this.requestCount++;
+            return {
+              ...item,
+              emailSentItems: emailSentItems,
+            };
+          })
+        );
+
+        this.items = items.sort((a, b) => b.id - a.id);
+        console.log(items);
+      } catch (error) {
+        console.error('Error fetching items data:', error);
+      } finally {
+        this.isLoading = false;
+      }
+    },
+
+    async getUserData() {
+      this.isLoading = true;
+      try {
+        const response = await axios.get(`/invites`);
+        const data = response.data.data;
+        return data
+          .sort((a, b) => b.invite_id - a.invite_id)
+          .map((item) => {
+            return {
+              id: item.invite_id || 0,
+              name: item.full_name || '',
+              email: item.email || '',
+              code:
+                this.resource.code.filter((i) => i.id == item.from_country)[0]
+                  ?.code || '',
+              phone: item.mobile_number || '',
+              gender:
+                item.gender == 'M'
+                  ? 'Male'
+                  : item.gender == 'F'
+                  ? 'Female'
+                  : '',
+              genderCode: item.gender || '',
+              skills_id: item.skills_id || null,
+              skills: item.skills?.skills_name || '',
+              app_id: item.app_id || null,
+              app: item.app?.app_name || '',
+              image: item.image || null,
+              country_id: item.from_country || null,
+              country_name: item.country?.country_name || '',
+              registered_on: item.invited_on || '',
+              user_id: item.user_id || null,
+              user: item.user?.name || '',
+              template: null,
+              ...item,
+              loading: false,
+            };
+          })
+          .slice(0, 10);
+      } catch (error) {
+        console.log(error);
+        const message =
+          error.response.data.message === ''
+            ? 'Something Wrong!!!'
+            : error.response.data.message;
+        this.errorMessage = message;
+        this.isError = true;
+      } finally {
+        this.isLoading = false;
+      }
+    },
+    async getEmailSentDataById(id) {
+      //this.isLoading = true;
+      try {
+        const response = await axios.get(`/emails-sent/get-by-invite-id/${id}`);
+        const data = response.data.data;
+
+        return data;
+      } catch (error) {
+        console.log(error);
+        throw error;
+      }
+      //finally {
+      //  this.isLoading = false;
+      //}
     },
     getCountryCode(country) {
       axios
@@ -1123,7 +1232,7 @@ export default {
           // console.log(data);
           this.resource.emails = data.map((app) => {
             return {
-              id: app.app_id || 0,
+              id: app.template_id || 0,
               name:
                 app.app_name && app.email_subject
                   ? `${app.app_name} | ${app.email_subject}`
