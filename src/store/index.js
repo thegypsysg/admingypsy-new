@@ -50,6 +50,10 @@ export default createStore({
             path: '/product_master',
           },
           {
+            title: 'Price List Master',
+            path: '/price_list_master',
+          },
+          {
             title: 'Jobs Master',
             path: '/jobs-master',
           },

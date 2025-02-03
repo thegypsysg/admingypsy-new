@@ -518,6 +518,20 @@ const routes = [
     },
   },
   {
+    name: 'price list master',
+    path: '/price_list_master',
+    component: () =>
+      import('@/views/price list master/PriceListMasterContainer.vue'),
+    beforeEnter: (to, from, next) => {
+      // Pengecekan status login sebelum masuk ke halaman beranda
+      if (localStorage.getItem('token') == null) {
+        next('/auth/login'); // Alihkan ke halaman login jika belum masuk
+      } else {
+        next(); // Lanjutkan ke halaman beranda jika sudah masuk
+      }
+    },
+  },
+  {
     name: 'product range',
     path: '/product_range/:id',
     component: () =>
