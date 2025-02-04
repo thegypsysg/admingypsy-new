@@ -43,13 +43,14 @@
       >
     </div>
     <div class="d-flex align-center mt-4">
-      <template v-for="(city, index) in cities" :key="city.app_city_id">
+      <template v-for="(city, index) in cities" :key="city.city_id">
         <span
+          style="cursor: pointer"
           class="font-weight-bold"
           :class="
-            selectedCity == city.app_city_id ? 'text-blue-darken-4' : undefined
+            selectedCity == city.city_id ? 'text-blue-darken-4' : undefined
           "
-          @click="changeSelectedCity(city.app_city_id)"
+          @click="changeSelectedCity(city.city_id, city?.currency_symbol)"
           >{{ city.city_name }}</span
         >
         <span v-if="index != cities.length - 1" class="mx-1 font-weight-bold">
@@ -65,7 +66,7 @@
               v-model="input.product"
               class="form-control search-input"
               item-title="name"
-              item-value="id"
+              return-object
               :items="products"
               placeholder="Product Name"
               density="compact"
@@ -157,7 +158,7 @@
                 class="d-flex justify-center align-center w-33"
                 style="background: #e9ecef"
               >
-                <h4 style="color: #077cff">S$</h4>
+                <h4 style="color: #077cff">{{ selectedCurrency }}</h4>
               </div>
               <v-text-field
                 class="w-66"
@@ -224,7 +225,7 @@
               </tr>
             </thead>
             <tbody>
-              <template v-for="item in filteredItems" :key="item.id">
+              <template v-for="item in items" :key="item.id">
                 <tr class="country-table-body">
                   <td>{{ item.id }}</td>
 
@@ -236,8 +237,10 @@
                         @click="openImage(item)"
                         style="cursor: pointer"
                         :src="
-                          item.image != null
+                          item.image
                             ? $fileURL + item.image
+                            : item.image_1
+                            ? $fileURL + item.image_1
                             : 'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png'
                         "
                         ><template #placeholder>
@@ -246,10 +249,11 @@
                     </div>
                   </td>
                   <td>
-                    <!-- {{ item.gender }} -->
-                    Monkey Shoulders - The Original
+                    {{ item?.product_name || '-' }}
                   </td>
-                  <td>700 ML</td>
+                  <td>
+                    {{ item?.quantity_name || '-' }}
+                  </td>
                   <td>
                     <div
                       class="d-flex align-content-center p-0 w-100"
@@ -264,7 +268,7 @@
                         class="d-flex justify-center align-center w-33"
                         style="background: #e9ecef"
                       >
-                        <h4 style="color: #077cff">S$</h4>
+                        <h4 style="color: #077cff">{{ selectedCurrency }}</h4>
                       </div>
                       <v-text-field
                         class="w-66"
@@ -274,7 +278,8 @@
                         inputmode="numeric"
                         density="compact"
                         placeholder="0"
-                        v-model="item.price"
+                        v-model="item.rate"
+                        @input="debouncedUpdate(item.id, item.rate)"
                       ></v-text-field>
                     </div>
                   </td>
@@ -290,17 +295,16 @@
                       v-model="item.isActive"
                       :disabled="isSending2"
                       rounded="5"
-                      @click="activeEvents(item.id)"
+                      @click="activePrice(item.id)"
                     >
                       <v-btn size="27" :value="true"> Yes </v-btn>
 
                       <v-btn size="27" :value="false"> No </v-btn>
                     </v-btn-toggle>
                   </td>
-                  <td>{{ item?.user?.name }}</td>
+                  <td>{{ item?.name || '-' }}</td>
                   <td>
-                    <!-- {{ item?.user?.name }} -->
-                    24/01/2025
+                    {{ item?.dated || '-' }}
                   </td>
                   <td>
                     <div class="d-flex">
@@ -359,7 +363,9 @@
                                     class="d-flex justify-center align-center w-33"
                                     style="background: #e9ecef"
                                   >
-                                    <h4 style="color: #077cff">S$</h4>
+                                    <h4 style="color: #077cff">
+                                      {{ selectedCurrency }}
+                                    </h4>
                                   </div>
                                   <v-text-field
                                     class="w-66"
@@ -412,7 +418,7 @@
                             <v-row
                               v-for="(
                                 data, index
-                              ) in item.emailSentItems?.slice(0, 2)"
+                              ) in item.priceListItems?.slice(0, 2)"
                               :key="index"
                               style="border-top: 1px solid black !important"
                               class="pt-0 pb-2 mt-1"
@@ -489,7 +495,9 @@
                                         class="d-flex justify-center align-center w-33"
                                         style="background: #e9ecef"
                                       >
-                                        <h4 style="color: #077cff">S$</h4>
+                                        <h4 style="color: #077cff">
+                                          {{ selectedCurrency }}
+                                        </h4>
                                       </div>
                                       <v-text-field
                                         class="w-66"
@@ -520,7 +528,9 @@
                                         class="d-flex justify-center align-center w-33"
                                         style="background: #e9ecef"
                                       >
-                                        <h4 style="color: #077cff">S$</h4>
+                                        <h4 style="color: #077cff">
+                                          {{ selectedCurrency }}
+                                        </h4>
                                       </div>
                                       <v-text-field
                                         class="w-66"
@@ -549,7 +559,7 @@
                                       v-model="item.isActive"
                                       :disabled="isSending2"
                                       rounded="5"
-                                      @click="activeEvents(item.id)"
+                                      @click="activePrice(item.id)"
                                     >
                                       <v-btn size="27" :value="true">
                                         Yes
@@ -609,11 +619,11 @@
     <v-dialog persistent width="500" v-model="isDelete">
       <v-card>
         <v-card-title>Confirmation</v-card-title>
-        <v-card-text> Are you sure want to delete this user? </v-card-text>
+        <v-card-text> Are you sure want to delete this price? </v-card-text>
         <v-card-actions>
           <v-spacer></v-spacer>
           <v-btn color="error" text @click="cancelDelete">No</v-btn>
-          <v-btn color="success" text @click="deleteUser">Yes</v-btn>
+          <v-btn color="success" text @click="deletePrice">Yes</v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
@@ -632,7 +642,7 @@
     <v-dialog persistent width="auto" v-model="isOpenImage">
       <v-card width="750">
         <v-card-title class="upload-title px-6 py-4">
-          Upload Image - User</v-card-title
+          Upload Image - Price</v-card-title
         >
         <v-card-text>
           <image-upload
@@ -669,11 +679,12 @@ import http from 'axios';
 import { setAuthHeader } from '@/util/axios';
 
 export default {
-  name: 'UserMaster',
+  name: 'PriceMaster',
   data: () => ({
     // fileURL: 'https://admin1.the-gypsy.sg/img/app/',
     selectedApp: 3,
-    selectedCity: 3,
+    selectedCity: 1,
+    selectedCurrency: 'S$',
     valid: false,
     requestCount: 0,
     isLoading: false,
@@ -684,20 +695,16 @@ export default {
     isError: false,
     isDelete: false,
     isDeleteLoading: false,
-    userIdToDelete: null,
+    priceIdToDelete: null,
     tableHeaders: [{ text: 'Gambar', value: 'image' }],
     imageFile: [],
-    userDataToImage: {
+    priceDataToImage: {
       id: 0,
-      fullName: null,
-      email: null,
-      gender: null,
-      country: null,
-      code: null,
-      mobile: null,
-      skills: null,
       app: null,
-      remarks: null,
+      city: null,
+      product: null,
+      range: null,
+      price: null,
     },
     isOpenImage: false,
     successMessage: '',
@@ -706,16 +713,6 @@ export default {
       id: 0,
       product: null,
       price: null,
-      fullName: null,
-      email: null,
-      gender: null,
-      country: null,
-      code: null,
-      mobile: null,
-      skills: null,
-      app: null,
-      remarks: null,
-      image: null,
     },
     resource: {
       country: [],
@@ -740,14 +737,6 @@ export default {
           if (value) return true;
           return 'Name is requred.';
         },
-        // (value) => {
-        //   if (value?.length >= 4) return true;
-        //   return 'Username must be more than 4 characters.';
-        // },
-        // (value) => {
-        //   if (value?.length <= 20) return true;
-        //   return 'Username must be less than 20 characters.';
-        // },
       ],
       emailRules: [
         (value) => {
@@ -773,6 +762,7 @@ export default {
     items: [],
     cities: [],
     products: [],
+    debounceTimer: null,
   }),
   watch: {
     requestCount() {
@@ -792,36 +782,17 @@ export default {
       this.getItemsData(this.selectedCity);
     }, 500);
   },
-  computed: {
-    filteredItems() {
-      if (!this.search) {
-        return this.items;
-      }
-      const searchTextLower = this.search.toLowerCase();
-      return this.items.filter(
-        (item) =>
-          item.name.toLowerCase().includes(searchTextLower) ||
-          item.email.toLowerCase().includes(searchTextLower) ||
-          item.phone.toLowerCase().includes(searchTextLower) ||
-          item.gender.toLowerCase().includes(searchTextLower) ||
-          item.skills.toLowerCase().includes(searchTextLower) ||
-          item.app.toLowerCase().includes(searchTextLower) ||
-          item.country_name.toLowerCase().includes(searchTextLower) ||
-          item.registered_on.toLowerCase().includes(searchTextLower) ||
-          item.user.toLowerCase().includes(searchTextLower)
-      );
-    },
-  },
   methods: {
     changeSelectedApp(index) {
       this.selectedApp = index;
 
       this.getCityByApp(index);
     },
-    changeSelectedCity(index) {
+    changeSelectedCity(index, currency) {
       this.selectedCity = index;
+      this.selectedCurrency = currency;
 
-      this.getCityByApp(index);
+      this.getItemsData(index);
     },
     updateImageFile(newImageFile) {
       this.imageFile.push(newImageFile);
@@ -829,12 +800,12 @@ export default {
     deleteImageFile() {
       this.isSending = true;
       axios
-        .delete(`/invites/${this.userDataToImage.id}/image`)
+        .delete(`/invites/${this.priceDataToImage.id}/image`)
         .then((response) => {
           const data = response.data;
           this.successMessage = data.message;
           this.isSuccess = true;
-          this.getItemsData();
+          this.getItemsData(this.selectedCity);
         })
         .catch((error) => {
           // eslint-disable-next-line
@@ -848,29 +819,19 @@ export default {
         })
         .finally(() => {
           this.isSending = false;
-          // this.productDataToImage = {
-          //   app_id: 1,
-          //   app_group_id: 1,
-          //   app_name: '',
-          //   app_description: '',
-          //   app_detail: '',
-          // };
+
           this.imageFile = [];
         });
     },
     openImage(item) {
       this.isOpenImage = true;
-      this.userDataToImage = {
-        id: item.id,
-        fullName: item.name,
-        email: item.email,
-        gender: item.genderCode,
-        country: item.country_id,
-        code: this.input.code,
-        mobile: parseInt(item.phone),
-        skills: item.skills_id,
+      this.priceDataToImage = {
+        id: item.price_id,
         app: item.app_id,
-        remarks: 'Met in a Networking group',
+        city: item.city_id,
+        product: item.product_id,
+        range: item.range_id,
+        price: item.range,
       };
       this.imageFile =
         item.image != null
@@ -889,31 +850,24 @@ export default {
     closeImage() {
       this.isOpenImage = false;
       this.imageFile = [];
-      this.productDataToImage = {
+      this.priceDataToImage = {
         id: 0,
-        fullName: null,
-        email: null,
-        gender: null,
-        country: null,
-        code: null,
-        mobile: null,
-        skills: null,
         app: null,
-        remarks: null,
+        city: null,
+        product: null,
+        range: null,
+        price: null,
       };
     },
     saveImage() {
       this.isSending = true;
       const payload = {
-        invite_id: this.userDataToImage.id,
-        full_name: this.userDataToImage.fullName,
-        email: this.userDataToImage.email,
-        mobile_number: this.userDataToImage.mobile,
-        gender: this.userDataToImage.gender,
-        skills_id: this.userDataToImage.skills,
-        app_id: this.userDataToImage.app,
-        from_country: this.userDataToImage.country,
-        remarks: this.userDataToImage.remarks,
+        price_id: this.priceDataToImage.id,
+        app_id: this.priceDataToImage.app,
+        city_id: this.priceDataToImage.city,
+        product_id: this.priceDataToImage.product,
+        range_id: this.priceDataToImage.range,
+        price: this.priceDataToImage.price,
         image: this.imageFile[0],
       };
 
@@ -927,7 +881,7 @@ export default {
           const data = response.data;
           this.successMessage = data.message;
           this.isSuccess = true;
-          this.getItemsData();
+          this.getItemsData(this.selectedCity);
         })
         .catch((error) => {
           // eslint-disable-next-line
@@ -941,105 +895,69 @@ export default {
         })
         .finally(() => {
           this.isSending = false;
-          this.productDataToImage = {
+          this.priceDataToImage = {
             id: 0,
-            fullName: null,
-            email: null,
-            gender: null,
-            country: null,
-            code: null,
-            mobile: null,
-            skills: null,
             app: null,
-            remarks: null,
+            city: null,
+            product: null,
+            range: null,
+            price: null,
           };
           this.isOpenImage = false;
           this.imageFile = [];
         });
     },
-
-    saveEdit() {
-      if (this.valid) {
-        this.isSending = true;
-        const payload = {
-          invite_id: this.input.id,
-          full_name: this.input.fullName,
-          email: this.input.email,
-          mobile_number: this.input.mobile,
-          gender: this.input.gender,
-          skills_id: this.input.skills,
-          app_id: this.input.app,
-          from_country: this.input.country,
-          remarks: this.input.remarks,
-        };
-        axios
-          .post(`/invites/update`, payload)
-          .then((response) => {
-            const data = response.data;
-            this.successMessage = data.message;
-            this.isSuccess = true;
-            this.getItemsData();
-            this.input = {
-              id: 0,
-              fullName: null,
-              email: null,
-              gender: null,
-              country: null,
-              code: null,
-              mobile: null,
-              skills: null,
-              app: null,
-              remarks: null,
-              image: null,
-            };
-          })
-          .catch((error) => {
-            // eslint-disable-next-line
-            console.log(error);
-            const message =
-              error.response.data.message === ''
-                ? 'Something Wrong!!!'
-                : error.response.data.message;
-            this.errorMessage = message;
-            this.isError = true;
-          })
-          .finally(() => {
-            this.isSending = false;
-          });
+    debouncedUpdate(id, value) {
+      // Hapus timer sebelumnya jika ada
+      if (this.debounceTimer) {
+        clearTimeout(this.debounceTimer);
       }
+
+      // Set debounce baru
+      this.debounceTimer = setTimeout(() => {
+        this.updateData(id, value);
+      }, 800);
+    },
+    updateData(id, val) {
+      const payload = {
+        price_id: id,
+        rate: val,
+      };
+
+      axios
+        .post(`/price-list/update`, payload)
+        .then((response) => {
+          this.successMessage = response.data.message;
+          this.isSuccess = true;
+        })
+        .catch((error) => {
+          console.error(error);
+          this.errorMessage =
+            error.response?.data?.message || 'Something Wrong!!!';
+          this.isError = true;
+        });
     },
     saveData() {
       if (this.valid) {
         this.isSending = true;
         const payload = {
-          full_name: this.input.fullName,
-          email: this.input.email,
-          mobile_number: this.input.mobile,
-          gender: this.input.gender,
-          skills_id: this.input.skills,
-          app_id: this.input.app,
-          from_country: this.input.country,
-          remarks: this.input.remarks,
+          app_id: this.selectedApp,
+          city_id: this.selectedCity,
+          product_id: this.input.product.productId,
+          range_id: this.input.product.rangeId,
+          rate: this.input.price,
         };
         axios
-          .post(`/invites`, payload)
+          .post(`/price-list`, payload)
           .then((response) => {
             const data = response.data;
             this.successMessage = data.message;
             this.isSuccess = true;
-            this.getItemsData();
+            this.getItemsData(this.selectedCity);
             this.input = {
               id: 0,
-              fullName: null,
-              email: null,
-              gender: null,
-              country: null,
-              code: null,
-              mobile: null,
-              skills: null,
-              app: null,
-              remarks: null,
-              image: null,
+              product: null,
+              price: null,
             };
           })
           .catch((error) => {
@@ -1058,26 +976,26 @@ export default {
       }
     },
     cancelDelete() {
-      this.userIdToDelete = null;
+      this.priceIdToDelete = null;
       this.isDelete = false;
     },
     openDeleteConfirm(itemId) {
-      this.userIdToDelete = itemId;
+      this.priceIdToDelete = itemId;
       this.isDelete = true;
     },
     cancelConfirmation() {
-      this.userIdToDelete = null;
+      this.priceIdToDelete = null;
       this.isDelete = false;
     },
-    deleteUser() {
+    deletePrice() {
       this.isDeleteLoading = true;
       axios
-        .delete(`/invites/${this.userIdToDelete}`)
+        .delete(`/price-list/${this.priceIdToDelete}`)
         .then((response) => {
           const data = response.data;
           this.successMessage = data.message;
           this.isSuccess = true;
-          this.getItemsData();
+          this.getItemsData(this.selectedCity);
         })
         .catch((error) => {
           // eslint-disable-next-line
@@ -1091,7 +1009,7 @@ export default {
         })
         .finally(() => {
           this.isDeleteLoading = false;
-          this.userIdToDelete = null;
+          this.priceIdToDelete = null;
           this.isDelete = false;
         });
     },
@@ -1109,7 +1027,7 @@ export default {
           console.log(data);
           item.template = null;
           this.isSuccessEmail = true;
-          this.getItemsData();
+          this.getItemsData(this.selectedCity);
         })
         .catch((error) => {
           // eslint-disable-next-line
@@ -1134,44 +1052,18 @@ export default {
       this.isLoading = true;
       this.requestCount = 0; // Reset request count
       try {
-        let items = await this.getUserData();
-        this.items = items.sort((a, b) => b.invite_id - a.invite_id);
+        let items = await this.getPriceData();
+        this.items = items.sort((a, b) => b.price_id - a.price_id);
         this.requestCount++;
 
         items = await Promise.all(
           items.map(async (item) => {
-            //const emailSentItems = await this.getEmailSentDataById(
-            //  item.invite_id
-            //);
+            //const priceListItems = await this.getPriceListById(item.price_id);
             this.requestCount++;
             return {
               ...item,
-              //emailSentItems: emailSentItems,
-              emailSentItems: [
-                {
-                  sent_on: '27/01/2025',
-                  template_id: 1,
-                  email_subject: 'Resume Request - Physiotherapist Jobs',
-                  email_id: 'charlton@the-syringe.com',
-                  app_id: 5,
-                  app_name: 'The Syringe',
-                  invite_id: 246,
-                  user_id: 1,
-                  name: 'Charlton',
-                  dated: '27/01/2025',
-                },
-                {
-                  sent_on: '27/01/2025',
-                  template_id: 1,
-                  email_subject: 'Resume Request - Physiotherapist Jobs',
-                  email_id: 'charlton@the-syringe.com',
-                  app_id: 5,
-                  app_name: 'The Syringe',
-                  invite_id: 246,
-                  user_id: 1,
-                  name: 'Charlton',
-                  dated: '27/01/2025',
-                },
+              //priceListItems: priceListItems,
+              priceListItems: [
                 {
                   sent_on: '27/01/2025',
                   template_id: 1,
@@ -1210,47 +1102,19 @@ export default {
       }
     },
 
-    async getUserData() {
+    async getPriceData() {
       this.isLoading = true;
       try {
-        const response = await axios.get(`/invites`);
+        const response = await axios.get(`/price-list`);
         const data = response.data.data;
-        return data
-          .sort((a, b) => b.invite_id - a.invite_id)
-          .map((item) => {
-            return {
-              id: item.invite_id || 0,
-              name: item.full_name || '',
-              email: item.email || '',
-              code: '',
-              phone: item.mobile_number || '',
-              gender:
-                item.gender == 'M'
-                  ? 'Male'
-                  : item.gender == 'F'
-                  ? 'Female'
-                  : '',
-              genderCode: item.gender || '',
-              skills_id: item.skills_id || null,
-              skills: item.skills?.skills_name || '',
-              app_id: item.app_id || null,
-              app: item.app?.app_name || '',
-              image: item.image || null,
-              country_id: item.from_country || null,
-              country_name: item.country?.country_name || '',
-              registered_on: item.invited_on || '',
-              user_id: item.user_id || null,
-              user: item.user?.name || '',
-              template: null,
-              ...item,
-              loading: false,
-              price: 35.4,
-              isActive: false,
-              merchantPrices: null,
-              shopRate: null,
-            };
-          })
-          .slice(0, 10);
+        return data.map((item) => {
+          return {
+            ...item,
+            id: item.price_id || 0,
+            isActive:
+              item.active == 'N' ? false : item.active == 'Y' ? true : null,
+          };
+        });
       } catch (error) {
         console.log(error);
         const message =
@@ -1263,10 +1127,10 @@ export default {
         this.isLoading = false;
       }
     },
-    async getEmailSentDataById(id) {
+    async getPriceListById(id) {
       //this.isLoading = true;
       try {
-        const response = await axios.get(`/emails-sent/get-by-invite-id/${id}`);
+        const response = await axios.get(`/price-list/${id}`);
         const data = response.data.data;
 
         return data;
@@ -1282,10 +1146,13 @@ export default {
       axios
         .get(`/app-cities/get-cities-by-app-id/${app}`)
         .then((response) => {
-          const data = response.data.data;
+          const data = response?.data?.data;
           this.cities = data;
-          this.selectedCity = data[0].app_city_id;
-          this.getItemsData(data[0].app_city_id);
+          if (data) {
+            this.selectedCity = data[0]?.city_id;
+            this.selectedCurrency = data[0]?.currency_symbol;
+            this.getItemsData(data[0]?.city_id);
+          }
         })
         .catch((error) => {
           // eslint-disable-next-line
@@ -1340,6 +1207,8 @@ export default {
               return {
                 ...product,
                 id: product.product_id,
+                productId: product.product_id,
+                rangeId: range.range_id,
                 name: `${product.product_name} | ${range.quantity.quantity_name}`,
               };
             })
@@ -1352,6 +1221,30 @@ export default {
           const message = error.response?.data?.message || 'Something Wrong!!!';
           this.errorMessage = message;
           this.isError = true;
+        });
+    },
+    activePrice(id) {
+      this.isSending2 = true;
+      axios
+        .get(`/price-list/toggle-active/${id}`)
+        .then((response) => {
+          const data = response.data;
+          this.successMessage = data.message;
+          this.isSuccess = true;
+          this.getItemsData(this.selectedCity);
+        })
+        .catch((error) => {
+          // eslint-disable-next-line
+          console.log(error);
+          const message =
+            error.response.data.message === ''
+              ? 'Something Wrong!!!'
+              : error.response.data.message;
+          this.errorMessage = message;
+          this.isError = true;
+        })
+        .finally(() => {
+          this.isSending2 = false;
         });
     },
   },
