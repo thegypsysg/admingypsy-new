@@ -336,13 +336,11 @@
                                 <v-autocomplete
                                   density="compact"
                                   placeholder="Type Template"
-                                  :items="products"
-                                  :item-title="
-                                    (item) => `${item.product_name} | Singapore`
-                                  "
+                                  :items="onboardMerchants"
+                                  item-title="name"
                                   item-value="id"
                                   style="min-width: 300px !important"
-                                  v-model="item.merchantPrices"
+                                  v-model="item.onboardMerchants"
                                   variant="outlined"
                                 ></v-autocomplete>
                               </div>
@@ -425,55 +423,67 @@
                             >
                               <v-col cols="12">
                                 <v-row class="py-0">
-                                  <v-col cols="2">
+                                  <v-col
+                                    cols="12"
+                                    class="d-flex align-center justify-space-between"
+                                  >
                                     <p class="text-caption font-weight-bold">
                                       <!-- {{ data?.sent_on || '-' }} -->
                                       Value S Shop
                                     </p>
-                                  </v-col>
-                                  <v-col cols="2">
+                                    <!-- </v-col>
+                                  <v-col cols="2"> -->
                                     <p
                                       class="text-caption font-weight-bold text-no-wrap"
                                     >
                                       <!-- {{ data?.app_name || '-' }} -->
                                       Marine Parade
                                     </p>
-                                  </v-col>
-                                  <v-col cols="2">
+                                    <!-- </v-col>
+                                  <v-col cols="2"> -->
                                     <p class="text-caption font-weight-bold">
                                       <!-- {{ data?.email_subject || '-' }} -->
                                       Mr. Jack
                                     </p>
-                                  </v-col>
-                                  <v-col cols="2">
+                                    <!-- </v-col> -->
+                                    <!-- <v-col cols="2"> -->
                                     <p class="text-caption font-weight-bold">
                                       <a
                                         :href="`https://api.whatsapp.com/send?phone=${
-                                          item.code + item.phone
+                                          data.code + data.phone
                                         }&text=Hello`"
                                         class="text-decoration-none text-grey-darken-1 text-no-wrap"
                                       >
-                                        {{ item.code + item.phone
+                                        {{ data.code + data.phone
                                         }}<v-icon
-                                          v-if="item.phone"
+                                          v-if="data.phone"
                                           color="#4EC053"
                                           size="20"
                                           class="ml-2 fab fa-whatsapp"
                                         ></v-icon>
                                       </a>
                                     </p>
-                                  </v-col>
-                                  <v-col cols="2">
+                                    <!-- </v-col> -->
+                                    <!-- <v-col cols="1"> -->
                                     <p class="text-caption font-weight-bold">
                                       <!-- {{ data?.dated || '-' }} -->
                                       Charlton
                                     </p>
-                                  </v-col>
-                                  <v-col cols="2">
+                                    <!-- </v-col> -->
+                                    <!-- <v-col cols="2"> -->
                                     <p class="text-caption font-weight-bold">
                                       <!-- {{ data?.dated || '-' }} -->
                                       28/01/2025
                                     </p>
+                                    <!-- </v-col> -->
+                                    <!-- <v-col cols="1"> -->
+                                    <v-btn
+                                      color="red"
+                                      variant="text"
+                                      :disabled="isDeleteLoading"
+                                      @click="openDeleteConfirm(item)"
+                                      icon="mdi-trash-can-outline"
+                                    ></v-btn>
                                   </v-col>
                                 </v-row>
                                 <v-row class="py-0">
@@ -762,6 +772,7 @@ export default {
     items: [],
     cities: [],
     products: [],
+    onboardMerchants: [],
     debounceTimer: null,
   }),
   watch: {
@@ -779,7 +790,8 @@ export default {
     this.getProductRanges();
     this.getCityByApp(this.selectedApp);
     setTimeout(() => {
-      this.getItemsData(this.selectedCity);
+      //this.getItemsData(this.selectedCity);
+      //this.getOnboardMerchants(this.selectedApp, this.selectedCity);
     }, 500);
   },
   methods: {
@@ -793,6 +805,7 @@ export default {
       this.selectedCurrency = currency;
 
       this.getItemsData(index);
+      this.getOnboardMerchants(this.selectedApp, index);
     },
     updateImageFile(newImageFile) {
       this.imageFile.push(newImageFile);
@@ -1073,6 +1086,8 @@ export default {
                   app_name: 'The Syringe',
                   invite_id: 246,
                   user_id: 1,
+                  code: '+62',
+                  phone: '2532732',
                   name: 'Charlton',
                   dated: '27/01/2025',
                 },
@@ -1085,6 +1100,8 @@ export default {
                   app_name: 'The Syringe',
                   invite_id: 246,
                   user_id: 1,
+                  code: '+62',
+                  phone: '2532732',
                   name: 'Charlton',
                   dated: '27/01/2025',
                 },
@@ -1152,6 +1169,7 @@ export default {
             this.selectedCity = data[0]?.city_id;
             this.selectedCurrency = data[0]?.currency_symbol;
             this.getItemsData(data[0]?.city_id);
+            this.getOnboardMerchants(this.selectedApp, data[0]?.city_id);
           }
         })
         .catch((error) => {
@@ -1215,6 +1233,36 @@ export default {
           );
 
           console.log(this.products);
+        })
+        .catch((error) => {
+          console.log(error);
+          const message = error.response?.data?.message || 'Something Wrong!!!';
+          this.errorMessage = message;
+          this.isError = true;
+        });
+    },
+    getOnboardMerchants(appId, cityId) {
+      axios
+        .get(`/onboard-merchants/${appId}/${cityId}`)
+        .then((response) => {
+          const data = response.data.data;
+
+          this.onboardMerchants = data.map((item) => {
+            return {
+              ...item,
+              id: item?.partner_id,
+              name:
+                item?.partner?.partner_name && item?.town?.town_name
+                  ? `${item.partner.partner_name} | ${item.town.town_name}`
+                  : item?.partner?.partner_name && item?.city?.city_name
+                  ? `${item.partner.partner_name} | ${item.city.city_name}`
+                  : item?.partner?.partner_name
+                  ? item.partner.partner_name
+                  : '-',
+            };
+          });
+
+          console.log(this.onboardMerchants);
         })
         .catch((error) => {
           console.log(error);
