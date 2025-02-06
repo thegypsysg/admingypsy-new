@@ -165,6 +165,7 @@
                 style="margin-top: -1px"
                 variant="outlined"
                 type="number"
+                min="0"
                 inputmode="numeric"
                 density="compact"
                 placeholder="0"
@@ -275,6 +276,7 @@
                         style="margin-top: -1px"
                         variant="outlined"
                         type="number"
+                        min="0"
                         inputmode="numeric"
                         density="compact"
                         placeholder="0"
@@ -340,7 +342,7 @@
                                   item-title="name"
                                   item-value="id"
                                   style="min-width: 300px !important"
-                                  v-model="item.onboardMerchants"
+                                  v-model="item.merchantPrice"
                                   variant="outlined"
                                 ></v-autocomplete>
                               </div>
@@ -370,10 +372,11 @@
                                     style="margin-top: -1px"
                                     variant="outlined"
                                     type="number"
+                                    min="0"
                                     inputmode="numeric"
                                     density="compact"
                                     placeholder="0"
-                                    v-model="item.price"
+                                    v-model="item.shopRate"
                                   ></v-text-field>
                                 </div>
                               </div>
@@ -384,9 +387,9 @@
                                 type="submit"
                                 variant="flat"
                                 class="mt-6"
-                                @click="saveEdit()"
-                                :disabled="isSending"
-                                :loading="isSending"
+                                @click="sendPrice(item)"
+                                :disabled="item.loading"
+                                :loading="item.loading"
                               >
                                 <template v-slot:prepend>
                                   <v-icon color="white"></v-icon>
@@ -414,10 +417,8 @@
                             class="pt-2 pb-4"
                           >
                             <v-row
-                              v-for="(
-                                data, index
-                              ) in item.priceListItems?.slice(0, 2)"
-                              :key="index"
+                              v-for="data in item.priceListItems"
+                              :key="data?.mpl_id"
                               style="border-top: 1px solid black !important"
                               class="pt-0 pb-2 mt-1"
                             >
@@ -428,35 +429,41 @@
                                     class="d-flex align-center justify-space-between"
                                   >
                                     <p class="text-caption font-weight-bold">
-                                      <!-- {{ data?.sent_on || '-' }} -->
-                                      Value S Shop
+                                      {{
+                                        data?.onboard_merchant?.partner
+                                          ?.partner_name || '-'
+                                      }}
                                     </p>
                                     <!-- </v-col>
                                   <v-col cols="2"> -->
                                     <p
                                       class="text-caption font-weight-bold text-no-wrap"
                                     >
-                                      <!-- {{ data?.app_name || '-' }} -->
-                                      Marine Parade
+                                      {{
+                                        data?.onboard_merchant?.town
+                                          ?.town_name || '-'
+                                      }}
                                     </p>
                                     <!-- </v-col>
                                   <v-col cols="2"> -->
                                     <p class="text-caption font-weight-bold">
-                                      <!-- {{ data?.email_subject || '-' }} -->
-                                      Mr. Jack
+                                      {{
+                                        data?.onboard_merchant
+                                          ?.primary_contact || '-'
+                                      }}
                                     </p>
                                     <!-- </v-col> -->
                                     <!-- <v-col cols="2"> -->
                                     <p class="text-caption font-weight-bold">
                                       <a
-                                        :href="`https://api.whatsapp.com/send?phone=${
-                                          data.code + data.phone
-                                        }&text=Hello`"
+                                        :href="`https://api.whatsapp.com/send?phone=${data?.onboard_merchant?.whats_app}&text=Hello`"
                                         class="text-decoration-none text-grey-darken-1 text-no-wrap"
                                       >
-                                        {{ data.code + data.phone
+                                        {{ data?.onboard_merchant?.whats_app
                                         }}<v-icon
-                                          v-if="data.phone"
+                                          v-if="
+                                            data?.onboard_merchant?.whats_app
+                                          "
                                           color="#4EC053"
                                           size="20"
                                           class="ml-2 fab fa-whatsapp"
@@ -466,22 +473,20 @@
                                     <!-- </v-col> -->
                                     <!-- <v-col cols="1"> -->
                                     <p class="text-caption font-weight-bold">
-                                      <!-- {{ data?.dated || '-' }} -->
-                                      Charlton
+                                      {{ data?.user?.name || '-' }}
                                     </p>
                                     <!-- </v-col> -->
                                     <!-- <v-col cols="2"> -->
                                     <p class="text-caption font-weight-bold">
-                                      <!-- {{ data?.dated || '-' }} -->
-                                      28/01/2025
+                                      {{ data?.dated || '-' }}
                                     </p>
                                     <!-- </v-col> -->
                                     <!-- <v-col cols="1"> -->
                                     <v-btn
                                       color="red"
                                       variant="text"
-                                      :disabled="isDeleteLoading"
-                                      @click="openDeleteConfirm(item)"
+                                      :disabled="isDeleteLoading2"
+                                      @click="openDeleteConfirm2(data?.mpl_id)"
                                       icon="mdi-trash-can-outline"
                                     ></v-btn>
                                   </v-col>
@@ -514,10 +519,18 @@
                                         style="margin-top: -1px"
                                         variant="outlined"
                                         type="number"
+                                        min="0"
                                         inputmode="numeric"
                                         density="compact"
                                         placeholder="0"
-                                        v-model="item.price"
+                                        v-model="data.shop_rate"
+                                        @input="
+                                          debouncedUpdate2(
+                                            data.mpl_id,
+                                            data.shop_rate,
+                                            'shop'
+                                          )
+                                        "
                                       ></v-text-field>
                                     </div>
                                   </v-col>
@@ -547,10 +560,18 @@
                                         style="margin-top: -1px"
                                         variant="outlined"
                                         type="number"
+                                        min="0"
                                         inputmode="numeric"
                                         density="compact"
                                         placeholder="0"
-                                        v-model="item.price"
+                                        v-model="data.web_rate"
+                                        @input="
+                                          debouncedUpdate2(
+                                            data.mpl_id,
+                                            data.web_rate,
+                                            'web'
+                                          )
+                                        "
                                       ></v-text-field>
                                     </div>
                                   </v-col>
@@ -566,10 +587,10 @@
                                         width: 54px !important;
                                       "
                                       class="d-flex align-center"
-                                      v-model="item.isActive"
-                                      :disabled="isSending2"
+                                      v-model="data.isActive"
+                                      :disabled="isSending3"
                                       rounded="5"
-                                      @click="activePrice(item.id)"
+                                      @click="activePrice2(data.mpl_id)"
                                     >
                                       <v-btn size="27" :value="true">
                                         Yes
@@ -637,6 +658,19 @@
         </v-card-actions>
       </v-card>
     </v-dialog>
+    <v-dialog persistent width="500" v-model="isDelete2">
+      <v-card>
+        <v-card-title>Confirmation</v-card-title>
+        <v-card-text>
+          Are you sure want to delete this merchant price?
+        </v-card-text>
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn color="error" text @click="cancelDelete2">No</v-btn>
+          <v-btn color="success" text @click="deletePrice2">Yes</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
     <v-dialog persistent width="400" v-model="isSuccessEmail">
       <v-card class="py-8 px-4">
         <v-card-title class="text-center"
@@ -699,6 +733,8 @@ export default {
     requestCount: 0,
     isLoading: false,
     isSending: false,
+    isSending2: false,
+    isSending3: false,
     isSendTemplate: false,
     isSuccess: false,
     isSuccessEmail: false,
@@ -706,6 +742,9 @@ export default {
     isDelete: false,
     isDeleteLoading: false,
     priceIdToDelete: null,
+    isDelete2: false,
+    isDeleteLoading2: false,
+    merchantPriceIdToDelete: null,
     tableHeaders: [{ text: 'Gambar', value: 'image' }],
     imageFile: [],
     priceDataToImage: {
@@ -774,6 +813,7 @@ export default {
     products: [],
     onboardMerchants: [],
     debounceTimer: null,
+    debounceTimers: {},
   }),
   watch: {
     requestCount() {
@@ -950,6 +990,52 @@ export default {
           this.isError = true;
         });
     },
+    debouncedUpdate2(id, value, type) {
+      // Hapus timer sebelumnya jika ada
+      if (this.debounceTimers[id + type]) {
+        clearTimeout(this.debounceTimers[id + type]);
+      }
+
+      // Buat timer baru untuk debounce
+      this.debounceTimers[id + type] = setTimeout(() => {
+        this.updateData2(id, value, type);
+      }, 500); // Tunggu 500ms sebelum memanggil updateData
+    },
+    updateData2(id, body, desc) {
+      let payload = null;
+      if (desc == 'shop') {
+        payload = {
+          mpl_id: id,
+          shop_rate: body,
+        };
+      } else if (desc == 'web') {
+        payload = {
+          mpl_id: id,
+          web_rate: body,
+        };
+      }
+
+      axios
+        .post(`/merchant-price-list/update`, payload)
+        .then((response) => {
+          const data = response.data;
+          this.successMessage = data.message;
+          this.isSuccess = true;
+        })
+        .catch((error) => {
+          // eslint-disable-next-line
+          console.log(error);
+          const message = error.response.data.shop_rate
+            ? error.response.data.shop_rate[0]
+            : error.response.data.web_rate
+            ? error.response.data.web_rate[0]
+            : error.response.data.message
+            ? error.response.data.message
+            : 'Something Wrong!!!';
+          this.errorMessage = message;
+          this.isError = true;
+        });
+    },
     saveData() {
       if (this.valid) {
         this.isSending = true;
@@ -1000,6 +1086,18 @@ export default {
       this.priceIdToDelete = null;
       this.isDelete = false;
     },
+    cancelDelete2() {
+      this.merchantPriceIdToDelete = null;
+      this.isDelete2 = false;
+    },
+    openDeleteConfirm2(itemId) {
+      this.merchantPriceIdToDelete = itemId;
+      this.isDelete2 = true;
+    },
+    cancelConfirmation2() {
+      this.merchantPriceIdToDelete = null;
+      this.isDelete2 = false;
+    },
     deletePrice() {
       this.isDeleteLoading = true;
       axios
@@ -1026,27 +1124,57 @@ export default {
           this.isDelete = false;
         });
     },
-    sendEmail(item) {
-      item.loading = true;
-      const payload = {
-        invite_id: item.invite_id,
-        template_id: item.template,
-      };
-      console.log(payload);
+    deletePrice2() {
+      this.isDeleteLoading2 = true;
       axios
-        .post(`/invites/send-mail`, payload)
+        .delete(`/merchant-price-list/${this.merchantPriceIdToDelete}`)
         .then((response) => {
           const data = response.data;
-          console.log(data);
-          item.template = null;
-          this.isSuccessEmail = true;
+          this.successMessage = data.message;
+          this.isSuccess = true;
           this.getItemsData(this.selectedCity);
         })
         .catch((error) => {
           // eslint-disable-next-line
           console.log(error);
-          const message = error.response.data.invite_id
-            ? error.response.data.invite_id[0]
+          const message =
+            error.response.data.message === ''
+              ? 'Something Wrong!!!'
+              : error.response.data.message;
+          this.errorMessage = message;
+          this.isError = true;
+        })
+        .finally(() => {
+          this.isDeleteLoading2 = false;
+          this.merchantPriceIdToDelete = null;
+          this.isDelete2 = false;
+        });
+    },
+    sendPrice(item) {
+      item.loading = true;
+      const payload = {
+        om_id: item.merchantPrice,
+        product_id: item.product_id,
+        range_id: item.range_id,
+        shop_rate: item.shopRate,
+      };
+      console.log(payload);
+      axios
+        .post(`/merchant-price-list`, payload)
+        .then((response) => {
+          const data = response.data;
+          console.log(data);
+          item.merchantPrice = null;
+          item.shopRate = null;
+          this.successMessage = 'Merchant Price and shop rate is sent';
+          this.isSuccess = true;
+          this.getItemsData(this.selectedCity);
+        })
+        .catch((error) => {
+          // eslint-disable-next-line
+          console.log(error);
+          const message = error.response.data.om_id
+            ? error.response.data.om_id[0]
             : error.response.data.message === ''
             ? 'Something Wrong!!!'
             : error.response.data.message;
@@ -1072,40 +1200,21 @@ export default {
         items = await Promise.all(
           items.map(async (item) => {
             //const priceListItems = await this.getPriceListById(item.price_id);
+            const priceListItems = await this.getPriceListById();
             this.requestCount++;
             return {
               ...item,
-              //priceListItems: priceListItems,
-              priceListItems: [
-                {
-                  sent_on: '27/01/2025',
-                  template_id: 1,
-                  email_subject: 'Resume Request - Physiotherapist Jobs',
-                  email_id: 'charlton@the-syringe.com',
-                  app_id: 5,
-                  app_name: 'The Syringe',
-                  invite_id: 246,
-                  user_id: 1,
-                  code: '+62',
-                  phone: '2532732',
-                  name: 'Charlton',
-                  dated: '27/01/2025',
-                },
-                {
-                  sent_on: '27/01/2025',
-                  template_id: 1,
-                  email_subject: 'Resume Request - Physiotherapist Jobs',
-                  email_id: 'charlton@the-syringe.com',
-                  app_id: 5,
-                  app_name: 'The Syringe',
-                  invite_id: 246,
-                  user_id: 1,
-                  code: '+62',
-                  phone: '2532732',
-                  name: 'Charlton',
-                  dated: '27/01/2025',
-                },
-              ],
+              priceListItems: priceListItems.map((data) => {
+                return {
+                  ...data,
+                  isActive:
+                    data.active == 'N'
+                      ? false
+                      : data.active == 'Y'
+                      ? true
+                      : null,
+                };
+              }),
             };
           })
         );
@@ -1130,6 +1239,9 @@ export default {
             id: item.price_id || 0,
             isActive:
               item.active == 'N' ? false : item.active == 'Y' ? true : null,
+            merchantPrice: null,
+            shopRate: null,
+            loading: false,
           };
         });
       } catch (error) {
@@ -1144,10 +1256,12 @@ export default {
         this.isLoading = false;
       }
     },
-    async getPriceListById(id) {
+    //async getPriceListById(id) {
+    async getPriceListById() {
       //this.isLoading = true;
       try {
-        const response = await axios.get(`/price-list/${id}`);
+        //const response = await axios.get(`/price-list/${id}`);
+        const response = await axios.get(`/merchant-price-list`);
         const data = response.data.data;
 
         return data;
@@ -1250,7 +1364,7 @@ export default {
           this.onboardMerchants = data.map((item) => {
             return {
               ...item,
-              id: item?.partner_id,
+              id: item?.om_id,
               name:
                 item?.partner?.partner_name && item?.town?.town_name
                   ? `${item.partner.partner_name} | ${item.town.town_name}`
@@ -1293,6 +1407,30 @@ export default {
         })
         .finally(() => {
           this.isSending2 = false;
+        });
+    },
+    activePrice2(id) {
+      this.isSending3 = true;
+      axios
+        .get(`/merchant-price-list/toggle-active/${id}`)
+        .then((response) => {
+          const data = response.data;
+          this.successMessage = data.message;
+          this.isSuccess = true;
+          //this.getItemsData(this.selectedCity);
+        })
+        .catch((error) => {
+          // eslint-disable-next-line
+          console.log(error);
+          const message =
+            error.response.data.message === ''
+              ? 'Something Wrong!!!'
+              : error.response.data.message;
+          this.errorMessage = message;
+          this.isError = true;
+        })
+        .finally(() => {
+          this.isSending3 = false;
         });
     },
   },
