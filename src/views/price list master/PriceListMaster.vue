@@ -1153,6 +1153,7 @@ export default {
     sendPrice(item) {
       item.loading = true;
       const payload = {
+        price_id: item.id,
         om_id: item.merchantPrice,
         product_id: item.product_id,
         range_id: item.range_id,
@@ -1199,8 +1200,7 @@ export default {
 
         items = await Promise.all(
           items.map(async (item) => {
-            //const priceListItems = await this.getPriceListById(item.price_id);
-            const priceListItems = await this.getPriceListById();
+            const priceListItems = await this.getPriceListById(item.price_id);
             this.requestCount++;
             return {
               ...item,
@@ -1256,12 +1256,12 @@ export default {
         this.isLoading = false;
       }
     },
-    //async getPriceListById(id) {
-    async getPriceListById() {
+    async getPriceListById(id) {
       //this.isLoading = true;
       try {
-        //const response = await axios.get(`/price-list/${id}`);
-        const response = await axios.get(`/merchant-price-list`);
+        const response = await axios.get(
+          `/merchant-price-list/get-by-price-id/${id}`
+        );
         const data = response.data.data;
 
         return data;
