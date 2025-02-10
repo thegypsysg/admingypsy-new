@@ -30,6 +30,10 @@ export default createStore({
             path: '/partner_master',
           },
           {
+            title: 'On-Board Merchants',
+            path: '/onboard-merchant',
+          },
+          {
             title: 'Industry Master',
             path: '/industry_master',
           },
