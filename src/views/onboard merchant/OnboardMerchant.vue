@@ -32,6 +32,20 @@
           <v-col cols="12" md="4">
             <v-autocomplete
               density="compact"
+              label="---App Id---"
+              placeholder="Type App Id"
+              :items="resource.app"
+              item-title="name"
+              item-value="id"
+              v-model="input.app"
+              variant="outlined"
+            ></v-autocomplete>
+          </v-col>
+        </v-row>
+        <v-row class="mt-n4">
+          <v-col cols="12" md="4">
+            <v-autocomplete
+              density="compact"
               label="---Select Location---"
               placeholder="Type Location"
               :items="resource.location"
@@ -41,17 +55,15 @@
               variant="outlined"
             ></v-autocomplete>
           </v-col>
-        </v-row>
-        <v-row class="mt-n4">
           <v-col cols="12" md="4">
             <v-autocomplete
               density="compact"
-              label="---App Id---"
-              placeholder="Type App Id"
-              :items="resource.app"
+              label="===Select Contact==="
+              placeholder="Type Contact"
+              :items="resource.contacts"
               item-title="name"
               item-value="id"
-              v-model="input.app"
+              v-model="input.contact"
               variant="outlined"
             ></v-autocomplete>
           </v-col>
@@ -354,11 +366,13 @@ export default {
       partner: null,
       location: null,
       app: null,
+      contact: null,
     },
     resource: {
       partners: [],
       app: [],
       location: [],
+      contacts: [],
     },
     search: '',
     items: [],
