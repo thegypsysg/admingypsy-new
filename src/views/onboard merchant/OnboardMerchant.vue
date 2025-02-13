@@ -26,6 +26,7 @@
               item-title="name"
               item-value="id"
               v-model="input.partner"
+              @update:modelValue="getLocationContact"
               variant="outlined"
             ></v-autocomplete>
           </v-col>
@@ -732,14 +733,14 @@ export default {
         });
     },
     getPartnerData() {
+      this.isLoading = true;
       axios
-        .get(`/partners/mall-and-merchants`)
+        .get(`/partners`)
         .then((response) => {
           const data = response.data.data;
           // console.log(data);
           this.resource.partners = data.map((item) => {
             return {
-              ...item,
               id: item.partner_id || 1,
               name: item.partner_name || '',
             };
@@ -754,7 +755,78 @@ export default {
               : error.response.data.message;
           this.errorMessage = message;
           this.isError = true;
+        })
+        .finally(() => {
+          this.isLoading = false;
         });
+    },
+    getLocationContact() {
+      this.getLocationData();
+      this.getPartnerContactData();
+    },
+    getLocationData() {
+      // this.isLoading = true;
+      axios
+        .get(`/partner-locations/${this.input.partner}`)
+        .then((response) => {
+          const data = response.data.data;
+          this.resource.location = data
+            .sort((a, b) => a.pl_id < b.pl_id)
+            .map((item) => {
+              return {
+                id: item.pl_id || 1,
+                name:
+                  item.unit_number && item.town.town_name
+                    ? `${item.unit_number} - ${item.town.town_name}`
+                    : item.town.town_name
+                    ? `${item.town.town_name}`
+                    : '',
+              };
+            });
+        })
+        .catch((error) => {
+          // eslint-disable-next-line
+          console.log(error);
+          const message =
+            error.response.data.message === ''
+              ? 'Something Wrong!!!'
+              : error.response.data.message;
+          this.errorMessage = message;
+          this.isError = true;
+        });
+      // .finally(() => {
+      //   this.isLoading = false;
+      // });
+    },
+    getPartnerContactData() {
+      // this.isLoading = true;
+      axios
+        .get(`/partner-contacts/${this.input.partner}`)
+        .then((response) => {
+          const data = response.data.data;
+          //console.log(data);
+          this.resource.contacts = data
+            .sort((a, b) => a.name.localeCompare(b.name))
+            .map((item) => {
+              return {
+                id: item.partner_contact_id || 1,
+                name: item.name || '',
+              };
+            });
+        })
+        .catch((error) => {
+          // eslint-disable-next-line
+          console.log(error);
+          const message =
+            error.response.data.message === ''
+              ? 'Something Wrong!!!'
+              : error.response.data.message;
+          this.errorMessage = message;
+          this.isError = true;
+        });
+      // .finally(() => {
+      //   this.isLoading = false;
+      // });
     },
     getAppActive() {
       axios

@@ -198,17 +198,17 @@
       </v-container>
     </v-form>
     <v-sheet class="py-6 px-4 mt-6" border rounded width="100%">
-      <!-- <v-row>
+      <v-row>
         <v-col cols="12" md="4">
           <v-text-field
             density="compact"
             v-model="search"
-            label="Search Contacts"
+            label="Search"
             variant="outlined"
             hide-details
           ></v-text-field>
         </v-col>
-      </v-row> -->
+      </v-row>
       <v-row>
         <v-col cols="12">
           <v-table class="country-table">
@@ -226,7 +226,7 @@
               </tr>
             </thead>
             <tbody>
-              <template v-for="item in items" :key="item.id">
+              <template v-for="item in filteredItems" :key="item.id">
                 <tr class="country-table-body">
                   <td>{{ item.id }}</td>
 
@@ -834,6 +834,20 @@ export default {
       //this.getOnboardMerchants(this.selectedApp, this.selectedCity);
     }, 500);
   },
+  computed: {
+    filteredItems() {
+      if (!this.search) {
+        return this.items;
+      }
+      const searchTextLower = this.search.toLowerCase();
+      return this.items.filter(
+        (item) =>
+          item.product_name.toLowerCase().includes(searchTextLower) ||
+          item.quantity_name.toLowerCase().includes(searchTextLower) ||
+          item.name.toLowerCase().includes(searchTextLower)
+      );
+    },
+  },
   methods: {
     changeSelectedApp(index) {
       this.selectedApp = index;
@@ -1046,6 +1060,9 @@ export default {
           range_id: this.input.product.rangeId,
           rate: this.input.price,
         };
+        console.log(payload);
+        return false;
+        // eslint-disable-next-line no-unreachable
         axios
           .post(`/price-list`, payload)
           .then((response) => {
