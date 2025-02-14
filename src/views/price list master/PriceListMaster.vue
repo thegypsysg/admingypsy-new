@@ -1060,9 +1060,6 @@ export default {
           range_id: this.input.product.rangeId,
           rate: this.input.price,
         };
-        console.log(payload);
-        return false;
-        // eslint-disable-next-line no-unreachable
         axios
           .post(`/price-list`, payload)
           .then((response) => {

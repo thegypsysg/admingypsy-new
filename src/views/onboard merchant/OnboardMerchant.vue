@@ -2,18 +2,7 @@
 <!-- eslint-disable vue/no-deprecated-v-bind-sync -->
 <template>
   <v-container>
-    <!-- <div class="d-flex align-center ml-4 mb-4" style="gap: 30px">
-      <router-link class="text-decoration-none text-black" to="/product_master"> -->
     <h1>Onboard Merchant</h1>
-    <!-- </router-link>
-      <h1 style="font-size: 35px">|</h1>
-      <router-link
-        class="text-decoration-none text-black"
-        to="/quantity_master"
-      >
-        <h1>Quantity Master</h1>
-      </router-link> 
-    </div> -->
     <v-form v-model="valid" @submit.prevent>
       <v-container>
         <v-row>
@@ -148,36 +137,30 @@
                 <tr class="country-table-body">
                   <td>{{ item.id }}</td>
                   <td>
-                    <!-- {{ item.user }} -->
-                    Value Dollar Shop
+                    {{ item?.partner?.partner_name || '-' }}
                   </td>
                   <td>
-                    <!-- {{ item.user }} -->
-                    Boozards
+                    {{ item?.app?.app_name || '-' }}
                   </td>
                   <td>
-                    <!-- {{ item.user }} -->
-                    Singapore
+                    {{ item?.partner_location?.city?.city_name || '-' }}
                   </td>
                   <td>
-                    <!-- {{ item.user }} -->
-                    Marine Parade
+                    {{ item?.partner_location?.town?.town_name || '-' }}
                   </td>
                   <td>
-                    <!-- {{ item.user }} -->
-                    charltonmendes@gmail.com
+                    {{ item?.partner_contact?.email || '-' }}
                   </td>
                   <td>
-                    <!-- {{ item.user }} -->
-                    Charlton
+                    {{ item?.partner_contact?.name || '-' }}
                   </td>
                   <td>
-                    <!-- {{ item.user }} -->
-                    +69102343434
+                    {{ item?.partner_contact?.telephone || '-' }}
                   </td>
                   <td>
-                    {{ item.user }}
+                    {{ item?.user?.name || '-' }}
                   </td>
+
                   <td>
                     {{ item.dated }}
                   </td>
@@ -190,7 +173,7 @@
                             color="green"
                             variant="text"
                             v-bind="props"
-                            @click="editProduct(item)"
+                            @click="editOnboard(item)"
                             icon="mdi-pencil-outline"
                           ></v-btn>
                         </template>
@@ -222,18 +205,22 @@
 
                           <td class="pr-10 pt-2 pb-4">
                             <span class="text-blue-darken-3">
-                              <!-- {{ item.app }} -->
-                              # 01 - 554
+                              {{ item?.partner_location?.unit_number || '-' }}
                             </span>
                           </td>
-                          <td class="pr-10 pt-2 pb-4">
+                          <td
+                            v-if="item?.partner_contact?.whatsapp"
+                            class="pr-10 pt-2 pb-4"
+                          >
                             <a
-                              :href="`https://api.whatsapp.com/send?phone=
-                        +656547722
-                      &text=Hello`"
+                              :href="
+                                item?.partner_contact?.whatsapp
+                                  ? `https://api.whatsapp.com/send?phone=${item?.partner_contact?.whatsapp}&text=Hello`
+                                  : ''
+                              "
                               class="text-decoration-none text-blue-darken-3 text-no-wrap"
                             >
-                              {{ '+656547722'
+                              {{ item?.partner_contact?.whatsapp
                               }}<v-icon
                                 color="#4EC053"
                                 size="20"
@@ -286,41 +273,13 @@
     <v-dialog persistent width="500" v-model="isDelete">
       <v-card>
         <v-card-title>Confirmation</v-card-title>
-        <v-card-text> Are you sure want to delete this product? </v-card-text>
+        <v-card-text>
+          Are you sure want to delete this onboard merchant?
+        </v-card-text>
         <v-card-actions>
           <v-spacer></v-spacer>
           <v-btn color="error" text @click="cancelDelete">No</v-btn>
-          <v-btn color="success" text @click="deleteProduct">Yes</v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
-    <v-dialog persistent width="auto" v-model="isOpenImage">
-      <v-card width="750">
-        <v-card-title class="upload-title px-6 py-4">
-          Upload Image - Product</v-card-title
-        >
-        <v-card-text>
-          <image-upload
-            :image-file="imageFile"
-            @update-image-file="updateImageFile"
-            @delete-image-file="deleteImageFile"
-          />
-        </v-card-text>
-        <v-card-actions class="mt-16">
-          <v-spacer></v-spacer>
-          <v-btn
-            style="text-transform: none"
-            color="error"
-            text
-            @click="closeImage"
-            >Cancel</v-btn
-          >
-          <v-btn
-            style="background-color: #9ddcff; text-transform: none"
-            color="black"
-            @click="saveImage()"
-            >Save</v-btn
-          >
+          <v-btn color="success" text @click="deleteOnboard">Yes</v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
@@ -328,38 +287,22 @@
 </template>
 
 <script>
-import ImageUpload from '@/components/ImageUpload.vue';
 import axios from '@/util/axios';
-import http from 'axios';
 import { setAuthHeader } from '@/util/axios';
-// import app from '@/util/eventBus';
 
 export default {
-  name: 'ProductMaster',
+  name: 'OnboardMerchant',
   data: () => ({
-    // fileURL: 'https://admin1.the-gypsy.sg/img/app/',
     valid: false,
     isLoading: false,
     isSending: false,
-    isSending2: false,
     isEdit: false,
     isSuccess: false,
     isError: false,
     isDelete: false,
     isDeleteLoading: false,
-    productIdToDelete: null,
+    onboardIdToDelete: null,
     tableHeaders: [{ text: 'Gambar', value: 'image' }],
-    imageFile: [],
-    logoFile: [],
-    productDataToImage: {
-      id: 0,
-      product: null,
-      brand: null,
-      desc: null,
-      percentage: null,
-    },
-    isOpenImage: false,
-    isOpenLogo: false,
     successMessage: '',
     errorMessage: '',
     input: {
@@ -377,217 +320,94 @@ export default {
     },
     search: '',
     items: [],
-    //itemsTry: [
-    //  {
-    //    id: 1,
-    //    image: '',
-    //    product: 'Monkey Shoulder Blended Malt Scotch Whisky',
-    //    isActive: false,
-    //    isFavorite: false,
-    //    user: 'Charlton',
-    //    dated: '27/07/2023',
-    //    app: 'Boozards',
-    //    brand: 'Chivas Regal',
-    //    category: 'Whisky',
-    //  },
-    //],
   }),
   created() {
     const token = JSON.parse(localStorage.getItem('token'));
     setAuthHeader(token);
   },
   mounted() {
-    this.getProductData();
+    this.getOnboardData();
     this.getPartnerData();
     this.getAppActive();
   },
   computed: {
     filteredItems() {
       if (!this.search) {
-        return this.items.slice(0, 1);
+        return this.items;
       }
       const searchTextLower = this.search.toLowerCase();
-      return this.items
-        .filter(
-          (item) =>
-            item.product.toLowerCase().includes(searchTextLower) ||
-            item.user.toLowerCase().includes(searchTextLower) ||
-            item.dated.toLowerCase().includes(searchTextLower) ||
-            item.app.toLowerCase().includes(searchTextLower) ||
-            item.brand.toLowerCase().includes(searchTextLower) ||
-            item.category.toLowerCase().includes(searchTextLower)
-        )
-        .slice(0, 1);
+      return this.items.filter(
+        (item) =>
+          item?.partner?.partner_name.toLowerCase().includes(searchTextLower) ||
+          item?.partner_contact?.email
+            .toLowerCase()
+            .includes(searchTextLower) ||
+          item?.partner_contact?.whatsapp
+            .toLowerCase()
+            .includes(searchTextLower)
+      );
     },
   },
   methods: {
-    updateImageFile(newImageFile) {
-      this.imageFile.push(newImageFile);
-    },
-    deleteImageFile() {
-      this.isSending = true;
-      axios
-        .delete(`/products/${this.productDataToImage.id}/image`)
-        .then((response) => {
-          const data = response.data;
-          this.successMessage = data.message;
-          this.isSuccess = true;
-          this.getProductData();
-        })
-        .catch((error) => {
-          // eslint-disable-next-line
-          console.log(error);
-          const message =
-            error.response.data.message === ''
-              ? 'Something Wrong!!!'
-              : error.response.data.message;
-          this.errorMessage = message;
-          this.isError = true;
-        })
-        .finally(() => {
-          this.isEdit = false;
-          this.isSending = false;
-          // this.productDataToImage = {
-          //   app_id: 1,
-          //   app_group_id: 1,
-          //   app_name: '',
-          //   app_description: '',
-          //   app_detail: '',
-          // };
-          this.imageFile = [];
-        });
-    },
-    openImage(item) {
-      this.isOpenImage = true;
-      this.productDataToImage = {
-        id: item.id,
-        product: item.product,
-        brand: item.brand_id,
-        desc: item.desc,
-        percentage: item.percentage,
-      };
-      this.imageFile =
-        item.image != null
-          ? [
-              {
-                file: {
-                  name: item.image,
-                  size: '',
-                  base64: '',
-                  format: '',
-                },
-              },
-            ]
-          : [];
-    },
-    closeImage() {
-      this.isOpenImage = false;
-      this.imageFile = [];
-      this.productDataToImage = {
-        id: 0,
-        product: null,
-        brand: null,
-        desc: null,
-        percentage: null,
-      };
-    },
-    saveImage() {
-      this.isSending = true;
-      const payload = {
-        product_id: this.productDataToImage.id,
-        product_name: this.productDataToImage.product,
-        brand_id: this.productDataToImage.brand,
-        additional_description: this.productDataToImage.desc,
-        percentage: this.productDataToImage.percentage,
-        image: this.imageFile[0],
-      };
-
-      http
-        .post(`/products/update`, payload, {
-          headers: {
-            'Content-Type': 'multipart/form-data',
-          },
-        })
-        .then((response) => {
-          const data = response.data;
-          this.successMessage = data.message;
-          this.isSuccess = true;
-          this.getProductData();
-        })
-        .catch((error) => {
-          // eslint-disable-next-line
-          console.log(error);
-          const message =
-            error.response.data.message === ''
-              ? 'Something Wrong!!!'
-              : error.response.data.message;
-          this.errorMessage = message;
-          this.isError = true;
-        })
-        .finally(() => {
-          this.isEdit = false;
-          this.isSending = false;
-          this.productDataToImage = {
-            id: 0,
-            product: null,
-            brand: null,
-            desc: null,
-            percentage: null,
-          };
-          this.isOpenImage = false;
-          this.imageFile = [];
-        });
-    },
-    editProduct(product) {
+    editOnboard(onboard) {
       this.isEdit = true;
       this.input = {
-        id: product.id,
-        product: product.product,
-        brand: product.brand_id,
-        desc: product.desc,
-        percentage: product.percentage,
+        id: onboard.id,
+        partner: onboard.partner.partner_id,
+        location: onboard.partner_location.pl_id,
+        app: onboard.app.app_id,
+        contact: onboard.partner_contact.partner_contact_id,
       };
+
+      this.getLocationData();
+      this.getPartnerContactData();
     },
     cancelEdit() {
       this.isEdit = false;
       this.input = {
         id: 0,
-        product: null,
-        brand: null,
-        desc: null,
-        percentage: null,
+        partner: null,
+        location: null,
+        app: null,
+        contact: null,
       };
     },
     saveEdit() {
       if (this.valid) {
         this.isSending = true;
         const payload = {
-          product_id: this.input.id,
-          product_name: this.input.product,
-          brand_id: this.input.brand,
-          additional_description: this.input.desc,
-          percentage: this.input.percentage,
+          om_id: this.input.id,
+          partner_id: this.input.partner,
+          pl_id: this.input.location,
+          partner_contact_id: this.input.contact,
+          app_id: this.input.app,
         };
         axios
-          .post(`/products/update`, payload)
+          .post(`/onboard-merchants/update`, payload)
           .then((response) => {
             const data = response.data;
             this.successMessage = data.message;
             this.isSuccess = true;
-            this.getProductData();
+            this.getOnboardData();
             this.input = {
               id: 0,
-              product: null,
-              brand: null,
-              desc: null,
-              percentage: null,
+              partner: null,
+              location: null,
+              app: null,
+              contact: null,
             };
           })
           .catch((error) => {
             // eslint-disable-next-line
             console.log(error);
-            const message = error.response.data.product_name
-              ? error.response.data.product_name[0]
+            const message = error.response.data.partner_id
+              ? error.response.data.partner_id[0]
+              : error.response.data.app_id
+              ? error.response.data.app_id[0]
+              : error.response.data.pl_id
+              ? error.response.data.pl_id[0]
+              : error.response.data.partner_contact_id
+              ? error.response.data.partner_contact_id[0]
               : error.response.data.message
               ? error.response.data.message
               : 'Something Wrong!!!';
@@ -595,10 +415,10 @@ export default {
             this.isError = true;
             this.input = {
               id: 0,
-              product: null,
-              brand: null,
-              desc: null,
-              percentage: null,
+              partner: null,
+              location: null,
+              app: null,
+              contact: null,
             };
           })
           .finally(() => {
@@ -611,31 +431,37 @@ export default {
       if (this.valid) {
         this.isSending = true;
         const payload = {
-          product_name: this.input.product,
-          brand_id: this.input.brand,
-          additional_description: this.input.desc,
-          percentage: this.input.percentage,
+          partner_id: this.input.partner,
+          pl_id: this.input.location,
+          partner_contact_id: this.input.contact,
+          app_id: this.input.app,
         };
         axios
-          .post(`/products`, payload)
+          .post(`/onboard-merchants`, payload)
           .then((response) => {
             const data = response.data;
             this.successMessage = data.message;
             this.isSuccess = true;
-            this.getProductData();
+            this.getOnboardData();
             this.input = {
               id: 0,
-              product: null,
-              brand: null,
-              desc: null,
-              percentage: null,
+              partner: null,
+              location: null,
+              app: null,
+              contact: null,
             };
           })
           .catch((error) => {
             // eslint-disable-next-line
             console.log(error);
-            const message = error.response.data.product_name
-              ? error.response.data.product_name[0]
+            const message = error.response.data.partner_id
+              ? error.response.data.partner_id[0]
+              : error.response.data.app_id
+              ? error.response.data.app_id[0]
+              : error.response.data.pl_id
+              ? error.response.data.pl_id[0]
+              : error.response.data.partner_contact_id
+              ? error.response.data.partner_contact_id[0]
               : error.response.data.message
               ? error.response.data.message
               : 'Something Wrong!!!';
@@ -648,26 +474,26 @@ export default {
       }
     },
     cancelDelete() {
-      this.productIdToDelete = null;
+      this.onboardIdToDelete = null;
       this.isDelete = false;
     },
     openDeleteConfirm(itemId) {
-      this.productIdToDelete = itemId;
+      this.onboardIdToDelete = itemId;
       this.isDelete = true;
     },
     cancelConfirmation() {
-      this.productIdToDelete = null;
+      this.onboardIdToDelete = null;
       this.isDelete = false;
     },
-    deleteProduct() {
+    deleteOnboard() {
       this.isDeleteLoading = true;
       axios
-        .delete(`/products/${this.productIdToDelete}`)
+        .delete(`/onboard-merchants/${this.onboardIdToDelete}`)
         .then((response) => {
           const data = response.data;
           this.successMessage = data.message;
           this.isSuccess = true;
-          this.getProductData();
+          this.getOnboardData();
         })
         .catch((error) => {
           // eslint-disable-next-line
@@ -681,42 +507,24 @@ export default {
         })
         .finally(() => {
           this.isDeleteLoading = false;
-          this.productIdToDelete = null;
+          this.onboardIdToDelete = null;
           this.isDelete = false;
         });
     },
-    getProductData() {
+    getOnboardData() {
       this.isLoading = true;
       axios
-        .get(`/products`)
+        .get(`/onboard-merchants`)
         .then((response) => {
           const data = response.data.data;
-          this.items = data.map((item) => {
-            return {
-              id: item.product_id || 1,
-              image: item.image || null,
-              product: item.product_name || '',
-              isActive:
-                item.active == 'N' ? false : item.active == 'Y' ? true : null,
-              isFavorite:
-                item.favorite == 'N'
-                  ? false
-                  : item.favorite == 'Y'
-                  ? true
-                  : null,
-              user: item.user.name || '',
-              dated: item.dated || '',
-              app: item.brand.category.app.app_name || '',
-              brand: item.brand.brand_name || '',
-              brand_id: item.brand_id || null,
-              category: item.brand.category.category_name || '',
-              desc: item.additional_description || '',
-              percentage: item.percentage || '',
-              madeIn: item.brand.country?.country_name || '',
-              quantity: item.quantity.map((i) => i.quantity_name),
-            };
-          });
-          this.resource.name = data.map((item) => item.partner_name || '');
+          this.items = data
+            .sort((a, b) => b.om_id - a.om_id)
+            .map((item) => {
+              return {
+                ...item,
+                id: item.om_id || 1,
+              };
+            });
         })
         .catch((error) => {
           // eslint-disable-next-line
@@ -761,6 +569,8 @@ export default {
         });
     },
     getLocationContact() {
+      this.input.location = null;
+      this.input.contact = null;
       this.getLocationData();
       this.getPartnerContactData();
     },
@@ -855,56 +665,7 @@ export default {
           this.isError = true;
         });
     },
-    activeProduct(id) {
-      this.isSending2 = true;
-      axios
-        .get(`/products/toggle-active/${id}`)
-        .then((response) => {
-          const data = response.data;
-          this.successMessage = data.message;
-          this.isSuccess = true;
-          this.getProductData();
-        })
-        .catch((error) => {
-          // eslint-disable-next-line
-          console.log(error);
-          const message =
-            error.response.data.message === ''
-              ? 'Something Wrong!!!'
-              : error.response.data.message;
-          this.errorMessage = message;
-          this.isError = true;
-        })
-        .finally(() => {
-          this.isSending2 = false;
-        });
-    },
-    favoriteProduct(id) {
-      this.isSending2 = true;
-      axios
-        .get(`/products/toggle-favorite/${id}`)
-        .then((response) => {
-          const data = response.data;
-          this.successMessage = data.message;
-          this.isSuccess = true;
-          this.getProductData();
-        })
-        .catch((error) => {
-          // eslint-disable-next-line
-          console.log(error);
-          const message =
-            error.response.data.message === ''
-              ? 'Something Wrong!!!'
-              : error.response.data.message;
-          this.errorMessage = message;
-          this.isError = true;
-        })
-        .finally(() => {
-          this.isSending2 = false;
-        });
-    },
   },
-  components: { ImageUpload },
 };
 </script>
 
