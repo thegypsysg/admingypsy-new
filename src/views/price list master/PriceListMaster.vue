@@ -440,29 +440,32 @@
                                       class="text-caption font-weight-bold text-no-wrap"
                                     >
                                       {{
-                                        data?.onboard_merchant?.town
-                                          ?.town_name || '-'
+                                        data?.onboard_merchant?.partner_location
+                                          ?.town?.town_name || '-'
                                       }}
                                     </p>
                                     <!-- </v-col>
                                   <v-col cols="2"> -->
                                     <p class="text-caption font-weight-bold">
                                       {{
-                                        data?.onboard_merchant
-                                          ?.primary_contact || '-'
+                                        data?.onboard_merchant?.partner_contact
+                                          ?.name || '-'
                                       }}
                                     </p>
                                     <!-- </v-col> -->
                                     <!-- <v-col cols="2"> -->
                                     <p class="text-caption font-weight-bold">
                                       <a
-                                        :href="`https://api.whatsapp.com/send?phone=${data?.onboard_merchant?.whats_app}&text=Hello`"
+                                        :href="`https://api.whatsapp.com/send?phone=${data?.onboard_merchant?.partner_contact?.whats_app}&text=Hello`"
                                         class="text-decoration-none text-grey-darken-1 text-no-wrap"
                                       >
-                                        {{ data?.onboard_merchant?.whats_app
+                                        {{
+                                          data?.onboard_merchant
+                                            ?.partner_contact?.whats_app
                                         }}<v-icon
                                           v-if="
-                                            data?.onboard_merchant?.whats_app
+                                            data?.onboard_merchant
+                                              ?.partner_contact?.whats_app
                                           "
                                           color="#4EC053"
                                           size="20"
@@ -1204,21 +1207,61 @@ export default {
       this.isSuccessEmail = false;
       // this.getItemsData();
     },
+    //async getItemsData() {
+    //  this.isLoading = true;
+    //  this.requestCount = 0; // Reset request count
+    //  try {
+    //    let items = await this.getPriceData();
+    //    this.items = items.sort((a, b) => b.price_id - a.price_id);
+    //    this.requestCount++;
+    //
+    //    items = await Promise.all(
+    //      items.map(async (item) => {
+    //        const priceListItems = await this.getPriceListById(item.price_id);
+    //        this.requestCount++;
+    //        return {
+    //          ...item,
+    //          priceListItems: priceListItems.map((data) => {
+    //            return {
+    //              ...data,
+    //              isActive:
+    //                data.active == 'N'
+    //                  ? false
+    //                  : data.active == 'Y'
+    //                  ? true
+    //                  : null,
+    //            };
+    //          }),
+    //        };
+    //      })
+    //    );
+    //
+    //    this.items = items.sort((a, b) => b.id - a.id);
+    //    console.log(items);
+    //  } catch (error) {
+    //    console.error('Error fetching items data:', error);
+    //  } finally {
+    //    this.isLoading = false;
+    //  }
+    //},
+
     async getItemsData() {
       this.isLoading = true;
-      this.requestCount = 0; // Reset request count
       try {
-        let items = await this.getPriceData();
-        this.items = items.sort((a, b) => b.price_id - a.price_id);
-        this.requestCount++;
-
-        items = await Promise.all(
-          items.map(async (item) => {
-            const priceListItems = await this.getPriceListById(item.price_id);
-            this.requestCount++;
+        const response = await axios.get(`/price-list`);
+        const data = response.data.data;
+        this.items = data
+          .sort((a, b) => b.price_id - a.price_id)
+          .map((item) => {
             return {
               ...item,
-              priceListItems: priceListItems.map((data) => {
+              id: item.price_id || 0,
+              isActive:
+                item.active == 'N' ? false : item.active == 'Y' ? true : null,
+              merchantPrice: null,
+              shopRate: null,
+              loading: false,
+              priceListItems: item.merchant_price_list.map((data) => {
                 return {
                   ...data,
                   isActive:
@@ -1230,34 +1273,7 @@ export default {
                 };
               }),
             };
-          })
-        );
-
-        this.items = items.sort((a, b) => b.id - a.id);
-        console.log(items);
-      } catch (error) {
-        console.error('Error fetching items data:', error);
-      } finally {
-        this.isLoading = false;
-      }
-    },
-
-    async getPriceData() {
-      this.isLoading = true;
-      try {
-        const response = await axios.get(`/price-list`);
-        const data = response.data.data;
-        return data.map((item) => {
-          return {
-            ...item,
-            id: item.price_id || 0,
-            isActive:
-              item.active == 'N' ? false : item.active == 'Y' ? true : null,
-            merchantPrice: null,
-            shopRate: null,
-            loading: false,
-          };
-        });
+          });
       } catch (error) {
         console.log(error);
         const message =
@@ -1270,23 +1286,23 @@ export default {
         this.isLoading = false;
       }
     },
-    async getPriceListById(id) {
-      //this.isLoading = true;
-      try {
-        const response = await axios.get(
-          `/merchant-price-list/get-by-price-id/${id}`
-        );
-        const data = response.data.data;
-
-        return data;
-      } catch (error) {
-        console.log(error);
-        throw error;
-      }
-      //finally {
-      //  this.isLoading = false;
-      //}
-    },
+    //async getPriceListById(id) {
+    //  //this.isLoading = true;
+    //  try {
+    //    const response = await axios.get(
+    //      `/merchant-price-list/get-by-price-id/${id}`
+    //    );
+    //    const data = response.data.data;
+    //
+    //    return data;
+    //  } catch (error) {
+    //    console.log(error);
+    //    throw error;
+    //  }
+    //  //finally {
+    //  //  this.isLoading = false;
+    //  //}
+    //},
     getCityByApp(app) {
       axios
         .get(`/app-cities/get-cities-by-app-id/${app}`)
@@ -1380,10 +1396,12 @@ export default {
               ...item,
               id: item?.om_id,
               name:
-                item?.partner?.partner_name && item?.town?.town_name
-                  ? `${item.partner.partner_name} | ${item.town.town_name}`
-                  : item?.partner?.partner_name && item?.city?.city_name
-                  ? `${item.partner.partner_name} | ${item.city.city_name}`
+                item?.partner?.partner_name &&
+                item?.partner_location?.town?.town_name
+                  ? `${item.partner.partner_name} | ${item.partner_location.town.town_name}`
+                  : item?.partner?.partner_name &&
+                    item?.partner_location?.city?.city_name
+                  ? `${item.partner.partner_name} | ${item.partner_location.city.city_name}`
                   : item?.partner?.partner_name
                   ? item.partner.partner_name
                   : '-',
