@@ -141,12 +141,22 @@
             <thead>
               <tr>
                 <th class="text-left font-weight-bold text-black">id</th>
-                <th class="text-left font-weight-bold text-black">Reference ID</th>
+                <th class="text-left font-weight-bold text-black">
+                  Reference ID
+                </th>
                 <th class="text-left font-weight-bold text-black">Image</th>
-                <th class="text-left font-weight-bold text-black">Main Category</th>
-                <th class="text-left font-weight-bold text-black">Property Type</th>
-                <th class="text-left font-weight-bold text-black">Construction Category</th>
-                <th class="text-left font-weight-bold text-black">Building Type</th>
+                <th class="text-left font-weight-bold text-black">
+                  Main Category
+                </th>
+                <th class="text-left font-weight-bold text-black">
+                  Property Type
+                </th>
+                <th class="text-left font-weight-bold text-black">
+                  Construction Category
+                </th>
+                <th class="text-left font-weight-bold text-black">
+                  Building Type
+                </th>
                 <th class="text-left font-weight-bold text-black">User</th>
                 <th class="text-left font-weight-bold text-black">Dated</th>
                 <th class="text-left font-weight-bold text-black">Actions</th>
@@ -216,12 +226,12 @@
                   </td>
                 </tr>
                 <tr>
-                  <td  style="border-bottom: none !important;">
+                  <td style="border-bottom: none !important">
                     <label class="font-weight-bold">Tagline</label>
                   </td>
-                  <td style="border-bottom: none !important;">
+                  <td style="border-bottom: none !important">
                     <div class="d-flex align-center">
-                      <h3>Active</h3> 
+                      <h3>Active</h3>
                       <v-btn-toggle
                         style="
                           font-size: 10px !important;
@@ -240,11 +250,10 @@
                         <v-btn size="27" :value="false"> No </v-btn>
                       </v-btn-toggle>
                     </div>
-                    
                   </td>
-                  <td colspan="8"  style="border-bottom: none !important;">
+                  <td colspan="8" style="border-bottom: none !important">
                     <div class="d-flex align-center">
-                      <h3>Featured</h3> 
+                      <h3>Featured</h3>
                       <v-btn-toggle
                         style="
                           font-size: 10px !important;
@@ -266,18 +275,18 @@
                   </td>
                 </tr>
                 <tr>
-                  <td colspan="4" style="border-bottom: none !important;">
+                  <td colspan="4" style="border-bottom: none !important">
                     <v-text-field
-                          v-model="item.tag_line"
-                          label="Tagline"
-                          variant="outlined"
-                          density="compact"
-                          hide-details
-                          clearable
-                          @focusout="updateTagline(item.property_id, item.tag_line)"
-                        ></v-text-field>
+                      v-model="item.tag_line"
+                      label="Tagline"
+                      variant="outlined"
+                      density="compact"
+                      hide-details
+                      clearable
+                      @focusout="updateTagline(item.property_id, item.tag_line)"
+                    ></v-text-field>
                   </td>
-                  <td colspan="6" style="border-bottom: none !important;">
+                  <td colspan="6" style="border-bottom: none !important">
                     <v-row>
                       <v-col cols="12" md="4">
                         <v-autocomplete
@@ -294,7 +303,7 @@
                           @update:modelValue="updateCountry(item)"
                         ></v-autocomplete>
                       </v-col>
-                      
+
                       <v-col cols="12" md="4">
                         <v-select
                           v-model="item.city_id"
@@ -568,7 +577,9 @@
     <v-dialog persistent width="500" v-model="isDelete">
       <v-card>
         <v-card-title>Confirmation</v-card-title>
-        <v-card-text> Are you sure want to delete this construction category? </v-card-text>
+        <v-card-text>
+          Are you sure want to delete this construction category?
+        </v-card-text>
         <v-card-actions>
           <v-spacer></v-spacer>
           <v-btn color="error" text @click="cancelDelete">No</v-btn>
@@ -718,7 +729,6 @@ export default {
     await this.getTownData();
     await this.getPropertyMasterData();
     await this.getAgentData();
-
   },
   computed: {
     filteredItems() {
@@ -726,12 +736,10 @@ export default {
         return this.propertyMaster;
       }
       const searchTextLower = this.search.toLowerCase();
-      return this.propertyMaster.filter(
-        (item) =>
-          item.property_name.toLowerCase().includes(searchTextLower) 
+      return this.propertyMaster.filter((item) =>
+        item.property_name.toLowerCase().includes(searchTextLower)
       );
     },
-    
   },
   methods: {
     editPropertyMaster(item) {
@@ -795,18 +803,17 @@ export default {
             this.isSending = false;
           });
       }
-
     },
-    saveLatitude(latitude, item){
+    saveLatitude(latitude, item) {
       const payload = {
-          property_id: item.property_id,
-          category_id: item.category_id,
-          cc_id: item.cc_id,
-          bt_id: item.bt_id,
-          country_id: item.country_id,
-          property_type_id: item.property_type_id,
-          latitude: latitude,
-        };
+        property_id: item.property_id,
+        category_id: item.category_id,
+        cc_id: item.cc_id,
+        bt_id: item.bt_id,
+        country_id: item.country_id,
+        property_type_id: item.property_type_id,
+        latitude: latitude,
+      };
       axios
         .post(`/4walls-property-master/update`, payload)
         .then((response) => {
@@ -827,96 +834,96 @@ export default {
           this.isSending = false;
         });
     },
-    saveLongitude(longitude, item){
+    saveLongitude(longitude, item) {
       const payload = {
-          property_id: item.property_id,
-          category_id: item.category_id,
-          cc_id: item.cc_id,
-          bt_id: item.bt_id,
-          country_id: item.country_id,
-          property_type_id: item.property_type_id,
-          longitude: longitude,
-        };
-        axios
-          .post(`/4walls-property-master/update`, payload)
-          .then((response) => {
-            const data = response.data;
-            this.successMessage = data.message;
-            this.isSuccess = true;
-            this.getConstructionCategoryData();
-          })
-          .catch((error) => {
-            console.log(error);
-            const message = error.response.data.category_name
-              ? 'Please fill the category name field'
-              : error.response.data.message;
-            this.errorMessage = message;
-            this.isError = true;
-          })
-          .finally(() => {
-            this.isSending = false;
-          });
+        property_id: item.property_id,
+        category_id: item.category_id,
+        cc_id: item.cc_id,
+        bt_id: item.bt_id,
+        country_id: item.country_id,
+        property_type_id: item.property_type_id,
+        longitude: longitude,
+      };
+      axios
+        .post(`/4walls-property-master/update`, payload)
+        .then((response) => {
+          const data = response.data;
+          this.successMessage = data.message;
+          this.isSuccess = true;
+          this.getConstructionCategoryData();
+        })
+        .catch((error) => {
+          console.log(error);
+          const message = error.response.data.category_name
+            ? 'Please fill the category name field'
+            : error.response.data.message;
+          this.errorMessage = message;
+          this.isError = true;
+        })
+        .finally(() => {
+          this.isSending = false;
+        });
     },
-    
-    saveAgent(agent, item){
+
+    saveAgent(agent, item) {
       const payload = {
-          property_id: item.property_id,
-          category_id: item.category_id,
-          cc_id: item.cc_id,
-          bt_id: item.bt_id,
-          country_id: item.country_id,
-          property_type_id: item.property_type_id,
-          agent_id: agent,
-        };
-        axios
-          .post(`/4walls-property-master/update`, payload)
-          .then((response) => {
-            const data = response.data;
-            this.successMessage = data.message;
-            this.isSuccess = true;
-            this.getConstructionCategoryData();
-          })
-          .catch((error) => {
-            console.log(error);
-            const message = error.response.data.category_name
-              ? 'Please fill the category name field'
-              : error.response.data.message;
-            this.errorMessage = message;
-            this.isError = true;
-          })
-          .finally(() => {
-            this.isSending = false;
-          });
+        property_id: item.property_id,
+        category_id: item.category_id,
+        cc_id: item.cc_id,
+        bt_id: item.bt_id,
+        country_id: item.country_id,
+        property_type_id: item.property_type_id,
+        agent_id: agent,
+      };
+      axios
+        .post(`/4walls-property-master/update`, payload)
+        .then((response) => {
+          const data = response.data;
+          this.successMessage = data.message;
+          this.isSuccess = true;
+          this.getConstructionCategoryData();
+        })
+        .catch((error) => {
+          console.log(error);
+          const message = error.response.data.category_name
+            ? 'Please fill the category name field'
+            : error.response.data.message;
+          this.errorMessage = message;
+          this.isError = true;
+        })
+        .finally(() => {
+          this.isSending = false;
+        });
     },
-    saveVideoLink(videoLink, item){
+    saveVideoLink(videoLink, item) {
       const payload = {
-          property_id: item.property_id,
-          category_id: item.category_id,
-          cc_id: item.cc_id,
-          bt_id: item.bt_id,
-          country_id: item.country_id,
-          property_type_id: item.property_type_id,
-          video_link: videoLink,
-        };
-        axios
-          .post(`/4walls-property-master/update`, payload)
-          .then((response) => {
-            const data = response.data;
-            this.successMessage = data.message;
-            this.isSuccess = true;
-            this.getConstructionCategoryData();
-          })
-          .catch((error) => {
-            console.log(error);
-            const message = error.response.data.category_name
-              ? 'Please fill the category name field'
-              : error.response.data.message;
-            this.errorMessage = message;
-            this.isError = true;
-          })
-          .finally(() => {
-            this.isSending = false;
-          });
+        property_id: item.property_id,
+        category_id: item.category_id,
+        cc_id: item.cc_id,
+        bt_id: item.bt_id,
+        country_id: item.country_id,
+        property_type_id: item.property_type_id,
+        video_link: videoLink,
+      };
+      axios
+        .post(`/4walls-property-master/update`, payload)
+        .then((response) => {
+          const data = response.data;
+          this.successMessage = data.message;
+          this.isSuccess = true;
+          this.getConstructionCategoryData();
+        })
+        .catch((error) => {
+          console.log(error);
+          const message = error.response.data.category_name
+            ? 'Please fill the category name field'
+            : error.response.data.message;
+          this.errorMessage = message;
+          this.isError = true;
+        })
+        .finally(() => {
+          this.isSending = false;
+        });
     },
     saveData() {
       if (this.valid) {
@@ -1036,7 +1043,8 @@ export default {
               property_name: item.property_name || '',
             };
           });
-        }).catch((error) => {
+        })
+        .catch((error) => {
           // eslint-disable-next-line
           console.log(error);
           const message =
@@ -1045,7 +1053,8 @@ export default {
               : error.response.data.message;
           this.errorMessage = message;
           this.isError = true;
-        }).finally(() => {
+        })
+        .finally(() => {
           this.isLoading = false;
         });
     },
@@ -1115,16 +1124,24 @@ export default {
               isActive:
                 item.active == 'N' ? false : item.active == 'Y' ? true : null,
               isFeatured:
-                item.featured == 'N' ? false : item.featured == 'Y' ? true : null,
+                item.featured == 'N'
+                  ? false
+                  : item.featured == 'Y'
+                  ? true
+                  : null,
               city_id: item.city_id || null,
               town_id: item.town_id || null,
-            })
+            });
             return {
               ...item,
               isActive:
                 item.active == 'N' ? false : item.active == 'Y' ? true : null,
               isFeatured:
-                item.featured == 'N' ? false : item.featured == 'Y' ? true : null,
+                item.featured == 'N'
+                  ? false
+                  : item.featured == 'Y'
+                  ? true
+                  : null,
               city_id: item.city_id || null,
               town_id: item.town_id || null,
             };
@@ -1144,7 +1161,7 @@ export default {
           this.isLoading = false;
         });
     },
-    async getAgentData(){
+    async getAgentData() {
       this.isLoading = true;
       await axios
         .get(`/4walls-agent-masters/list`)
@@ -1205,7 +1222,8 @@ export default {
               city_id: item.city_id || 1,
             };
           });
-        }).catch((error) => {
+        })
+        .catch((error) => {
           // eslint-disable-next-line
           console.log(error);
           const message =
@@ -1214,7 +1232,8 @@ export default {
               : error.response.data.message;
           this.errorMessage = message;
           this.isError = true;
-        }).finally(() => {
+        })
+        .finally(() => {
           this.isLoading = false;
         });
     },
@@ -1241,7 +1260,8 @@ export default {
               : error.response.data.message;
           this.errorMessage = message;
           this.isError = true;
-        }).finally(() => {
+        })
+        .finally(() => {
           this.isLoading = false;
         });
     },
@@ -1262,7 +1282,7 @@ export default {
         .finally(() => {
           this.isSending2 = false;
         });
-    },  
+    },
     featuredPropertyMaster(id) {
       this.isSending2 = true;
       axios
@@ -1285,10 +1305,11 @@ export default {
     updateTagline(id, tagline) {
       this.isSending2 = true;
       const payload = {
+        property_id: id,
         tag_line: tagline,
       };
       axios
-        .post(`/4walls-property-master/update-tagline/${id}`, payload)
+        .post(`/4walls-property-master/update`, payload)
         .then((response) => {
           const data = response.data;
           this.successMessage = data.message;
@@ -1392,7 +1413,7 @@ export default {
     },
     filterTown(city_id) {
       return this.town.filter((item) => item.city_id === city_id);
-    },  
+    },
     openMainImage(prop) {
       this.isOpenImage = true;
       this.propertyDataToMainImage = {
@@ -1519,7 +1540,6 @@ export default {
           this.imageFile = [];
         });
     },
-    
   },
   components: { ImageUpload, HeaderWallMaster },
 };
