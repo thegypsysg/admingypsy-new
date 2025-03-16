@@ -135,6 +135,24 @@
           ></v-text-field>
         </v-col>
       </v-row>
+      <v-row align="center" justify="space-between">
+        <v-col cols="8">
+          <span>
+            Showing {{ startItem }} - {{ endItem }} from {{ totalItems }} item
+          </span>
+        </v-col>
+        <v-col cols="4" class="text-right">
+          <v-select
+            v-model="perPage"
+            :items="[5, 10, 15, 20]"
+            label="Items per page"
+            density="compact"
+            variant="outlined"
+            hide-details
+            @update:modelValue="getPropertyMasterData"
+          ></v-select>
+        </v-col>
+      </v-row>
       <v-row>
         <v-col cols="12">
           <v-table class="country-table">
@@ -337,151 +355,6 @@
                       </v-col>
                     </v-row>
                   </td>
-                  <!-- <td colspan="10">
-                    <v-row class="mt-4">
-                      <v-col cols="12" md="1" class="font-weight-bold align-center ">
-                        <h3>Tagline</h3>
-                      </v-col>
-                      <v-col cols="12" md="3">
-                        <div class="d-flex align-center">
-                          <h3>Active</h3> 
-                          <v-btn-toggle
-                            style="
-                              font-size: 10px !important;
-                              font-weight: 200 !important;
-                              height: 22px !important;
-                              width: 54px !important;
-                              margin-left: 10px;
-                            "
-                            class="d-flex align-center"
-                            v-model="item.isActive"
-                            rounded="5"
-                            @click="activePropertyMaster(item.property_id)"
-                          >
-                            <v-btn size="27" :value="true"> Yes </v-btn>
-
-                            <v-btn size="27" :value="false"> No </v-btn>
-                          </v-btn-toggle>
-                        </div>
-                      </v-col>
-                      <v-col cols="12" md="3">
-                        <div class="d-flex align-center">
-                          <h3>Featured</h3> 
-                          <v-btn-toggle
-                            style="
-                              font-size: 10px !important;
-                              font-weight: 200 !important;
-                              height: 22px !important;
-                              width: 54px !important;
-                              margin-left: 10px;
-                            "
-                            class="d-flex align-center"
-                            v-model="item.isFeatured"
-                            rounded="5"
-                            @click="featuredPropertyMaster(item.property_id)"
-                          >
-                            <v-btn size="27" :value="true"> Yes </v-btn>
-
-                            <v-btn size="27" :value="false"> No </v-btn>
-                          </v-btn-toggle>
-                        </div>
-                      </v-col>
-                    </v-row>
-                    <v-row>
-                      <v-col cols="12" md="3">
-                        <v-text-field
-                          v-model="item.tag_line"
-                          label="Tagline"
-                          variant="outlined"
-                          density="compact"
-                          hide-details
-                          clearable
-                          @focusout="updateTagline(item.property_id, item.tag_line)"
-                        ></v-text-field>
-                      </v-col>
-                      
-                      <v-col cols="12" md="1">
-                        <v-autocomplete
-                          density="compact"
-                          label="Country"
-                          placeholder="Country"
-                          :items="country"
-                          item-title="country_name"
-                          item-value="country_id"
-                          v-model="item.country_id"
-                          variant="outlined"
-                          clearable
-                          @update:modelValue="updateCountry(item)"
-                        ></v-autocomplete>
-                      </v-col>
-                      
-                      <v-col cols="12" md="2">
-                        <v-select
-                          v-model="item.city_id"
-                          item-title="city_name"
-                          item-value="city_id"
-                          label="City"
-                          variant="outlined"
-                          density="compact"
-                          required
-                          :items="filterCity(item.country_id)"
-                          clearable
-                          @update:modelValue="updateCity(item)"
-                        ></v-select>
-                      </v-col>
-
-                      <v-col cols="12" md="2">
-                        <v-select
-                          v-model="item.town_id"
-                          item-title="town_name"
-                          item-value="town_id"
-                          label="Town"
-                          variant="outlined"
-                          density="compact"
-                          required
-                          :items="filterTown(item.city_id)"
-                          clearable
-                          @update:modelValue="updateTown(item)"
-                        ></v-select>
-                      </v-col>
-                      <v-col cols="12" md="2">
-                        <v-text-field
-                          v-model="item.latitude"
-                          label="Latitude"
-                          variant="outlined"
-                          density="compact"
-                          hide-details
-                          clearable
-                          @focusout="saveLatitude(item.latitude, item)"
-                        ></v-text-field>
-                      </v-col>
-                      <v-col cols="12" md="2">
-                        <v-text-field
-                          v-model="item.longitude"
-                          label="Longitude"
-                          variant="outlined"
-                          density="compact"
-                          hide-details
-                          clearable
-                          @focusout="saveLongitude(item.longitude, item)"
-                        ></v-text-field>
-                      </v-col>
-                    </v-row>
-                    <v-row>
-                      <v-col cols="12" md="2">
-                        <router-link :to="`/property_master/main-info/${item.property_id}`" class="align-center" style="text-decoration: none; color: blue;">
-                          <h3>Main Info</h3>
-                        </router-link>
-                      </v-col>
-                      <v-col cols="12" md="2">
-                        <h3 class="align-center">Images</h3>
-                      </v-col>
-                      <v-col cols="12" md="2">
-                        <h3 class="align-center">Video</h3>
-                        
-                      </v-col>
-                    </v-row>
-                  </td> -->
                 </tr>
                 <tr>
                   <td colspan="4">
@@ -548,8 +421,22 @@
               </tr>
             </tbody>
           </v-table>
+          <v-pagination
+            v-model="currentPage"
+            :length="totalPages"
+            @update:modelValue="getPropertyMasterData"
+          ></v-pagination>
         </v-col>
       </v-row>
+      <!-- <v-row>
+        <v-col cols="12">
+          <v-pagination
+            v-model="currentPage"
+            :length="totalPages"
+            @update:modelValue="getPropertyMasterData"
+          ></v-pagination>
+        </v-col>
+      </v-row> -->
     </v-sheet>
     <v-snackbar
       location="top"
@@ -654,6 +541,10 @@ export default {
     buildingType: [],
     constructionCategory: [],
     propertyMaster: [],
+    currentPage: 1,
+    perPage: 5,
+    totalPages: 1,
+    totalItems: 0,
     agent: [],
     country: [],
     town: [],
@@ -739,6 +630,18 @@ export default {
       return this.propertyMaster.filter((item) =>
         item.property_name.toLowerCase().includes(searchTextLower)
       );
+    },
+    startItem() {
+      return (this.currentPage - 1) * this.perPage + 1;
+    },
+    endItem() {
+      return Math.min(this.currentPage * this.perPage, this.totalItems);
+    },
+  },
+  watch: {
+    perPage() {
+      this.currentPage = 1; // Reset ke halaman pertama saat `perPage` berubah
+      this.getPropertyMasterData();
     },
   },
   methods: {
@@ -1116,36 +1019,50 @@ export default {
     getPropertyMasterData() {
       this.isLoading = true;
       axios
-        .get(`/4walls-property-master`)
+        .get(`/4walls-property-master`, {
+          params: {
+            page: this.currentPage,
+            perPage: this.perPage,
+          },
+        })
         .then((response) => {
-          this.propertyMaster = response.data.data.map((item) => {
-            console.log({
-              ...item,
-              isActive:
-                item.active == 'N' ? false : item.active == 'Y' ? true : null,
-              isFeatured:
-                item.featured == 'N'
-                  ? false
-                  : item.featured == 'Y'
-                  ? true
-                  : null,
-              city_id: item.city_id || null,
-              town_id: item.town_id || null,
+          const data = response.data;
+          this.propertyMaster = data?.data
+            //.sort((a, b) => b.property_id - a.property_id)
+            .map((item) => {
+              console.log({
+                ...item,
+                isActive:
+                  item.active == 'N' ? false : item.active == 'Y' ? true : null,
+                isFeatured:
+                  item.featured == 'N'
+                    ? false
+                    : item.featured == 'Y'
+                    ? true
+                    : null,
+                city_id: item.city_id || null,
+                town_id: item.town_id || null,
+              });
+              return {
+                ...item,
+                isActive:
+                  item.active == 'N' ? false : item.active == 'Y' ? true : null,
+                isFeatured:
+                  item.featured == 'N'
+                    ? false
+                    : item.featured == 'Y'
+                    ? true
+                    : null,
+                city_id: item.city_id || null,
+                town_id: item.town_id || null,
+              };
             });
-            return {
-              ...item,
-              isActive:
-                item.active == 'N' ? false : item.active == 'Y' ? true : null,
-              isFeatured:
-                item.featured == 'N'
-                  ? false
-                  : item.featured == 'Y'
-                  ? true
-                  : null,
-              city_id: item.city_id || null,
-              town_id: item.town_id || null,
-            };
-          });
+
+          // Perbarui pagination
+          this.currentPage = data?.current_page;
+          this.perPage = data?.per_page;
+          this.totalItems = data?.total;
+          this.totalPages = data?.last_page;
         })
         .catch((error) => {
           // eslint-disable-next-line
