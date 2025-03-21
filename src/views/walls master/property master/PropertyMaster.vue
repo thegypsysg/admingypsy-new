@@ -134,6 +134,24 @@
             hide-details
           ></v-text-field>
         </v-col>
+        <v-col cols="12" md="2">
+          <v-btn
+            prepend-icon="mdi-magnify"
+            color="indigo-accent-2"
+            style="text-transform: none"
+            variant="flat"
+            class="w-100"
+            @click="getPropertyMasterData()"
+            :disabled="isLoading"
+            :loading="isLoading"
+          >
+            <template v-slot:prepend>
+              <v-icon color="white"></v-icon>
+            </template>
+
+            Search
+          </v-btn>
+        </v-col>
       </v-row>
       <v-row align="center" justify="space-between">
         <v-col cols="8">
@@ -181,7 +199,7 @@
               </tr>
             </thead>
             <tbody>
-              <template v-for="(item, index) in filteredItems" :key="index">
+              <template v-for="(item, index) in propertyMaster" :key="index">
                 <tr class="country-table-body">
                   <td>{{ item.property_id }}</td>
                   <td>{{ item.property_ref_no }}</td>
@@ -269,7 +287,7 @@
                       </v-btn-toggle>
                     </div>
                   </td>
-                  <td colspan="8" style="border-bottom: none !important">
+                  <td style="border-bottom: none !important">
                     <div class="d-flex align-center">
                       <h3>Featured</h3>
                       <v-btn-toggle
@@ -290,6 +308,39 @@
                         <v-btn size="27" :value="false"> No </v-btn>
                       </v-btn-toggle>
                     </div>
+                  </td>
+                  <td colspan="1" style="border-bottom: none !important">
+                    <div class="d-flex justify-start" style="gap: 20px">
+                      <div style="cursor: pointer" @click="goToRates(item)">
+                        <span class="text-blue-darken-4">Rates</span>
+                      </div>
+                    </div>
+                  </td>
+                  <td colspan="4" style="border-bottom: none !important">
+                    <v-row>
+                      <v-col cols="12" md="4">
+                        <v-text-field
+                          v-model="item.bedrooms"
+                          label="Beds"
+                          variant="outlined"
+                          density="compact"
+                          hide-details
+                          clearable
+                          @focusout="saveBeds(item.bedrooms, item)"
+                        ></v-text-field>
+                      </v-col>
+                      <v-col cols="12" md="4">
+                        <v-text-field
+                          v-model="item.bathrooms"
+                          label="Baths"
+                          variant="outlined"
+                          density="compact"
+                          hide-details
+                          clearable
+                          @focusout="saveBaths(item.bathrooms, item)"
+                        ></v-text-field>
+                      </v-col>
+                    </v-row>
                   </td>
                 </tr>
                 <tr>
@@ -357,10 +408,10 @@
                   </td>
                 </tr>
                 <tr>
-                  <td colspan="4">
+                  <td colspan="4" style="border-bottom: none !important">
                     <v-text-field
                       v-model="item.video_link"
-                      label="Video Link"
+                      label="You Tube Video"
                       variant="outlined"
                       density="compact"
                       hide-details
@@ -368,7 +419,7 @@
                       @focusout="saveVideoLink(item.video_link, item)"
                     ></v-text-field>
                   </td>
-                  <td colspan="6">
+                  <td colspan="6" style="border-bottom: none !important">
                     <v-row>
                       <v-col cols="12" md="4">
                         <v-text-field
@@ -409,6 +460,20 @@
                       </v-col>
                     </v-row>
                   </td>
+                </tr>
+                <tr class="pb-4">
+                  <td colspan="4">
+                    <v-text-field
+                      v-model="item.video_link"
+                      label="Tik Tok Video"
+                      variant="outlined"
+                      density="compact"
+                      hide-details
+                      clearable
+                      @focusout="saveVideoLink(item.video_link, item)"
+                    ></v-text-field>
+                  </td>
+                  <td colspan="6"></td>
                 </tr>
               </template>
               <tr v-if="isLoading">
@@ -622,15 +687,6 @@ export default {
     await this.getAgentData();
   },
   computed: {
-    filteredItems() {
-      if (!this.search) {
-        return this.propertyMaster;
-      }
-      const searchTextLower = this.search.toLowerCase();
-      return this.propertyMaster.filter((item) =>
-        item.property_name.toLowerCase().includes(searchTextLower)
-      );
-    },
     startItem() {
       return (this.currentPage - 1) * this.perPage + 1;
     },
@@ -645,6 +701,10 @@ export default {
     },
   },
   methods: {
+    goToRates(data) {
+      localStorage.setItem('propertyRates', JSON.stringify(data));
+      this.$router.push(`property_master/rates/${data.property_id}`);
+    },
     editPropertyMaster(item) {
       this.isEdit = true;
       this.input = {
@@ -684,7 +744,7 @@ export default {
             const data = response.data;
             this.successMessage = data.message;
             this.isSuccess = true;
-            this.getConstructionCategoryData();
+            this.getPropertyMasterData();
             this.input = {
               property_id: null,
               category_id: null,
@@ -723,7 +783,7 @@ export default {
           const data = response.data;
           this.successMessage = data.message;
           this.isSuccess = true;
-          this.getConstructionCategoryData();
+          //this.getConstructionCategoryData();
         })
         .catch((error) => {
           console.log(error);
@@ -753,7 +813,57 @@ export default {
           const data = response.data;
           this.successMessage = data.message;
           this.isSuccess = true;
-          this.getConstructionCategoryData();
+          //this.getConstructionCategoryData();
+        })
+        .catch((error) => {
+          console.log(error);
+          const message = error.response.data.category_name
+            ? 'Please fill the category name field'
+            : error.response.data.message;
+          this.errorMessage = message;
+          this.isError = true;
+        })
+        .finally(() => {
+          this.isSending = false;
+        });
+    },
+    saveBeds(beds, item) {
+      const payload = {
+        property_id: item.property_id,
+        bedrooms: beds,
+      };
+      axios
+        .post(`/4walls-property-master/update`, payload)
+        .then((response) => {
+          const data = response.data;
+          this.successMessage = data.message;
+          this.isSuccess = true;
+          //this.getConstructionCategoryData();
+        })
+        .catch((error) => {
+          console.log(error);
+          const message = error.response.data.category_name
+            ? 'Please fill the category name field'
+            : error.response.data.message;
+          this.errorMessage = message;
+          this.isError = true;
+        })
+        .finally(() => {
+          this.isSending = false;
+        });
+    },
+    saveBaths(baths, item) {
+      const payload = {
+        property_id: item.property_id,
+        bathrooms: baths,
+      };
+      axios
+        .post(`/4walls-property-master/update`, payload)
+        .then((response) => {
+          const data = response.data;
+          this.successMessage = data.message;
+          this.isSuccess = true;
+          //this.getConstructionCategoryData();
         })
         .catch((error) => {
           console.log(error);
@@ -784,7 +894,7 @@ export default {
           const data = response.data;
           this.successMessage = data.message;
           this.isSuccess = true;
-          this.getConstructionCategoryData();
+          //this.getConstructionCategoryData();
         })
         .catch((error) => {
           console.log(error);
@@ -814,7 +924,7 @@ export default {
           const data = response.data;
           this.successMessage = data.message;
           this.isSuccess = true;
-          this.getConstructionCategoryData();
+          //this.getConstructionCategoryData();
         })
         .catch((error) => {
           console.log(error);
@@ -1019,8 +1129,9 @@ export default {
     getPropertyMasterData() {
       this.isLoading = true;
       axios
-        .get(`/4walls-property-master`, {
+        .get(`/4walls-property-master/search`, {
           params: {
+            query: this.search,
             page: this.currentPage,
             perPage: this.perPage,
           },
@@ -1231,7 +1342,7 @@ export default {
           const data = response.data;
           this.successMessage = data.message;
           this.isSuccess = true;
-          this.getPropertyMasterData();
+          //this.getPropertyMasterData();
         })
         .catch((error) => {
           // eslint-disable-next-line
@@ -1259,7 +1370,7 @@ export default {
           const data = response.data;
           this.successMessage = data.message;
           this.isSuccess = true;
-          this.getPropertyMasterData();
+          //this.getPropertyMasterData();
         })
         .catch((error) => {
           // eslint-disable-next-line
@@ -1287,7 +1398,7 @@ export default {
           const data = response.data;
           this.successMessage = data.message;
           this.isSuccess = true;
-          this.getPropertyMasterData();
+          //this.getPropertyMasterData();
         })
         .catch((error) => {
           // eslint-disable-next-line
@@ -1315,7 +1426,7 @@ export default {
           const data = response.data;
           this.successMessage = data.message;
           this.isSuccess = true;
-          this.getPropertyMasterData();
+          //this.getPropertyMasterData();
         })
         .catch((error) => {
           // eslint-disable-next-line

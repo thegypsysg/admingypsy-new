@@ -908,12 +908,10 @@ const routes = [
     },
   },
   {
-    name: 'property master main info',
-    path: '/property_master/main-info/:id',
+    name: 'property master rates',
+    path: '/property_master/rates/:id',
     component: () =>
-      import(
-        '@/views/walls master/property master/main info/PropertyMastersMainInfoContainer.vue'
-      ),
+      import('@/views/walls master/property master/rates/RatesContainer.vue'),
     beforeEnter: (to, from, next) => {
       // Pengecekan status login sebelum masuk ke halaman beranda
       if (localStorage.getItem('token') == null) {

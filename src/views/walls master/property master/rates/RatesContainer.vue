@@ -3,7 +3,7 @@
     <sidebar-dashboard :drawer-open="drawer" />
     <header-dashboard @toggle-drawer="toggleDrawer" />
     <v-main>
-      <PropertyMastersMainInfo />
+      <Rates />
     </v-main>
   </v-app>
 </template>
@@ -11,11 +11,11 @@
 <script>
 import HeaderDashboard from '@/components/HeaderDashboard.vue';
 import SidebarDashboard from '@/components/SidebarDashboard.vue';
-import PropertyMastersMainInfo from './PropertyMastersMainInfo.vue';
+import Rates from './Rates.vue';
 
 export default {
-  name: 'PropertyMastersMainInfoContainer',
-  components: { SidebarDashboard, HeaderDashboard, PropertyMastersMainInfo },
+  name: 'RatesContainer',
+  components: { SidebarDashboard, HeaderDashboard, Rates },
   data: () => ({
     drawer: true,
   }),
