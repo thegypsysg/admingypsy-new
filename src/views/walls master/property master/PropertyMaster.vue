@@ -470,8 +470,8 @@
                       density="compact"
                       hide-details
                       clearable
+                      @focusout="saveTikTokLink(item.tik_tok_video_link, item)"
                     ></v-text-field>
-                    <!-- @focusout="saveVideoLink(item.video_link, item)" -->
                   </td>
                   <td colspan="6"></td>
                 </tr>
@@ -917,6 +917,36 @@ export default {
         country_id: item.country_id,
         property_type_id: item.property_type_id,
         video_link: videoLink,
+      };
+      axios
+        .post(`/4walls-property-master/update`, payload)
+        .then((response) => {
+          const data = response.data;
+          this.successMessage = data.message;
+          this.isSuccess = true;
+          //this.getConstructionCategoryData();
+        })
+        .catch((error) => {
+          console.log(error);
+          const message = error.response.data.category_name
+            ? 'Please fill the category name field'
+            : error.response.data.message;
+          this.errorMessage = message;
+          this.isError = true;
+        })
+        .finally(() => {
+          this.isSending = false;
+        });
+    },
+    saveTikTokLink(videoLink, item) {
+      const payload = {
+        property_id: item.property_id,
+        category_id: item.category_id,
+        cc_id: item.cc_id,
+        bt_id: item.bt_id,
+        country_id: item.country_id,
+        property_type_id: item.property_type_id,
+        tik_tok_video_link: videoLink,
       };
       axios
         .post(`/4walls-property-master/update`, payload)
