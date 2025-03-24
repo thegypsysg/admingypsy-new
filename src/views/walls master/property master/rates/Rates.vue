@@ -381,7 +381,7 @@ export default {
       }
     },
     saveRateHome(rate, item) {
-      if (rate) {
+      if (rate && item.rate_sg) {
         this.isSending = true;
         const payload = {
           pr_id: item.pr_id,
@@ -410,7 +410,7 @@ export default {
       }
     },
     saveRateSG(rate, item) {
-      if (rate) {
+      if (rate && item.rate_home) {
         this.isSending = true;
         const payload = {
           pr_id: item.pr_id,

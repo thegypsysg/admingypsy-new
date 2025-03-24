@@ -464,14 +464,14 @@
                 <tr class="pb-4">
                   <td colspan="4">
                     <v-text-field
-                      v-model="item.video_link"
+                      v-model="item.tik_tok_video_link"
                       label="Tik Tok Video"
                       variant="outlined"
                       density="compact"
                       hide-details
                       clearable
-                      @focusout="saveVideoLink(item.video_link, item)"
                     ></v-text-field>
+                    <!-- @focusout="saveVideoLink(item.video_link, item)" -->
                   </td>
                   <td colspan="6"></td>
                 </tr>
