@@ -316,9 +316,9 @@
                       </div>
                     </div>
                   </td>
-                  <td colspan="4" style="border-bottom: none !important">
+                  <td colspan="2" style="border-bottom: none !important">
                     <v-row>
-                      <v-col cols="12" md="4">
+                      <v-col cols="12" md="6">
                         <v-text-field
                           v-model="item.bedrooms"
                           label="Beds"
@@ -329,7 +329,7 @@
                           @focusout="saveBeds(item.bedrooms, item)"
                         ></v-text-field>
                       </v-col>
-                      <v-col cols="12" md="4">
+                      <v-col cols="12" md="6">
                         <v-text-field
                           v-model="item.bathrooms"
                           label="Baths"
@@ -342,18 +342,37 @@
                       </v-col>
                     </v-row>
                   </td>
+                  <td colspan="3" style="border-bottom: none !important">
+                    <v-autocomplete
+                      density="compact"
+                      label="Construction Name"
+                      placeholder="Construction Name"
+                      :items="[]"
+                      item-title="title"
+                      item-value="value"
+                      variant="outlined"
+                      clearable
+                      class="mt-5"
+                    ></v-autocomplete>
+                  </td>
+                  <td c style="border-bottom: none !important">
+                    <div class="d-flex">
+                      <v-label class="">Display</v-label>
+                      <v-checkbox class="text-black mt-5"> </v-checkbox>
+                    </div>
+                  </td>
                 </tr>
                 <tr>
                   <td colspan="4" style="border-bottom: none !important">
-                    <v-text-field
+                    <v-textarea
                       v-model="item.tag_line"
                       label="Tagline"
                       variant="outlined"
                       density="compact"
+                      rows="2"
                       hide-details
-                      clearable
                       @focusout="updateTagline(item.property_id, item.tag_line)"
-                    ></v-text-field>
+                    ></v-textarea>
                   </td>
                   <td colspan="6" style="border-bottom: none !important">
                     <v-row>
