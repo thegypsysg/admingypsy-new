@@ -11,27 +11,29 @@
       <v-container>
         <v-row>
           <v-col cols="12">
-            <v-text-field
-							v-if="!isEdit"
-              class="mt-8"
-							ref="streetRef"
-              v-model="addressForm.street_address"
-              :rules="rules.streetAddressRules"
-              label="Street Address"
-              variant="outlined"
-              density="compact"
-              required
-            />
-            <v-text-field
-							v-else
-              class="mt-8"
-              v-model="addressForm.street_address"
-              :rules="rules.streetAddressRules"
-              label="Street Address"
-              variant="outlined"
-              density="compact"
-              required
-            />
+						<template v-if="isEdit">
+							<v-text-field
+								class="mt-8"
+								v-model="addressForm.street_address"
+								:rules="rules.streetAddressRules"
+								label="Street Address"
+								variant="outlined"
+								density="compact"
+								required
+							/>
+						</template>
+						<template v-else>
+							<v-text-field
+								class="mt-8"
+								ref="streetRef"
+								v-model="addressForm.street_address"
+								:rules="rules.streetAddressRules"
+								label="Street Address"
+								variant="outlined"
+								density="compact"
+								required
+							/>
+						</template>
           </v-col>
 				</v-row>
 				<v-row cols="2">
@@ -234,8 +236,6 @@
               </tr>
             </tbody>
           </v-table>
-					{{ currentPage }}
-					{{ totalPages }}
           <v-pagination
             v-model="currentPage"
             :length="totalPages"
@@ -589,6 +589,7 @@ setAuthHeader(token);
 	// const googleMapsApiKey = process.env.VUE_APP_GOOGLE_MAPS_API_KEY;
 
 	const initAutocomplete = async () => {
+		console.log(streetRef.value)
 		const loader = new Loader({
 			apiKey: googleMapsApiKey.value,
 			libraries: ["places"],
