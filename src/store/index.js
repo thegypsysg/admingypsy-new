@@ -81,6 +81,10 @@ export default createStore({
             title: 'Manage Emails',
             path: '/email-master',
           },
+          {
+            title: 'Address Master',
+            path: '/address-master',
+          },
         ],
       },
       {
