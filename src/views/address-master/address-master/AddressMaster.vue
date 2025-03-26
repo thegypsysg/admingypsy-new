@@ -354,9 +354,14 @@ setAuthHeader(token);
 	const isSending = ref(false)
 
 	const addressForm = ref({
-		street_address: null,
+		country: null,
+		city: null,
 		town: null,
+		street_address: null,
+		postal_code: null,
 		condo_name: null,
+		latitude: null,
+		longitude: null,
 	})
 
 	const rules = ref({
@@ -507,12 +512,7 @@ setAuthHeader(token);
 	const saveData = () => {
 		if (valid.value) {
 			isSending.value = true;
-			const payload = {
-				street_address: addressForm.value.street_address,
-				town: addressForm.value.town,
-				condo_name: addressForm.value.condo_name,
-			};
-			axios.post(`/address-master/save-address`, payload)
+			axios.post(`/address-master/save-address`, addressForm.value)
 				.then((response) => {
 					const data = response?.data;
 					console.log({data})
@@ -624,8 +624,6 @@ setAuthHeader(token);
 						var route = "";
 						for (let i = 0; i < place.address_components.length; i++) {
 							const component = place.address_components[i];
-							
-							// Check the types to determine what kind of address component it is
 							if (component.types.includes("street_number")) {
 								streetName = component.long_name;
 							}
@@ -649,14 +647,8 @@ setAuthHeader(token);
 								addressForm.value.postal_code = "";
 							}
 						}
-
-						var wrappedAddress = addressForm.value.city+' '+addressForm.value.postal_code;
 						var mainAddress = [placeName, streetName, route].filter(Boolean).join(' ');
-						var fullSingleLine = streetName+' '+route
-						var fullAddress = [fullSingleLine, wrappedAddress].filter(Boolean).join('\n');
-
-						addressForm.value.main_address = mainAddress
-						addressForm.value.full_address = fullAddress
+						addressForm.value.street_address = mainAddress
 						addressForm.value.condo_name = placeName;
 						addressForm.value.latitude = place.geometry.location.lat();
 						addressForm.value.longitude = place.geometry.location.lng();
