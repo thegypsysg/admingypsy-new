@@ -12,8 +12,19 @@
         <v-row>
           <v-col cols="12">
             <v-text-field
+							v-if="!isEdit"
               class="mt-8"
 							ref="streetRef"
+              v-model="addressForm.street_address"
+              :rules="rules.streetAddressRules"
+              label="Street Address"
+              variant="outlined"
+              density="compact"
+              required
+            />
+            <v-text-field
+							v-else
+              class="mt-8"
               v-model="addressForm.street_address"
               :rules="rules.streetAddressRules"
               label="Street Address"
