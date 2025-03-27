@@ -398,7 +398,8 @@
 	}
 
 	const getCountries = () => {
-      axios.get(`/app-country-list/${appId.value}`).then((response) => {
+      // axios.get(`/app-country-list/${appId.value}`).then((response) => {
+      axios.get(`/app-countries`).then((response) => {
 			const data = response.data.data;
 			resource.value.countriesData = data
 				.sort((a, b) => a.country_name.localeCompare(b.country_name))
