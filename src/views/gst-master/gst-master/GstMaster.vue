@@ -149,7 +149,7 @@
                 <th class="text-left font-weight-bold text-black">App Name</th>
                 <th class="text-left font-weight-bold text-black">Country</th>
                 <th class="text-left font-weight-bold text-black">GST</th>
-                <th class="text-left font-weight-bold text-black">Active</th>
+                <th class="text-left font-weight-bold text-black">Applicable</th>
                 <th class="text-left font-weight-bold text-black">User</th>
                 <th class="text-left font-weight-bold text-black">Dated</th>
                 <th class="text-left font-weight-bold text-black">Actions</th>
