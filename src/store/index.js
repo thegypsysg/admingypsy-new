@@ -85,6 +85,10 @@ export default createStore({
             title: 'Address Master',
             path: '/address-master',
           },
+          {
+            title: 'Platform Fee',
+            path: '/platform-fee',
+          },
         ],
       },
       {
