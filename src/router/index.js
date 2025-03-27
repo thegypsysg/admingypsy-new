@@ -230,6 +230,45 @@ const routes = [
     },
   },
   {
+    name: 'address master',
+    path: '/address-master',
+    component: () =>
+      import('@/views/address-master/address-master/AddressMasterContainer.vue'),
+    beforeEnter: (to, from, next) => {
+      if (localStorage.getItem('token') == null) {
+        next('/auth/login');
+      } else {
+        next();
+      }
+    },
+  },
+  {
+    name: 'platform fee',
+    path: '/platform-fee',
+    component: () =>
+      import('@/views/platform fee/platform fee/PlatformFeesContainer.vue'),
+    beforeEnter: (to, from, next) => {
+      if (localStorage.getItem('token') == null) {
+        next('/auth/login');
+      } else {
+        next();
+      }
+    },
+  },
+  {
+    name: 'gst-master',
+    path: '/gst-master',
+    component: () =>
+      import('@/views/gst-master/gst-master/GstMasterContainer.vue'),
+    beforeEnter: (to, from, next) => {
+      if (localStorage.getItem('token') == null) {
+        next('/auth/login');
+      } else {
+        next();
+      }
+    },
+  },
+  {
     name: 'email master main info',
     path: '/email-master/main-info/:id',
     component: () =>

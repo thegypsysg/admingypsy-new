@@ -81,6 +81,18 @@ export default createStore({
             title: 'Manage Emails',
             path: '/email-master',
           },
+          {
+            title: 'Address Master',
+            path: '/address-master',
+          },
+          {
+            title: 'Platform Fee',
+            path: '/platform-fee',
+          },
+          {
+            title: 'GST',
+            path: '/gst-master',
+          },
         ],
       },
       {
