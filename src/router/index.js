@@ -256,6 +256,19 @@ const routes = [
     },
   },
   {
+    name: 'gst-master',
+    path: '/gst-master',
+    component: () =>
+      import('@/views/gst-master/gst-master/GstMasterContainer.vue'),
+    beforeEnter: (to, from, next) => {
+      if (localStorage.getItem('token') == null) {
+        next('/auth/login');
+      } else {
+        next();
+      }
+    },
+  },
+  {
     name: 'email master main info',
     path: '/email-master/main-info/:id',
     component: () =>

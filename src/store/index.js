@@ -89,6 +89,10 @@ export default createStore({
             title: 'Platform Fee',
             path: '/platform-fee',
           },
+          {
+            title: 'GST',
+            path: '/gst-master',
+          },
         ],
       },
       {
