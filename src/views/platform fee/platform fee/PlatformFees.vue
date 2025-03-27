@@ -7,10 +7,10 @@
         <h1>Platform Fee</h1>
       </router-link>
     </div>
-    <v-form v-model="valid" @submit.prevent>
+    <v-form v-model="valid" @submit.prevent ref="formRef">
       <v-container>
         <v-row>
-          <v-col cols="6">
+          <v-col cols="4">
 						<v-autocomplete
               density="compact"
               label="---Select App---"
@@ -24,7 +24,7 @@
               variant="outlined"
             ></v-autocomplete>
           </v-col>
-          <v-col cols="6">
+          <v-col cols="4">
             <v-autocomplete
               clearable
               density="compact"
@@ -38,10 +38,9 @@
               variant="outlined"
             ></v-autocomplete>
           </v-col>
-          <v-col cols="6">
+          <v-col cols="4">
             <v-text-field
 							prefix="$"
-              class="mt-8"
               v-model="platformFeeForm.platform_fee"
               :rules="rules.platformFeeRules"
               label="Platform Fee"
@@ -52,7 +51,7 @@
           </v-col>
         </v-row>
         <v-row>
-          <v-col cols="12" md="2">
+          <v-col cols="2">
             <v-btn
               :prepend-icon="
                 isEdit
@@ -73,9 +72,8 @@
               {{ isEdit ? 'Save' : 'Add' }}
             </v-btn>
           </v-col>
-          <v-col cols="12" md="2" v-if="isEdit">
+          <v-col cols="2" v-if="isEdit">
             <v-btn
-              v-if="isEdit"
               prepend-icon="mdi-account-multiple-remove"
               color="red"
               style="text-transform: none"
@@ -84,10 +82,9 @@
               @click="cancelEdit"
               :disabled="isSending"
             >
-              <template v-slot:prepend>
-                <v-icon color="white"></v-icon>
-              </template>
-
+            <template v-slot:prepend>
+              <v-icon color="white"></v-icon>
+            </template>
               CANCEL
             </v-btn>
           </v-col>
@@ -325,6 +322,7 @@
 	const valid = ref(false)
 	const isSending = ref(false)
 	const appId = ref(null)
+  const formRef = ref(null);
 
 	const platformFeeForm = ref({
 		id: 0,
@@ -522,35 +520,38 @@
 		}
 	}
 
-	const saveData = () => {
-		if (valid.value) {
-			isSending.value = true;
-			axios.post(`/platform-fee/save`, platformFeeForm.value).then((response) => {
-				const data = response?.data;
-				successMessage.value = data?.message;
-				isSuccess.value = true;
-				getPlatformFeeData();
-				platformFeeForm.value = {
-					pf_id: null,
-					app_id: null,
-					country_id: null,
-					platform_fee: null,
-				};
-			})
-			.catch((error) => {
-				// eslint-disable-next-line
-				console.log(error);
-				const message = error.response?.data?.message
-					? error.response?.data?.message
-					: 'Something Wrong!!!';
-				errorMessage.value = message;
-				isError.value = true;
-			})
-			.finally(() => {
-				isEdit.value = false;
-				isSending.value = false;
-			});
-		}
+	const saveData = async () => {
+    if (formRef.value) {
+      const { valid: isValid } = await formRef.value.validate();
+      if (isValid) {
+        isSending.value = true;
+        axios.post(`/platform-fee/save`, platformFeeForm.value).then((response) => {
+          const data = response?.data;
+          successMessage.value = data?.message;
+          isSuccess.value = true;
+          getPlatformFeeData();
+          platformFeeForm.value = {
+            pf_id: null,
+            app_id: null,
+            country_id: null,
+            platform_fee: null,
+          };
+        })
+        .catch((error) => {
+          // eslint-disable-next-line
+          console.log(error);
+          const message = error.response?.data?.message
+            ? error.response?.data?.message
+            : 'Something Wrong!!!';
+          errorMessage.value = message;
+          isError.value = true;
+        })
+        .finally(() => {
+          isEdit.value = false;
+          isSending.value = false;
+        });
+      }
+    }
 	}
 
 	const cancelDelete = () => {
