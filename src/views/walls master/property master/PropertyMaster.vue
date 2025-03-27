@@ -347,18 +347,27 @@
                       density="compact"
                       label="Construction Name"
                       placeholder="Construction Name"
-                      :items="[]"
-                      item-title="title"
-                      item-value="value"
+                      :items="constructionData"
+                      item-title="construction_name"
+                      item-value="construction_id"
                       variant="outlined"
                       clearable
                       class="mt-5"
+                      v-model="item.construction_id"
+                      @update:modelValue="updateConstruction(item)"
                     ></v-autocomplete>
                   </td>
                   <td c style="border-bottom: none !important">
                     <div class="d-flex">
                       <v-label class="">Display</v-label>
-                      <v-checkbox class="text-black mt-5"> </v-checkbox>
+                      <v-checkbox
+                        v-model="item.displayConstruction"
+                        color="blue"
+                        class="text-black mt-5"
+                        :disabled="isSending2"
+                        @update:modelValue="toggleDisplay(item.property_id)"
+                      >
+                      </v-checkbox>
                     </div>
                   </td>
                 </tr>
@@ -623,6 +632,7 @@ export default {
     mainCategory: [],
     propertyType: [],
     buildingType: [],
+    constructionData: [],
     constructionCategory: [],
     propertyMaster: [],
     currentPage: 1,
@@ -699,6 +709,7 @@ export default {
     this.getMainCategoryData();
     this.getPropertyTypeData();
     this.getBuildingTypeData();
+    this.getConstructionData();
     await this.getCountryData();
     await this.getCityData();
     await this.getTownData();
@@ -1215,6 +1226,8 @@ export default {
                     : null,
                 city_id: item.city_id || null,
                 town_id: item.town_id || null,
+                displayConstruction:
+                  item.display_construction == 'Y' ? true : false,
               };
             });
 
@@ -1384,6 +1397,29 @@ export default {
       const payload = {
         property_id: id,
         tag_line: tagline,
+      };
+      axios
+        .post(`/4walls-property-master/update`, payload)
+        .then((response) => {
+          const data = response.data;
+          this.successMessage = data.message;
+          this.isSuccess = true;
+          //this.getPropertyMasterData();
+        })
+        .catch((error) => {
+          // eslint-disable-next-line
+          console.log(error);
+        })
+        .finally(() => {
+          this.isSending2 = false;
+        });
+    },
+    updateConstruction(item) {
+      this.isSending2 = true;
+      const payload = {
+        property_id: item.property_id,
+
+        construction_id: item.construction_id,
       };
       axios
         .post(`/4walls-property-master/update`, payload)
@@ -1615,6 +1651,37 @@ export default {
           //   app_detail: '',
           // };
           this.imageFile = [];
+        });
+    },
+    toggleDisplay(id) {
+      this.isSending2 = true;
+      axios
+        .get(`/4walls-property-master/toggle-display-construction/${id}`)
+        .then((response) => {
+          const data = response.data;
+          this.successMessage = data.message;
+          this.isSuccess = true;
+          //this.getPropertyMasterData();
+        })
+        .catch((error) => {
+          // eslint-disable-next-line
+          console.log(error);
+        })
+        .finally(() => {
+          this.isSending2 = false;
+        });
+    },
+    getConstructionData() {
+      axios
+        .get(`/4walls-construction-masters`)
+        .then((response) => {
+          this.constructionData = response.data.data;
+        })
+        .catch((error) => {
+          console.log(error);
+        })
+        .finally(() => {
+          this.isLoading = false;
         });
     },
   },
