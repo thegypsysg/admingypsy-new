@@ -7,10 +7,10 @@
         <h1>GST</h1>
       </router-link>
     </div>
-    <v-form v-model="valid" @submit.prevent>
+    <v-form v-model="valid" @submit.prevent ref="formRef">
       <v-container>
         <v-row>
-          <v-col cols="6">
+          <v-col cols="4">
 						<v-autocomplete
               density="compact"
               label="---Select App---"
@@ -24,7 +24,7 @@
               variant="outlined"
             ></v-autocomplete>
           </v-col>
-          <v-col cols="6">
+          <v-col cols="4">
             <v-autocomplete
               clearable
               density="compact"
@@ -38,10 +38,9 @@
               variant="outlined"
             ></v-autocomplete>
           </v-col>
-          <v-col cols="6">
+          <v-col cols="4">
             <v-text-field
 							prefix="%"
-              class="mt-8"
               v-model="gstMasterForm.tax_rate"
               :rules="rules.taxRateRules"
               label="Tax Rate"
@@ -52,7 +51,7 @@
           </v-col>
         </v-row>
         <v-row>
-          <v-col cols="12" md="2">
+          <v-col cols="2">
             <v-btn
               :prepend-icon="
                 isEdit
@@ -73,7 +72,7 @@
               {{ isEdit ? 'Save' : 'Add' }}
             </v-btn>
           </v-col>
-          <v-col cols="12" md="2" v-if="isEdit">
+          <v-col cols="2" v-if="isEdit">
             <v-btn
               v-if="isEdit"
               prepend-icon="mdi-account-multiple-remove"
@@ -87,8 +86,7 @@
               <template v-slot:prepend>
                 <v-icon color="white"></v-icon>
               </template>
-
-              CANCEL
+              Cancel
             </v-btn>
           </v-col>
         </v-row>
@@ -151,6 +149,7 @@
                 <th class="text-left font-weight-bold text-black">App Name</th>
                 <th class="text-left font-weight-bold text-black">Country</th>
                 <th class="text-left font-weight-bold text-black">GST</th>
+                <th class="text-left font-weight-bold text-black">Active</th>
                 <th class="text-left font-weight-bold text-black">User</th>
                 <th class="text-left font-weight-bold text-black">Dated</th>
                 <th class="text-left font-weight-bold text-black">Actions</th>
@@ -165,10 +164,29 @@
                   <td>{{ item.country.country_name }}</td>
                   <td>
                     <span class="border rounded py-1 pl-3 pr-7 text-left">
-                      <strong>%</strong>
+                      <strong class="mr-2">%</strong>
                       <span class="text-red-darken-4 font-weight-bold">{{ item.tax_rate }}</span>
                     </span>
-                    </td>
+                  </td>
+                  <td>
+                    <v-btn-toggle
+                    mandatory
+                    style="
+                      font-size: 10px !important;
+                      font-weight: 200 !important;
+                      height: 22px !important;
+                      width: 54px !important;
+                    "
+                    class="d-flex align-center"
+                    v-model="item.is_active"
+                    @click="activeGst(item.gst_id)"
+                    :disabled="isSending2"
+                    rounded="5"
+                  >
+                    <v-btn size="27" :value="true"> Yes </v-btn>
+                    <v-btn size="27" :value="false"> No </v-btn>
+                  </v-btn-toggle>
+                  </td>
                   <td>{{ item?.user?.name || 'N/A' }}</td>
                   <td>{{ item?.dated || 'N/A' }}</td>
                   <td>
@@ -262,36 +280,6 @@
       </v-card>
     </v-dialog>
     
-		<v-dialog persistent width="auto" v-model="isOpenImage">
-      <v-card width="750">
-        <v-card-title class="upload-title px-6 py-4">
-          Upload Image - Construction Category</v-card-title
-        >
-        <v-card-text>
-          <image-upload
-            :image-file="imageFile"
-            @update-image-file="updateImageFile"
-            @delete-image-file="deleteImageFile"
-          />
-        </v-card-text>
-        <v-card-actions class="mt-16">
-          <v-spacer></v-spacer>
-          <v-btn
-            style="text-transform: none"
-            color="error"
-            text
-            @click="closeImage"
-            >Cancel</v-btn
-          >
-          <v-btn
-            style="background-color: #9ddcff; text-transform: none"
-            color="black"
-            @click="saveImage()"
-            >Save</v-btn
-          >
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
   </v-container>
 </template>
 
@@ -325,7 +313,9 @@
 	const isDeleteLoading = ref(false)
 	const valid = ref(false)
 	const isSending = ref(false)
+	const isSending2 = ref(false)
 	const appId = ref(null)
+  const formRef = ref(null);
 
 	const gstMasterForm = ref({
 		id: 0,
@@ -439,6 +429,7 @@
 						return {
 							...item,
 							gst_id: item.gst_id || null,
+							is_active: item.applicable == 'N' ? false : item.applicable == 'Y' ? true : null,
 							app_id: item.app.app_id || null,
 							country_id: item.country.country_id || null,
 							tax_rate: item.tax_rate || null,
@@ -523,36 +514,56 @@
 		}
 	}
 
-	const saveData = () => {
-		if (valid.value) {
-			isSending.value = true;
-			axios.post(`/gst-master/save`, gstMasterForm.value).then((response) => {
-				const data = response?.data;
-				successMessage.value = data?.message;
-				isSuccess.value = true;
-				getGstMasterData();
-				gstMasterForm.value = {
-					gst_id: null,
-					app_id: null,
-					country_id: null,
-					tax_rate: null,
-				};
-			})
-			.catch((error) => {
-				// eslint-disable-next-line
-				console.log(error);
-				const message = error.response?.data?.message
-					? error.response?.data?.message
-					: 'Something Wrong!!!';
-				errorMessage.value = message;
-				isError.value = true;
-			})
-			.finally(() => {
-				isEdit.value = false;
-				isSending.value = false;
-			});
+	const saveData = async () => {
+    if (formRef.value) {
+      const { valid: isValid } = await formRef.value.validate();
+      if (isValid) {
+        isSending.value = true;
+        axios.post(`/gst-master/save`, gstMasterForm.value).then((response) => {
+          const data = response?.data;
+          successMessage.value = data?.message;
+          isSuccess.value = true;
+          getGstMasterData();
+          gstMasterForm.value = {
+            gst_id: null,
+            app_id: null,
+            country_id: null,
+            tax_rate: null,
+          };
+        })
+        .catch((error) => {
+          // eslint-disable-next-line
+          console.log(error);
+          const message = error.response?.data?.message
+            ? error.response?.data?.message
+            : 'Something Wrong!!!';
+          errorMessage.value = message;
+          isError.value = true;
+        })
+        .finally(() => {
+          isEdit.value = false;
+          isSending.value = false;
+        });
+      }
 		}
 	}
+
+  const activeGst = (id) => {
+    isSending2.value = true;
+    axios.get(`/gst-master/toggle-active/${id}`).then((response) => {
+      const data = response.data;
+      successMessage.value = data.message;
+      isSuccess.value = true;
+      getGstMasterData();
+    })
+    .catch((error) => {
+      // eslint-disable-next-line
+      console.log(error);
+    })
+    .finally(() => {
+      isSending2.value = false;
+    });
+  }
 
 	const cancelDelete = () => {
 		idGst.value = null;
