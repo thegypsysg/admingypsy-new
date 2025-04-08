@@ -479,7 +479,7 @@ export default {
     getPropertyRatesData() {
       this.isLoading = true;
       axios
-        .get(`/4walls-property-rates`)
+        .get(`/4walls-property-rates/${parseInt(this.$route.params.id)}`)
         .then((response) => {
           const data = response.data.data;
           this.items = data.map((item) => {
