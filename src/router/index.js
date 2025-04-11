@@ -269,6 +269,19 @@ const routes = [
     },
   },
   {
+    name: 'delivery-charges',
+    path: '/delivery-charges',
+    component: () =>
+      import('@/views/delivery-charges/delivery-charges/DeliveryChargesContainer.vue'),
+    beforeEnter: (to, from, next) => {
+      if (localStorage.getItem('token') == null) {
+        next('/auth/login');
+      } else {
+        next();
+      }
+    },
+  },
+  {
     name: 'email master main info',
     path: '/email-master/main-info/:id',
     component: () =>

@@ -93,6 +93,10 @@ export default createStore({
             title: 'GST',
             path: '/gst-master',
           },
+          {
+            title: 'Delivery Charges',
+            path: '/delivery-charges',
+          },
         ],
       },
       {
@@ -101,13 +105,18 @@ export default createStore({
         subnav: [{ title: 'Websites' }, { title: 'Open Source' }],
       },
     ],
+    items: []
   },
   getters: {
     navigation: (state) => {
       return state.navigation;
     },
   },
-  mutations: {},
+  mutations: {
+    items(state, data) {
+      state.items = data;
+    },
+  },
   actions: {},
   modules: {},
 });
