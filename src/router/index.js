@@ -233,7 +233,9 @@ const routes = [
     name: 'address master',
     path: '/address-master',
     component: () =>
-      import('@/views/address-master/address-master/AddressMasterContainer.vue'),
+      import(
+        '@/views/address-master/address-master/AddressMasterContainer.vue'
+      ),
     beforeEnter: (to, from, next) => {
       if (localStorage.getItem('token') == null) {
         next('/auth/login');
@@ -272,7 +274,9 @@ const routes = [
     name: 'delivery-charges',
     path: '/delivery-charges',
     component: () =>
-      import('@/views/delivery-charges/delivery-charges/DeliveryChargesContainer.vue'),
+      import(
+        '@/views/delivery-charges/delivery-charges/DeliveryChargesContainer.vue'
+      ),
     beforeEnter: (to, from, next) => {
       if (localStorage.getItem('token') == null) {
         next('/auth/login');
@@ -886,6 +890,20 @@ const routes = [
       import(
         '@/views/walls master/apartment type master/ApartmentTypeMasterContainer.vue'
       ),
+    beforeEnter: (to, from, next) => {
+      // Pengecekan status login sebelum masuk ke halaman beranda
+      if (localStorage.getItem('token') == null) {
+        next('/auth/login'); // Alihkan ke halaman login jika belum masuk
+      } else {
+        next(); // Lanjutkan ke halaman beranda jika sudah masuk
+      }
+    },
+  },
+  {
+    name: 'rate type master',
+    path: '/rate_type_master',
+    component: () =>
+      import('@/views/walls master/rate types/RateTypesContainer.vue'),
     beforeEnter: (to, from, next) => {
       // Pengecekan status login sebelum masuk ke halaman beranda
       if (localStorage.getItem('token') == null) {
