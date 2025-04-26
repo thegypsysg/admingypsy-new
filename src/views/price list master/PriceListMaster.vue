@@ -1016,7 +1016,7 @@ export default {
       // Buat timer baru untuk debounce
       this.debounceTimers[id + type] = setTimeout(() => {
         this.updateData2(id, value, type);
-      }, 500); // Tunggu 500ms sebelum memanggil updateData
+      }, 800); // Tunggu 500ms sebelum memanggil updateData
     },
     updateData2(id, body, desc) {
       let payload = null;
@@ -1080,9 +1080,9 @@ export default {
             // eslint-disable-next-line
             console.log(error);
             const message =
-              error.response.data.message === ''
+              error.response.data.error === ''
                 ? 'Something Wrong!!!'
-                : error.response.data.message;
+                : error.response.data.error;
             this.errorMessage = message;
             this.isError = true;
           })
