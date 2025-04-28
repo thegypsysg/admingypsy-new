@@ -1079,10 +1079,11 @@ export default {
           .catch((error) => {
             // eslint-disable-next-line
             console.log(error);
-            const message =
-              error.response.data.error === ''
-                ? 'Something Wrong!!!'
-                : error.response.data.error;
+            const message = error.response.data.range_id
+              ? error.response.data.range_id[0]
+              : error.response.data.error
+              ? error.response.data.error
+              : 'Something Wrong!!!';
             this.errorMessage = message;
             this.isError = true;
           })
