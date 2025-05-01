@@ -208,6 +208,24 @@
             hide-details
           ></v-text-field>
         </v-col>
+        <v-col cols="12" md="2">
+          <v-btn
+            prepend-icon="mdi-magnify"
+            color="indigo-accent-2"
+            style="text-transform: none"
+            variant="flat"
+            class="w-100"
+            @click="getItemsData()"
+            :disabled="isLoading"
+            :loading="isLoading"
+          >
+            <template v-slot:prepend>
+              <v-icon color="white"></v-icon>
+            </template>
+
+            Search
+          </v-btn>
+        </v-col>
       </v-row>
       <v-row align="center" justify="space-between">
         <v-col cols="8">

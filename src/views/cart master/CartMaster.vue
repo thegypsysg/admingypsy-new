@@ -16,7 +16,36 @@ td
             hide-details
           ></v-text-field>
         </v-col>
+        <v-col cols="12" md="2">
+          <v-btn
+            prepend-icon="mdi-magnify"
+            color="indigo-accent-2"
+            style="text-transform: none"
+            variant="flat"
+            class="w-100"
+            @click="getProductData()"
+            :disabled="isLoading"
+            :loading="isLoading"
+          >
+            <template v-slot:prepend>
+              <v-icon color="white"></v-icon>
+            </template>
+
+            Search
+          </v-btn>
+        </v-col>
       </v-row>
+      <!-- <v-row>
+        <v-col cols="12" md="4">
+          <v-text-field
+            density="compact"
+            v-model="search"
+            label="Search"
+            variant="outlined"
+            hide-details
+          ></v-text-field>
+        </v-col>
+      </v-row> -->
       <v-row align="center" justify="space-between">
         <v-col cols="8">
           <span>
@@ -54,7 +83,7 @@ td
               </tr>
             </thead>
             <tbody>
-              <template v-for="item in filteredItems" :key="item.id">
+              <template v-for="item in items.slice(0, 5)" :key="item.id">
                 <tr class="country-table-body text-no-wrap">
                   <td>{{ item.id }}</td>
                   <td>
@@ -328,23 +357,6 @@ export default {
     this.getBrands();
   },
   computed: {
-    filteredItems() {
-      if (!this.search) {
-        return this.items.slice(0, 5);
-      }
-      const searchTextLower = this.search.toLowerCase();
-      return this.items
-        .filter(
-          (item) =>
-            item.product.toLowerCase().includes(searchTextLower) ||
-            item.user.toLowerCase().includes(searchTextLower) ||
-            item.dated.toLowerCase().includes(searchTextLower) ||
-            item.app.toLowerCase().includes(searchTextLower) ||
-            item.brand.toLowerCase().includes(searchTextLower) ||
-            item.category.toLowerCase().includes(searchTextLower)
-        )
-        .slice(0, 5);
-    },
     startItem() {
       return (this.currentPage - 1) * this.perPage + 1;
     },
