@@ -262,7 +262,7 @@
               </tr>
             </thead>
             <tbody>
-              <template v-for="item in filteredItems" :key="item.id">
+              <template v-for="item in items" :key="item.id">
                 <tr class="country-table-body">
                   <td>{{ item.id }}</td>
 
@@ -876,18 +876,6 @@ export default {
     }, 500);
   },
   computed: {
-    filteredItems() {
-      if (!this.search) {
-        return this.items;
-      }
-      const searchTextLower = this.search.toLowerCase();
-      return this.items.filter(
-        (item) =>
-          item.product_name.toLowerCase().includes(searchTextLower) ||
-          item.quantity_name.toLowerCase().includes(searchTextLower) ||
-          item.name.toLowerCase().includes(searchTextLower)
-      );
-    },
     startItem() {
       return (this.currentPage - 1) * this.perPage + 1;
     },
@@ -1299,7 +1287,7 @@ export default {
     async getItemsData() {
       this.isLoading = true;
       try {
-        const response = await axios.get(`/price-list`, {
+        const response = await axios.get(`/price-list/search`, {
           params: {
             query: this.search,
             page: this.currentPage,
