@@ -209,6 +209,24 @@
           ></v-text-field>
         </v-col>
       </v-row>
+      <v-row align="center" justify="space-between">
+        <v-col cols="8">
+          <span>
+            Showing {{ startItem }} - {{ endItem }} from {{ totalItems }} item
+          </span>
+        </v-col>
+        <v-col cols="4" class="text-right">
+          <v-select
+            v-model="perPage"
+            :items="[5, 10, 15, 20]"
+            label="Items per page"
+            density="compact"
+            variant="outlined"
+            hide-details
+            @update:modelValue="getItemsData"
+          ></v-select>
+        </v-col>
+      </v-row>
       <v-row>
         <v-col cols="12">
           <v-table class="country-table">
@@ -624,6 +642,11 @@
               </tr>
             </tbody>
           </v-table>
+          <v-pagination
+            v-model="currentPage"
+            :length="totalPages"
+            @update:modelValue="getItemsData"
+          ></v-pagination>
         </v-col>
       </v-row>
     </v-sheet>
@@ -749,6 +772,10 @@ export default {
     isDeleteLoading2: false,
     merchantPriceIdToDelete: null,
     tableHeaders: [{ text: 'Gambar', value: 'image' }],
+    currentPage: 1,
+    perPage: 5,
+    totalPages: 1,
+    totalItems: 0,
     imageFile: [],
     priceDataToImage: {
       id: 0,
@@ -818,13 +845,6 @@ export default {
     debounceTimer: null,
     debounceTimers: {},
   }),
-  watch: {
-    requestCount() {
-      if (this.requestCount === 0) {
-        this.isLoading = false;
-      }
-    },
-  },
   created() {
     const token = JSON.parse(localStorage.getItem('token'));
     setAuthHeader(token);
@@ -849,6 +869,18 @@ export default {
           item.quantity_name.toLowerCase().includes(searchTextLower) ||
           item.name.toLowerCase().includes(searchTextLower)
       );
+    },
+    startItem() {
+      return (this.currentPage - 1) * this.perPage + 1;
+    },
+    endItem() {
+      return Math.min(this.currentPage * this.perPage, this.totalItems);
+    },
+  },
+  watch: {
+    perPage() {
+      this.currentPage = 1; // Reset ke halaman pertama saat `perPage` berubah
+      this.getItemsData();
     },
   },
   methods: {
@@ -1249,9 +1281,15 @@ export default {
     async getItemsData() {
       this.isLoading = true;
       try {
-        const response = await axios.get(`/price-list`);
-        const data = response.data.data;
-        this.items = data
+        const response = await axios.get(`/price-list`, {
+          params: {
+            query: this.search,
+            page: this.currentPage,
+            perPage: this.perPage,
+          },
+        });
+        const data = response.data;
+        this.items = data.data
           .sort((a, b) => b.price_id - a.price_id)
           .map((item) => {
             return {
@@ -1275,6 +1313,12 @@ export default {
               }),
             };
           });
+
+        // Perbarui pagination
+        this.currentPage = data?.current_page;
+        this.perPage = data?.per_page;
+        this.totalItems = data?.total;
+        this.totalPages = data?.last_page;
       } catch (error) {
         console.log(error);
         const message =

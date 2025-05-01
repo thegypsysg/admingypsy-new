@@ -54,6 +54,10 @@ export default createStore({
             path: '/product_master',
           },
           {
+            title: 'Cart Master',
+            path: '/cart_master',
+          },
+          {
             title: 'Price List Master',
             path: '/price_list_master',
           },
@@ -105,7 +109,7 @@ export default createStore({
         subnav: [{ title: 'Websites' }, { title: 'Open Source' }],
       },
     ],
-    items: []
+    items: [],
   },
   getters: {
     navigation: (state) => {
