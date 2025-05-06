@@ -23,7 +23,7 @@ td
             style="text-transform: none"
             variant="flat"
             class="w-100"
-            @click="getCartData()"
+            @click="getItemsData()"
             :disabled="isLoading"
             :loading="isLoading"
           >
@@ -72,14 +72,15 @@ td
                 <th class="text-left text-no-wrap">Cart Id</th>
                 <th class="text-left text-no-wrap">Customer Name</th>
                 <th class="text-left text-no-wrap">Order Date</th>
-                <th class="text-left text-no-wrap">Order Status</th>
                 <th class="text-left text-no-wrap">Total Items</th>
                 <th class="text-left text-no-wrap">Sub-total</th>
+                <th class="text-left text-no-wrap">Service Fee</th>
                 <th class="text-left text-no-wrap">Delivery Charges</th>
                 <th class="text-left text-no-wrap">Platform Fee</th>
                 <th class="text-left text-no-wrap">G.S.T</th>
                 <th class="text-left text-no-wrap">Total</th>
                 <th class="text-left text-no-wrap">Payment By</th>
+                <!-- <th class="text-left text-no-wrap">Order Status</th> -->
               </tr>
             </thead>
             <tbody>
@@ -92,9 +93,9 @@ td
                   <td>
                     {{ item?.cart_date }}
                   </td>
-                  <td>
+                  <!-- <td>
                     {{ item?.order_status }}
-                  </td>
+                  </td> -->
                   <td class="d-flex align-center">
                     <span>{{ item?.total_items }}</span
                     ><span class="text-blue-lighten-1 font-weight-bold ml-3"
@@ -103,6 +104,10 @@ td
                   </td>
                   <td>
                     <span v-if="item?.amount">S$</span> {{ item?.amount }}
+                  </td>
+                  <td>
+                    <span v-if="item?.platform_fee">S$</span>
+                    {{ item?.platform_fee }}
                   </td>
                   <td>
                     <span v-if="item?.delivery_charge?.rate">S$</span>
@@ -123,7 +128,115 @@ td
                   </td>
                 </tr>
 
-                <tr v-if="item?.cart_details.length > 0" class="mt-n4">
+                <tr>
+                  <td style="border: none !important"></td>
+                  <td style="border: none !important" colspan="8">
+                    <v-table class="mb-4">
+                      <thead>
+                        <tr class="py-0">
+                          <th
+                            style="border: none !important"
+                            class="text-left py-0"
+                          >
+                            What's App
+                          </th>
+                          <th
+                            style="border: none !important"
+                            class="text-left py-0"
+                          >
+                            Order Status
+                          </th>
+                          <th
+                            style="border: none !important"
+                            class="text-left py-0"
+                          >
+                            Payment Status
+                          </th>
+                          <th
+                            style="border: none !important"
+                            class="text-left py-0"
+                          >
+                            Paid By
+                          </th>
+                          <th
+                            style="border: none !important"
+                            class="text-left py-0"
+                          >
+                            Payment Verified
+                          </th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr class="font-weight-bold">
+                          <td class="">
+                            <a
+                              :href="
+                                item?.gypsy?.whats_app
+                                  ? `https://api.whatsapp.com/send?phone=${item?.gypsy?.whats_app}&text=Hello`
+                                  : ''
+                              "
+                              class="text-decoration-none text-blue-darken-3 text-no-wrap"
+                            >
+                              {{ item?.gypsy?.whats_app }}
+                              <v-icon
+                                v-if="item?.gypsy?.whats_app"
+                                color="#4EC053"
+                                size="20"
+                                class="ml-2 fab fa-whatsapp"
+                              ></v-icon>
+                            </a>
+                          </td>
+                          <td class="">
+                            <v-autocomplete
+                              density="compact"
+                              v-model="item.order_status"
+                              :items="[
+                                {
+                                  value: 'PP',
+                                  label: 'Pending',
+                                },
+                              ]"
+                              item-title="label"
+                              item-value="value"
+                              hide-details
+                              style="min-width: 100px !important"
+                              variant="outlined"
+                            ></v-autocomplete>
+                          </td>
+                          <td class="">
+                            <v-autocomplete
+                              density="compact"
+                              :items="[]"
+                              hide-details
+                              style="min-width: 100px !important"
+                              variant="outlined"
+                            ></v-autocomplete>
+                          </td>
+                          <td class="">
+                            <v-autocomplete
+                              density="compact"
+                              :items="[]"
+                              hide-details
+                              style="min-width: 100px !important"
+                              variant="outlined"
+                            ></v-autocomplete>
+                          </td>
+                          <td class="">
+                            <v-autocomplete
+                              density="compact"
+                              :items="[]"
+                              hide-details
+                              style="min-width: 100px !important"
+                              variant="outlined"
+                            ></v-autocomplete>
+                          </td>
+                        </tr>
+                      </tbody>
+                    </v-table>
+                  </td>
+                </tr>
+
+                <tr v-if="item?.cart_details.length > 0">
                   <td style="border: none !important"></td>
                   <td
                     :class="{
@@ -150,43 +263,83 @@ td
                       </tr>
                     </v-table>
                   </td>
-                  <td style="border: none !important"></td>
-                  <td style="border: none !important"></td>
-                  <td style="border: none !important"></td>
-                  <td style="border: none !important"></td>
+                  <td
+                    :class="{
+                      'has-border': item?.cart_details.length > 0,
+                      'not-border': item?.cart_details.length == 0,
+                    }"
+                    style="border-bottom: none !important"
+                    colspan="4"
+                    class="text-body-1 font-weight-bold"
+                  >
+                    <p class="mt-3">Total Payment : S$ 112.50</p>
+                  </td>
                 </tr>
 
                 <tr>
-                  <td></td>
-                  <td colspan="6">
-                    <v-table class="mt-6">
+                  <td style="border: none !important"></td>
+                  <td style="border: none !important" colspan="10">
+                    <v-table class="mt-4">
                       <thead>
                         <tr class="py-0">
                           <th class="text-left py-0">Delivery Full Address</th>
+                          <th class="text-left py-0">Street</th>
                           <th class="text-left py-0">Town</th>
-                          <th class="text-left py-0">Order Instructions</th>
+                          <th class="text-left py-0">City</th>
+                          <th class="text-left py-0">Landmark</th>
+                          <th class="text-left py-0">Delivery Instructions</th>
                         </tr>
                       </thead>
                       <tbody>
                         <tr class="font-weight-bold">
-                          <td class="pr-6 py-2">
+                          <td class="">
                             {{ item?.address?.full_address }}
                           </td>
-                          <td class="pr-6 py-2">
-                            Lorem ipsum dolor sit amet consectetur adipisicing
-                            elit.
-                          </td>
-                          <td class="pr-6 py-2">
+                          <td class="">Marine Drive</td>
+                          <td class="">Marine Parade</td>
+                          <td class="">Singapore</td>
+                          <td class="">Opposite the Polyclinic</td>
+                          <td class="">
                             {{ item?.order_instructions }}
                           </td>
                         </tr>
                       </tbody>
                     </v-table>
                   </td>
+                </tr>
+
+                <tr>
                   <td></td>
-                  <td></td>
-                  <td></td>
-                  <td></td>
+                  <td colspan="10">
+                    <v-table class="mt-2">
+                      <thead>
+                        <tr class="py-0">
+                          <th class="text-left py-0">Dwelling Type</th>
+                          <th class="text-left py-0">Condo / Apartment</th>
+                          <th class="text-center py-0">Block | Tower</th>
+                          <th class="text-center py-0">Floor - Unit #</th>
+                          <th class="text-left py-0"></th>
+                          <th class="text-left py-0"></th>
+                          <th class="text-left py-0"></th>
+                          <th class="text-left py-0"></th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr class="font-weight-bold">
+                          <td class="">Condo</td>
+                          <td class="">The Bayshore</td>
+                          <td class="d-flex justify-space-around align-center">
+                            <span>26</span> <span>2B</span>
+                          </td>
+                          <td class="text-center"># 12 - 35</td>
+                          <td class=""></td>
+                          <td class=""></td>
+                          <td class=""></td>
+                          <td class=""></td>
+                        </tr>
+                      </tbody>
+                    </v-table>
+                  </td>
                 </tr>
               </template>
               <tr v-if="isLoading">
@@ -263,7 +416,7 @@ export default {
     setAuthHeader(token);
   },
   mounted() {
-    this.getCartData();
+    this.getItemsData();
   },
   computed: {
     startItem() {
@@ -280,13 +433,25 @@ export default {
     },
   },
   methods: {
-    getCartData() {
+    getItemsData() {
       this.isLoading = true;
       axios
-        .get(`/cart-master`)
+        .get(`/cart-master`, {
+          params: {
+            // query: this.search,
+            page: this.currentPage,
+            perPage: this.perPage,
+          },
+        })
         .then((response) => {
-          const data = response.data.data;
-          this.items = data;
+          const data = response.data;
+          this.items = data.data;
+
+          // Perbarui pagination
+          this.currentPage = data?.current_page;
+          this.perPage = data?.per_page;
+          this.totalItems = data?.total;
+          this.totalPages = data?.last_page;
         })
         .catch((error) => {
           // eslint-disable-next-line
@@ -310,7 +475,7 @@ export default {
           const data = response.data;
           this.successMessage = data.message;
           this.isSuccess = true;
-          this.getCartData();
+          this.getItemsData();
         })
         .catch((error) => {
           // eslint-disable-next-line
