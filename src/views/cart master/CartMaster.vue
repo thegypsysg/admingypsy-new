@@ -190,12 +190,31 @@ td
                             <v-autocomplete
                               density="compact"
                               v-model="item.order_status"
-                              :items="[
-                                {
-                                  value: 'PP',
-                                  label: 'Pending',
-                                },
-                              ]"
+                              :items="orderStatuses"
+                              item-title="label"
+                              item-value="value"
+                              hide-details
+                              style="min-width: 100px !important"
+                              variant="outlined"
+                            ></v-autocomplete>
+                          </td>
+
+                          <td class="">
+                            <v-autocomplete
+                              density="compact"
+                              :items="paymentStatuses"
+                              item-title="label"
+                              item-value="value"
+                              hide-details
+                              style="min-width: 100px !important"
+                              variant="outlined"
+                            ></v-autocomplete>
+                          </td>
+                          <td class="">
+                            <v-autocomplete
+                              density="compact"
+                              v-model="item.payment_type_id"
+                              :items="paymentTypes"
                               item-title="label"
                               item-value="value"
                               hide-details
@@ -207,24 +226,8 @@ td
                             <v-autocomplete
                               density="compact"
                               :items="[]"
-                              hide-details
-                              style="min-width: 100px !important"
-                              variant="outlined"
-                            ></v-autocomplete>
-                          </td>
-                          <td class="">
-                            <v-autocomplete
-                              density="compact"
-                              :items="[]"
-                              hide-details
-                              style="min-width: 100px !important"
-                              variant="outlined"
-                            ></v-autocomplete>
-                          </td>
-                          <td class="">
-                            <v-autocomplete
-                              density="compact"
-                              :items="[]"
+                              item-title="label"
+                              item-value="value"
                               hide-details
                               style="min-width: 100px !important"
                               variant="outlined"
@@ -293,11 +296,17 @@ td
                       <tbody>
                         <tr class="font-weight-bold">
                           <td class="">
-                            {{ item?.address?.full_address }}
+                            <p
+                              v-html="formatInfo(item?.address?.full_address)"
+                            />
                           </td>
                           <td class="">Marine Drive</td>
-                          <td class="">Marine Parade</td>
-                          <td class="">Singapore</td>
+                          <td class="">
+                            {{ item?.address?.address_master?.town?.town_name }}
+                          </td>
+                          <td class="">
+                            {{ item?.address?.address_master?.city?.city_name }}
+                          </td>
                           <td class="">Opposite the Polyclinic</td>
                           <td class="">
                             {{ item?.order_instructions }}
@@ -407,9 +416,11 @@ export default {
     totalItems: 0,
     successMessage: '',
     errorMessage: '',
-
     search: '',
     items: [],
+    orderStatuses: [],
+    paymentStatuses: [],
+    paymentTypes: [],
   }),
   created() {
     const token = JSON.parse(localStorage.getItem('token'));
@@ -417,6 +428,9 @@ export default {
   },
   mounted() {
     this.getItemsData();
+    this.getOrderStatusData();
+    this.getPaymentStatusData();
+    this.getPaymentTypesData();
   },
   computed: {
     startItem() {
@@ -433,12 +447,15 @@ export default {
     },
   },
   methods: {
+    formatInfo(info) {
+      return info.replace(/\n/g, '<br>');
+    },
     getItemsData() {
       this.isLoading = true;
       axios
         .get(`/cart-master`, {
           params: {
-            // query: this.search,
+            query: this.search,
             page: this.currentPage,
             perPage: this.perPage,
           },
@@ -452,6 +469,90 @@ export default {
           this.perPage = data?.per_page;
           this.totalItems = data?.total;
           this.totalPages = data?.last_page;
+        })
+        .catch((error) => {
+          // eslint-disable-next-line
+          console.log(error);
+          const message =
+            error.response.data.message === ''
+              ? 'Something Wrong!!!'
+              : error.response.data.message;
+          this.errorMessage = message;
+          this.isError = true;
+        })
+        .finally(() => {
+          this.isLoading = false;
+        });
+    },
+    getOrderStatusData() {
+      this.isLoading = true;
+      axios
+        .get(`/order-statuses`)
+        .then((response) => {
+          const data = response.data.data;
+          // console.log(data);
+          this.orderStatuses = data.map((item) => {
+            return {
+              value: item.order_status_value || '',
+              label: item.order_status_name || '',
+            };
+          });
+        })
+        .catch((error) => {
+          // eslint-disable-next-line
+          console.log(error);
+          const message =
+            error.response.data.message === ''
+              ? 'Something Wrong!!!'
+              : error.response.data.message;
+          this.errorMessage = message;
+          this.isError = true;
+        })
+        .finally(() => {
+          this.isLoading = false;
+        });
+    },
+    getPaymentStatusData() {
+      this.isLoading = true;
+      axios
+        .get(`/payment-statuses`)
+        .then((response) => {
+          const data = response.data.data;
+          // console.log(data);
+          this.paymentStatuses = data.map((item) => {
+            return {
+              value: item.payment_status_value || '',
+              label: item.payment_status_name || '',
+            };
+          });
+        })
+        .catch((error) => {
+          // eslint-disable-next-line
+          console.log(error);
+          const message =
+            error.response.data.message === ''
+              ? 'Something Wrong!!!'
+              : error.response.data.message;
+          this.errorMessage = message;
+          this.isError = true;
+        })
+        .finally(() => {
+          this.isLoading = false;
+        });
+    },
+    getPaymentTypesData() {
+      this.isLoading = true;
+      axios
+        .get(`/payment-types`)
+        .then((response) => {
+          const data = response.data.data;
+          // console.log(data);
+          this.paymentTypes = data.map((item) => {
+            return {
+              value: item.payment_type_id || '',
+              label: item.payment_name || '',
+            };
+          });
         })
         .catch((error) => {
           // eslint-disable-next-line

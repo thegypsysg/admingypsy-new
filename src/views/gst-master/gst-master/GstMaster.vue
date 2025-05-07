@@ -2,7 +2,7 @@
 <!-- eslint-disable vue/no-deprecated-v-bind-sync -->
 <template>
   <v-container>
-		<div class="d-flex align-center ml-4 mb-4" style="gap: 30px">
+    <div class="d-flex align-center ml-4 mb-4" style="gap: 30px">
       <router-link class="text-decoration-none text-black" to="/gst-master">
         <h1>GST</h1>
       </router-link>
@@ -10,8 +10,8 @@
     <v-form v-model="valid" @submit.prevent ref="formRef">
       <v-container>
         <v-row>
-          <v-col cols="4">
-						<v-autocomplete
+          <v-col cols="3">
+            <v-autocomplete
               density="compact"
               label="---Select App---"
               placeholder="Type App"
@@ -20,11 +20,11 @@
               item-value="id"
               v-model="gstMasterForm.app_id"
               :rules="rules.appRules"
-							@update:modelValue="onSelect"
+              @update:modelValue="onSelect"
               variant="outlined"
             ></v-autocomplete>
           </v-col>
-          <v-col cols="4">
+          <v-col cols="3">
             <v-autocomplete
               clearable
               density="compact"
@@ -38,9 +38,9 @@
               variant="outlined"
             ></v-autocomplete>
           </v-col>
-          <v-col cols="4">
+          <v-col cols="2">
             <v-text-field
-							prefix="%"
+              prefix="%"
               v-model="gstMasterForm.tax_rate"
               :rules="rules.taxRateRules"
               label="Tax Rate"
@@ -56,7 +56,8 @@
               :prepend-icon="
                 isEdit
                   ? 'mdi-account-multiple-check'
-                  : 'mdi-account-multiple-plus'"
+                  : 'mdi-account-multiple-plus'
+              "
               color="indigo-accent-2"
               style="text-transform: none"
               variant="flat"
@@ -149,7 +150,9 @@
                 <th class="text-left font-weight-bold text-black">App Name</th>
                 <th class="text-left font-weight-bold text-black">Country</th>
                 <th class="text-left font-weight-bold text-black">GST</th>
-                <th class="text-left font-weight-bold text-black">Applicable</th>
+                <th class="text-left font-weight-bold text-black">
+                  Applicable
+                </th>
                 <th class="text-left font-weight-bold text-black">User</th>
                 <th class="text-left font-weight-bold text-black">Dated</th>
                 <th class="text-left font-weight-bold text-black">Actions</th>
@@ -157,7 +160,7 @@
             </thead>
             <tbody>
               <template v-for="(item, index) in gstData" :key="index">
-								{{ item.last_page }}
+                {{ item.last_page }}
                 <tr class="gst-master-table-body">
                   <td>{{ item.gst_id }}</td>
                   <td>{{ item.app.app_name }}</td>
@@ -165,27 +168,29 @@
                   <td>
                     <span class="border rounded py-1 pl-3 pr-7 text-left">
                       <strong class="mr-2">%</strong>
-                      <span class="text-red-darken-4 font-weight-bold">{{ item.tax_rate }}</span>
+                      <span class="text-red-darken-4 font-weight-bold">{{
+                        item.tax_rate
+                      }}</span>
                     </span>
                   </td>
                   <td>
                     <v-btn-toggle
-                    mandatory
-                    style="
-                      font-size: 10px !important;
-                      font-weight: 200 !important;
-                      height: 22px !important;
-                      width: 54px !important;
-                    "
-                    class="d-flex align-center"
-                    v-model="item.is_active"
-                    @click="activeGst(item.gst_id)"
-                    :disabled="isSending2"
-                    rounded="5"
-                  >
-                    <v-btn size="27" :value="true"> Yes </v-btn>
-                    <v-btn size="27" :value="false"> No </v-btn>
-                  </v-btn-toggle>
+                      mandatory
+                      style="
+                        font-size: 10px !important;
+                        font-weight: 200 !important;
+                        height: 22px !important;
+                        width: 54px !important;
+                      "
+                      class="d-flex align-center"
+                      v-model="item.is_active"
+                      @click="activeGst(item.gst_id)"
+                      :disabled="isSending2"
+                      rounded="5"
+                    >
+                      <v-btn size="27" :value="true"> Yes </v-btn>
+                      <v-btn size="27" :value="false"> No </v-btn>
+                    </v-btn-toggle>
                   </td>
                   <td>{{ item?.user?.name || 'N/A' }}</td>
                   <td>{{ item?.dated || 'N/A' }}</td>
@@ -238,8 +243,8 @@
         </v-col>
       </v-row>
     </v-sheet>
-    
-		<v-snackbar
+
+    <v-snackbar
       location="top"
       color="green"
       v-model="isSuccess"
@@ -253,8 +258,8 @@
         </v-btn>
       </template>
     </v-snackbar>
-    
-		<v-snackbar location="top" color="red" v-model="isError" :timeout="3000">
+
+    <v-snackbar location="top" color="red" v-model="isError" :timeout="3000">
       {{ errorMessage }}
 
       <template v-slot:actions>
@@ -263,13 +268,11 @@
         </v-btn>
       </template>
     </v-snackbar>
-    
-		<v-dialog persistent width="500" v-model="isDelete">
+
+    <v-dialog persistent width="500" v-model="isDelete">
       <v-card>
         <v-card-title>Confirmation</v-card-title>
-        <v-card-text>
-          Are you sure want to delete this GST?
-        </v-card-text>
+        <v-card-text> Are you sure want to delete this GST? </v-card-text>
         <v-card-actions>
           <v-spacer></v-spacer>
           <v-btn color="error" text @click="cancelDelete">No</v-btn>
@@ -279,247 +282,255 @@
         </v-card-actions>
       </v-card>
     </v-dialog>
-    
   </v-container>
 </template>
 
 <script setup>
-	import {
-		ref,
-		watch,
-		onMounted,
-		computed
-	} from "vue";
-	import axios from '@/util/axios';
-	import { setAuthHeader } from '@/util/axios';
-	const token = JSON.parse(localStorage.getItem('token'));
-	setAuthHeader(token);
+import { ref, watch, onMounted, computed } from 'vue';
+import axios from '@/util/axios';
+import { setAuthHeader } from '@/util/axios';
+const token = JSON.parse(localStorage.getItem('token'));
+setAuthHeader(token);
 
-	const search = ref('')
-	// const items = ref([])
-	const gstData = ref([])
-	const currentPage = ref(1)
-	const perPage = ref(5)
-	const totalPages = ref(1)
-	const totalItems = ref(0)
-	const isLoading = ref(false)
-	const isEdit = ref(false)
-	const isSuccess = ref(false)
-	const successMessage = ref("")
-	const isError = ref(false)
-	const errorMessage = ref("")
-	const idGst = ref(null)
-	const isDelete = ref(false)
-	const isDeleteLoading = ref(false)
-	const valid = ref(false)
-	const isSending = ref(false)
-	const isSending2 = ref(false)
-	const appId = ref(null)
-  const formRef = ref(null);
+const search = ref('');
+// const items = ref([])
+const gstData = ref([]);
+const currentPage = ref(1);
+const perPage = ref(5);
+const totalPages = ref(1);
+const totalItems = ref(0);
+const isLoading = ref(false);
+const isEdit = ref(false);
+const isSuccess = ref(false);
+const successMessage = ref('');
+const isError = ref(false);
+const errorMessage = ref('');
+const idGst = ref(null);
+const isDelete = ref(false);
+const isDeleteLoading = ref(false);
+const valid = ref(false);
+const isSending = ref(false);
+const isSending2 = ref(false);
+const appId = ref(null);
+const formRef = ref(null);
 
-	const gstMasterForm = ref({
-		id: 0,
-		app_id: "",
-		country_id: "",
-		tax_rate: ""
-	})
+const gstMasterForm = ref({
+  id: 0,
+  app_id: '',
+  country_id: '',
+  tax_rate: '',
+});
 
-	const resource = ref({
-		countriesData: [],
-		appsData: [],
-	})
+const resource = ref({
+  countriesData: [],
+  appsData: [],
+});
 
-	const rules = ref({
-		taxRateRules: [
-			(value) => {
-				if (value) return true;
-				return 'Tax Rate is required.';
-			},
-		],
-		appRules: [
-			(value) => {
-				if (value) return true;
-				return 'App is required.';
-			},
-		],
-		countryRules: [
-			(value) => {
-				if (value) return true;
-				return 'Country is required.';
-			},
-		],
-	})
+const rules = ref({
+  taxRateRules: [
+    (value) => {
+      if (value) return true;
+      return 'Tax Rate is required.';
+    },
+  ],
+  appRules: [
+    (value) => {
+      if (value) return true;
+      return 'App is required.';
+    },
+  ],
+  countryRules: [
+    (value) => {
+      if (value) return true;
+      return 'Country is required.';
+    },
+  ],
+});
 
-	const startItem = computed(() => {
-		return (currentPage.value - 1) * perPage.value + 1;
-	})
+const startItem = computed(() => {
+  return (currentPage.value - 1) * perPage.value + 1;
+});
 
-	const endItem = computed(() => {
-		return Math.min(currentPage.value * perPage.value, totalItems.value);
-	})
+const endItem = computed(() => {
+  return Math.min(currentPage.value * perPage.value, totalItems.value);
+});
 
-	const onSelect = (value) => {
-		appId.value = value
-		getCountries()
-	}
+const onSelect = (value) => {
+  appId.value = value;
+  // getCountries();
+};
 
-	const getAppActive = () => {
-      axios.get(`/app/active`).then((response) => {
-          const data = response.data.data;
-          resource.value.appsData = data
-            .sort((a, b) => a.app_id < b.app_id)
-            .map((app) => {
-							appId.value = app.id
-              return {
-                id: app.app_id || 0,
-                name: app.app_name || '',
-              };
-            });
-        })
-        .catch((error) => {
-          // eslint-disable-next-line
-          console.log(error);
-          const message =
-            error.response.data.message === ''
-              ? 'Something Wrong!!!'
-              : error.response.data.message;
-          this.errorMessage = message;
-          this.isError = true;
+const getAppActive = () => {
+  axios
+    .get(`/app/active`)
+    .then((response) => {
+      const data = response.data.data;
+      resource.value.appsData = data
+        .sort((a, b) => a.app_id < b.app_id)
+        .map((app) => {
+          appId.value = app.id;
+          return {
+            id: app.app_id || 0,
+            name: app.app_name || '',
+          };
         });
-	}
+    })
+    .catch((error) => {
+      // eslint-disable-next-line
+      console.log(error);
+      const message =
+        error.response.data.message === ''
+          ? 'Something Wrong!!!'
+          : error.response.data.message;
+      this.errorMessage = message;
+      this.isError = true;
+    });
+};
 
-	const getCountries = () => {
-      // axios.get(`/app-country-list/${appId.value}`).then((response) => {
-      axios.get(`/app-countries`).then((response) => {
-			const data = response.data.data;
-			resource.value.countriesData = data
-				.sort((a, b) => a.country_name.localeCompare(b.country_name))
-				.map((country) => {
-					return {
-						id: country.ac_id || 1,
-						country_id: country.country_id || 1,
-						name: country.country_name || '',
-					};
-				});
-		})
-		.catch((error) => {
-			// eslint-disable-next-line
-			console.log(error);
-			const message =
-				error.response.data.message === ''
-					? 'Something Wrong!!!'
-					: error.response.data.message;
-			this.errorMessage = message;
-			this.isError = true;
-		});
-	}
+const getCountries = () => {
+  // axios.get(`/app-country-list/${appId.value}`).then((response) => {
+  axios
+    .get(`/countries`)
+    .then((response) => {
+      const data = response.data.data;
+      resource.value.countriesData = data
+        .sort((a, b) => a.country_name.localeCompare(b.country_name))
+        .map((country) => {
+          return {
+            id: country.ac_id || 1,
+            country_id: country.country_id || 1,
+            name: country.country_name || '',
+          };
+        });
+    })
+    .catch((error) => {
+      // eslint-disable-next-line
+      console.log(error);
+      const message =
+        error.response.data.message === ''
+          ? 'Something Wrong!!!'
+          : error.response.data.message;
+      this.errorMessage = message;
+      this.isError = true;
+    });
+};
 
-	const getGstMasterData = () => {
-		isLoading.value = true;
-		axios.get(`/gst-master/search`, {
-				params: {
-					query: search.value,
-					page: currentPage.value,
-					perPage: perPage.value,
-				},
-			})
-			.then((response) => {
-				const data = response.data;
-				gstData.value = data?.data?.data.map((item) => {
-						return {
-							...item,
-							gst_id: item.gst_id || null,
-							is_active: item.applicable == 'N' ? false : item.applicable == 'Y' ? true : null,
-							app_id: item.app.app_id || null,
-							country_id: item.country.country_id || null,
-							tax_rate: item.tax_rate || null,
-						};
-					});
-				// Perbarui pagination
-				currentPage.value = data?.current_page;
-				perPage.value = data?.per_page;
-				totalItems.value = data?.total;
-				totalPages.value = data?.last_page;
-			})
-			.catch((error) => {
-				// eslint-disable-next-line
-				console.log(error);
-				const message =
-					error.response.data.message === ''
-						? 'Something Wrong!!!'
-						: error.response.data.message;
-				errorMessage.value = message;
-				isError.value = true;
-			})
-			.finally(() => {
-				isLoading.value = false;
-			});
-	}
+const getGstMasterData = () => {
+  isLoading.value = true;
+  axios
+    .get(`/gst-master/search`, {
+      params: {
+        query: search.value,
+        page: currentPage.value,
+        perPage: perPage.value,
+      },
+    })
+    .then((response) => {
+      const data = response.data;
+      gstData.value = data?.data?.data.map((item) => {
+        return {
+          ...item,
+          gst_id: item.gst_id || null,
+          is_active:
+            item.applicable == 'N'
+              ? false
+              : item.applicable == 'Y'
+              ? true
+              : null,
+          app_id: item.app.app_id || null,
+          country_id: item.country.country_id || null,
+          tax_rate: item.tax_rate || null,
+        };
+      });
+      // Perbarui pagination
+      currentPage.value = data?.current_page;
+      perPage.value = data?.per_page;
+      totalItems.value = data?.total;
+      totalPages.value = data?.last_page;
+    })
+    .catch((error) => {
+      // eslint-disable-next-line
+      console.log(error);
+      const message =
+        error.response.data.message === ''
+          ? 'Something Wrong!!!'
+          : error.response.data.message;
+      errorMessage.value = message;
+      isError.value = true;
+    })
+    .finally(() => {
+      isLoading.value = false;
+    });
+};
 
-	const editGst = (item) => {
-		appId.value = item.app_id
-		getCountries();
-		isEdit.value = true;
-		gstMasterForm.value = {
-			gst_id: item.gst_id,
-			app_id: item.app_id,
-			country_id: item.country_id,
-			tax_rate: item.tax_rate,
-		};
-	}
-	
-	const cancelEdit = () => {
-		isEdit.value = false;
-		gstMasterForm.value = {
-			gst_id: null,
-			app_id: null,
-			country_id: null,
-			tax_rate: null,
-		};
-	}
+const editGst = (item) => {
+  appId.value = item.app_id;
+  // getCountries();
+  isEdit.value = true;
+  gstMasterForm.value = {
+    gst_id: item.gst_id,
+    app_id: item.app_id,
+    country_id: item.country_id,
+    tax_rate: item.tax_rate,
+  };
+};
 
-	const saveEdit = () => {
-		if (valid.value) {
-			isSending.value = true;
-			const payload = {
-				app_id: gstMasterForm.value.app_id,
-				country_id: gstMasterForm.value.country_id,
-				tax_rate: gstMasterForm.value.tax_rate
-			};
-			axios.put(`/gst-master/update/${gstMasterForm.value.gst_id}`, payload).then((response) => {
-				const data = response.data;
-				successMessage.value = data.message;
-				isSuccess.value = true;
-				getGstMasterData();
-				gstMasterForm.value = {
-					gst_id: null,
-					app_id: null,
-					country_id: null,
-					tax_rate: null,
-				};
-				isEdit.value = false;
-			})
-			.catch((error) => {
-				console.log(error);
-				const message = error.response.data.tax_rate
-					? 'Please fill the GST field'
-					: error.response.data.message;
-				errorMessage.value = message;
-				isError.value = true;
-			})
-			.finally(() => {
-				isEdit.value = false;
-				isSending.value = false;
-			});
-		}
-	}
+const cancelEdit = () => {
+  isEdit.value = false;
+  gstMasterForm.value = {
+    gst_id: null,
+    app_id: null,
+    country_id: null,
+    tax_rate: null,
+  };
+};
 
-	const saveData = async () => {
-    if (formRef.value) {
-      const { valid: isValid } = await formRef.value.validate();
-      if (isValid) {
-        isSending.value = true;
-        axios.post(`/gst-master/save`, gstMasterForm.value).then((response) => {
+const saveEdit = () => {
+  if (valid.value) {
+    isSending.value = true;
+    const payload = {
+      app_id: gstMasterForm.value.app_id,
+      country_id: gstMasterForm.value.country_id,
+      tax_rate: gstMasterForm.value.tax_rate,
+    };
+    axios
+      .put(`/gst-master/update/${gstMasterForm.value.gst_id}`, payload)
+      .then((response) => {
+        const data = response.data;
+        successMessage.value = data.message;
+        isSuccess.value = true;
+        getGstMasterData();
+        gstMasterForm.value = {
+          gst_id: null,
+          app_id: null,
+          country_id: null,
+          tax_rate: null,
+        };
+        isEdit.value = false;
+      })
+      .catch((error) => {
+        console.log(error);
+        const message = error.response.data.tax_rate
+          ? 'Please fill the GST field'
+          : error.response.data.message;
+        errorMessage.value = message;
+        isError.value = true;
+      })
+      .finally(() => {
+        isEdit.value = false;
+        isSending.value = false;
+      });
+  }
+};
+
+const saveData = async () => {
+  if (formRef.value) {
+    const { valid: isValid } = await formRef.value.validate();
+    if (isValid) {
+      isSending.value = true;
+      axios
+        .post(`/gst-master/save`, gstMasterForm.value)
+        .then((response) => {
           const data = response?.data;
           successMessage.value = data?.message;
           isSuccess.value = true;
@@ -544,13 +555,15 @@
           isEdit.value = false;
           isSending.value = false;
         });
-      }
-		}
-	}
+    }
+  }
+};
 
-  const activeGst = (id) => {
-    isSending2.value = true;
-    axios.get(`/gst-master/toggle-active/${id}`).then((response) => {
+const activeGst = (id) => {
+  isSending2.value = true;
+  axios
+    .get(`/gst-master/toggle-active/${id}`)
+    .then((response) => {
       const data = response.data;
       successMessage.value = data.message;
       isSuccess.value = true;
@@ -563,54 +576,56 @@
     .finally(() => {
       isSending2.value = false;
     });
-  }
+};
 
-	const cancelDelete = () => {
-		idGst.value = null;
-		isDelete.value = false;
-	}
-	
-	const openDeleteConfirm = (itemId) => {
-		idGst.value = itemId;
-		isDelete.value = true;
-	}
-	
-	const deleteGst = () => {
-		isDeleteLoading.value = true;
-		axios.delete(`/gst-master/${idGst.value}`).then((response) => {
-			const data = response.data;
-			successMessage.value = data.message;
-			isSuccess.value = true;
-			getGstMasterData();
-		})
-		.catch((error) => {
-			// eslint-disable-next-line
-			console.log(error);
-			const message =
-				error.response.data.message === ''
-					? 'Something Wrong!!!'
-					: error.response.data.message;
-			errorMessage.value = message;
-			isError.value = true;
-		})
-		.finally(() => {
-			isDeleteLoading.value = false;
-			idGst.value = null;
-			isDelete.value = false;
-		});
-	}
+const cancelDelete = () => {
+  idGst.value = null;
+  isDelete.value = false;
+};
 
-	onMounted(() => {
-		getGstMasterData();
-		getAppActive();
-	})
+const openDeleteConfirm = (itemId) => {
+  idGst.value = itemId;
+  isDelete.value = true;
+};
 
-	watch(perPage, () => {
-		currentPage.value = 1; // Reset to first page when `perPage` changes
-		getGstMasterData();
-		getAppActive();
-	});
+const deleteGst = () => {
+  isDeleteLoading.value = true;
+  axios
+    .delete(`/gst-master/${idGst.value}`)
+    .then((response) => {
+      const data = response.data;
+      successMessage.value = data.message;
+      isSuccess.value = true;
+      getGstMasterData();
+    })
+    .catch((error) => {
+      // eslint-disable-next-line
+      console.log(error);
+      const message =
+        error.response.data.message === ''
+          ? 'Something Wrong!!!'
+          : error.response.data.message;
+      errorMessage.value = message;
+      isError.value = true;
+    })
+    .finally(() => {
+      isDeleteLoading.value = false;
+      idGst.value = null;
+      isDelete.value = false;
+    });
+};
 
+onMounted(() => {
+  getGstMasterData();
+  getAppActive();
+  getCountries();
+});
+
+watch(perPage, () => {
+  currentPage.value = 1; // Reset to first page when `perPage` changes
+  getGstMasterData();
+  getAppActive();
+});
 </script>
 
 <style lang="scss" scoped>
