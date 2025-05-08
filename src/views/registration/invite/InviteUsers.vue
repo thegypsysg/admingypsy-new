@@ -231,6 +231,7 @@
                       :href="`https://api.whatsapp.com/send?phone=${
                         item.code + item.phone
                       }&text=Hello`"
+                      target="_blank"
                       class="text-decoration-none text-grey-darken-1 text-no-wrap"
                     >
                       {{ item.code + item.phone
@@ -711,7 +712,7 @@ export default {
         gender: item.genderCode,
         country: item.country_id,
         code: this.input.code,
-        mobile: parseInt(item.phone),
+        mobile: item.phone,
         skills: item.skills_id,
         app: item.app_id,
         remarks: 'Met in a Networking group',
@@ -811,7 +812,7 @@ export default {
         gender: invite.genderCode,
         country: invite.country_id,
         code: this.input.code,
-        mobile: parseInt(invite.phone),
+        mobile: invite.phone,
         skills: invite.skills_id,
         app: invite.app_id,
         remarks: 'Met in a Networking group',

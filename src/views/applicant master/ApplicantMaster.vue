@@ -125,7 +125,11 @@
                     </p>
                   </td>
                   <td>
-                    <p>
+                    <a
+                      :href="`https://api.whatsapp.com/send?phone=${item.whatsapp}&text=Hello`"
+                      target="_blank"
+                      class="text-decoration-none text-grey-darken-1 text-no-wrap"
+                    >
                       {{ item.whatsapp
                       }}<v-icon
                         v-if="item.whatsapp"
@@ -133,7 +137,7 @@
                         size="20"
                         class="ml-2 fab fa-whatsapp"
                       ></v-icon>
-                    </p>
+                    </a>
                     <p
                       class="mt-2"
                       :class="{
