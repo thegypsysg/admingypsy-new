@@ -174,7 +174,7 @@
       </v-container>
     </v-form>
     <v-sheet class="py-6 px-4 mt-6" border rounded width="100%">
-      <v-row>
+      <!-- <v-row>
         <v-col cols="12" md="4">
           <v-text-field
             density="compact"
@@ -183,6 +183,24 @@
             variant="outlined"
             hide-details
           ></v-text-field>
+        </v-col>
+      </v-row> -->
+      <v-row align="center" justify="space-between">
+        <v-col cols="8">
+          <span>
+            Showing {{ startItem }} - {{ endItem }} from {{ totalItems }} item
+          </span>
+        </v-col>
+        <v-col cols="4" class="text-right">
+          <v-select
+            v-model="perPage"
+            :items="[5, 10, 15, 20]"
+            label="Items per page"
+            density="compact"
+            variant="outlined"
+            hide-details
+            @update:modelValue="getItemsData"
+          ></v-select>
         </v-col>
       </v-row>
       <v-row>
@@ -201,7 +219,7 @@
               </tr>
             </thead>
             <tbody>
-              <template v-for="item in filteredItems" :key="item.id">
+              <template v-for="item in items" :key="item.id">
                 <tr class="country-table-body">
                   <td>{{ item.id }}</td>
                   <td style="min-width: 250px !important">
@@ -271,12 +289,21 @@
                       <v-table class="text-left font-weight-bold">
                         <tr>
                           <td style="width: 60px"></td>
-                          <td class="pr-6 pt-2 pb-4">
-                            <p class="text-blue-accent-4">
+                          <td style="width: 300px !important" class="pt-2">
+                            <!-- <p class="text-blue-accent-4">
                               {{ item?.remarks || '-' }}
-                            </p>
+                            </p> -->
+                            <v-textarea
+                              v-model="item.remarks"
+                              @input="debouncedUpdate(item.id, item.remarks)"
+                              placeholder="Sent resume in email"
+                              rows="3"
+                              class="w-100"
+                              variant="outlined"
+                              density="compact"
+                            ></v-textarea>
                           </td>
-                          <td style="width: 220px"></td>
+                          <td style="width: 50px"></td>
                           <td class="pr-10 pt-2 pb-4">
                             Skills:
                             <span class="text-blue-accent-4">{{
@@ -431,6 +458,11 @@
               </tr>
             </tbody>
           </v-table>
+          <v-pagination
+            v-model="currentPage"
+            :length="totalPages"
+            @update:modelValue="getItemsData"
+          ></v-pagination>
         </v-col>
       </v-row>
     </v-sheet>
@@ -617,9 +649,23 @@ export default {
         },
       ],
     },
+    currentPage: 1,
+    perPage: 5,
+    totalPages: 1,
+    totalItems: 0,
     search: '',
     items: [],
+    debounceTimer: null,
+    debounceTimers: {},
   }),
+  computed: {
+    startItem() {
+      return (this.currentPage - 1) * this.perPage + 1;
+    },
+    endItem() {
+      return Math.min(this.currentPage * this.perPage, this.totalItems);
+    },
+  },
   watch: {
     // eslint-disable-next-line no-unused-vars
     'input.country': function (newVal, oldVal) {
@@ -630,6 +676,10 @@ export default {
       if (this.requestCount === 0) {
         this.isLoading = false;
       }
+    },
+    perPage() {
+      this.currentPage = 1; // Reset ke halaman pertama saat `perPage` berubah
+      this.getItemsData();
     },
   },
   created() {
@@ -646,26 +696,7 @@ export default {
       this.getEmail();
     }, 500);
   },
-  computed: {
-    filteredItems() {
-      if (!this.search) {
-        return this.items;
-      }
-      const searchTextLower = this.search.toLowerCase();
-      return this.items.filter(
-        (item) =>
-          item.name.toLowerCase().includes(searchTextLower) ||
-          item.email.toLowerCase().includes(searchTextLower) ||
-          item.phone.toLowerCase().includes(searchTextLower) ||
-          item.gender.toLowerCase().includes(searchTextLower) ||
-          item.skills.toLowerCase().includes(searchTextLower) ||
-          item.app.toLowerCase().includes(searchTextLower) ||
-          item.country_name.toLowerCase().includes(searchTextLower) ||
-          item.registered_on.toLowerCase().includes(searchTextLower) ||
-          item.user.toLowerCase().includes(searchTextLower)
-      );
-    },
-  },
+
   methods: {
     updateImageFile(newImageFile) {
       this.imageFile.push(newImageFile);
@@ -801,6 +832,36 @@ export default {
           };
           this.isOpenImage = false;
           this.imageFile = [];
+        });
+    },
+    debouncedUpdate(id, value) {
+      // Hapus timer sebelumnya jika ada
+      if (this.debounceTimer) {
+        clearTimeout(this.debounceTimer);
+      }
+
+      // Set debounce baru
+      this.debounceTimer = setTimeout(() => {
+        this.updateData(id, value);
+      }, 800);
+    },
+    updateData(id, val) {
+      const payload = {
+        invite_id: id,
+        remarks: val,
+      };
+
+      axios
+        .post(`/invites/update`, payload)
+        .then((response) => {
+          this.successMessage = response.data.message;
+          this.isSuccess = true;
+        })
+        .catch((error) => {
+          console.error(error);
+          this.errorMessage =
+            error.response?.data?.message || 'Something Wrong!!!';
+          this.isError = true;
         });
     },
     editUser(invite) {
@@ -1012,7 +1073,8 @@ export default {
       this.requestCount = 0; // Reset request count
       try {
         let items = await this.getUserData();
-        this.items = items.sort((a, b) => b.invite_id - a.invite_id);
+        this.items = items;
+        // .sort((a, b) => b.invite_id - a.invite_id);
         this.requestCount++;
 
         items = await Promise.all(
@@ -1040,42 +1102,50 @@ export default {
     async getUserData() {
       this.isLoading = true;
       try {
-        const response = await axios.get(`/invites`);
-        const data = response.data.data;
-        return data
-          .sort((a, b) => b.invite_id - a.invite_id)
-          .map((item) => {
-            return {
-              id: item.invite_id || 0,
-              name: item.full_name || '',
-              email: item.email || '',
-              code:
-                this.resource.code.filter((i) => i.id == item.from_country)[0]
-                  ?.code || '',
-              phone: item.mobile_number || '',
-              gender:
-                item.gender == 'M'
-                  ? 'Male'
-                  : item.gender == 'F'
-                  ? 'Female'
-                  : '',
-              genderCode: item.gender || '',
-              skills_id: item.skills_id || null,
-              skills: item.skills?.skills_name || '',
-              app_id: item.app_id || null,
-              app: item.app?.app_name || '',
-              image: item.image || null,
-              country_id: item.from_country || null,
-              country_name: item.country?.country_name || '',
-              registered_on: item.invited_on || '',
-              user_id: item.user_id || null,
-              user: item.user?.name || '',
-              template: null,
-              ...item,
-              loading: false,
-            };
-          })
-          .slice(0, 10);
+        const response = await axios.get(`/invites`, {
+          params: {
+            // query: this.search,
+            page: this.currentPage,
+            perPage: this.perPage,
+          },
+        });
+        const data = response.data;
+        console.log(data.data);
+
+        // Perbarui pagination
+        this.currentPage = data?.current_page;
+        this.perPage = data?.per_page;
+        this.totalItems = data?.total;
+        this.totalPages = data?.last_page;
+
+        // .sort((a, b) => b.invite_id - a.invite_id)
+        return data.data.map((item) => {
+          return {
+            id: item.invite_id || 0,
+            name: item.full_name || '',
+            email: item.email || '',
+            code:
+              this.resource.code.filter((i) => i.id == item.from_country)[0]
+                ?.code || '',
+            phone: item.mobile_number || '',
+            gender:
+              item.gender == 'M' ? 'Male' : item.gender == 'F' ? 'Female' : '',
+            genderCode: item.gender || '',
+            skills_id: item.skills_id || null,
+            skills: item.skills?.skills_name || '',
+            app_id: item.app_id || null,
+            app: item.app?.app_name || '',
+            image: item.image || null,
+            country_id: item.from_country || null,
+            country_name: item.country?.country_name || '',
+            registered_on: item.invited_on || '',
+            user_id: item.user_id || null,
+            user: item.user?.name || '',
+            template: null,
+            ...item,
+            loading: false,
+          };
+        });
       } catch (error) {
         console.log(error);
         const message =
@@ -1131,7 +1201,7 @@ export default {
           this.resource.code = data.map((country) => {
             return { id: country.country_id, code: country.country_code };
           });
-          console.log(this.resource.code);
+          // console.log(this.resource.code);
         })
         .catch((error) => {
           // eslint-disable-next-line
