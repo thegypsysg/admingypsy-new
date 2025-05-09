@@ -10,6 +10,7 @@
             v-model="search"
             label="Search by Full Name or Email or Mobile or What's App or Job ID"
             variant="outlined"
+            @keyup="debouncedList2()"
             hide-details
             clearable
           ></v-text-field>
@@ -20,6 +21,7 @@
             label="--- App Id ---"
             placeholder="Type App"
             :items="resource.app"
+            @update:modelValue="debouncedList2()"
             item-title="name"
             item-value="id"
             clearable
@@ -34,11 +36,30 @@
             clearable
             placeholder="Type Primary Skills"
             :items="resource.skills"
+            @update:modelValue="debouncedList2()"
             item-title="name"
             item-value="name"
             v-model="skills"
             variant="outlined"
           ></v-autocomplete>
+        </v-col>
+      </v-row>
+      <v-row align="center" justify="space-between">
+        <v-col cols="8">
+          <span>
+            Showing {{ startItem }} - {{ endItem }} from {{ totalItems }} item
+          </span>
+        </v-col>
+        <v-col cols="4" class="text-right">
+          <v-select
+            v-model="perPage"
+            :items="[5, 10, 15, 20]"
+            label="Items per page"
+            density="compact"
+            variant="outlined"
+            hide-details
+            @update:modelValue="getUserData"
+          ></v-select>
         </v-col>
       </v-row>
       <v-row>
@@ -57,7 +78,7 @@
               </tr>
             </thead>
             <tbody>
-              <template v-for="item in filteredItems" :key="item.id">
+              <template v-for="item in items" :key="item.id">
                 <tr class="country-table-body">
                   <td>
                     <div class="image-upload-cont">
@@ -67,8 +88,8 @@
                         @click="openImage(item)"
                         style="cursor: pointer"
                         :src="
-                          item.image != null
-                            ? $fileURL + item.image
+                          item?.image
+                            ? $fileURL + item?.image
                             : 'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png'
                         "
                         ><template #placeholder>
@@ -76,63 +97,72 @@
                       ></v-img>
                     </div>
                     <p class="text-blue-darken-4 text-center">
-                      {{ item.gender }}
+                      {{ item?.gender }}
                     </p>
                   </td>
                   <td>
-                    <p>{{ item.name }}</p>
+                    <p>{{ item?.name }}</p>
                     <p class="text-blue-darken-4 mt-2">
-                      {{ item.maritalStatus }}
+                      {{ item?.maritalStatus }}
                     </p>
                   </td>
                   <td>
-                    <p>{{ item.country }}</p>
+                    <p>{{ item?.country_name }}</p>
                     <p class="text-blue-darken-4 mt-2">
-                      <span class="text-blue-darken-4">{{ item.date }}</span
-                      ><span v-if="item.date" class="text-blue-darken-4">
-                        ({{ countAge(item.date) }} years)</span
+                      <span class="text-blue-darken-4">{{
+                        item?.date_of_birth
+                      }}</span
+                      ><span
+                        v-if="item?.date_of_birth"
+                        class="text-blue-darken-4"
+                      >
+                        ({{ countAge(item?.date_of_birth) }} years)</span
                       >
                     </p>
                   </td>
                   <td>
-                    <p>{{ item.nationality }}</p>
+                    <p>{{ item?.nationality }}</p>
                   </td>
                   <td class="text-blue-darken-4">
                     <p>
-                      {{ item.town ? item.town + ', ' + item.city : item.city }}
+                      {{
+                        item?.town_name
+                          ? item?.town_name + ', ' + item?.city_name
+                          : item?.city_name
+                      }}
                     </p>
-                    <p>{{ item.country }}</p>
+                    <p>{{ item?.country_name }}</p>
                     <!-- <p
                       class="mt-2"
                       :class="{
-                        'text-green': item.verifiedEmail == 'verified',
-                        'text-red': item.verifiedEmail == 'Not verified',
+                        'text-green': item?.verifiedEmail == 'verified',
+                        'text-red': item?.verifiedEmail == 'Not verified',
                       }"
                     >
-                      ({{ item.verifiedEmail }})
+                      ({{ item?.verifiedEmail }})
                     </p> -->
                   </td>
                   <td>
-                    <p>{{ item.mobile }}</p>
+                    <p>{{ item?.mobile_number }}</p>
                     <p
                       class="mt-2"
                       :class="{
-                        'text-green': item.verifiedMobile == 'verified',
-                        'text-red': item.verifiedMobile == 'Not verified',
+                        'text-green': item?.verifiedMobile == 'verified',
+                        'text-red': item?.verifiedMobile == 'Not verified',
                       }"
                     >
-                      ({{ item.verifiedMobile }})
+                      ({{ item?.verifiedMobile }})
                     </p>
                   </td>
                   <td>
                     <a
-                      :href="`https://api.whatsapp.com/send?phone=${item.whatsapp}&text=Hello`"
+                      :href="`https://api.whatsapp.com/send?phone=${item?.whats_app}&text=Hello`"
                       target="_blank"
                       class="text-decoration-none text-grey-darken-1 text-no-wrap"
                     >
-                      {{ item.whatsapp
+                      {{ item?.whats_app
                       }}<v-icon
-                        v-if="item.whatsapp"
+                        v-if="item?.whats_app"
                         color="#4EC053"
                         size="20"
                         class="ml-2 fab fa-whatsapp"
@@ -141,11 +171,11 @@
                     <p
                       class="mt-2"
                       :class="{
-                        'text-green': item.verifiedWhatsApp == 'verified',
-                        'text-red': item.verifiedWhatsApp == 'Not verified',
+                        'text-green': item?.verifiedWhatsApp == 'verified',
+                        'text-red': item?.verifiedWhatsApp == 'Not verified',
                       }"
                     >
-                      ({{ item.verifiedWhatsApp }})
+                      ({{ item?.verifiedWhatsApp }})
                     </p>
                   </td>
 
@@ -158,7 +188,7 @@
                             v-bind="props"
                             variant="text"
                             :disabled="isDeleteLoading"
-                            @click="openDeleteConfirm(item.gypsy_id)"
+                            @click="openDeleteConfirm(item?.id)"
                             icon="mdi-trash-can-outline"
                           ></v-btn>
                         </template>
@@ -174,7 +204,7 @@
                       <!-- <span
                         class="ml-2 mt-2 mr-16 text-blue-darken-4"
                         style="width: 50px"
-                        >{{ item.gender }}</span
+                        >{{ item?.gender }}</span
                       > -->
                       <v-table class="text-left">
                         <tr>
@@ -190,35 +220,35 @@
                         </tr>
                         <tr>
                           <td class="pr-10 py-2">
-                            {{ item.lastLogin }}
+                            {{ item?.last_login }}
                           </td>
                           <td class="pr-6 py-2">
-                            <p>{{ item.email }}</p>
+                            <p>{{ item?.email_id }}</p>
                             <p
                               class="mt-2"
                               :class="{
-                                'text-green': item.verifiedEmail == 'verified',
+                                'text-green': item?.verifiedEmail == 'verified',
                                 'text-red':
-                                  item.verifiedEmail == 'Not verified',
+                                  item?.verifiedEmail == 'Not verified',
                               }"
                             >
-                              ({{ item.verifiedEmail }})
+                              ({{ item?.verifiedEmail }})
                             </p>
                           </td>
                           <td class="pr-6 py-2">
-                            {{ item.id }}
+                            {{ item?.gypsy_ref_no }}
                           </td>
                           <td class="pr-6 py-2">
-                            {{ item.registered }}
+                            {{ item?.registered_on }}
                           </td>
                           <td class="pr-6 py-2">
-                            {{ item.registeredBy }}
+                            {{ item?.registeredBy }}
                           </td>
                           <td class="pr-6 py-2">
-                            {{ item.registeredType }}
+                            {{ item?.registeredType }}
                           </td>
                           <td class="pr-6 py-2">
-                            {{ item.appName }}
+                            {{ item?.app_name }}
                           </td>
                           <td class="pr-6 pt-2 pb-4">
                             <v-btn-toggle
@@ -232,7 +262,7 @@
                               v-model="item.isActive"
                               :disabled="isSending2"
                               rounded="5"
-                              @click="activeUser(item.gypsy_id)"
+                              @click="activeUser(item?.id)"
                             >
                               <v-btn size="27" :value="true"> Yes </v-btn>
 
@@ -264,7 +294,7 @@
                             <div style="width: 35px"></div>
                           </td>
                           <td class="pr-6 py-2 text-blue-darken-4">
-                            {{ item.applicant_id }}
+                            {{ item?.applicant_ref_no }}
                           </td>
                           <td class="pr-6 pt-2 pb-4">
                             <v-btn-toggle
@@ -278,7 +308,7 @@
                               v-model="item.isEmployed"
                               :disabled="isSending2"
                               rounded="5"
-                              @click="employedUser(item.gypsy_id)"
+                              @click="employedUser(item?.id)"
                             >
                               <v-btn size="27" :value="true"> Yes </v-btn>
 
@@ -286,14 +316,14 @@
                             </v-btn-toggle>
                           </td>
                           <td class="pr-6 py-2 text-blue-darken-4">
-                            {{ item.skills }}
+                            {{ item?.skills_name }}
                           </td>
                           <td class="pr-6 py-2">
-                            {{ item.position }}
+                            {{ item?.position_name }}
                           </td>
                           <td class="pr-6 py-2">
-                            <p>{{ item.employer }}</p>
-                            <p>{{ item.country }}</p>
+                            <p>{{ item?.employer_name }}</p>
+                            <p>{{ item?.country_name }}</p>
                           </td>
                           <td class="pr-6 py-2 text-blue-darken-4 text-center">
                             10
@@ -310,7 +340,7 @@
                               v-model="item.isBlock"
                               :disabled="isSending2"
                               rounded="5"
-                              @click="blockUser(item.gypsy_id)"
+                              @click="blockUser(item?.id)"
                             >
                               <v-btn size="27" :value="true"> Yes </v-btn>
 
@@ -333,6 +363,11 @@
               </tr>
             </tbody>
           </v-table>
+          <v-pagination
+            v-model="currentPage"
+            :length="totalPages"
+            @update:modelValue="getUserData"
+          ></v-pagination>
         </v-col>
       </v-row>
     </v-sheet>
@@ -496,109 +531,115 @@ export default {
         },
       ],
     },
+    currentPage: 1,
+    perPage: 5,
+    totalPages: 1,
+    totalItems: 0,
     search: '',
     app: null,
     skills: null,
     items: [],
+    debounceTimer: null,
+    debounceTimer2: null,
   }),
+
+  computed: {
+    //filteredItems() {
+    //  if (!this.search && this.app === null && this.skills === null) {
+    //    return this.items;
+    //  } else if (this.search && this.app === null && this.skills === null) {
+    //    const searchTextLower = this.search.toLowerCase();
+    //    return this.items.filter(
+    //      (item) =>
+    //        item.id.toLowerCase().includes(searchTextLower) ||
+    //        item.applicant_id.toLowerCase().includes(searchTextLower) ||
+    //        item.name.toLowerCase().includes(searchTextLower) ||
+    //        item.email.toLowerCase().includes(searchTextLower) ||
+    //        item.mobile.toLowerCase().includes(searchTextLower) ||
+    //        item.whatsapp.toLowerCase().includes(searchTextLower)
+    //    );
+    //  } else if (!this.search && this.app === null && this.skills !== null) {
+    //    const filteredData = this.items.filter((item) => {
+    //      return this.skills
+    //        ? item.skills.toLowerCase() === this.skills.toLowerCase()
+    //        : true;
+    //    });
+    //    return filteredData;
+    //  } else if (!this.search && this.app !== null && this.skills === null) {
+    //    const filteredData = this.items.filter((item) => {
+    //      return this.app
+    //        ? item.appName.toLowerCase() === this.app.toLowerCase()
+    //        : true;
+    //    });
+    //    return filteredData;
+    //  } else if (this.search && this.app !== null && this.skills === null) {
+    //    const searchTextLower = this.search.toLowerCase();
+    //    const filteredData = this.items.filter((item) => {
+    //      return (
+    //        (item.name.toLowerCase().includes(searchTextLower) ||
+    //          item.email.toLowerCase().includes(searchTextLower) ||
+    //          item.mobile.toLowerCase().includes(searchTextLower) ||
+    //          item.whatsapp.toLowerCase().includes(searchTextLower)) &&
+    //        (this.app
+    //          ? item.appName.toLowerCase() === this.app.toLowerCase()
+    //          : true)
+    //      );
+    //    });
+    //    return filteredData;
+    //  } else if (this.search && this.app === null && this.skills !== null) {
+    //    const searchTextLower = this.search.toLowerCase();
+    //    const filteredData = this.items.filter((item) => {
+    //      return (
+    //        (item.name.toLowerCase().includes(searchTextLower) ||
+    //          item.email.toLowerCase().includes(searchTextLower) ||
+    //          item.mobile.toLowerCase().includes(searchTextLower) ||
+    //          item.whatsapp.toLowerCase().includes(searchTextLower)) &&
+    //        (this.skills
+    //          ? item.skills.toLowerCase() === this.skills.toLowerCase()
+    //          : true)
+    //      );
+    //    });
+    //    return filteredData;
+    //  } else {
+    //    const searchTextLower = this.search.toLowerCase();
+    //    const filteredData = this.items.filter((item) => {
+    //      return (
+    //        (item.name.toLowerCase().includes(searchTextLower) ||
+    //          item.email.toLowerCase().includes(searchTextLower) ||
+    //          item.mobile.toLowerCase().includes(searchTextLower) ||
+    //          item.whatsapp.toLowerCase().includes(searchTextLower)) &&
+    //        (this.skills
+    //          ? item.skills.toLowerCase() === this.skills.toLowerCase()
+    //          : true) &&
+    //        (this.app
+    //          ? item.appName.toLowerCase() === this.app.toLowerCase()
+    //          : true)
+    //      );
+    //    });
+    //    return filteredData;
+    //  }
+    //},
+    startItem() {
+      return (this.currentPage - 1) * this.perPage + 1;
+    },
+    endItem() {
+      return Math.min(this.currentPage * this.perPage, this.totalItems);
+    },
+  },
+  watch: {
+    perPage() {
+      this.currentPage = 1; // Reset ke halaman pertama saat `perPage` berubah
+      this.getUserData();
+    },
+  },
   created() {
     const token = JSON.parse(localStorage.getItem('token'));
     setAuthHeader(token);
   },
   mounted() {
+    this.getUserData();
     this.getPrimarySkillData();
     this.getAppActive();
-    this.getUserData();
-  },
-  computed: {
-    filteredItems() {
-      if (!this.search && this.app === null && this.skills === null) {
-        return this.items;
-      } else if (this.search && this.app === null && this.skills === null) {
-        const searchTextLower = this.search.toLowerCase();
-        return this.items.filter(
-          (item) =>
-            item.id.toLowerCase().includes(searchTextLower) ||
-            item.applicant_id.toLowerCase().includes(searchTextLower) ||
-            item.name.toLowerCase().includes(searchTextLower) ||
-            item.email.toLowerCase().includes(searchTextLower) ||
-            item.mobile.toLowerCase().includes(searchTextLower) ||
-            item.whatsapp.toLowerCase().includes(searchTextLower)
-        );
-      } else if (!this.search && this.app === null && this.skills !== null) {
-        const filteredData = this.items.filter((item) => {
-          return this.skills
-            ? item.skills.toLowerCase() === this.skills.toLowerCase()
-            : true;
-        });
-        return filteredData;
-      } else if (!this.search && this.app !== null && this.skills === null) {
-        const filteredData = this.items.filter((item) => {
-          return this.app
-            ? item.appName.toLowerCase() === this.app.toLowerCase()
-            : true;
-        });
-        return filteredData;
-      } else if (this.search && this.app !== null && this.skills === null) {
-        const searchTextLower = this.search.toLowerCase();
-        const filteredData = this.items.filter((item) => {
-          return (
-            (item.name.toLowerCase().includes(searchTextLower) ||
-              item.email.toLowerCase().includes(searchTextLower) ||
-              item.mobile.toLowerCase().includes(searchTextLower) ||
-              item.whatsapp.toLowerCase().includes(searchTextLower)) &&
-            (this.app
-              ? item.appName.toLowerCase() === this.app.toLowerCase()
-              : true)
-          );
-        });
-        return filteredData;
-      } else if (this.search && this.app === null && this.skills !== null) {
-        const searchTextLower = this.search.toLowerCase();
-        const filteredData = this.items.filter((item) => {
-          return (
-            (item.name.toLowerCase().includes(searchTextLower) ||
-              item.email.toLowerCase().includes(searchTextLower) ||
-              item.mobile.toLowerCase().includes(searchTextLower) ||
-              item.whatsapp.toLowerCase().includes(searchTextLower)) &&
-            (this.skills
-              ? item.skills.toLowerCase() === this.skills.toLowerCase()
-              : true)
-          );
-        });
-        return filteredData;
-      } else {
-        const searchTextLower = this.search.toLowerCase();
-        const filteredData = this.items.filter((item) => {
-          return (
-            (item.name.toLowerCase().includes(searchTextLower) ||
-              item.email.toLowerCase().includes(searchTextLower) ||
-              item.mobile.toLowerCase().includes(searchTextLower) ||
-              item.whatsapp.toLowerCase().includes(searchTextLower)) &&
-            (this.skills
-              ? item.skills.toLowerCase() === this.skills.toLowerCase()
-              : true) &&
-            (this.app
-              ? item.appName.toLowerCase() === this.app.toLowerCase()
-              : true)
-          );
-        });
-        return filteredData;
-      }
-    },
-    //filteredItems() {
-    //  if (!this.search) {
-    //    return this.items;
-    //  }
-    //  const searchTextLower = this.search.toLowerCase();
-    //  return this.items.filter(
-    //    (item) =>
-    //      item.name.toLowerCase().includes(searchTextLower) ||
-    //      item.email.toLowerCase().includes(searchTextLower) ||
-    //      item.mobile.toLowerCase().includes(searchTextLower) ||
-    //      item.whatsapp.toLowerCase().includes(searchTextLower)
-    //  );
-    //},
   },
   methods: {
     countAge(date) {
@@ -677,7 +718,7 @@ export default {
     openImage(item) {
       this.isOpenImage = true;
       this.userDataToImage = {
-        id: item.gypsy_id,
+        id: item.id,
       };
       this.imageFile =
         item.image != null
@@ -703,7 +744,7 @@ export default {
     saveImage() {
       this.isSending = true;
       const payload = {
-        gypsy_id: this.userDataToImage.id,
+        applicant_id: this.userDataToImage.id,
         image: this.imageFile[0],
       };
 
@@ -777,90 +818,93 @@ export default {
           this.isDelete = false;
         });
     },
+    debouncedList2() {
+      // Hapus timer sebelumnya jika ada
+      this.currentPage = 1;
+      if (this.debounceTimer2) {
+        clearTimeout(this.debounceTimer2);
+      }
+
+      // Set debounce baru
+      this.debounceTimer2 = setTimeout(() => {
+        //this.getUserData();
+      }, 800);
+    },
     getUserData() {
       this.isLoading = true;
       axios
-        .get(`/gypsy-registration`)
+        .get(`/applicants`, {
+          params: {
+            //query: this.search,
+            page: this.currentPage,
+            perPage: this.perPage,
+          },
+        })
         .then((response) => {
-          const data = response.data.data;
+          const data = response.data;
           console.log(data);
-          this.items = data
-            .sort((a, b) => a.gypsy_id < b.gypsy_id)
-            .map((item) => {
-              return {
-                image: item.image || null,
-                appName: item.app_name || '',
-                gypsy_id: item.gypsy_id || 0,
-                id: item.gypsy_ref_no || '',
-                applicant_id: item.applicant_ref_no || '',
-                name: item.name || '',
-                email: item.email_id || '',
-                verifiedEmail:
-                  item.email_verified == 'Y' ? 'verified' : 'Not verified',
-                country_id: item.country_current || null,
-                country: item.country?.country_name || '',
-                city: item.city_name || '',
-                town: item.town_name || '',
-                nationality: item.country?.nationality || '',
-                mobile: item.mobile_number || '',
-                verifiedMobile:
-                  item.mobile_verified == 'Y' ? 'verified' : 'Not verified',
-                whatsapp: item.whats_app || '',
-                verifiedWhatsApp:
-                  item.whatsapp_verified == 'Y' ? 'verified' : 'Not verified',
-                gender:
-                  item.gender == 'M'
-                    ? 'Male'
-                    : item.gender == 'F'
-                    ? 'Female'
-                    : '',
-                genderCode: item.gender || '',
-                registered: item.registered_on || '',
-                isActive:
-                  item.active == 'N' ? false : item.active == 'Y' ? true : null,
-                isBlock:
-                  item.block == 'N' ? false : item.block == 'Y' ? true : null,
-                isEmployed:
-                  item.employed == 'N'
-                    ? false
-                    : item.employed == 'Y'
-                    ? true
-                    : null,
-                lastLogin: item.last_login || '',
-                registeredBy:
-                  item.social_type == 'G'
-                    ? 'Google'
-                    : item.social_type == 'L'
-                    ? 'LinkedIn'
-                    : item.social_type == 'X'
-                    ? 'Twitter'
-                    : item.social_type == 'F'
-                    ? 'Facebook'
-                    : item.social_type == 'T'
-                    ? 'Tiktok'
-                    : item.social_type == 'E'
-                    ? 'Email'
-                    : '',
-                registeredType:
-                  item.registered_type == 'M'
-                    ? 'Mobile'
-                    : item.registered_type == 'W'
-                    ? 'Web'
-                    : '',
-                maritalStatus:
-                  item.marital_status == 'M'
-                    ? 'Married'
-                    : item.marital_status == 'S'
-                    ? 'Single'
-                    : item.marital_status == 'O'
-                    ? 'Others'
-                    : '',
-                date: item.date_of_birth || '',
-                skills: item.skills_name || '',
-                position: item.position_name || '',
-                employer: item.employer_name || '',
-              };
-            });
+          this.items = data.data.map((item) => {
+            return {
+              ...item,
+              id: item.applicant_id || 0,
+              verifiedEmail:
+                item.email_verified == 'Y' ? 'verified' : 'Not verified',
+              verifiedMobile:
+                item.mobile_verified == 'Y' ? 'verified' : 'Not verified',
+              verifiedWhatsApp:
+                item.whatsapp_verified == 'Y' ? 'verified' : 'Not verified',
+              gender:
+                item.gender == 'M'
+                  ? 'Male'
+                  : item.gender == 'F'
+                  ? 'Female'
+                  : '',
+              isActive:
+                item.active == 'N' ? false : item.active == 'Y' ? true : null,
+              isBlock:
+                item.block == 'N' ? false : item.block == 'Y' ? true : null,
+              isEmployed:
+                item.employed == 'N'
+                  ? false
+                  : item.employed == 'Y'
+                  ? true
+                  : null,
+              registeredBy:
+                item.social_type == 'G'
+                  ? 'Google'
+                  : item.social_type == 'L'
+                  ? 'LinkedIn'
+                  : item.social_type == 'X'
+                  ? 'Twitter'
+                  : item.social_type == 'F'
+                  ? 'Facebook'
+                  : item.social_type == 'T'
+                  ? 'Tiktok'
+                  : item.social_type == 'E'
+                  ? 'Email'
+                  : '',
+              registeredType:
+                item.registered_type == 'M'
+                  ? 'Mobile'
+                  : item.registered_type == 'W'
+                  ? 'Web'
+                  : '',
+              maritalStatus:
+                item.marital_status == 'M'
+                  ? 'Married'
+                  : item.marital_status == 'S'
+                  ? 'Single'
+                  : item.marital_status == 'O'
+                  ? 'Others'
+                  : '',
+            };
+          });
+
+          // Perbarui pagination
+          this.currentPage = data?.current_page;
+          this.perPage = data?.per_page;
+          this.totalItems = data?.total;
+          this.totalPages = data?.last_page;
         })
         .catch((error) => {
           // eslint-disable-next-line

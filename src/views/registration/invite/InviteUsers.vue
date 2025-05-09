@@ -10,6 +10,7 @@
               v-model="input.fullName"
               :counter="40"
               :rules="rules.nameRules"
+              @keyup="debouncedList2()"
               label="Full Name"
               variant="outlined"
               density="compact"
@@ -21,6 +22,7 @@
             <v-text-field
               v-model="input.email"
               :rules="rules.emailRules"
+              @keyup="debouncedList2()"
               label="Email"
               type="email"
               density="compact"
@@ -99,9 +101,11 @@
               label="--- Primary Skills ---"
               placeholder="Type Primary Skills"
               :items="resource.skills"
+              @update:modelValue="debouncedList2()"
               item-title="name"
               item-value="id"
               v-model="input.skills"
+              clearable
               variant="outlined"
             ></v-autocomplete>
           </v-col>
@@ -318,9 +322,14 @@
                           </td>
                           <td class="pr-10 pt-2 pb-4">
                             Registered:
-                            <span class="text-blue-accent-4">
-                              <!-- {{item.app}} -->
-                              Yes
+                            <span
+                              :class="
+                                item.registered == 'Yes'
+                                  ? 'text-blue-accent-4'
+                                  : 'text-red-darken-1'
+                              "
+                            >
+                              {{ item.registered == 'Yes' ? 'Yes' : 'No' }}
                             </span>
                           </td>
                         </tr>
@@ -656,7 +665,7 @@ export default {
     search: '',
     items: [],
     debounceTimer: null,
-    debounceTimers: {},
+    debounceTimer2: null,
   }),
   computed: {
     startItem() {
@@ -834,6 +843,18 @@ export default {
           this.imageFile = [];
         });
     },
+    debouncedList2() {
+      // Hapus timer sebelumnya jika ada
+      this.currentPage = 1;
+      if (this.debounceTimer2) {
+        clearTimeout(this.debounceTimer2);
+      }
+
+      // Set debounce baru
+      this.debounceTimer2 = setTimeout(() => {
+        this.getItemsData();
+      }, 800);
+    },
     debouncedUpdate(id, value) {
       // Hapus timer sebelumnya jika ada
       if (this.debounceTimer) {
@@ -876,7 +897,7 @@ export default {
         mobile: invite.phone,
         skills: invite.skills_id,
         app: invite.app_id,
-        remarks: 'Met in a Networking group',
+        remarks: invite.remarks,
       };
     },
     cancelEdit() {
@@ -1102,9 +1123,15 @@ export default {
     async getUserData() {
       this.isLoading = true;
       try {
-        const response = await axios.get(`/invites`, {
+        const response = await axios.get(`/invites/search`, {
           params: {
-            // query: this.search,
+            skillsName: this.input.skills
+              ? this.resource.skills.filter(
+                  (item) => item.id == this.input.skills
+                )[0].name
+              : null,
+            email: this.input.email,
+            fullName: this.input.fullName,
             page: this.currentPage,
             perPage: this.perPage,
           },
