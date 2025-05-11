@@ -239,34 +239,110 @@ td
                   </td>
                 </tr>
 
-                <tr v-if="item?.cart_details.length > 0">
+                <tr v-if="item?.cartDetails.length > 0">
                   <td style="border: none !important"></td>
-                  <td
-                    :class="{
-                      'has-border': item?.cart_details.length > 0,
-                      'not-border': item?.cart_details.length == 0,
-                    }"
-                    style="border-bottom: none !important"
-                    colspan="6"
-                  >
+                  <!-- :class="{
+                    'has-border': item?.cart_details.length > 0,
+                    'not-border': item?.cart_details.length == 0,
+                  }" -->
+                  <td style="border-bottom: none !important" colspan="11">
                     <v-table class="">
-                      <tr v-for="del in item?.cart_details" :key="del?.cd_id">
-                        <td class="pr-6 pt-4">{{ del?.cd_id }}</td>
-                        <td class="pr-6 pt-4">
-                          {{ del?.products[0]?.product_name }}
-                          {{ del?.quantity?.quantity_name }}
-                        </td>
-                        <td class="pr-6 pt-4">
-                          <span v-if="del?.rate">S$</span> {{ del?.rate }}
-                        </td>
-                        <td class="pr-6 pt-4">{{ del?.qty }}</td>
-                        <td class="pr-6 pt-4">
-                          <span v-if="del?.amount">S$</span> {{ del?.amount }}
-                        </td>
-                      </tr>
+                      <thead>
+                        <tr class="py-0">
+                          <th class="text-left py-0"></th>
+                          <th class="text-left py-0"></th>
+                          <th class="text-left py-0"></th>
+                          <th class="text-left py-0"></th>
+                          <th class="text-left py-0"></th>
+                          <th class="text-left py-0">Order Request</th>
+                          <th class="text-left py-0">Request Date</th>
+                          <th class="text-left py-0">Request By</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr v-for="del in item?.cartDetails" :key="del?.cd_id">
+                          <td
+                            style="border-bottom: none !important"
+                            class="pr-6 pt-4"
+                          >
+                            {{ del?.cd_id }}
+                          </td>
+                          <td
+                            style="border-bottom: none !important"
+                            class="pr-6 pt-4"
+                          >
+                            {{ del?.products[0]?.product_name }}
+                            {{ del?.quantity?.quantity_name }}
+                          </td>
+                          <td
+                            style="border-bottom: none !important"
+                            class="pr-6 pt-4 text-no-wrap"
+                          >
+                            <span v-if="del?.rate">S$</span> {{ del?.rate }}
+                          </td>
+                          <td
+                            style="border-bottom: none !important"
+                            class="pr-6 pt-4"
+                          >
+                            {{ del?.qty }}
+                          </td>
+                          <td
+                            style="border-bottom: none !important"
+                            class="pr-6 pt-4 text-no-wrap"
+                          >
+                            <span v-if="del?.amount">S$</span> {{ del?.amount }}
+                          </td>
+                          <td
+                            style="border-bottom: none !important"
+                            class="pr-6 pt-2 pb-4 d-flex align-center"
+                          >
+                            <v-btn-toggle
+                              style="
+                                font-size: 10px !important;
+                                font-weight: 200 !important;
+                                height: 22px !important;
+                                width: 54px !important;
+                              "
+                              class="d-flex align-center"
+                              v-model="del.isOrderReq"
+                              :disabled="isSending2"
+                              rounded="5"
+                              @click="orderRequest(del)"
+                            >
+                              <v-btn size="27" :value="true"> Yes </v-btn>
+
+                              <v-btn
+                                size="27"
+                                :disabled="del.isOrderReq"
+                                :value="false"
+                              >
+                                No
+                              </v-btn>
+                            </v-btn-toggle>
+                            <span
+                              v-if="del.isOrderReq"
+                              class="text-red-darken-1 ml-2"
+                              >Cancel</span
+                            >
+                          </td>
+
+                          <td
+                            style="border-bottom: none !important"
+                            class="pr-6 pt-4"
+                          >
+                            <span v-if="del.isOrderReq">10/05/2025</span>
+                          </td>
+                          <td
+                            style="border-bottom: none !important"
+                            class="pr-6 pt-4"
+                          >
+                            <span v-if="del.isOrderReq">Charlton</span>
+                          </td>
+                        </tr>
+                      </tbody>
                     </v-table>
                   </td>
-                  <td
+                  <!-- <td
                     :class="{
                       'has-border': item?.cart_details.length > 0,
                       'not-border': item?.cart_details.length == 0,
@@ -276,7 +352,7 @@ td
                     class="text-body-1 font-weight-bold"
                   >
                     <p class="mt-3">Total Payment : S$ 112.50</p>
-                  </td>
+                  </td> -->
                 </tr>
 
                 <tr>
@@ -297,6 +373,7 @@ td
                         <tr class="font-weight-bold">
                           <td class="">
                             <p
+                              v-if="item?.address?.full_address"
                               v-html="formatInfo(item?.address?.full_address)"
                             />
                           </td>
@@ -307,7 +384,7 @@ td
                           <td class="">
                             {{ item?.address?.address_master?.city?.city_name }}
                           </td>
-                          <td class="">Opposite the Polyclinic</td>
+                          <td class="">Static Data</td>
                           <td class="">
                             {{ item?.order_instructions }}
                           </td>
@@ -392,6 +469,18 @@ td
         </v-btn>
       </template>
     </v-snackbar>
+    <v-dialog persistent width="500" v-model="orderReq">
+      <v-card>
+        <v-card-text>
+          Do you wish to place an order request for this item. ?
+        </v-card-text>
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn color="error" text @click="cancelOrderRequest">No</v-btn>
+          <v-btn color="success" text @click="saveOrderRequest">Yes</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
   </v-container>
 </template>
 
@@ -410,6 +499,8 @@ export default {
     isSending2: false,
     isSuccess: false,
     isError: false,
+    orderReq: false,
+    orderRequestData: null,
     currentPage: 1,
     perPage: 5,
     totalPages: 1,
@@ -462,7 +553,18 @@ export default {
         })
         .then((response) => {
           const data = response.data;
-          this.items = data.data;
+          this.items = data.data.map((item) => {
+            return {
+              ...item,
+              cartDetails: item.cart_details.map((del) => {
+                return {
+                  ...del,
+                  isOrderReq: false,
+                  isHasOrderReq: false,
+                };
+              }),
+            };
+          });
 
           // Perbarui pagination
           this.currentPage = data?.current_page;
@@ -591,6 +693,20 @@ export default {
         .finally(() => {
           this.isSending2 = false;
         });
+    },
+    orderRequest(item) {
+      console.log(item);
+      this.orderRequestData = item;
+      if (item.isOrderReq == true) {
+        this.orderReq = true;
+      }
+    },
+    cancelOrderRequest() {
+      this.orderRequestData = null;
+      this.orderReq = false;
+    },
+    saveOrderRequest() {
+      this.orderReq = false;
     },
   },
 };
