@@ -130,7 +130,7 @@ td
 
                 <tr>
                   <td style="border: none !important"></td>
-                  <td style="border: none !important" colspan="8">
+                  <td style="border: none !important" colspan="8" class="pa-0">
                     <v-table class="mb-4">
                       <thead>
                         <tr class="py-0">
@@ -194,7 +194,7 @@ td
                               item-title="label"
                               item-value="value"
                               hide-details
-                              style="min-width: 100px !important"
+                              style="min-width: 150px !important"
                               variant="outlined"
                             ></v-autocomplete>
                           </td>
@@ -224,12 +224,15 @@ td
                           </td>
                           <td class="">
                             <v-autocomplete
+                              class="text-caption"
                               density="compact"
-                              :items="[]"
+                              v-model="item.paymentVerified"
+                              :items="users"
+                              @update:modelValue="updatePaymentVerified(item)"
                               item-title="label"
                               item-value="value"
                               hide-details
-                              style="min-width: 100px !important"
+                              style="min-width: 150px !important"
                               variant="outlined"
                             ></v-autocomplete>
                           </td>
@@ -245,7 +248,11 @@ td
                     'has-border': item?.cart_details.length > 0,
                     'not-border': item?.cart_details.length == 0,
                   }" -->
-                  <td style="border-bottom: none !important" colspan="11">
+                  <td
+                    style="border-bottom: none !important"
+                    colspan="11"
+                    class="pa-0"
+                  >
                     <v-table class="">
                       <thead>
                         <tr class="py-0">
@@ -357,7 +364,7 @@ td
 
                 <tr>
                   <td style="border: none !important"></td>
-                  <td style="border: none !important" colspan="10">
+                  <td style="border: none !important" colspan="10" class="pa-0">
                     <v-table class="mt-4">
                       <thead>
                         <tr class="py-0">
@@ -396,7 +403,7 @@ td
 
                 <tr>
                   <td></td>
-                  <td colspan="10">
+                  <td colspan="10" class="pa-0">
                     <v-table class="mt-2">
                       <thead>
                         <tr class="py-0">
@@ -512,6 +519,7 @@ export default {
     orderStatuses: [],
     paymentStatuses: [],
     paymentTypes: [],
+    users: [],
   }),
   created() {
     const token = JSON.parse(localStorage.getItem('token'));
@@ -522,6 +530,7 @@ export default {
     this.getOrderStatusData();
     this.getPaymentStatusData();
     this.getPaymentTypesData();
+    this.getUsersData();
   },
   computed: {
     startItem() {
@@ -556,6 +565,8 @@ export default {
           this.items = data.data.map((item) => {
             return {
               ...item,
+              paymentVerified:
+                item?.payment_verified == null ? '' : item.payment_verified,
               cartDetails: item.cart_details.map((del) => {
                 return {
                   ...del,
@@ -668,6 +679,59 @@ export default {
         })
         .finally(() => {
           this.isLoading = false;
+        });
+    },
+    getUsersData() {
+      this.isLoading = true;
+      axios
+        .get(`/user`)
+        .then((response) => {
+          const data = response.data.data;
+          // console.log(data);
+          this.users = [
+            { value: '', label: 'No' },
+            ...data.map((item) => ({
+              value: item.id || '',
+              label: item.name || '',
+            })),
+          ];
+          console.log(this.users);
+        })
+        .catch((error) => {
+          // eslint-disable-next-line
+          console.log(error);
+          const message =
+            error.response.data.message === ''
+              ? 'Something Wrong!!!'
+              : error.response.data.message;
+          this.errorMessage = message;
+          this.isError = true;
+        })
+        .finally(() => {
+          this.isLoading = false;
+        });
+    },
+    updatePaymentVerified(data) {
+      const payload = {
+        cart_id: data.cart_id,
+        payment_verified: data.paymentVerified,
+      };
+      axios
+        .post(`/cart-master/update-payment-verified`, payload)
+        .then((response) => {
+          const data = response.data;
+          this.successMessage = data.message;
+          this.isSuccess = true;
+        })
+        .catch((error) => {
+          // eslint-disable-next-line
+          console.log(error);
+          const message =
+            error.response.data.message === ''
+              ? 'Something Wrong!!!'
+              : error.response.data.message;
+          this.errorMessage = message;
+          this.isError = true;
         });
     },
     viewCart(id) {
