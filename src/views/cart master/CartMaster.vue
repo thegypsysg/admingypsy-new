@@ -384,7 +384,9 @@ td
                               v-html="formatInfo(item?.address?.full_address)"
                             />
                           </td>
-                          <td class="">Marine Drive</td>
+                          <td class="">
+                            {{ item?.address?.street_master?.street_name }}
+                          </td>
                           <td class="">
                             {{ item?.address?.address_master?.town?.town_name }}
                           </td>
