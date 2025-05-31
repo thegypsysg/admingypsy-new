@@ -396,7 +396,7 @@ td
                           <td class="">
                             {{ item?.address?.address_master?.city?.city_name }}
                           </td>
-                          <td class="">Static Data</td>
+                          <td class=""></td>
                           <td class="">
                             <p
                               v-if="item?.order_instructions"
