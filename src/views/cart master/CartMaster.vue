@@ -398,7 +398,10 @@ td
                           </td>
                           <td class="">Static Data</td>
                           <td class="">
-                            {{ item?.order_instructions }}
+                            <p
+                              v-if="item?.order_instructions"
+                              v-html="formatInfo(item?.order_instructions)"
+                            />
                           </td>
                         </tr>
                       </tbody>
