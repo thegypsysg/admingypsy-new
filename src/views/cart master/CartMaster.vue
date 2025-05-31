@@ -107,7 +107,7 @@ td
                   </td>
                   <td>
                     <span v-if="item?.platform_fee">S$</span>
-                    {{ item?.platform_fee }}
+                    {{ item?.service_fee }}
                   </td>
                   <td>
                     <span v-if="item?.delivery_charge?.rate">S$</span>
@@ -117,7 +117,9 @@ td
                     <span v-if="item?.platform_fee">S$</span>
                     {{ item?.platform_fee }}
                   </td>
-                  <td><span v-if="item?.gst">S$</span> {{ item?.gst }}</td>
+                  <td>
+                    <span v-if="item?.gst">S$</span> {{ item?.gst || '-' }}
+                  </td>
                   <td>
                     <span v-if="item?.final_amount">S$</span>
                     {{ item?.final_amount }}
@@ -202,6 +204,7 @@ td
                           <td class="">
                             <v-autocomplete
                               density="compact"
+                              v-model="item.payment_status"
                               :items="paymentStatuses"
                               item-title="label"
                               item-value="value"
