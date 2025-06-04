@@ -319,7 +319,13 @@ td
                               rounded="5"
                               @click="orderRequest(del)"
                             >
-                              <v-btn size="27" :value="true"> Yes </v-btn>
+                              <v-btn
+                                size="27"
+                                :disabled="del.isOrderReq"
+                                :value="true"
+                              >
+                                Yes
+                              </v-btn>
 
                               <v-btn
                                 size="27"
@@ -332,6 +338,7 @@ td
                             <span
                               v-if="del.isOrderReq"
                               class="text-red-darken-1 ml-2"
+                              style="cursor: pointer"
                               >Cancel</span
                             >
                           </td>
@@ -578,8 +585,7 @@ export default {
               cartDetails: item.cart_details.map((del) => {
                 return {
                   ...del,
-                  isOrderReq: false,
-                  isHasOrderReq: false,
+                  isOrderReq: del?.order_fullfilment?.cd_id ? true : false,
                 };
               }),
             };
@@ -767,7 +773,7 @@ export default {
         });
     },
     orderRequest(item) {
-      console.log(item);
+      // console.log(item);
       this.orderRequestData = item;
       if (item.isOrderReq == true) {
         this.orderReq = true;
@@ -778,7 +784,28 @@ export default {
       this.orderReq = false;
     },
     saveOrderRequest() {
-      this.orderReq = false;
+      console.log(this.orderRequestData);
+      const payload = {
+        cd_id: this.orderRequestData.cd_id,
+      };
+      axios
+        .post(`/order-fullfilment`, payload)
+        .then((response) => {
+          const data = response.data;
+          this.successMessage = data.message;
+          this.isSuccess = true;
+          this.orderReq = false;
+        })
+        .catch((error) => {
+          // eslint-disable-next-line
+          console.log(error);
+          const message =
+            error.response.data.message === ''
+              ? 'Something Wrong!!!'
+              : error.response.data.message;
+          this.errorMessage = message;
+          this.isError = true;
+        });
     },
   },
 };
