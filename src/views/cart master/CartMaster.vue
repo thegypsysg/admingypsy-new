@@ -337,6 +337,11 @@ td
                             </v-btn-toggle>
                             <span
                               v-if="del.isOrderReq"
+                              @click="
+                                deleteOrderRequest(
+                                  del?.order_fullfilment?.of_id
+                                )
+                              "
                               class="text-red-darken-1 ml-2"
                               style="cursor: pointer"
                               >Cancel</span
@@ -618,12 +623,17 @@ export default {
         .then((response) => {
           const data = response.data.data;
           // console.log(data);
-          this.orderStatuses = data.map((item) => {
-            return {
-              value: item.order_status_value || '',
-              label: item.order_status_name || '',
-            };
-          });
+          this.orderStatuses = data
+            .filter(
+              (d) =>
+                d.order_status_value != 'PP' && d.order_status_value != 'DP'
+            )
+            .map((item) => {
+              return {
+                value: item.order_status_value || '',
+                label: item.order_status_name || '',
+              };
+            });
         })
         .catch((error) => {
           // eslint-disable-next-line
@@ -806,6 +816,32 @@ export default {
           this.errorMessage = message;
           this.isError = true;
         });
+    },
+    deleteOrderRequest(id) {
+      // this.isDeleteLoading = true;
+      axios
+        .delete(`/order-fullfilment/${id}`)
+        .then((response) => {
+          const data = response.data;
+          this.successMessage = data.message;
+          this.isSuccess = true;
+          this.getItemsData();
+        })
+        .catch((error) => {
+          // eslint-disable-next-line
+          console.log(error);
+          const message =
+            error.response.data.message === ''
+              ? 'Something Wrong!!!'
+              : error.response.data.message;
+          this.errorMessage = message;
+          this.isError = true;
+        });
+      // .finally(() => {
+      //   this.isDeleteLoading = false;
+      //   this.countryIdToDelete = null;
+      //   this.isDelete = false;
+      // });
     },
   },
 };
