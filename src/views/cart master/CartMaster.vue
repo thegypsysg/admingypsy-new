@@ -395,18 +395,28 @@ td
                         <tr class="font-weight-bold">
                           <td class="">
                             <p
-                              v-if="item?.address?.full_address"
-                              v-html="formatInfo(item?.address?.full_address)"
+                              v-if="item?.gypsy_address?.full_address"
+                              v-html="
+                                formatInfo(item?.gypsy_address?.full_address)
+                              "
                             />
                           </td>
                           <td class="">
-                            {{ item?.address?.street_master?.street_name }}
+                            {{
+                              item?.gypsy_address?.street_master?.street_name
+                            }}
                           </td>
                           <td class="">
-                            {{ item?.address?.address_master?.town?.town_name }}
+                            {{
+                              item?.gypsy_address?.address_master?.town
+                                ?.town_name
+                            }}
                           </td>
                           <td class="">
-                            {{ item?.address?.address_master?.city?.city_name }}
+                            {{
+                              item?.gypsy_address?.address_master?.city
+                                ?.city_name
+                            }}
                           </td>
                           <td class=""></td>
                           <td class="">
