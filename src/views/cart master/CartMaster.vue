@@ -1,9 +1,34 @@
-td
 <!-- eslint-disable vue/multi-word-component-names -->
 <!-- eslint-disable vue/no-deprecated-v-bind-sync -->
 <template>
   <v-container>
-    <h1>Cart Master</h1>
+    <!-- <h1>Cart Master</h1> -->
+    <div class="d-flex ml-4 mb-4" style="gap: 40px">
+      <router-link
+        active-class="text-black"
+        style="color: #3e4aaf"
+        class="text-decoration-none"
+        to="/cart_master"
+      >
+        <h1>Cart Master</h1>
+      </router-link>
+      <router-link
+        active-class="text-black"
+        style="color: #3e4aaf"
+        class="text-decoration-none"
+        to="/order_fulfillment"
+      >
+        <h1>Order Fulfillment</h1>
+      </router-link>
+      <router-link
+        active-class="text-black"
+        style="color: #3e4aaf"
+        class="text-decoration-none"
+        to="/sourcing_basket"
+      >
+        <h1>Sourcing Basket</h1>
+      </router-link>
+    </div>
 
     <v-sheet class="py-6 px-4 mt-10" border rounded width="100%">
       <v-row>
@@ -193,6 +218,12 @@ td
                               density="compact"
                               v-model="item.order_status"
                               :items="orderStatuses"
+                              :disabled="item.payment_verified"
+                              :class="
+                                item.payment_verified
+                                  ? 'text-blue-darken-2'
+                                  : undefined
+                              "
                               item-title="label"
                               item-value="value"
                               hide-details
@@ -206,6 +237,12 @@ td
                               density="compact"
                               v-model="item.payment_status"
                               :items="paymentStatuses"
+                              :disabled="item.payment_verified"
+                              :class="
+                                item.payment_verified
+                                  ? 'text-blue-darken-2'
+                                  : undefined
+                              "
                               item-title="label"
                               item-value="value"
                               hide-details
@@ -230,8 +267,16 @@ td
                               class="text-caption"
                               density="compact"
                               v-model="item.paymentVerified"
+                              :class="
+                                item.payment_verified
+                                  ? 'text-blue-darken-2'
+                                  : undefined
+                              "
                               :items="users"
-                              @update:modelValue="updatePaymentVerified(item)"
+                              :disabled="item.payment_verified"
+                              @update:modelValue="
+                                handleUpdatePaymentVerified(item)
+                              "
                               item-title="label"
                               item-value="value"
                               hide-details
@@ -239,6 +284,65 @@ td
                               variant="outlined"
                             ></v-autocomplete>
                           </td>
+                        </tr>
+                      </tbody>
+                    </v-table>
+                  </td>
+                </tr>
+
+                <tr>
+                  <td style="border: none !important"></td>
+                  <td style="border: none !important" colspan="8" class="pa-0">
+                    <v-table class="mb-4">
+                      <thead>
+                        <tr class="py-0">
+                          <th
+                            style="border: none !important"
+                            class="text-left py-0 font-weight-black"
+                          >
+                            Delivery Date
+                          </th>
+                          <th
+                            style="border: none !important"
+                            class="text-left py-0 font-weight-black"
+                          >
+                            Delivery Day
+                          </th>
+                          <th
+                            style="border: none !important"
+                            class="text-left py-0 font-weight-black"
+                          >
+                            Time Slot
+                          </th>
+                          <th
+                            style="border: none !important"
+                            class="text-left py-0 font-weight-black"
+                          >
+                            Same Day
+                          </th>
+                          <th
+                            style="border: none !important"
+                            class="text-left py-0 font-weight-black"
+                          >
+                            Advance Delivery
+                          </th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr class="font-weight-bold py-0">
+                          <td class="font-weight-bold text-red-darken-4">
+                            10/06/2025
+                          </td>
+                          <td class="font-weight-bold text-red-darken-4">
+                            Thursday
+                          </td>
+                          <td class="font-weight-bold text-red-darken-4">
+                            5 pm to 7 pm
+                          </td>
+                          <td class="font-weight-bold text-red-darken-4">
+                            Yes
+                          </td>
+                          <td class="font-weight-bold text-red-darken-4">No</td>
                         </tr>
                       </tbody>
                     </v-table>
@@ -337,11 +441,7 @@ td
                             </v-btn-toggle>
                             <span
                               v-if="del.isOrderReq"
-                              @click="
-                                deleteOrderRequest(
-                                  del?.order_fullfilment?.of_id
-                                )
-                              "
+                              @click="cancelRequest(del)"
                               class="text-red-darken-1 ml-2"
                               style="cursor: pointer"
                               >Cancel</span
@@ -518,6 +618,30 @@ td
         </v-card-actions>
       </v-card>
     </v-dialog>
+    <v-dialog persistent width="500" v-model="cancelReq">
+      <v-card>
+        <v-card-text>
+          Do you wish to cancel this Order Fulfillment . ?
+        </v-card-text>
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn color="error" text @click="cancelCancelRequest">No</v-btn>
+          <v-btn color="success" text @click="deleteOrderRequest">Yes</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+    <v-dialog persistent width="500" v-model="paymentVerified">
+      <v-card>
+        <v-card-text> Have you Received the Payment . ? </v-card-text>
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn color="error" text @click="closeUpdatePaymentVerified"
+            >No</v-btn
+          >
+          <v-btn color="success" text @click="updatePaymentVerified">Yes</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
   </v-container>
 </template>
 
@@ -537,7 +661,9 @@ export default {
     isSuccess: false,
     isError: false,
     orderReq: false,
+    cancelReq: false,
     orderRequestData: null,
+    cancelRequestData: null,
     currentPage: 1,
     perPage: 5,
     totalPages: 1,
@@ -550,6 +676,8 @@ export default {
     paymentStatuses: [],
     paymentTypes: [],
     users: [],
+    paymentVerified: false,
+    paymentVerifiedData: null,
   }),
   created() {
     const token = JSON.parse(localStorage.getItem('token'));
@@ -745,10 +873,23 @@ export default {
           this.isLoading = false;
         });
     },
-    updatePaymentVerified(data) {
+    handleUpdatePaymentVerified(data) {
+      console.log(data);
+      console.log(data.paymentVerified);
+      if (data.paymentVerified) {
+        this.paymentVerifiedData = data;
+        this.paymentVerified = true;
+      }
+    },
+    closeUpdatePaymentVerified() {
+      this.paymentVerifiedData = null;
+      this.paymentVerified = false;
+      this.getItemsData();
+    },
+    updatePaymentVerified() {
       const payload = {
-        cart_id: data.cart_id,
-        payment_verified: data.paymentVerified,
+        cart_id: this.paymentVerifiedData.cart_id,
+        payment_verified: this.paymentVerifiedData.paymentVerified,
       };
       axios
         .post(`/cart-master/update-payment-verified`, payload)
@@ -756,6 +897,8 @@ export default {
           const data = response.data;
           this.successMessage = data.message;
           this.isSuccess = true;
+          this.paymentVerifiedData = null;
+          this.paymentVerified = false;
         })
         .catch((error) => {
           // eslint-disable-next-line
@@ -802,6 +945,18 @@ export default {
     cancelOrderRequest() {
       this.orderRequestData = null;
       this.orderReq = false;
+      this.getItemsData();
+    },
+    cancelRequest(item) {
+      // console.log(item);
+      this.cancelRequestData = item;
+      if (item.isOrderReq == true) {
+        this.cancelReq = true;
+      }
+    },
+    cancelCancelRequest() {
+      this.cancelRequestData = null;
+      this.cancelReq = false;
     },
     saveOrderRequest() {
       console.log(this.orderRequestData);
@@ -815,35 +970,38 @@ export default {
           this.successMessage = data.message;
           this.isSuccess = true;
           this.orderReq = false;
-        })
-        .catch((error) => {
-          // eslint-disable-next-line
-          console.log(error);
-          const message =
-            error.response.data.message === ''
-              ? 'Something Wrong!!!'
-              : error.response.data.message;
-          this.errorMessage = message;
-          this.isError = true;
-        });
-    },
-    deleteOrderRequest(id) {
-      // this.isDeleteLoading = true;
-      axios
-        .delete(`/order-fullfilment/${id}`)
-        .then((response) => {
-          const data = response.data;
-          this.successMessage = data.message;
-          this.isSuccess = true;
           this.getItemsData();
         })
         .catch((error) => {
           // eslint-disable-next-line
           console.log(error);
           const message =
-            error.response.data.message === ''
+            error.response.data.error === ''
               ? 'Something Wrong!!!'
-              : error.response.data.message;
+              : error.response.data.error;
+          this.errorMessage = message;
+          this.isError = true;
+        });
+    },
+    deleteOrderRequest() {
+      axios
+        .delete(
+          `/order-fullfilment/${this.cancelRequestData?.order_fullfilment?.of_id}`
+        )
+        .then((response) => {
+          const data = response.data;
+          this.successMessage = data.message;
+          this.isSuccess = true;
+          this.cancelReq = false;
+          this.getItemsData();
+        })
+        .catch((error) => {
+          // eslint-disable-next-line
+          console.log(error);
+          const message =
+            error.response.data.error === ''
+              ? 'Something Wrong!!!'
+              : error.response.data.error;
           this.errorMessage = message;
           this.isError = true;
         });
