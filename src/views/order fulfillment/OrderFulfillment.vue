@@ -32,13 +32,20 @@
     <v-row align="center" class="mt-6">
       <v-col
         v-for="(item, index) in orderFulfillment"
+        @click="selectOrderFulfillment(item)"
         :key="index"
         cols="2"
         class="text-center"
+        style="cursor: pointer"
+        :class="
+          selectedOrderFulfillment?.delivery_date == item?.delivery_date
+            ? 'bg-grey-lighten-1'
+            : undefined
+        "
       >
         <h2 class="font-weight-black">{{ item?.delivery_date }}</h2>
         <h3 class="text-grey-darken-1 font-weight-medium mt-2">
-          {{ item?.delivery_day }}
+          {{ checkIfToday(item?.delivery_day) ? 'Today' : item?.delivery_day }}
         </h3>
         <p class="text-blue-darken-2 text-body-2 mt-3">
           ({{ item?.total_orders }} Orders)
@@ -54,7 +61,12 @@
                 <tr>
                   <td style="border: none !important" colspan="8">
                     <h3 class="text-black font-weight-bold">
-                      10/06/2025 - Tuesday (Today)
+                      {{ selectedOrderFulfillment?.delivery_date }} -
+                      {{
+                        checkIfToday(selectedOrderFulfillment?.delivery_day)
+                          ? 'Today'
+                          : selectedOrderFulfillment?.delivery_day
+                      }}
                     </h3>
                   </td>
                 </tr>
@@ -65,18 +77,20 @@
                       <tbody>
                         <tr class="font-weight-bold">
                           <td class="text-red-darken-4 font-weight-bold">
-                            Monkey Shoulders (700 ml)
+                            {{ item?.product_name }}
+                            ({{ item?.quantity_name }})
                           </td>
                           <td class="text-blue-darken-4 font-weight-bold">
-                            2 items
+                            {{ item?.cart_details.length }} items
                           </td>
                           <td class="d-flex align-center">
                             <v-autocomplete
                               density="compact"
-                              :items="[]"
+                              v-model="item.selectedVendor"
+                              :items="onboardMerchants"
                               placeholder="Select Vendor"
-                              item-title="label"
-                              item-value="value"
+                              item-title="name"
+                              item-value="id"
                               hide-details
                               style="min-width: 150px !important"
                               variant="outlined"
@@ -86,6 +100,7 @@
                               color="indigo-accent-2"
                               style="text-transform: none"
                               variant="flat"
+                              @click="openAddVendor(item)"
                               :disabled="isSending"
                               :loading="isSending"
                             >
@@ -99,24 +114,27 @@
                   </td>
                 </tr>
 
-                <tr v-if="item?.cartDetails.length > 0">
+                <tr v-if="item?.cart_details.length > 0">
                   <td></td>
                   <td colspan="7" class="pa-0">
                     <v-table class="w-50">
                       <tbody>
-                        <tr v-for="del in item?.cartDetails" :key="del?.cd_id">
+                        <tr
+                          v-for="(del, index) in item?.cart_details"
+                          :key="index"
+                        >
                           <td
                             style="border-bottom: none !important"
                             class="pt-4"
                           >
-                            {{ del?.cd_id }}
+                            {{ index + 1 }}
                           </td>
                           <td
                             style="border-bottom: none !important"
                             class="pt-4"
                           >
-                            {{ del?.products[0]?.product_name }}
-                            {{ del?.quantity?.quantity_name }}
+                            {{ item?.product_name }}
+                            ({{ item?.quantity_name }})
                           </td>
                           <td
                             style="border-bottom: none !important"
@@ -178,15 +196,13 @@
         </v-btn>
       </template>
     </v-snackbar>
-    <v-dialog persistent width="500" v-model="orderReq">
+    <v-dialog persistent width="500" v-model="addVendor">
       <v-card>
-        <v-card-text>
-          Do you wish to place an order request for this item. ?
-        </v-card-text>
+        <v-card-text> Do you wish to select this Vendor . ? </v-card-text>
         <v-card-actions>
           <v-spacer></v-spacer>
-          <v-btn color="error" text @click="cancelOrderRequest">No</v-btn>
-          <v-btn color="success" text @click="saveOrderRequest">Yes</v-btn>
+          <v-btn color="error" text @click="cancelAddVendor">No</v-btn>
+          <v-btn color="success" text @click="saveAddVendor">Yes</v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
@@ -195,6 +211,7 @@
 
 <script>
 import axios from '@/util/axios';
+import moment from 'moment';
 import { setAuthHeader } from '@/util/axios';
 // import app from '@/util/eventBus';
 
@@ -208,10 +225,9 @@ export default {
     isSending2: false,
     isSuccess: false,
     isError: false,
-    orderReq: false,
-    cancelReq: false,
-    orderRequestData: null,
-    cancelRequestData: null,
+    addVendor: false,
+    cancelVendor: false,
+    addVendorData: null,
     currentPage: 1,
     perPage: 5,
     totalPages: 1,
@@ -221,51 +237,42 @@ export default {
     search: '',
     items: [],
     orderFulfillment: [],
+    selectedOrderFulfillment: null,
     paymentStatuses: [],
     paymentTypes: [],
     users: [],
+    onboardMerchants: [],
   }),
   created() {
     const token = JSON.parse(localStorage.getItem('token'));
     setAuthHeader(token);
   },
   mounted() {
-    this.getItemsData();
     this.getOrderFulfillment();
+    this.getOnboardMerchants();
   },
 
   methods: {
-    getItemsData() {
+    checkIfToday(dateString) {
+      const inputDate = moment(dateString, 'DD/MM/YYYY');
+      const today = moment();
+
+      return inputDate.isSame(today, 'day');
+    },
+    getItemsData(deliveryDate) {
       this.isLoading = true;
       axios
-        .get(`/cart-master`, {
-          params: {
-            query: this.search,
-            page: this.currentPage,
-            perPage: this.perPage,
-          },
-        })
+        .get(
+          `/order-fullfilment/get-cart-details-by-delivery-date?date=${deliveryDate}`
+        )
         .then((response) => {
           const data = response.data;
           this.items = data.data.map((item) => {
             return {
               ...item,
-              paymentVerified:
-                item?.payment_verified == null ? '' : item.payment_verified,
-              cartDetails: item.cart_details.map((del) => {
-                return {
-                  ...del,
-                  isOrderReq: del?.order_fullfilment?.cd_id ? true : false,
-                };
-              }),
+              selectedVendor: null,
             };
           });
-
-          // Perbarui pagination
-          this.currentPage = data?.current_page;
-          this.perPage = data?.per_page;
-          this.totalItems = data?.total;
-          this.totalPages = data?.last_page;
         })
         .catch((error) => {
           // eslint-disable-next-line
@@ -280,6 +287,10 @@ export default {
         .finally(() => {
           this.isLoading = false;
         });
+    },
+    selectOrderFulfillment(data) {
+      this.selectedOrderFulfillment = data;
+      this.getItemsData(data?.delivery_date);
     },
     getOrderFulfillment() {
       this.isLoading = true;
@@ -289,6 +300,8 @@ export default {
           const data = response.data.data;
           console.log(data);
           this.orderFulfillment = data;
+          this.selectedOrderFulfillment = data[0];
+          this.getItemsData(data[0]?.delivery_date);
         })
         .catch((error) => {
           // eslint-disable-next-line
@@ -304,19 +317,64 @@ export default {
           this.isLoading = false;
         });
     },
-    saveOrderRequest() {
-      console.log(this.orderRequestData);
+    getOnboardMerchants() {
+      axios
+        .get(`/onboard-merchants/3/1`)
+        .then((response) => {
+          const data = response.data.data;
+
+          this.onboardMerchants = data.map((item) => {
+            return {
+              ...item,
+              id: item?.partner_id,
+              name:
+                item?.partner?.partner_name &&
+                item?.partner_location?.town?.town_name
+                  ? `${item.partner.partner_name} | ${item.partner_location.town.town_name}`
+                  : item?.partner?.partner_name &&
+                    item?.partner_location?.city?.city_name
+                  ? `${item.partner.partner_name} | ${item.partner_location.city.city_name}`
+                  : item?.partner?.partner_name
+                  ? item.partner.partner_name
+                  : '-',
+            };
+          });
+
+          console.log(this.onboardMerchants);
+        })
+        .catch((error) => {
+          console.log(error);
+          const message = error.response?.data?.message || 'Something Wrong!!!';
+          this.errorMessage = message;
+          this.isError = true;
+        });
+    },
+    openAddVendor(item) {
+      // console.log(item);
+      this.addVendorData = item;
+      this.addVendor = true;
+    },
+    cancelAddVendor() {
+      this.addVendorData = null;
+      this.addVendor = false;
+      // this.getItemsData(this.selectedOrderFulfillment?.delivery_date);
+    },
+    saveAddVendor() {
+      console.log(this.addVendorData);
       const payload = {
-        cd_id: this.orderRequestData.cd_id,
+        range_id: this.addVendorData?.range_id,
+        pq_id: this.addVendorData?.pq_id,
+        vendor_basket: this.addVendorData?.vendor_basket,
+        delivery_date: this.selectedOrderFulfillment?.delivery_date,
       };
       axios
-        .post(`/order-fullfilment`, payload)
+        .post(`/order-fullfilment/add-vendor-data`, payload)
         .then((response) => {
           const data = response.data;
           this.successMessage = data.message;
           this.isSuccess = true;
-          this.orderReq = false;
-          this.getItemsData();
+          this.addVendor = false;
+          this.getItemsData(this.selectedOrderFulfillment?.delivery_date);
         })
         .catch((error) => {
           // eslint-disable-next-line
