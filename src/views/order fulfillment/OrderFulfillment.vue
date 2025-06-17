@@ -81,12 +81,12 @@
                             ({{ item?.quantity_name }})
                           </td>
                           <td class="text-blue-darken-4 font-weight-bold">
-                            {{ item?.cart_details.length }} items
+                            {{ item?.total_items }} items
                           </td>
                           <td class="d-flex align-center">
                             <v-autocomplete
                               density="compact"
-                              v-model="item.selectedVendor"
+                              v-model="item.vendor_basket"
                               :items="onboardMerchants"
                               placeholder="Select Vendor"
                               item-title="name"
@@ -96,6 +96,7 @@
                               variant="outlined"
                             ></v-autocomplete>
                             <v-btn
+                              v-if="!item?.vendor_username"
                               class="w-25 ml-6"
                               color="indigo-accent-2"
                               style="text-transform: none"
@@ -106,6 +107,21 @@
                             >
                               ADD
                             </v-btn>
+                            <div
+                              v-else
+                              class="d-flex align-center font-weight-black"
+                            >
+                              <span
+                                @click="openCancelVendor(item)"
+                                class="text-red-darken-4 mx-4"
+                                style="cursor: pointer"
+                                >Cancel</span
+                              >
+                              <p>
+                                {{ item?.vendor_date }} |
+                                {{ item?.vendor_username }}
+                              </p>
+                            </div>
                           </td>
                           <td></td>
                         </tr>
@@ -119,15 +135,12 @@
                   <td colspan="7" class="pa-0">
                     <v-table class="w-50">
                       <tbody>
-                        <tr
-                          v-for="(del, index) in item?.cart_details"
-                          :key="index"
-                        >
+                        <tr v-for="del in item?.cart_details" :key="del?.cd_id">
                           <td
                             style="border-bottom: none !important"
                             class="pt-4"
                           >
-                            {{ index + 1 }}
+                            {{ del?.cd_id }}
                           </td>
                           <td
                             style="border-bottom: none !important"
@@ -206,6 +219,16 @@
         </v-card-actions>
       </v-card>
     </v-dialog>
+    <v-dialog persistent width="500" v-model="cancelVendor">
+      <v-card>
+        <v-card-text> Do you wish to delete this Vendor . ? </v-card-text>
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn color="error" text @click="cancelCancelVendor">No</v-btn>
+          <v-btn color="success" text @click="deleteVendor">Yes</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
   </v-container>
 </template>
 
@@ -228,6 +251,7 @@ export default {
     addVendor: false,
     cancelVendor: false,
     addVendorData: null,
+    cancelVendorData: null,
     currentPage: 1,
     perPage: 5,
     totalPages: 1,
@@ -267,12 +291,7 @@ export default {
         )
         .then((response) => {
           const data = response.data;
-          this.items = data.data.map((item) => {
-            return {
-              ...item,
-              selectedVendor: null,
-            };
-          });
+          this.items = data.data;
         })
         .catch((error) => {
           // eslint-disable-next-line
@@ -359,6 +378,16 @@ export default {
       this.addVendor = false;
       // this.getItemsData(this.selectedOrderFulfillment?.delivery_date);
     },
+    openCancelVendor(item) {
+      // console.log(item);
+      this.cancelVendorData = item;
+      this.cancelVendor = true;
+    },
+    cancelCancelVendor() {
+      this.cancelVendorData = null;
+      this.cancelVendor = false;
+      // this.getItemsData(this.selectedOrderFulfillment?.delivery_date);
+    },
     saveAddVendor() {
       console.log(this.addVendorData);
       const payload = {
@@ -386,6 +415,37 @@ export default {
           this.errorMessage = message;
           this.isError = true;
         });
+    },
+    deleteVendor() {
+      const payload = {
+        of_ids: this.cancelVendorData.cart_details?.map((item) => item.of_id),
+      };
+      axios
+        .delete(`/order-fullfilment/delete-vendor-data`, {
+          data: payload,
+        })
+        .then((response) => {
+          const data = response.data;
+          this.successMessage = data.message;
+          this.isSuccess = true;
+          this.cancelVendor = false;
+          this.getItemsData(this.selectedOrderFulfillment?.delivery_date);
+        })
+        .catch((error) => {
+          // eslint-disable-next-line
+          console.log(error);
+          const message =
+            error.response.data.error === ''
+              ? 'Something Wrong!!!'
+              : error.response.data.error;
+          this.errorMessage = message;
+          this.isError = true;
+        });
+      // .finally(() => {
+      //   this.isDeleteLoading = false;
+      //   this.countryIdToDelete = null;
+      //   this.isDelete = false;
+      // });
     },
   },
 };

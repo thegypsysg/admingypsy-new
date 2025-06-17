@@ -331,18 +331,20 @@
                       <tbody>
                         <tr class="font-weight-bold py-0">
                           <td class="font-weight-bold text-red-darken-4">
-                            10/06/2025
+                            {{ item?.delivery_date }}
                           </td>
                           <td class="font-weight-bold text-red-darken-4">
-                            Thursday
+                            {{ item?.delivery_day }}
                           </td>
                           <td class="font-weight-bold text-red-darken-4">
-                            5 pm to 7 pm
+                            {{ item?.time_slot }}
                           </td>
                           <td class="font-weight-bold text-red-darken-4">
-                            Yes
+                            {{ item?.same_day == 'S' ? 'Yes' : 'No' }}
                           </td>
-                          <td class="font-weight-bold text-red-darken-4">No</td>
+                          <td class="font-weight-bold text-red-darken-4">
+                            {{ item?.same_day == 'A' ? 'Yes' : 'No' }}
+                          </td>
                         </tr>
                       </tbody>
                     </v-table>
@@ -452,13 +454,17 @@
                             style="border-bottom: none !important"
                             class="pr-6 pt-4"
                           >
-                            <span v-if="del.isOrderReq">10/05/2025</span>
+                            <span v-if="del.isOrderReq">{{
+                              del?.order_fullfilment?.order_request_date
+                            }}</span>
                           </td>
                           <td
                             style="border-bottom: none !important"
                             class="pr-6 pt-4"
                           >
-                            <span v-if="del.isOrderReq">Charlton</span>
+                            <span v-if="del.isOrderReq">{{
+                              del?.order_fullfilment?.user?.name
+                            }}</span>
                           </td>
                         </tr>
                       </tbody>
