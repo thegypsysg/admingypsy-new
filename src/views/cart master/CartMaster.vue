@@ -260,6 +260,7 @@
                               hide-details
                               style="min-width: 100px !important"
                               variant="outlined"
+                              @update:modelValue="updatePaymentType(item)"
                             ></v-autocomplete>
                           </td>
                           <td class="">
@@ -828,12 +829,14 @@ export default {
         .then((response) => {
           const data = response.data.data;
           // console.log(data);
-          this.paymentTypes = data.map((item) => {
-            return {
-              value: item.payment_type_id || '',
-              label: item.payment_name || '',
-            };
-          });
+          this.paymentTypes = data
+            .filter((d) => d.payment_type_id == 1 || d.payment_type_id == 2)
+            .map((item) => {
+              return {
+                value: item.payment_type_id || '',
+                label: item.payment_name || '',
+              };
+            });
         })
         .catch((error) => {
           // eslint-disable-next-line
@@ -905,6 +908,29 @@ export default {
           this.isSuccess = true;
           this.paymentVerifiedData = null;
           this.paymentVerified = false;
+        })
+        .catch((error) => {
+          // eslint-disable-next-line
+          console.log(error);
+          const message =
+            error.response.data.message === ''
+              ? 'Something Wrong!!!'
+              : error.response.data.message;
+          this.errorMessage = message;
+          this.isError = true;
+        });
+    },
+    updatePaymentType(item) {
+      const payload = {
+        cart_id: item.cart_id,
+        payment_type_id: item.payment_type_id,
+      };
+      axios
+        .put(`/cart-master/update-payment-type`, payload)
+        .then((response) => {
+          const data = response.data;
+          this.successMessage = data.message;
+          this.isSuccess = true;
         })
         .catch((error) => {
           // eslint-disable-next-line
