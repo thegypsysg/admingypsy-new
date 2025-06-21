@@ -615,6 +615,20 @@ const routes = [
     },
   },
   {
+    name: 'sourcing basket',
+    path: '/sourcing_basket',
+    component: () =>
+      import('@/views/sourcing basket/SourcingBasketContainer.vue'),
+    beforeEnter: (to, from, next) => {
+      // Pengecekan status login sebelum masuk ke halaman beranda
+      if (localStorage.getItem('token') == null) {
+        next('/auth/login'); // Alihkan ke halaman login jika belum masuk
+      } else {
+        next(); // Lanjutkan ke halaman beranda jika sudah masuk
+      }
+    },
+  },
+  {
     name: 'price list master',
     path: '/price_list_master',
     component: () =>
