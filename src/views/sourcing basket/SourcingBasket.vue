@@ -118,7 +118,7 @@
                   </td>
                 </tr>
 
-                <tr>
+                <!-- <tr>
                   <td style="border: none !important" colspan="9">
                     <h3 class="text-black font-weight-bold">
                       {{ selectedOrderFulfillment?.delivery_date }} -
@@ -129,63 +129,84 @@
                       }}
                     </h3>
                   </td>
-                </tr>
+                </tr> -->
 
-                <tr v-if="item?.cart_details.length > 0">
-                  <td></td>
-                  <td colspan="8" class="pa-0">
-                    <v-table>
-                      <tbody>
-                        <tr v-for="del in item?.cart_details" :key="del?.cd_id">
-                          <td
-                            style="border-bottom: none !important"
-                            class="pt-4"
-                          >
-                            {{ del?.cd_id }}
-                          </td>
-                          <td
-                            style="border-bottom: none !important"
-                            class="pt-4"
-                          >
-                            {{ item?.product_name }}
-                            ({{ item?.quantity_name }})
-                          </td>
-                          <td
-                            style="border-bottom: none !important"
-                            class="pt-4 text-no-wrap"
-                          >
-                            <span v-if="del?.rate">S$</span> {{ del?.rate }}
-                          </td>
-                          <td
-                            style="border-bottom: none !important"
-                            class="pt-4"
-                          >
-                            {{ del?.qty }}
-                          </td>
-                          <td
-                            style="border-bottom: none !important"
-                            class="pt-4 text-no-wrap"
-                          >
-                            <span v-if="del?.amount">S$</span> {{ del?.amount }}
-                          </td>
-                          <td>
-                            <v-autocomplete
-                              density="compact"
-                              v-model="item.vendor_basket"
-                              :items="onboardMerchants"
-                              placeholder="Select Vendor"
-                              item-title="name"
-                              item-value="id"
-                              hide-details
-                              style="min-width: 150px !important"
-                              variant="outlined"
-                            ></v-autocomplete>
-                          </td>
-                        </tr>
-                      </tbody>
-                    </v-table>
-                  </td>
-                </tr>
+                <template v-if="item?.groups_by_delivery_date?.length > 0">
+                  <template
+                    v-for="(d, index) in item?.groups_by_delivery_date"
+                    :key="index"
+                  >
+                    <tr>
+                      <!-- <td></td> -->
+                      <td style="border: none !important" colspan="9">
+                        <h3 class="text-black font-weight-bold">
+                          {{ d?.delivery_date }}
+                          -
+                          {{ checkDateLabel(d?.delivery_date) }}
+                        </h3>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td colspan="8" class="pa-0">
+                        <v-table>
+                          <tbody>
+                            <tr
+                              v-for="del in d?.cart_details"
+                              :key="del?.cd_id"
+                            >
+                              <td
+                                style="border-bottom: none !important"
+                                class="pt-4"
+                              >
+                                {{ del?.cd_id }}
+                              </td>
+                              <td
+                                style="border-bottom: none !important"
+                                class="pt-4"
+                              >
+                                {{ item?.product_name }}
+                                ({{ item?.quantity_name }})
+                              </td>
+                              <td
+                                style="border-bottom: none !important"
+                                class="pt-4 text-no-wrap"
+                              >
+                                <span v-if="del?.rate">S$</span> {{ del?.rate }}
+                              </td>
+                              <td
+                                style="border-bottom: none !important"
+                                class="pt-4"
+                              >
+                                {{ del?.qty }}
+                              </td>
+                              <td
+                                style="border-bottom: none !important"
+                                class="pt-4 text-no-wrap"
+                              >
+                                <span v-if="del?.amount">S$</span>
+                                {{ del?.amount }}
+                              </td>
+                              <td>
+                                <v-autocomplete
+                                  density="compact"
+                                  v-model="del.vendor_basket"
+                                  :items="onboardMerchants"
+                                  placeholder="Select Vendor"
+                                  item-title="name"
+                                  item-value="id"
+                                  hide-details
+                                  style="min-width: 150px !important"
+                                  variant="outlined"
+                                  disabled
+                                ></v-autocomplete>
+                              </td>
+                            </tr>
+                          </tbody>
+                        </v-table>
+                      </td>
+                    </tr>
+                  </template>
+                </template>
               </template>
               <tr v-if="isLoading">
                 <td :colspan="9" class="text-center">
@@ -253,7 +274,7 @@ import { setAuthHeader } from '@/util/axios';
 // import app from '@/util/eventBus';
 
 export default {
-  name: 'OrderFulfillment',
+  name: 'SourcingBasket',
   data: () => ({
     // fileURL: 'https://admin1.the-gypsy.sg/img/app/',
     valid: false,
@@ -298,11 +319,24 @@ export default {
 
       return inputDate.isSame(today, 'day');
     },
-    getItemsData(deliveryDate) {
+    checkDateLabel(dateString) {
+      const inputDate = moment(dateString, 'DD/MM/YYYY');
+      const today = moment();
+
+      if (inputDate.isSame(today, 'day')) {
+        return 'Today';
+      }
+
+      // Format ke 3 huruf nama hari, e.g. "Mon", "Tue"
+      return inputDate.format('ddd');
+    },
+    // getItemsData(deliveryDate) {
+    getItemsData() {
       this.isLoading = true;
       axios
         .get(
-          `/order-fullfilment/get-cart-details-by-delivery-date?date=${deliveryDate}`
+          // `/order-fullfilment/get-cart-details-by-delivery-date?date=${deliveryDate}`
+          `/order-fullfilment/get-cart-details-by-product`
         )
         .then((response) => {
           const data = response.data;
@@ -334,7 +368,7 @@ export default {
           const data = response.data.data;
           console.log(data);
           this.orderFulfillment = data;
-          this.selectedOrderFulfillment = data[0];
+          // this.selectedOrderFulfillment = data[0];
           this.getItemsData(data[0]?.delivery_date);
         })
         .catch((error) => {
