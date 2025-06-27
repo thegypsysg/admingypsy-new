@@ -69,7 +69,7 @@
         <v-col cols="12">
           <div class="d-flex">
             <span
-              @click="selectedBy = 'product'"
+              @click="selectBy('product')"
               :class="
                 selectedBy == 'product' ? 'text-blue-darken-1' : undefined
               "
@@ -79,13 +79,75 @@
             >
             <span class="font-weight-black mx-4">|</span>
             <span
-              @click="selectedBy = 'vendor'"
+              @click="selectBy('vendor')"
               :class="selectedBy == 'vendor' ? 'text-blue-darken-1' : undefined"
               class="font-weight-black"
               style="cursor: pointer"
               >By Vendor</span
             >
+            <span class="font-weight-black mx-4">|</span>
+            <span
+              @click="selectBy('cart')"
+              :class="selectedBy == 'cart' ? 'text-blue-darken-1' : undefined"
+              class="font-weight-black"
+              style="cursor: pointer"
+              >By Cart</span
+            >
           </div>
+        </v-col>
+        <v-col cols="12" v-if="selectedBy == 'cart'">
+          <p class="font-weight-black text-grey-darken-1">
+            Cart # | Cart Date | Total Items | Amount | Delivery Date
+          </p>
+          <v-autocomplete
+            v-model="selectedOrderCart"
+            :items="orderCarts"
+            @update:modelValue="getItemsDataCart()"
+            density="compact"
+            item-value="value"
+            item-title="cart_date"
+            placeholder="Select Cart"
+            variant="outlined"
+            style="width: 450px !important"
+          >
+            <!-- Slot custom daftar dropdown -->
+            <template #item="{ props, item }">
+              <div v-bind="props" class="d-flex align-center py-2 px-3">
+                <span class="text-red font-weight-bold">{{
+                  item.raw.cart_id
+                }}</span>
+                <span class="text-blue"> - {{ item.raw.cart_date }}</span>
+                <span class="text-red font-weight-bold">
+                  - {{ item.raw.total_items }} Items</span
+                >
+                <span class="text-blue">
+                  - S$ {{ parseFloat(item.raw.final_amount).toFixed(2) }}</span
+                >
+                <span class="text-red font-weight-bold">
+                  | {{ item.raw.delivery_date }}</span
+                >
+              </div>
+            </template>
+
+            <!-- Slot custom tampilan input (selected) -->
+            <template #selection="{ props, item }">
+              <div v-bind="props">
+                <span class="text-red font-weight-bold">{{
+                  item.raw.cart_id
+                }}</span>
+                <span class="text-blue"> - {{ item.raw.cart_date }}</span>
+                <span class="text-red font-weight-bold">
+                  - {{ item.raw.total_items }} Items</span
+                >
+                <span class="text-blue">
+                  - S$ {{ parseFloat(item.raw.final_amount).toFixed(2) }}</span
+                >
+                <span class="text-red font-weight-bold">
+                  | {{ item.raw.delivery_date }}</span
+                >
+              </div>
+            </template>
+          </v-autocomplete>
         </v-col>
         <v-col cols="12">
           <v-table class="country-table">
@@ -131,12 +193,59 @@
                   </td>
                 </tr> -->
 
+                <template v-if="selectedBy == 'cart'">
+                  <!-- <tr
+                                v-for="del in d?.cart_details"
+                                :key="del?.cd_id"
+                              > -->
+                  <tr>
+                    <td style="border-bottom: none !important" class="pt-4">
+                      {{ item?.cart_detail?.cd_id }}
+                    </td>
+                    <td style="border-bottom: none !important" class="pt-4">
+                      {{ item?.product_name }}
+                      ({{ item?.quantity_name }})
+                    </td>
+                    <td
+                      style="border-bottom: none !important"
+                      class="pt-4 text-no-wrap"
+                    >
+                      <span v-if="item?.cart_detail?.rate">S$</span>
+                      {{ item?.cart_detail?.rate }}
+                    </td>
+                    <td style="border-bottom: none !important" class="pt-4">
+                      {{ item?.cart_detail?.qty }}
+                    </td>
+                    <td
+                      style="border-bottom: none !important"
+                      class="pt-4 text-no-wrap"
+                    >
+                      <span v-if="item?.cart_detail?.amount">S$</span>
+                      {{ item?.cart_detail?.amount }}
+                    </td>
+                    <td>
+                      <v-autocomplete
+                        density="compact"
+                        v-model="item.cart_detail.vendor_basket"
+                        :items="onboardMerchants"
+                        placeholder="No Vendors in Sourcing Basket"
+                        item-title="name"
+                        item-value="id"
+                        hide-details
+                        style="min-width: 150px !important"
+                        variant="outlined"
+                        disabled
+                      ></v-autocomplete>
+                    </td>
+                  </tr>
+                </template>
+
                 <template v-if="item?.groups_by_delivery_date?.length > 0">
                   <template
                     v-for="(d, index) in item?.groups_by_delivery_date"
                     :key="index"
                   >
-                    <tr>
+                    <tr v-if="selectedBy != 'cart'">
                       <!-- <td></td> -->
                       <td style="border: none !important" colspan="9">
                         <h3 class="text-black font-weight-bold">
@@ -171,7 +280,8 @@
                                 style="border-bottom: none !important"
                                 class="pt-4 text-no-wrap"
                               >
-                                <span v-if="del?.rate">S$</span> {{ del?.rate }}
+                                <span v-if="del?.rate">S$</span>
+                                {{ del?.rate }}
                               </td>
                               <td
                                 style="border-bottom: none !important"
@@ -186,12 +296,12 @@
                                 <span v-if="del?.amount">S$</span>
                                 {{ del?.amount }}
                               </td>
-                              <td>
+                              <td v-if="selectedBy == 'product'">
                                 <v-autocomplete
                                   density="compact"
                                   v-model="del.vendor_basket"
                                   :items="onboardMerchants"
-                                  placeholder="Select Vendor"
+                                  placeholder="No Vendors in Sourcing Basket"
                                   item-title="name"
                                   item-value="id"
                                   hide-details
@@ -200,6 +310,13 @@
                                   disabled
                                 ></v-autocomplete>
                               </td>
+                              <td
+                                v-else
+                                style="
+                                  width: 300px;
+                                  border-bottom: none !important;
+                                "
+                              ></td>
                             </tr>
                           </tbody>
                         </v-table>
@@ -294,6 +411,7 @@ export default {
     successMessage: '',
     errorMessage: '',
     search: '',
+    selectedOrderCart: null,
     items: [],
     orderFulfillment: [],
     selectedOrderFulfillment: 'all',
@@ -302,6 +420,7 @@ export default {
     paymentTypes: [],
     users: [],
     onboardMerchants: [],
+    orderCarts: [],
   }),
   created() {
     const token = JSON.parse(localStorage.getItem('token'));
@@ -309,7 +428,16 @@ export default {
   },
   mounted() {
     this.getOrderFulfillment();
-    this.getOnboardMerchants();
+    this.getOrderCarts();
+    if (this.selectedBy == 'product') {
+      this.getOnboardMerchants();
+      this.getItemsDataProduct();
+    } else if (this.selectedBy == 'vendor') {
+      this.getOrderVendors();
+    } else if (this.selectedBy == 'cart') {
+      this.getOnboardMerchants();
+      this.items = [];
+    }
   },
 
   methods: {
@@ -330,36 +458,8 @@ export default {
       // Format ke 3 huruf nama hari, e.g. "Mon", "Tue"
       return inputDate.format('ddd');
     },
-    // getItemsData(deliveryDate) {
-    getItemsData() {
-      this.isLoading = true;
-      axios
-        .get(
-          // `/order-fullfilment/get-cart-details-by-delivery-date?date=${deliveryDate}`
-          `/order-fullfilment/get-cart-details-by-product`
-        )
-        .then((response) => {
-          const data = response.data;
-          this.items = data.data;
-        })
-        .catch((error) => {
-          // eslint-disable-next-line
-          console.log(error);
-          const message =
-            error.response.data.message === ''
-              ? 'Something Wrong!!!'
-              : error.response.data.message;
-          this.errorMessage = message;
-          this.isError = true;
-        })
-        .finally(() => {
-          this.isLoading = false;
-        });
-    },
-    selectOrderFulfillment(data) {
-      this.selectedOrderFulfillment = data;
-      this.getItemsData(data?.delivery_date);
-    },
+    // getItemsDataProduct(deliveryDate) {
+
     getOrderFulfillment() {
       this.isLoading = true;
       axios
@@ -369,7 +469,7 @@ export default {
           console.log(data);
           this.orderFulfillment = data;
           // this.selectedOrderFulfillment = data[0];
-          this.getItemsData(data[0]?.delivery_date);
+          this.getItemsDataProduct(data[0]?.delivery_date);
         })
         .catch((error) => {
           // eslint-disable-next-line
@@ -417,84 +517,164 @@ export default {
           this.isError = true;
         });
     },
-    openAddVendor(item) {
-      // console.log(item);
-      this.addVendorData = item;
-      this.addVendor = true;
-    },
-    cancelAddVendor() {
-      this.addVendorData = null;
-      this.addVendor = false;
-      // this.getItemsData(this.selectedOrderFulfillment?.delivery_date);
-    },
-    openCancelVendor(item) {
-      // console.log(item);
-      this.cancelVendorData = item;
-      this.cancelVendor = true;
-    },
-    cancelCancelVendor() {
-      this.cancelVendorData = null;
-      this.cancelVendor = false;
-      // this.getItemsData(this.selectedOrderFulfillment?.delivery_date);
-    },
-    saveAddVendor() {
-      console.log(this.addVendorData);
-      const payload = {
-        range_id: this.addVendorData?.range_id,
-        pq_id: this.addVendorData?.pq_id,
-        vendor_basket: this.addVendorData?.vendor_basket,
-        delivery_date: this.selectedOrderFulfillment?.delivery_date,
-      };
+    getOrderCarts() {
       axios
-        .post(`/order-fullfilment/add-vendor-data`, payload)
+        .get(`/order-fullfilment/get-carts-by-delivery-status/P`)
+        .then((response) => {
+          const data = response.data.data;
+
+          this.orderCarts = data.map((item) => ({
+            ...item,
+            value: item?.cart_id,
+          }));
+        })
+        .catch((error) => {
+          console.log(error);
+          const message = error.response?.data?.message || 'Something Wrong!!!';
+          this.errorMessage = message;
+          this.isError = true;
+        });
+    },
+    getItemsDataProduct() {
+      this.items = [];
+      this.isLoading = true;
+      axios
+        .get(
+          // `/order-fullfilment/get-cart-details-by-delivery-date?date=${deliveryDate}`
+          `/order-fullfilment/get-cart-details-by-product`
+        )
         .then((response) => {
           const data = response.data;
-          this.successMessage = data.message;
-          this.isSuccess = true;
-          this.addVendor = false;
-          this.getItemsData(this.selectedOrderFulfillment?.delivery_date);
+          this.items = data.data;
         })
         .catch((error) => {
           // eslint-disable-next-line
           console.log(error);
           const message =
-            error.response.data.error === ''
+            error.response.data.message === ''
               ? 'Something Wrong!!!'
-              : error.response.data.error;
+              : error.response.data.message;
           this.errorMessage = message;
           this.isError = true;
+        })
+        .finally(() => {
+          this.isLoading = false;
         });
     },
-    deleteVendor() {
-      const payload = {
-        of_ids: this.cancelVendorData.cart_details?.map((item) => item.of_id),
-      };
+    selectOrderFulfillment(data) {
+      this.selectedOrderFulfillment = data;
+      this.getItemsDataProduct(data?.delivery_date);
+    },
+
+    selectBy(value) {
+      this.selectedBy = value;
+      if (value == 'product') {
+        this.getOnboardMerchants();
+        this.getItemsDataProduct();
+      } else if (value == 'vendor') {
+        this.getOrderVendors();
+      } else if (value == 'cart') {
+        this.items = [];
+        this.getOnboardMerchants();
+      }
+    },
+
+    async getOrderVendors() {
+      this.items = [];
+      try {
+        const response = await axios.get(`/order-fullfilment/get-vendors`);
+        const data = response.data.data;
+
+        this.onboardMerchants = data.map((item) => ({
+          ...item,
+          id: item?.partner_id,
+          name:
+            item?.partner_name && item?.town_name
+              ? `${item.partner_name} | ${item.town_name}`
+              : item?.partner_name && item?.city_name
+              ? `${item.partner_name} | ${item.city_name}`
+              : item?.partner_name
+              ? item?.partner_name
+              : '-',
+        }));
+
+        console.log(this.onboardMerchants);
+
+        // Setelah mendapatkan vendor, panggil semua getItemsDataVendor
+        await this.getAllItemsDataVendors();
+      } catch (error) {
+        console.log(error);
+        const message = error.response?.data?.message || 'Something Wrong!!!';
+        this.errorMessage = message;
+        this.isError = true;
+      }
+    },
+    async getAllItemsDataVendors() {
+      try {
+        this.isLoading = true;
+
+        // Buat array promise untuk semua vendor
+        const promises = this.onboardMerchants.map((vendor) =>
+          this.getItemsDataVendor(vendor.partner_id)
+        );
+
+        // Tunggu semua request selesai
+        const results = await Promise.all(promises);
+
+        // Gabungkan semua hasil ke this.items
+        this.items = [].concat(...results);
+      } catch (error) {
+        console.log(error);
+        const message = error.response?.data?.message || 'Something Wrong!!!';
+        this.errorMessage = message;
+        this.isError = true;
+      } finally {
+        this.isLoading = false;
+      }
+    },
+    async getItemsDataVendor(vendor) {
+      try {
+        const response = await axios.get(
+          `/order-fullfilment/get-cart-details-by-vendor/${vendor}`
+        );
+        const data = response.data;
+
+        // Kembalikan datanya agar bisa dikumpulkan
+        return data.data;
+      } catch (error) {
+        console.log(error);
+        const message = error.response?.data?.message || 'Something Wrong!!!';
+        this.errorMessage = message;
+        this.isError = true;
+
+        // Return kosong biar Promise.all tetap jalan
+        return [];
+      }
+    },
+    async getItemsDataCart() {
+      this.items = [];
+      this.isLoading = true;
       axios
-        .delete(`/order-fullfilment/delete-vendor-data`, {
-          data: payload,
-        })
+        .get(
+          `/order-fullfilment/get-cart-details-by-cart-id/${this.selectedOrderCart}`
+        )
         .then((response) => {
           const data = response.data;
-          this.successMessage = data.message;
-          this.isSuccess = true;
-          this.cancelVendor = false;
-          this.getItemsData(this.selectedOrderFulfillment?.delivery_date);
+          this.items = data.data;
         })
         .catch((error) => {
           // eslint-disable-next-line
           console.log(error);
           const message =
-            error.response.data.error === ''
+            error.response.data.message === ''
               ? 'Something Wrong!!!'
-              : error.response.data.error;
+              : error.response.data.message;
           this.errorMessage = message;
           this.isError = true;
+        })
+        .finally(() => {
+          this.isLoading = false;
         });
-      // .finally(() => {
-      //   this.isDeleteLoading = false;
-      //   this.countryIdToDelete = null;
-      //   this.isDelete = false;
-      // });
     },
   },
 };
