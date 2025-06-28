@@ -149,6 +149,20 @@
             </template>
           </v-autocomplete>
         </v-col>
+        <v-col cols="12" v-if="selectedBy == 'vendor'">
+          <v-autocomplete
+            density="compact"
+            v-model="selectedVendor"
+            :items="onboardMerchants"
+            @update:modelValue="getItemsDataVendor()"
+            placeholder="No Vendors in Sourcing Basket"
+            item-title="name"
+            item-value="id"
+            hide-details
+            style="width: 500px !important"
+            variant="outlined"
+          ></v-autocomplete>
+        </v-col>
         <v-col cols="12">
           <v-table class="country-table">
             <tbody>
@@ -228,7 +242,6 @@
                         density="compact"
                         v-model="item.cart_detail.vendor_basket"
                         :items="onboardMerchants"
-                        placeholder="No Vendors in Sourcing Basket"
                         item-title="name"
                         item-value="id"
                         hide-details
@@ -301,7 +314,6 @@
                                   density="compact"
                                   v-model="del.vendor_basket"
                                   :items="onboardMerchants"
-                                  placeholder="No Vendors in Sourcing Basket"
                                   item-title="name"
                                   item-value="id"
                                   hide-details
@@ -411,6 +423,7 @@ export default {
     successMessage: '',
     errorMessage: '',
     search: '',
+    selectedVendor: null,
     selectedOrderCart: null,
     items: [],
     orderFulfillment: [],
@@ -430,7 +443,6 @@ export default {
     this.getOrderFulfillment();
     this.getOrderCarts();
     if (this.selectedBy == 'product') {
-      this.getOnboardMerchants();
       this.getItemsDataProduct();
     } else if (this.selectedBy == 'vendor') {
       this.getOrderVendors();
@@ -599,56 +611,37 @@ export default {
         }));
 
         console.log(this.onboardMerchants);
-
-        // Setelah mendapatkan vendor, panggil semua getItemsDataVendor
-        await this.getAllItemsDataVendors();
+        if (this.onboardMerchants.length > 0) {
+          this.selectedVendor = this.onboardMerchants[0]?.id;
+          this.getItemsDataVendor(this.selectedVendor);
+        }
       } catch (error) {
         console.log(error);
         const message = error.response?.data?.message || 'Something Wrong!!!';
         this.errorMessage = message;
         this.isError = true;
-      }
-    },
-    async getAllItemsDataVendors() {
-      try {
-        this.isLoading = true;
-
-        // Buat array promise untuk semua vendor
-        const promises = this.onboardMerchants.map((vendor) =>
-          this.getItemsDataVendor(vendor.partner_id)
-        );
-
-        // Tunggu semua request selesai
-        const results = await Promise.all(promises);
-
-        // Gabungkan semua hasil ke this.items
-        this.items = [].concat(...results);
-      } catch (error) {
-        console.log(error);
-        const message = error.response?.data?.message || 'Something Wrong!!!';
-        this.errorMessage = message;
-        this.isError = true;
-      } finally {
-        this.isLoading = false;
       }
     },
     async getItemsDataVendor(vendor) {
+      this.items = [];
+      this.isLoading = true;
       try {
         const response = await axios.get(
-          `/order-fullfilment/get-cart-details-by-vendor/${vendor}`
+          `/order-fullfilment/get-cart-details-by-vendor/${
+            vendor || this.selectedVendor
+          }`
         );
-        const data = response.data;
-
-        // Kembalikan datanya agar bisa dikumpulkan
-        return data.data;
+        const data = response.data.data;
+        this.items = data;
       } catch (error) {
         console.log(error);
         const message = error.response?.data?.message || 'Something Wrong!!!';
         this.errorMessage = message;
         this.isError = true;
 
-        // Return kosong biar Promise.all tetap jalan
-        return [];
+        this.items = [];
+      } finally {
+        this.isLoading = false;
       }
     },
     async getItemsDataCart() {
