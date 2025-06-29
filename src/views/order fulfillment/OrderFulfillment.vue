@@ -85,16 +85,91 @@
                           </td>
                           <td class="d-flex align-center">
                             <v-autocomplete
-                              density="compact"
                               v-model="item.vendor_basket"
-                              :items="onboardMerchants"
-                              placeholder="Select Vendor"
-                              item-title="name"
+                              :items="getFilteredMerchants(item.range_id)"
+                              density="compact"
                               item-value="id"
+                              item-title="name"
+                              placeholder="Select Vendor"
                               hide-details
-                              style="min-width: 150px !important"
                               variant="outlined"
-                            ></v-autocomplete>
+                              style="min-width: 150px !important"
+                            >
+                              <template #item="{ props, item }">
+                                <div
+                                  v-bind="props"
+                                  class="d-flex align-center py-2 px-3"
+                                >
+                                  <!-- Label Hitam -->
+                                  <span class="text-black">
+                                    {{
+                                      item?.raw?.partner?.partner_name &&
+                                      item?.raw?.partner_location?.town
+                                        ?.town_name
+                                        ? `${item.raw.partner.partner_name} | ${item.raw.partner_location.town.town_name}`
+                                        : item?.raw?.partner?.partner_name &&
+                                          item?.raw?.partner_location?.city
+                                            ?.city_name
+                                        ? `${item.raw.partner.partner_name} | ${item.raw.partner_location.city.city_name}`
+                                        : item?.raw?.partner?.partner_name
+                                        ? item.raw.partner.partner_name
+                                        : '-'
+                                    }}
+                                  </span>
+                                  <!-- Label Merah -->
+                                  <span
+                                    v-if="
+                                      item?.raw?.merchant_price_list?.length
+                                    "
+                                    class="text-red-darken-3 font-weight-bold ml-2"
+                                  >
+                                    (S$
+                                    {{
+                                      parseFloat(
+                                        item.raw.merchant_price_list[0]
+                                          .shop_rate
+                                      ).toFixed(2)
+                                    }})
+                                  </span>
+                                </div>
+                              </template>
+
+                              <template #selection="{ props, item }">
+                                <div v-bind="props">
+                                  <!-- Label Hitam -->
+                                  <span class="text-black">
+                                    {{
+                                      item?.raw?.partner?.partner_name &&
+                                      item?.raw?.partner_location?.town
+                                        ?.town_name
+                                        ? `${item.raw.partner.partner_name} | ${item.raw.partner_location.town.town_name}`
+                                        : item?.raw?.partner?.partner_name &&
+                                          item?.raw?.partner_location?.city
+                                            ?.city_name
+                                        ? `${item.raw.partner.partner_name} | ${item.raw.partner_location.city.city_name}`
+                                        : item?.raw?.partner?.partner_name
+                                        ? item.raw.partner.partner_name
+                                        : '-'
+                                    }}
+                                  </span>
+                                  <!-- Label Merah -->
+                                  <span
+                                    v-if="
+                                      item?.raw?.merchant_price_list?.length
+                                    "
+                                    class="text-red-darken-3 font-weight-bold ml-2"
+                                  >
+                                    (S$
+                                    {{
+                                      parseFloat(
+                                        item.raw.merchant_price_list[0]
+                                          .shop_rate
+                                      ).toFixed(2)
+                                    }})
+                                  </span>
+                                </div>
+                              </template>
+                            </v-autocomplete>
                             <v-btn
                               v-if="!item?.vendor_username"
                               class="w-25 ml-6"
@@ -317,7 +392,7 @@ export default {
         .get(`/order-fullfilment`)
         .then((response) => {
           const data = response.data.data;
-          console.log(data);
+          // console.log(data);
           this.orderFulfillment = data;
           this.selectedOrderFulfillment = data[0];
           this.getItemsData(data[0]?.delivery_date);
@@ -337,6 +412,7 @@ export default {
         });
     },
     getOnboardMerchants() {
+      this.isLoading = true;
       axios
         .get(`/onboard-merchants/3/1`)
         .then((response) => {
@@ -359,14 +435,66 @@ export default {
             };
           });
 
-          console.log(this.onboardMerchants);
+          // console.log(this.onboardMerchants);
         })
         .catch((error) => {
           console.log(error);
           const message = error.response?.data?.message || 'Something Wrong!!!';
           this.errorMessage = message;
           this.isError = true;
+        })
+        .finally(() => {
+          this.isLoading = false;
         });
+    },
+    getFilteredMerchants(rangeId) {
+      // Langkah 1: map dan filter merchant_price_list
+      const mappedMerchants = this.onboardMerchants.map((merchant) => {
+        const filteredList = (merchant.merchant_price_list || [])
+          .filter((price) => price.range_id === rangeId)
+          .sort((a, b) => {
+            const rateA = parseFloat(a.shop_rate) || 0;
+            const rateB = parseFloat(b.shop_rate) || 0;
+            return rateA - rateB;
+          });
+
+        // Ambil rate terkecil untuk sorting merchant
+        const lowestShopRate = filteredList.length
+          ? parseFloat(filteredList[0].shop_rate) || 0
+          : Number.POSITIVE_INFINITY;
+
+        return {
+          ...merchant,
+          merchant_price_list: filteredList,
+          lowestShopRate,
+        };
+      });
+
+      // Langkah 2: Sort seluruh merchant array
+      mappedMerchants.sort((a, b) => {
+        // Yang punya price_list muncul dulu
+        const hasPriceListA = a.lowestShopRate !== Number.POSITIVE_INFINITY;
+        const hasPriceListB = b.lowestShopRate !== Number.POSITIVE_INFINITY;
+
+        if (hasPriceListA && !hasPriceListB) return -1;
+        if (!hasPriceListA && hasPriceListB) return 1;
+
+        // Kalau dua-duanya punya price_list, urut berdasarkan shop_rate terkecil
+        if (hasPriceListA && hasPriceListB) {
+          return a.lowestShopRate - b.lowestShopRate;
+        }
+
+        // Dua-duanya kosong, urut default
+        return 0;
+      });
+
+      // Langkah 3: Hilangkan field bantu
+      return mappedMerchants.map((m) => {
+        // eslint-disable-next-line no-unused-vars
+        const { lowestShopRate, ...rest } = m;
+        console.log(rest);
+        return rest;
+      });
     },
     openAddVendor(item) {
       // console.log(item);
@@ -389,7 +517,7 @@ export default {
       // this.getItemsData(this.selectedOrderFulfillment?.delivery_date);
     },
     saveAddVendor() {
-      console.log(this.addVendorData);
+      // console.log(this.addVendorData);
       const payload = {
         range_id: this.addVendorData?.range_id,
         pq_id: this.addVendorData?.pq_id,
