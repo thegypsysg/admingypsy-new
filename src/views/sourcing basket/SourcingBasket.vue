@@ -443,6 +443,7 @@ export default {
     this.getOrderFulfillment();
     this.getOrderCarts();
     if (this.selectedBy == 'product') {
+      this.getOnboardMerchants();
       this.getItemsDataProduct();
     } else if (this.selectedBy == 'vendor') {
       this.getOrderVendors();
