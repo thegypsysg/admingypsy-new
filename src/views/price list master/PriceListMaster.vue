@@ -361,6 +361,121 @@
                   <td style="border-bottom: none !important" colspan="9">
                     <div class="d-flex justify-start" style="gap: 20px">
                       <v-table class="text-left font-weight-bold">
+                        <thead>
+                          <tr>
+                            <th
+                              class="text-left"
+                              style="width: 75px; border: none !important"
+                            ></th>
+                            <th
+                              class="text-left"
+                              style="width: 75px; border: none !important"
+                            ></th>
+                            <th class="text-left">Gift Item</th>
+                            <th class="text-left">Limited Edition</th>
+                            <th class="text-left">Special Edition</th>
+                            <th class="text-left">Miniature</th>
+                            <th class="text-left"></th>
+                            <th class="text-left"></th>
+                            <th class="text-left"></th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <tr>
+                            <td
+                              style="width: 75px; border: none !important"
+                            ></td>
+                            <td
+                              style="width: 75px; border: none !important"
+                            ></td>
+                            <td>
+                              <v-btn-toggle
+                                style="
+                                  font-size: 10px !important;
+                                  font-weight: 200 !important;
+                                  height: 22px !important;
+                                  width: 54px !important;
+                                "
+                                class="d-flex align-center"
+                                v-model="item.isGiftItem"
+                                :disabled="isSending4"
+                                rounded="5"
+                                @click="togglePrice('gift_item', item.id)"
+                              >
+                                <v-btn size="27" :value="true"> Yes </v-btn>
+
+                                <v-btn size="27" :value="false"> No </v-btn>
+                              </v-btn-toggle>
+                            </td>
+                            <td>
+                              <v-btn-toggle
+                                style="
+                                  font-size: 10px !important;
+                                  font-weight: 200 !important;
+                                  height: 22px !important;
+                                  width: 54px !important;
+                                "
+                                class="d-flex align-center"
+                                v-model="item.isLimitedEdition"
+                                :disabled="isSending4"
+                                rounded="5"
+                                @click="togglePrice('limited_edition', item.id)"
+                              >
+                                <v-btn size="27" :value="true"> Yes </v-btn>
+
+                                <v-btn size="27" :value="false"> No </v-btn>
+                              </v-btn-toggle>
+                            </td>
+                            <td>
+                              <v-btn-toggle
+                                style="
+                                  font-size: 10px !important;
+                                  font-weight: 200 !important;
+                                  height: 22px !important;
+                                  width: 54px !important;
+                                "
+                                class="d-flex align-center"
+                                v-model="item.isSpecialEdition"
+                                :disabled="isSending4"
+                                rounded="5"
+                                @click="togglePrice('special_edition', item.id)"
+                              >
+                                <v-btn size="27" :value="true"> Yes </v-btn>
+
+                                <v-btn size="27" :value="false"> No </v-btn>
+                              </v-btn-toggle>
+                            </td>
+                            <td>
+                              <v-btn-toggle
+                                style="
+                                  font-size: 10px !important;
+                                  font-weight: 200 !important;
+                                  height: 22px !important;
+                                  width: 54px !important;
+                                "
+                                class="d-flex align-center"
+                                v-model="item.isMiniature"
+                                :disabled="isSending4"
+                                rounded="5"
+                                @click="togglePrice('miniature', item.id)"
+                              >
+                                <v-btn size="27" :value="true"> Yes </v-btn>
+                                <v-btn size="27" :value="false"> No </v-btn>
+                              </v-btn-toggle>
+                            </td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                          </tr>
+                        </tbody>
+                      </v-table>
+                    </div>
+                  </td>
+                </tr>
+                <tr>
+                  <td style="border-bottom: none !important" colspan="9">
+                    <div class="d-flex justify-start" style="gap: 20px">
+                      <v-table class="text-left font-weight-bold">
                         <tr>
                           <td style="width: 75px"></td>
                           <td style="width: 75px"></td>
@@ -779,6 +894,7 @@ export default {
     isSending: false,
     isSending2: false,
     isSending3: false,
+    isSending4: false,
     isSendTemplate: false,
     isSuccess: false,
     isSuccessEmail: false,
@@ -1306,6 +1422,30 @@ export default {
               merchantPrice: null,
               shopRate: null,
               loading: false,
+              isGiftItem:
+                item?.gift_item == 'N'
+                  ? false
+                  : item?.gift_item == 'Y'
+                  ? true
+                  : null,
+              isLimitedEdition:
+                item?.limited_edition == 'N'
+                  ? false
+                  : item?.limited_edition == 'Y'
+                  ? true
+                  : null,
+              isSpecialEdition:
+                item?.special_edition == 'N'
+                  ? false
+                  : item?.special_edition == 'Y'
+                  ? true
+                  : null,
+              isMiniature:
+                item?.miniature == 'N'
+                  ? false
+                  : item?.miniature == 'Y'
+                  ? true
+                  : null,
               priceListItems: item.merchant_price_list.map((data) => {
                 return {
                   ...data,
@@ -1514,6 +1654,30 @@ export default {
         })
         .finally(() => {
           this.isSending3 = false;
+        });
+    },
+    togglePrice(type, id) {
+      this.isSending4 = true;
+      axios
+        .get(`/price-list/toggle-items/${type}/${id}`)
+        .then((response) => {
+          const data = response.data;
+          this.successMessage = data.message;
+          this.isSuccess = true;
+          //this.getItemsData(this.selectedCity);
+        })
+        .catch((error) => {
+          // eslint-disable-next-line
+          console.log(error);
+          const message =
+            error.response.data.message === ''
+              ? 'Something Wrong!!!'
+              : error.response.data.message;
+          this.errorMessage = message;
+          this.isError = true;
+        })
+        .finally(() => {
+          this.isSending4 = false;
         });
     },
   },
