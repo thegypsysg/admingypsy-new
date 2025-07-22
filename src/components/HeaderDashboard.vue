@@ -123,7 +123,7 @@ export default {
                     : app.app_name == '4 Walls'
                     ? '/walls_master'
                     : app.app_name == 'Biryani Run'
-                    ? '/biryani-home'
+                    ? '/biryani-home/main-categories'
                     : app.app_name == 'i-Study'
                     ? '/course_master'
                     : app.app_name == 'Boozards'

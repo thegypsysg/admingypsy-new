@@ -1,7 +1,6 @@
 <!-- eslint-disable vue/no-deprecated-v-bind-sync -->
 <template>
   <v-container>
-    
     <div class="d-flex ml-4 mb-4" style="gap: 30px">
       <div>
         <router-link
@@ -21,6 +20,26 @@
           to="/biryani-home/restaurant-master"
         >
           <h4>Restaurant Master</h4>
+        </router-link>
+      </div>
+      <div>
+        <router-link
+          active-class="text-blue-accent-4"
+          style="color: black"
+          class="text-decoration-none"
+          to="/biryani-home/dish-master"
+        >
+          <h4>Dish Master</h4>
+        </router-link>
+      </div>
+      <div>
+        <router-link
+          active-class="text-blue-accent-4"
+          style="color: black"
+          class="text-decoration-none"
+          to="/biryani-home/restaurant-dish"
+        >
+          <h4>Biryani Promotion</h4>
         </router-link>
       </div>
     </div>
@@ -47,7 +66,7 @@
               rows="3"
               variant="outlined"
               required
-              style="height: 100px !important;"
+              style="height: 100px !important"
             ></v-textarea>
           </v-col>
           <v-col cols="12" md="2">
@@ -58,7 +77,7 @@
                   : 'mdi-account-multiple-plus'
               "
               color="indigo-accent-2"
-              style="text-transform: none;margin-top: -30px !important;"
+              style="text-transform: none; margin-top: -30px !important"
               type="submit"
               variant="flat"
               class="w-100"
@@ -73,12 +92,12 @@
               {{ isEdit ? 'Save' : 'Add' }}
             </v-btn>
           </v-col>
-          <v-col cols="12" md="1">
+          <v-col cols="12" md="2">
             <v-btn
               v-if="isEdit"
               prepend-icon="mdi-account-multiple-remove"
               color="red"
-              style="text-transform: none;margin-top: -30px !important;"
+              style="text-transform: none; margin-top: -30px !important"
               variant="flat"
               class="w-100 mt-8"
               @click="cancelEdit"
@@ -120,11 +139,12 @@
               </tr>
             </thead>
             <tbody>
-              <template v-for="item in filteredItems" :key="item.id">
+              <template v-for="item in filteredItems" :key="item.mc_id">
                 <tr>
-                  <td style="border-bottom: none !important;">{{ item.bmc_id }}</td>
-                  
-                  <td style="border-bottom: none !important;">
+                  <td style="border-bottom: none !important">
+                    {{ item.mc_id }}
+                  </td>
+                  <td style="border-bottom: none !important">
                     <div class="image-upload-cont">
                       <v-img
                         class="image-upload-item"
@@ -142,19 +162,40 @@
                       ></v-img>
                     </div>
                   </td>
-                  <td style="font-weight: 500 !important;border-bottom: none !important;">
+                  <td
+                    style="
+                      font-weight: 500 !important;
+                      border-bottom: none !important;
+                    "
+                  >
                     {{ item.category_name }}
                   </td>
-                  <td style="font-weight: 500 !important;border-bottom: none !important; max-width: 300px;">
+                  <td
+                    style="
+                      font-weight: 500 !important;
+                      border-bottom: none !important;
+                      max-width: 300px;
+                    "
+                  >
                     {{ item.description }}
                   </td>
-                  <td style="font-weight: 500 !important;border-bottom: none !important;">
-                    {{ item.user.name }}
+                  <td
+                    style="
+                      font-weight: 500 !important;
+                      border-bottom: none !important;
+                    "
+                  >
+                    {{ item.userName }}
                   </td>
-                  <td style="font-weight: 500 !important;border-bottom: none !important;">
+                  <td
+                    style="
+                      font-weight: 500 !important;
+                      border-bottom: none !important;
+                    "
+                  >
                     {{ item.dated }}
                   </td>
-                  <td style="border-bottom: none !important;">
+                  <td style="border-bottom: none !important">
                     <div class="d-flex">
                       <v-tooltip location="top">
                         <template v-slot:activator="{ props }">
@@ -175,7 +216,7 @@
                             v-bind="props"
                             variant="text"
                             :disabled="isDeleteLoading"
-                            @click="openDeleteConfirm(item.bmc_id)"
+                            @click="openDeleteConfirm(item.mc_id)"
                             icon="mdi-trash-can-outline"
                           ></v-btn>
                         </template>
@@ -183,23 +224,6 @@
                       </v-tooltip>
                     </div>
                   </td>
-                </tr>
-                <tr>
-                  <td colspan="4">
-                    <v-text-field
-                      class="mt-4"
-                      v-model="item.tag_line"
-                      label="Tagline"
-                      variant="outlined"
-                      density="compact"
-                      required
-                      style="max-width: 500px;"
-                      @change="saveTagLine(item.bmc_id, item.category_name, item.tag_line)"
-                    ></v-text-field>
-                  </td>
-                  <td></td>
-                  <td></td>
-                  <td></td>
                 </tr>
               </template>
               <tr v-if="isLoading">
@@ -242,7 +266,7 @@
       <v-card>
         <v-card-title>Confirmation</v-card-title>
         <v-card-text>
-          Are you sure want to delete this property type?
+          Are you sure want to delete this main category type?
         </v-card-text>
         <v-card-actions>
           <v-spacer></v-spacer>
@@ -281,66 +305,6 @@
         </v-card-actions>
       </v-card>
     </v-dialog>
-    <v-dialog persistent width="auto" v-model="isOpenLongImage">
-      <v-card width="750">
-        <v-card-title class="upload-title px-6 py-4">
-          Upload Long Image - Main Categories</v-card-title
-        >
-        <v-card-text>
-          <image-upload
-            :image-file="longImageFile"
-            @update-image-file="updateLongImageFile"
-            @delete-image-file="deleteLongImageFile"
-          />
-        </v-card-text>
-        <v-card-actions class="mt-16">
-          <v-spacer></v-spacer>
-          <v-btn
-            style="text-transform: none"
-            color="error"
-            text
-            @click="closeLogo"
-            >Cancel</v-btn
-          >
-          <v-btn
-            style="background-color: #9ddcff; text-transform: none"
-            color="black"
-            @click="saveLongImage"
-            >Save</v-btn
-          >
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
-    <v-dialog persistent width="auto" v-model="isOpenIconImage">
-      <v-card width="750">
-        <v-card-title class="upload-title px-6 py-4">
-          Upload Icon Image - Main Categories</v-card-title
-        >
-        <v-card-text>
-          <image-upload
-            :image-file="iconImageFile"
-            @update-image-file="updateIconImageFile"
-            @delete-image-file="deleteIconImageFile"
-          />
-        </v-card-text>
-        <v-card-actions class="mt-16">
-          <v-spacer></v-spacer>
-          <v-btn
-            style="text-transform: none"
-            color="error"
-            text
-            @click="closeIconImage"
-            >Cancel</v-btn
-          >
-          <v-btn
-            style="background-color: #9ddcff; text-transform: none"
-            color="black"
-            @click="saveIconImage"
-            >Save</v-btn
-          >
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
   </v-container>
 </template>
 
@@ -352,7 +316,7 @@ import { setAuthHeader } from '@/util/axios';
 // import app from '@/util/eventBus';
 
 export default {
-  name: 'PropertyTypes',
+  name: 'MainCategories',
   data: () => ({
     //fileURL: 'https://admin1.the-gypsy.sg/img/app/',
     valid: false,
@@ -363,35 +327,22 @@ export default {
     isError: false,
     isDelete: false,
     isDeleteLoading: false,
-    propertyIdToDelete: null,
+    mainCategoryIdToDelete: null,
     tableHeaders: [{ text: 'Gambar', value: 'image' }],
     mainImageFile: [],
-    longImageFile: [],
-    iconImageFile: [],
-    propertyDataToMainImage: {
-      bmc_id: 0,
-      category_name: null,
-      description: null,
-    },
-    propertyDataToLongImage: {
-      bmc_id: 0,
-      category_name: null,
-      description: null,
-    },
-    propertyDataToIconImage: {
-      bmc_id: 0,
+    mainCategoryDataToMainImage: {
+      mc_id: 0,
       category_name: null,
       description: null,
     },
     isOpenMainImage: false,
-    isOpenLongImage: false,
-    isOpenIconImage: false,
     successMessage: '',
     errorMessage: '',
     input: {
-      bmc_id: 0,
+      mc_id: 0,
       category_name: null,
       description: null,
+      main_image: null,
     },
     resource: {
       app: [],
@@ -426,54 +377,17 @@ export default {
         return this.items;
       }
       const searchTextLower = this.search.toLowerCase();
-      return this.items.filter(
-        (item) =>
-          item.category_name.toLowerCase().includes(searchTextLower) ||
-          item.description.toLowerCase().includes(searchTextLower)
-      );
+      return this.items.filter((item) => {
+        const categoryName = item.category_name?.toLowerCase() || '';
+        const description = item.description?.toLowerCase() || '';
+        return (
+          categoryName.includes(searchTextLower) ||
+          description.includes(searchTextLower)
+        );
+      });
     },
   },
   methods: {
-    saveErrorResponse(response) {
-      let errorMessage = '';
-
-      for (const key in response.data) {
-        errorMessage += `${key}: ${response.data[key][0]}\n`;
-      }
-
-      return errorMessage;
-    },
-    updateLongImageFile(newImageFile) {
-      this.longImageFile.push(newImageFile);
-    },
-    deleteLongImageFile() {
-      this.isSending = true;
-      axios
-        .delete(
-          `/biryani-main-categories/${this.propertyDataToLongImage.bmc_id}/long-image`
-        )
-        .then((response) => {
-          const data = response.data;
-          this.successMessage = data.message;
-          this.isSuccess = true;
-          this.getMainCategoriesData();
-        })
-        .catch((error) => {
-          // eslint-disable-next-line
-          console.log(error);
-          const message =
-            error.response.data.message === ''
-              ? 'Something Wrong!!!'
-              : error.response.data.message;
-          this.errorMessage = message;
-          this.isError = true;
-        })
-        .finally(() => {
-          this.isEdit = false;
-          this.isSending = false;
-          this.longImageFile = [];
-        });
-    },
     updateMainImageFile(newImageFile) {
       this.mainImageFile.push(newImageFile);
     },
@@ -481,7 +395,7 @@ export default {
       this.isSending = true;
       axios
         .delete(
-          `/biryani-main-categories/${this.propertyDataToMainImage.bmc_id}/main-image`
+          `/main-categories/${this.mainCategoryDataToMainImage.mc_id}/main-image`
         )
         .then((response) => {
           const data = response.data;
@@ -505,185 +419,10 @@ export default {
           this.imageFile = [];
         });
     },
-    updateIconImageFile(newImageFile) {
-      this.iconImageFile.push(newImageFile);
-    },
-    deleteIconImageFile() {
-      this.isSending = true;
-      axios
-        .delete(
-          `/biryani-main-categories/${this.propertyDataToIconImage.bmc_id}/icon-image`
-        )
-        .then((response) => {
-          const data = response.data;
-          this.successMessage = data.message;
-          this.isSuccess = true;
-          this.getMainCategoriesData();
-        })
-        .catch((error) => {
-          // eslint-disable-next-line
-          console.log(error);
-          const message =
-            error.response.data.message === ''
-              ? 'Something Wrong!!!'
-              : error.response.data.message;
-          this.errorMessage = message;
-          this.isError = true;
-        })
-        .finally(() => {
-          this.isEdit = false;
-          this.isSending = false;
-          this.iconImageFile = [];
-        });
-    },
-    openIconImage(prop) {
-      this.isOpenIconImage = true;
-      this.propertyDataToIconImage = {
-        bmc_id: prop.bmc_id,
-        category_name: prop.category_name,
-        description: prop.description,
-      };
-      this.iconImageFile =
-        prop.icon_image != null
-          ? [
-              {
-                file: {
-                  name: prop.icon_image,
-                  size: '',
-                  base64: '',
-                  format: '',
-                },
-              },
-            ]
-          : [];
-    },
-    closeIconImage() {
-      this.isOpenIconImage = false;
-      this.iconImageFile = [];
-      this.propertyDataToIconImage = {
-        bmc_id: 0,
-        category_name: null,
-        description: null,
-      };
-    },
-    saveIconImage() {
-      this.isSending = true;
-      const payload = {
-        bmc_id: this.propertyDataToIconImage.bmc_id,
-        category_name: this.propertyDataToIconImage.category_name,
-        description: this.propertyDataToIconImage.description,
-        icon_image: this.iconImageFile[0],  
-      };
-      http
-        .post(`/biryani-main-categories/update`, payload, {
-          headers: {
-            'Content-Type': 'multipart/form-data',
-          },
-        })
-        .then((response) => { 
-          const data = response.data;
-          this.successMessage = data.message;
-          this.isSuccess = true;
-          this.getMainCategoriesData();
-        })
-        .catch((error) => {
-          // eslint-disable-next-line
-          console.log(error);
-          const message =
-            error.response.data.message === ''
-              ? 'Something Wrong!!!'
-              : error.response.data.message;
-          this.errorMessage = message;
-          this.isError = true;
-        })
-        .finally(() => {
-          this.isEdit = false;
-          this.isSending = false;
-          this.propertyDataToIconImage = {
-            bmc_id: 0,
-            category_name: null,
-            description: null,
-          };
-          this.isOpenIconImage = false;
-          this.iconImageFile = [];
-        });
-    },
-    openLongImage(prop) {
-      this.isOpenLongImage = true;
-      this.propertyDataToLongImage = {
-        bmc_id: prop.bmc_id,
-        category_name: prop.category_name,
-        description: prop.description,
-      };
-      this.longImageFile =
-        prop.long_image != null
-          ? [
-              {
-                file: {
-                  name: prop.long_image,
-                  size: '',
-                  base64: '',
-                  format: '',
-                },
-              },
-            ]
-          : [];
-    },
-    closeLongImage() {
-      this.isOpenLongImage = false;
-      this.longImageFile = [];
-      this.propertyDataToLongImage = {
-        bmc_id: 0,
-        category_name: null,
-        description: null, 
-      };
-    },
-    saveLongImage() { 
-      this.isSending = true;
-      const payload = {
-        bmc_id: this.propertyDataToLongImage.bmc_id,
-        category_name: this.propertyDataToLongImage.category_name,
-        description: this.propertyDataToLongImage.description,
-        long_image: this.longImageFile[0],
-      };
-      http
-        .post(`/biryani-main-categories/update`, payload, {
-          headers: {
-            'Content-Type': 'multipart/form-data',
-          },
-        })
-        .then((response) => {
-          const data = response.data;
-          this.successMessage = data.message;
-          this.isSuccess = true;
-          this.getMainCategoriesData();
-        })
-        .catch((error) => {
-          // eslint-disable-next-line
-          console.log(error);
-          const message =
-            error.response.data.message === ''
-              ? 'Something Wrong!!!'
-              : error.response.data.message;
-          this.errorMessage = message;
-          this.isError = true;
-        })
-        .finally(() => {
-          this.isEdit = false;
-          this.isSending = false;
-          this.propertyDataToLongImage = {
-            bmc_id: 0,
-            category_name: null,
-            description: null,
-          };
-          this.isOpenLongImage = false;
-          this.longImageFile = [];
-        });
-    },
     openMainImage(prop) {
       this.isOpenMainImage = true;
-      this.propertyDataToMainImage = {
-        bmc_id: prop.bmc_id,
+      this.mainCategoryDataToMainImage = {
+        mc_id: prop.mc_id,
         category_name: prop.category_name,
         description: prop.description,
       };
@@ -704,8 +443,8 @@ export default {
     closeMainImage() {
       this.isOpenMainImage = false;
       this.mainImageFile = [];
-      this.propertyDataToMainImage = {
-        bmc_id: 0,
+      this.mainCategoryDataToMainImage = {
+        mc_id: 0,
         category_name: null,
         description: null,
       };
@@ -713,13 +452,13 @@ export default {
     saveMainImage() {
       this.isSending = true;
       const payload = {
-        bmc_id: this.propertyDataToMainImage.bmc_id,
-        category_name: this.propertyDataToMainImage.category_name,
-        description: this.propertyDataToMainImage.description,
+        mc_id: this.mainCategoryDataToMainImage.mc_id,
+        category_name: this.mainCategoryDataToMainImage.category_name,
+        description: this.mainCategoryDataToMainImage.description,
         main_image: this.mainImageFile[0],
       };
       http
-        .post(`/biryani-main-categories/update`, payload, {
+        .post(`/main-categories/update`, payload, {
           headers: {
             'Content-Type': 'multipart/form-data',
           },
@@ -743,8 +482,8 @@ export default {
         .finally(() => {
           this.isEdit = false;
           this.isSending = false;
-          this.propertyDataToMainImage = {
-            bmc_id: 0,
+          this.mainCategoryDataToMainImage = {
+            mc_id: 0,
             category_name: null,
             description: null,
           };
@@ -755,44 +494,41 @@ export default {
     editMainCategory(prop) {
       this.isEdit = true;
       this.input = {
-        bmc_id: prop.bmc_id,
+        mc_id: prop.mc_id,
         category_name: prop.category_name,
         description: prop.description,
         main_image: prop.main_image,
-        long_image: prop.long_image,
       };
     },
     cancelEdit() {
       this.isEdit = false;
       this.input = {
-        bmc_id: 0,
+        mc_id: 0,
         category_name: null,
         description: null,
         main_image: null,
-        long_image: null,
       };
     },
     saveEdit() {
       if (this.valid) {
         this.isSending = true;
         const payload = {
-          bmc_id: this.input.bmc_id,
+          mc_id: this.input.mc_id,
           category_name: this.input.category_name,
           description: this.input.description,
         };
         axios
-          .post(`/biryani-main-categories/update`, payload)
+          .post(`/main-categories/update`, payload)
           .then((response) => {
             const data = response.data;
             this.successMessage = data.message;
             this.isSuccess = true;
             this.getMainCategoriesData();
             this.input = {
-              bmc_id: 0,
+              mc_id: 0,
               category_name: null,
               description: null,
               main_image: null,
-              long_image: null,
             };
           })
           .catch((error) => {
@@ -811,113 +547,26 @@ export default {
           });
       }
     },
-    saveTagLine(bmc_id, category_name, tag_line) {
-      this.isSending = true;
-      const payload = {
-        bmc_id: bmc_id,
-        category_name: category_name,
-        tag_line: tag_line,
-      };
-      axios
-        .post(`/biryani-main-categories/update`, payload)
-        .then((response) => {
-          const data = response.data;
-          this.successMessage = data.message;
-          this.isSuccess = true;
-          this.getMainCategoriesData();
-        })
-        .catch((error) => {
-          // eslint-disable-next-line
-          console.log(error);
-          const message =
-            error.response.data.message === ''
-              ? 'Something Wrong!!!'
-              : error.response.data.message;
-          this.errorMessage = message;
-          this.isError = true;
-        })
-        .finally(() => {
-          this.isSending = false;
-        });
-    },
-    saveLinkName(bmc_id, category_name, link_name) {
-      this.isSending = true;
-      const payload = {
-        bmc_id: bmc_id,
-        category_name: category_name,
-        link_name: link_name,
-      };
-      axios
-        .post(`/biryani-main-categories/update`, payload)
-        .then((response) => {
-          const data = response.data;
-          this.successMessage = data.message;
-          this.isSuccess = true;
-          this.getMainCategoriesData();
-        })
-        .catch((error) => {
-          // eslint-disable-next-line
-          console.log(error);
-          const message =
-            error.response.data.message === ''
-              ? 'Something Wrong!!!'
-              : error.response.data.message;
-          this.errorMessage = message;
-          this.isError = true;
-        })
-        .finally(() => {
-          this.isSending = false;
-        });
-    },
-    saveButtonName(bmc_id, category_name, button_name) {
-      this.isSending = true;
-      const payload = {
-        bmc_id: bmc_id,
-        category_name: category_name,
-        button_name: button_name,
-      };
-      axios
-        .post(`/biryani-main-categories/update`, payload)
-        .then((response) => {
-          const data = response.data;
-          this.successMessage = data.message;
-          this.isSuccess = true;
-          this.getMainCategoriesData();
-        })
-        .catch((error) => {
-          // eslint-disable-next-line
-          console.log(error);
-          const message =
-            error.response.data.message === ''
-              ? 'Something Wrong!!!'
-              : error.response.data.message;
-          this.errorMessage = message;
-          this.isError = true;
-        })
-        .finally(() => {
-          this.isSending = false;
-        });
-    },
     saveData() {
       if (this.valid) {
         this.isSending = true;
         const payload = {
+          app_id: 7,
           category_name: this.input.category_name,
           description: this.input.description,
         };
         axios
-          .post(`/biryani-main-categories`, payload)
+          .post(`/main-categories`, payload)
           .then((response) => {
             const data = response.data;
             this.successMessage = data.message;
             this.isSuccess = true;
             this.getMainCategoriesData();
             this.input = {
-              bmc_id: 0,
+              mc_id: 0,
               category_name: null,
               description: null,
               main_image: null,
-              long_image: null,
             };
           })
           .catch((error) => {
@@ -936,21 +585,17 @@ export default {
       }
     },
     cancelDelete() {
-      this.propertyIdToDelete = null;
+      this.mainCategoryIdToDelete = null;
       this.isDelete = false;
     },
     openDeleteConfirm(itemId) {
-      this.propertyIdToDelete = itemId;
+      this.mainCategoryIdToDelete = itemId;
       this.isDelete = true;
-    },
-    cancelConfirmation() {
-      this.propertyIdToDelete = null;
-      this.isDelete = false;
     },
     deleteMainCategory() {
       this.isDeleteLoading = true;
       axios
-        .delete(`/biryani-main-categories/${this.propertyIdToDelete}`)
+        .delete(`/main-categories/${this.mainCategoryIdToDelete}`)
         .then((response) => {
           const data = response.data;
           this.successMessage = data.message;
@@ -969,34 +614,25 @@ export default {
         })
         .finally(() => {
           this.isDeleteLoading = false;
-          this.propertyIdToDelete = null;
+          this.mainCategoryIdToDelete = null;
           this.isDelete = false;
         });
     },
     getMainCategoriesData() {
       this.isLoading = true;
       axios
-        .get(`/biryani-main-categories`)
+        .get(`/main-categories`)
         .then((response) => {
           const data = response.data.data;
-          this.items = data.map((item) => {
-            console.log(item);
-            return {
-              bmc_id: item.bmc_id || 1,
-              category_name: item.category_name || '',
-              description: item.description || '',
-              long_image: item.long_image || null,
-              main_image: item.main_image || null,
-              icon_image: item.icon_image || null,
-              isActive:
-                item.active == 'N' ? false : item.active == 'Y' ? true : null,
-              user: item.user || '',
-              dated: item.dated || '',
-              tag_line: item.tag_line || '',
-              link_name: item.link_name || '',
-              button_name: item.button_name || '',
-            };
-          });
+          this.items = data
+            .sort((a, b) => b.mc_id - a.mc_id)
+            .map((item) => {
+              console.log(item);
+              return {
+                ...item,
+                userName: item?.user?.name || '',
+              };
+            });
         })
         .catch((error) => {
           // eslint-disable-next-line
@@ -1010,30 +646,6 @@ export default {
         })
         .finally(() => {
           this.isLoading = false;
-        });
-    },
-    activeMainCategory(bmc_id) {
-      this.isSending2 = true;
-      axios
-        .get(`/biryani-main-categories/toggle-active/${bmc_id}`)
-        .then((response) => {
-          const data = response.data;
-          this.successMessage = data.message;
-          this.isSuccess = true;
-          this.getMainCategoriesData();
-        })
-        .catch((error) => {
-          // eslint-disable-next-line
-          console.log(error);
-          const message =
-            error.response.data.message === ''
-              ? 'Something Wrong!!!'
-              : error.response.data.message;
-          this.errorMessage = message;
-          this.isError = true;
-        })
-        .finally(() => {
-          this.isSending2 = false;
         });
     },
   },
