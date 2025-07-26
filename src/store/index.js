@@ -34,6 +34,14 @@ export default createStore({
             path: '/onboard-merchant',
           },
           {
+            title: 'Restaurant Master',
+            path: '/restaurant-master',
+          },
+          {
+            title: 'Dish Master',
+            path: '/dish-master',
+          },
+          {
             title: 'Industry Master',
             path: '/industry_master',
           },

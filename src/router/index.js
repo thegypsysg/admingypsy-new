@@ -489,6 +489,33 @@ const routes = [
     },
   },
   {
+    name: 'restaurant master 2',
+    path: '/restaurant-master',
+    component: () =>
+      import('@/views/restaurant master/RestaurantMasterContainer.vue'),
+    beforeEnter: (to, from, next) => {
+      // Pengecekan status login sebelum masuk ke halaman beranda
+      if (localStorage.getItem('token') == null) {
+        next('/auth/login'); // Alihkan ke halaman login jika belum masuk
+      } else {
+        next(); // Lanjutkan ke halaman beranda jika sudah masuk
+      }
+    },
+  },
+  {
+    name: 'dish master 2',
+    path: '/dish-master',
+    component: () => import('@/views/dish master/DishMasterContainer.vue'),
+    beforeEnter: (to, from, next) => {
+      // Pengecekan status login sebelum masuk ke halaman beranda
+      if (localStorage.getItem('token') == null) {
+        next('/auth/login'); // Alihkan ke halaman login jika belum masuk
+      } else {
+        next(); // Lanjutkan ke halaman beranda jika sudah masuk
+      }
+    },
+  },
+  {
     name: 'partner master',
     path: '/partner_master',
     component: () =>
@@ -1064,6 +1091,20 @@ const routes = [
     path: '/biryani-home/main-categories',
     component: () =>
       import('@/views/biryani run/main categories/MainCategoriesContainer.vue'),
+    beforeEnter: (to, from, next) => {
+      // Pengecekan status login sebelum masuk ke halaman beranda
+      if (localStorage.getItem('token') == null) {
+        next('/auth/login'); // Alihkan ke halaman login jika belum masuk
+      } else {
+        next(); // Lanjutkan ke halaman beranda jika sudah masuk
+      }
+    },
+  },
+  {
+    name: 'biryani onboard dishes',
+    path: '/biryani-home/onboard-dishes',
+    component: () =>
+      import('@/views/biryani run/onboard dishes/OnboardDishesContainer.vue'),
     beforeEnter: (to, from, next) => {
       // Pengecekan status login sebelum masuk ke halaman beranda
       if (localStorage.getItem('token') == null) {

@@ -47,27 +47,28 @@
       <v-container>
         <v-row>
           <v-col cols="12" md="4">
-            <v-text-field
-              v-model="input.category_name"
-              :rules="rules.nameRules"
-              label="Category Name"
-              variant="outlined"
+            <v-autocomplete
               density="compact"
+              label="Dish Name"
+              variant="outlined"
               required
-            ></v-text-field>
+              :items="[]"
+              item-title="name"
+              item-value="id"
+            ></v-autocomplete>
           </v-col>
         </v-row>
         <v-row class="d-flex align-baseline mt-n4">
           <v-col cols="12" md="4">
-            <v-textarea
+            <v-autocomplete
               density="compact"
-              v-model="input.description"
-              label="Category Description"
-              rows="3"
+              label="Main Category"
               variant="outlined"
               required
-              style="height: 100px !important"
-            ></v-textarea>
+              :items="[]"
+              item-title="name"
+              item-value="id"
+            ></v-autocomplete>
           </v-col>
           <v-col cols="12" md="2">
             <v-btn
@@ -131,8 +132,8 @@
               <tr>
                 <th class="text-left">Id</th>
                 <th class="text-left">Main Image</th>
-                <th class="text-left">Category Name</th>
-                <th class="text-left">Category Description</th>
+                <th class="text-left">Dish Name</th>
+                <th class="text-left">Main Category</th>
                 <th class="text-left">User</th>
                 <th class="text-left">Dated</th>
                 <th class="text-center">Actions</th>

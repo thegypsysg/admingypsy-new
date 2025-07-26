@@ -1,56 +1,14 @@
 <!-- eslint-disable vue/no-deprecated-v-bind-sync -->
 <template>
   <v-container>
-    <div class="d-flex ml-4 mb-4" style="gap: 30px">
-      <div>
-        <router-link
-          active-class="text-blue-accent-4"
-          style="color: black"
-          class="text-decoration-none"
-          to="/biryani-home/main-categories"
-        >
-          <h4>Main Category</h4>
-        </router-link>
-      </div>
-      <div>
-        <router-link
-          active-class="text-blue-accent-4"
-          style="color: black"
-          class="text-decoration-none"
-          to="/biryani-home/onboard-dishes"
-        >
-          <h4>On-Board Dishes</h4>
-        </router-link>
-      </div>
-      <div>
-        <router-link
-          active-class="text-blue-accent-4"
-          style="color: black"
-          class="text-decoration-none"
-          to="/biryani-home/onboard-tags"
-        >
-          <h4>On-Board Tags</h4>
-        </router-link>
-      </div>
-      <div>
-        <router-link
-          active-class="text-blue-accent-4"
-          style="color: black"
-          class="text-decoration-none"
-          to="/biryani-home/onboard-prices"
-        >
-          <h4>On-Board Biryani Prices</h4>
-        </router-link>
-      </div>
-    </div>
     <v-form v-model="valid" @submit.prevent>
       <v-container>
         <v-row>
           <v-col cols="12" md="4">
             <v-text-field
-              v-model="input.category_name"
+              v-model="input.dish_name"
               :rules="rules.nameRules"
-              label="Category Name"
+              label="Dish Name"
               variant="outlined"
               density="compact"
               required
@@ -59,15 +17,16 @@
         </v-row>
         <v-row class="d-flex align-baseline mt-n4">
           <v-col cols="12" md="4">
-            <v-textarea
+            <v-autocomplete
               density="compact"
-              v-model="input.description"
-              label="Category Description"
-              rows="3"
+              v-model="input.origin_country"
+              label="Country"
               variant="outlined"
               required
-              style="height: 100px !important"
-            ></v-textarea>
+              :items="resource.country"
+              item-title="name"
+              item-value="id"
+            ></v-autocomplete>
           </v-col>
           <v-col cols="12" md="2">
             <v-btn
@@ -131,19 +90,20 @@
               <tr>
                 <th class="text-left">Id</th>
                 <th class="text-left">Main Image</th>
-                <th class="text-left">Category Name</th>
-                <th class="text-left">Category Description</th>
+                <th class="text-left">Dish Name</th>
+                <th class="text-left">Country Of Origin</th>
                 <th class="text-left">User</th>
                 <th class="text-left">Dated</th>
                 <th class="text-center">Actions</th>
               </tr>
             </thead>
             <tbody>
-              <template v-for="item in filteredItems" :key="item.mc_id">
+              <template v-for="item in filteredItems" :key="item.id">
                 <tr>
                   <td style="border-bottom: none !important">
-                    {{ item.mc_id }}
+                    {{ item?.dish_id }}
                   </td>
+
                   <td style="border-bottom: none !important">
                     <div class="image-upload-cont">
                       <v-img
@@ -168,7 +128,7 @@
                       border-bottom: none !important;
                     "
                   >
-                    {{ item.category_name }}
+                    {{ item?.dish_name }}
                   </td>
                   <td
                     style="
@@ -177,7 +137,7 @@
                       max-width: 300px;
                     "
                   >
-                    {{ item.description }}
+                    {{ item?.country?.country_name }}
                   </td>
                   <td
                     style="
@@ -185,7 +145,7 @@
                       border-bottom: none !important;
                     "
                   >
-                    {{ item.userName }}
+                    {{ item?.user?.name }}
                   </td>
                   <td
                     style="
@@ -193,7 +153,7 @@
                       border-bottom: none !important;
                     "
                   >
-                    {{ item.dated }}
+                    {{ item?.dated }}
                   </td>
                   <td style="border-bottom: none !important">
                     <div class="d-flex">
@@ -203,7 +163,7 @@
                             color="green"
                             variant="text"
                             v-bind="props"
-                            @click="editMainCategory(item)"
+                            @click="editDishMaster(item)"
                             icon="mdi-pencil-outline"
                           ></v-btn>
                         </template>
@@ -216,7 +176,7 @@
                             v-bind="props"
                             variant="text"
                             :disabled="isDeleteLoading"
-                            @click="openDeleteConfirm(item.mc_id)"
+                            @click="openDeleteConfirm(item.dish_id)"
                             icon="mdi-trash-can-outline"
                           ></v-btn>
                         </template>
@@ -224,6 +184,37 @@
                       </v-tooltip>
                     </div>
                   </td>
+                </tr>
+                <tr>
+                  <td></td>
+                  <td colspan="2">
+                    <v-textarea
+                      class="mt-4"
+                      v-model="item.dish_description"
+                      label="Dish Description"
+                      variant="outlined"
+                      density="compact"
+                      required
+                      style="max-width: 500px"
+                      rows="3"
+                      @change="saveDescription(item.dish_description, item)"
+                    ></v-textarea>
+                  </td>
+                  <td>
+                    <v-select
+                      v-model="item.origin_city"
+                      label="City"
+                      variant="outlined"
+                      density="compact"
+                      required
+                      :items="filterCity(item.origin_country)"
+                      item-title="city_name"
+                      item-value="city_id"
+                      @update:modelValue="saveCity(item.origin_city, item)"
+                    ></v-select>
+                  </td>
+                  <td></td>
+                  <td></td>
                 </tr>
               </template>
               <tr v-if="isLoading">
@@ -265,13 +256,11 @@
     <v-dialog persistent width="500" v-model="isDelete">
       <v-card>
         <v-card-title>Confirmation</v-card-title>
-        <v-card-text>
-          Are you sure want to delete this main category type?
-        </v-card-text>
+        <v-card-text> Are you sure want to delete this dish? </v-card-text>
         <v-card-actions>
           <v-spacer></v-spacer>
           <v-btn color="error" text @click="cancelDelete">No</v-btn>
-          <v-btn color="success" text @click="deleteMainCategory">Yes</v-btn>
+          <v-btn color="success" text @click="deleteDishMaster">Yes</v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
@@ -305,6 +294,66 @@
         </v-card-actions>
       </v-card>
     </v-dialog>
+    <v-dialog persistent width="auto" v-model="isOpenLongImage">
+      <v-card width="750">
+        <v-card-title class="upload-title px-6 py-4">
+          Upload Long Image - Main Categories</v-card-title
+        >
+        <v-card-text>
+          <image-upload
+            :image-file="longImageFile"
+            @update-image-file="updateLongImageFile"
+            @delete-image-file="deleteLongImageFile"
+          />
+        </v-card-text>
+        <v-card-actions class="mt-16">
+          <v-spacer></v-spacer>
+          <v-btn
+            style="text-transform: none"
+            color="error"
+            text
+            @click="closeLogo"
+            >Cancel</v-btn
+          >
+          <v-btn
+            style="background-color: #9ddcff; text-transform: none"
+            color="black"
+            @click="saveLongImage"
+            >Save</v-btn
+          >
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+    <v-dialog persistent width="auto" v-model="isOpenIconImage">
+      <v-card width="750">
+        <v-card-title class="upload-title px-6 py-4">
+          Upload Icon Image - Main Categories</v-card-title
+        >
+        <v-card-text>
+          <image-upload
+            :image-file="iconImageFile"
+            @update-image-file="updateIconImageFile"
+            @delete-image-file="deleteIconImageFile"
+          />
+        </v-card-text>
+        <v-card-actions class="mt-16">
+          <v-spacer></v-spacer>
+          <v-btn
+            style="text-transform: none"
+            color="error"
+            text
+            @click="closeIconImage"
+            >Cancel</v-btn
+          >
+          <v-btn
+            style="background-color: #9ddcff; text-transform: none"
+            color="black"
+            @click="saveIconImage"
+            >Save</v-btn
+          >
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
   </v-container>
 </template>
 
@@ -316,7 +365,7 @@ import { setAuthHeader } from '@/util/axios';
 // import app from '@/util/eventBus';
 
 export default {
-  name: 'MainCategories',
+  name: 'DishMaster2',
   data: () => ({
     //fileURL: 'https://admin1.the-gypsy.sg/img/app/',
     valid: false,
@@ -327,37 +376,42 @@ export default {
     isError: false,
     isDelete: false,
     isDeleteLoading: false,
-    mainCategoryIdToDelete: null,
+    dishIdToDelete: null,
     tableHeaders: [{ text: 'Gambar', value: 'image' }],
     mainImageFile: [],
-    mainCategoryDataToMainImage: {
-      mc_id: 0,
-      category_name: null,
-      description: null,
+    longImageFile: [],
+    iconImageFile: [],
+    countries: [],
+    dishDataToMainImage: {
+      dish_id: 0,
+      dish_name: null,
+      origin_country: null,
     },
     isOpenMainImage: false,
+    isOpenLongImage: false,
+    isOpenIconImage: false,
     successMessage: '',
     errorMessage: '',
     input: {
-      mc_id: 0,
-      category_name: null,
-      description: null,
-      main_image: null,
+      dish_id: 0,
+      dish_name: null,
+      origin_country: null,
     },
     resource: {
-      app: [],
+      country: [],
+      city: [],
     },
     rules: {
       nameRules: [
         (value) => {
           if (value) return true;
-          return 'Category name is required.';
+          return 'Dish name is required.';
         },
       ],
-      descriptionRules: [
+      countryRules: [
         (value) => {
           if (value) return true;
-          return 'Category description is required.';
+          return 'Country of origin is required.';
         },
       ],
     },
@@ -369,7 +423,9 @@ export default {
     setAuthHeader(token);
   },
   mounted() {
-    this.getMainCategoriesData();
+    this.getDishMasterData();
+    this.getCountry();
+    this.getCity();
   },
   computed: {
     filteredItems() {
@@ -378,16 +434,29 @@ export default {
       }
       const searchTextLower = this.search.toLowerCase();
       return this.items.filter((item) => {
-        const categoryName = item.category_name?.toLowerCase() || '';
-        const description = item.description?.toLowerCase() || '';
+        const dishName = item.dish_name?.toLowerCase() || '';
+        const description = item.dish_description?.toLowerCase() || '';
+        const originCountry = item.country?.country_name?.toLowerCase() || '';
+        const originCity = item.city?.city_name?.toLowerCase() || '';
         return (
-          categoryName.includes(searchTextLower) ||
-          description.includes(searchTextLower)
+          dishName.toLowerCase().includes(searchTextLower) ||
+          description.toLowerCase().includes(searchTextLower) ||
+          originCountry.toLowerCase().includes(searchTextLower) ||
+          originCity.toLowerCase().includes(searchTextLower)
         );
       });
     },
   },
   methods: {
+    saveErrorResponse(response) {
+      let errorMessage = '';
+
+      for (const key in response.data) {
+        errorMessage += `${key}: ${response.data[key][0]}\n`;
+      }
+
+      return errorMessage;
+    },
     updateMainImageFile(newImageFile) {
       this.mainImageFile.push(newImageFile);
     },
@@ -395,13 +464,13 @@ export default {
       this.isSending = true;
       axios
         .delete(
-          `/main-categories/${this.mainCategoryDataToMainImage.mc_id}/main-image`
+          `/biryani-dish-masters/${this.dishDataToMainImage.dish_id}/main-image`
         )
         .then((response) => {
           const data = response.data;
           this.successMessage = data.message;
           this.isSuccess = true;
-          this.getMainCategoriesData();
+          this.getDishMasterData();
         })
         .catch((error) => {
           // eslint-disable-next-line
@@ -421,10 +490,10 @@ export default {
     },
     openMainImage(prop) {
       this.isOpenMainImage = true;
-      this.mainCategoryDataToMainImage = {
-        mc_id: prop.mc_id,
-        category_name: prop.category_name,
-        description: prop.description,
+      this.dishDataToMainImage = {
+        dish_id: prop.dish_id,
+        dish_name: prop.dish_name,
+        origin_country: prop.origin_country,
       };
       this.mainImageFile =
         prop.main_image != null
@@ -443,22 +512,22 @@ export default {
     closeMainImage() {
       this.isOpenMainImage = false;
       this.mainImageFile = [];
-      this.mainCategoryDataToMainImage = {
-        mc_id: 0,
-        category_name: null,
-        description: null,
+      this.dishDataToMainImage = {
+        dish_id: 0,
+        dish_name: null,
+        origin_country: null,
       };
     },
     saveMainImage() {
       this.isSending = true;
       const payload = {
-        mc_id: this.mainCategoryDataToMainImage.mc_id,
-        category_name: this.mainCategoryDataToMainImage.category_name,
-        description: this.mainCategoryDataToMainImage.description,
+        dish_id: this.dishDataToMainImage.dish_id,
+        dish_name: this.dishDataToMainImage.dish_name,
+        origin_country: this.dishDataToMainImage.origin_country,
         main_image: this.mainImageFile[0],
       };
       http
-        .post(`/main-categories/update`, payload, {
+        .post(`/biryani-dish-masters/update`, payload, {
           headers: {
             'Content-Type': 'multipart/form-data',
           },
@@ -467,7 +536,7 @@ export default {
           const data = response.data;
           this.successMessage = data.message;
           this.isSuccess = true;
-          this.getMainCategoriesData();
+          this.getDishMasterData();
         })
         .catch((error) => {
           // eslint-disable-next-line
@@ -482,53 +551,50 @@ export default {
         .finally(() => {
           this.isEdit = false;
           this.isSending = false;
-          this.mainCategoryDataToMainImage = {
-            mc_id: 0,
-            category_name: null,
-            description: null,
+          this.dishDataToMainImage = {
+            dish_id: 0,
+            dish_name: null,
+            origin_country: null,
           };
           this.isOpenMainImage = false;
           this.mainImageFile = [];
         });
     },
-    editMainCategory(prop) {
+    editDishMaster(prop) {
       this.isEdit = true;
       this.input = {
-        mc_id: prop.mc_id,
-        category_name: prop.category_name,
-        description: prop.description,
-        main_image: prop.main_image,
+        dish_id: prop.dish_id,
+        dish_name: prop.dish_name,
+        origin_country: prop.origin_country,
       };
     },
     cancelEdit() {
       this.isEdit = false;
       this.input = {
-        mc_id: 0,
-        category_name: null,
-        description: null,
-        main_image: null,
+        dish_id: 0,
+        dish_name: null,
+        origin_country: null,
       };
     },
     saveEdit() {
       if (this.valid) {
         this.isSending = true;
         const payload = {
-          mc_id: this.input.mc_id,
-          category_name: this.input.category_name,
-          description: this.input.description,
+          dish_id: this.input.dish_id,
+          dish_name: this.input.dish_name,
+          origin_country: this.input.origin_country,
         };
         axios
-          .post(`/main-categories/update`, payload)
+          .post(`/biryani-dish-masters/update`, payload)
           .then((response) => {
             const data = response.data;
             this.successMessage = data.message;
             this.isSuccess = true;
-            this.getMainCategoriesData();
+            this.getDishMasterData();
             this.input = {
-              mc_id: 0,
-              category_name: null,
-              description: null,
-              main_image: null,
+              dish_id: 0,
+              dish_name: null,
+              origin_country: null,
             };
           })
           .catch((error) => {
@@ -551,22 +617,20 @@ export default {
       if (this.valid) {
         this.isSending = true;
         const payload = {
-          app_id: 7,
-          category_name: this.input.category_name,
-          description: this.input.description,
+          dish_name: this.input.dish_name,
+          origin_country: this.input.origin_country,
         };
         axios
-          .post(`/main-categories`, payload)
+          .post(`/biryani-dish-masters`, payload)
           .then((response) => {
             const data = response.data;
             this.successMessage = data.message;
             this.isSuccess = true;
-            this.getMainCategoriesData();
+            this.getDishMasterData();
             this.input = {
-              mc_id: 0,
-              category_name: null,
-              description: null,
-              main_image: null,
+              dish_id: 0,
+              dish_name: null,
+              origin_country: null,
             };
           })
           .catch((error) => {
@@ -585,17 +649,177 @@ export default {
       }
     },
     cancelDelete() {
-      this.mainCategoryIdToDelete = null;
+      this.dishIdToDelete = null;
       this.isDelete = false;
     },
     openDeleteConfirm(itemId) {
-      this.mainCategoryIdToDelete = itemId;
+      this.dishIdToDelete = itemId;
       this.isDelete = true;
     },
-    deleteMainCategory() {
+    cancelConfirmation() {
+      this.dishIdToDelete = null;
+      this.isDelete = false;
+    },
+    deleteDishMaster() {
       this.isDeleteLoading = true;
       axios
-        .delete(`/main-categories/${this.mainCategoryIdToDelete}`)
+        .delete(`/biryani-dish-masters/${this.dishIdToDelete}`)
+        .then((response) => {
+          const data = response.data;
+          this.successMessage = data.message;
+          this.isSuccess = true;
+          this.getDishMasterData();
+        })
+        .catch((error) => {
+          // eslint-disable-next-line
+          console.log(error);
+          const message =
+            error.response.data.message === ''
+              ? 'Something Wrong!!!'
+              : error.response.data.message;
+          this.errorMessage = message;
+          this.isError = true;
+        })
+        .finally(() => {
+          this.isDeleteLoading = false;
+          this.dishIdToDelete = null;
+          this.isDelete = false;
+        });
+    },
+    getDishMasterData() {
+      this.isLoading = true;
+      axios
+        .get(`/biryani-dish-masters`)
+        .then((response) => {
+          const data = response.data.data;
+          this.items = data.map((item) => {
+            return {
+              ...item,
+              isActive:
+                item?.active == 'N' ? false : item?.active == 'Y' ? true : null,
+              isFeatured:
+                item?.is_featured == 'N'
+                  ? false
+                  : item?.is_featured == 'Y'
+                  ? true
+                  : null,
+            };
+          });
+        })
+        .catch((error) => {
+          // eslint-disable-next-line
+          console.log(error);
+          const message =
+            error.response.data.message === ''
+              ? 'Something Wrong!!!'
+              : error.response.data.message;
+          this.errorMessage = message;
+          this.isError = true;
+        })
+        .finally(() => {
+          this.isLoading = false;
+        });
+    },
+    getCountry() {
+      axios
+        .get(`/country`)
+        .then((response) => {
+          const data = response.data.data;
+          this.resource.country = data
+            .sort((a, b) => a.country_name.localeCompare(b.country_name))
+            .map((country) => {
+              return {
+                id: country.country_id,
+                name: country.country_name,
+              };
+            });
+        })
+        .catch((error) => {
+          // eslint-disable-next-line
+          console.log(error);
+          const message =
+            error.response.data.message === ''
+              ? 'Something Wrong!!!'
+              : error.response.data.message;
+          this.errorMessage = message;
+          this.isError = true;
+        });
+    },
+    getCity() {
+      axios.get(`/cities`).then((response) => {
+        const data = response.data.data;
+        this.resource.city = data;
+      });
+    },
+    filterCity(country_id) {
+      return this.resource.city.filter(
+        (item) => item.country_id === country_id
+      );
+    },
+    saveDescription(dish_description, item) {
+      this.isSending2 = true;
+      const payload = {
+        dish_id: item.dish_id,
+        dish_name: item.dish_name,
+        origin_country: item.origin_country,
+        dish_description: dish_description,
+      };
+      axios
+        .post(`/biryani-dish-masters/update`, payload)
+        .then((response) => {
+          const data = response.data;
+          this.successMessage = data.message;
+          this.isSuccess = true;
+          this.getDishMasterData();
+        })
+        .catch((error) => {
+          // eslint-disable-next-line
+          console.log(error);
+          const message =
+            error.response.data.message === ''
+              ? 'Something Wrong!!!'
+              : error.response.data.message;
+          this.errorMessage = message;
+          this.isError = true;
+        })
+        .finally(() => {
+          this.isSending2 = false;
+        });
+    },
+    saveCity(origin_city, item) {
+      this.isSending2 = true;
+      const payload = {
+        dish_id: item.dish_id,
+        dish_name: item.dish_name,
+        origin_country: item.origin_country,
+        origin_city: origin_city,
+      };
+      axios
+        .post(`/biryani-dish-masters/update`, payload)
+        .then((response) => {
+          const data = response.data;
+          this.successMessage = data.message;
+          this.isSuccess = true;
+          this.getDishMasterData();
+        })
+        .catch((error) => {
+          // eslint-disable-next-line
+          console.log(error);
+          const message =
+            error.response.data.message === ''
+              ? 'Something Wrong!!!'
+              : error.response.data.message;
+          this.errorMessage = message;
+          this.isError = true;
+        })
+        .finally(() => {
+          this.isSending2 = false;
+        });
+    },
+    activeMainCategory(bmc_id) {
+      this.isSending2 = true;
+      axios
+        .get(`/biryani-main-categories/toggle-active/${bmc_id}`)
         .then((response) => {
           const data = response.data;
           this.successMessage = data.message;
@@ -613,39 +837,7 @@ export default {
           this.isError = true;
         })
         .finally(() => {
-          this.isDeleteLoading = false;
-          this.mainCategoryIdToDelete = null;
-          this.isDelete = false;
-        });
-    },
-    getMainCategoriesData() {
-      this.isLoading = true;
-      axios
-        .get(`/main-categories`)
-        .then((response) => {
-          const data = response.data.data;
-          this.items = data
-            .sort((a, b) => b.mc_id - a.mc_id)
-            .map((item) => {
-              console.log(item);
-              return {
-                ...item,
-                userName: item?.user?.name || '',
-              };
-            });
-        })
-        .catch((error) => {
-          // eslint-disable-next-line
-          console.log(error);
-          const message =
-            error.response.data.message === ''
-              ? 'Something Wrong!!!'
-              : error.response.data.message;
-          this.errorMessage = message;
-          this.isError = true;
-        })
-        .finally(() => {
-          this.isLoading = false;
+          this.isSending2 = false;
         });
     },
   },
