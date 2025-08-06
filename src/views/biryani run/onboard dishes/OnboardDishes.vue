@@ -46,13 +46,14 @@
     <v-form v-model="valid" @submit.prevent>
       <v-container>
         <v-row>
-          <v-col cols="12" md="4">
+          <v-col cols="12" md="8">
             <v-autocomplete
               density="compact"
               label="Dish Name"
               variant="outlined"
               required
-              :items="[]"
+              v-model="input.dish_id"
+              :items="resource.dishName"
               item-title="name"
               item-value="id"
             ></v-autocomplete>
@@ -65,7 +66,20 @@
               label="Main Category"
               variant="outlined"
               required
-              :items="[]"
+              v-model="input.mc_id"
+              :items="resource.mainCategory"
+              item-title="name"
+              item-value="id"
+            ></v-autocomplete>
+          </v-col>
+          <v-col cols="12" md="4">
+            <v-autocomplete
+              density="compact"
+              label="App ID"
+              variant="outlined"
+              required
+              v-model="input.app_id"
+              :items="resource.appId"
               item-title="name"
               item-value="id"
             ></v-autocomplete>
@@ -134,27 +148,26 @@
                 <th class="text-left">Main Image</th>
                 <th class="text-left">Dish Name</th>
                 <th class="text-left">Main Category</th>
+                <th class="text-left">App Name</th>
                 <th class="text-left">User</th>
                 <th class="text-left">Dated</th>
                 <th class="text-center">Actions</th>
               </tr>
             </thead>
             <tbody>
-              <template v-for="item in filteredItems" :key="item.mc_id">
+              <template v-for="item in filteredItems" :key="item.obd_id">
                 <tr>
                   <td style="border-bottom: none !important">
-                    {{ item.mc_id }}
+                    {{ item.obd_id }}
                   </td>
                   <td style="border-bottom: none !important">
                     <div class="image-upload-cont">
                       <v-img
                         class="image-upload-item"
                         height="40"
-                        @click="openMainImage(item)"
-                        style="cursor: pointer"
                         :src="
-                          item.main_image != null
-                            ? $fileURL + item.main_image
+                          item?.dish?.main_image != null
+                            ? $fileURL + item.dish.main_image
                             : 'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png'
                         "
                       >
@@ -169,7 +182,7 @@
                       border-bottom: none !important;
                     "
                   >
-                    {{ item.category_name }}
+                    {{ item?.dish?.dish_name }}
                   </td>
                   <td
                     style="
@@ -178,7 +191,16 @@
                       max-width: 300px;
                     "
                   >
-                    {{ item.description }}
+                    {{ item?.main_category?.category_name }}
+                  </td>
+                  <td
+                    style="
+                      font-weight: 500 !important;
+                      border-bottom: none !important;
+                      max-width: 300px;
+                    "
+                  >
+                    {{ item?.app?.app_name }}
                   </td>
                   <td
                     style="
@@ -204,7 +226,7 @@
                             color="green"
                             variant="text"
                             v-bind="props"
-                            @click="editMainCategory(item)"
+                            @click="editOnboardDishes(item)"
                             icon="mdi-pencil-outline"
                           ></v-btn>
                         </template>
@@ -217,7 +239,7 @@
                             v-bind="props"
                             variant="text"
                             :disabled="isDeleteLoading"
-                            @click="openDeleteConfirm(item.mc_id)"
+                            @click="openDeleteConfirm(item.obd_id)"
                             icon="mdi-trash-can-outline"
                           ></v-btn>
                         </template>
@@ -267,19 +289,19 @@
       <v-card>
         <v-card-title>Confirmation</v-card-title>
         <v-card-text>
-          Are you sure want to delete this main category type?
+          Are you sure want to delete this onboard dish?
         </v-card-text>
         <v-card-actions>
           <v-spacer></v-spacer>
           <v-btn color="error" text @click="cancelDelete">No</v-btn>
-          <v-btn color="success" text @click="deleteMainCategory">Yes</v-btn>
+          <v-btn color="success" text @click="deleteOnboardDishes">Yes</v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
     <v-dialog persistent width="auto" v-model="isOpenMainImage">
       <v-card width="750">
         <v-card-title class="upload-title px-6 py-4">
-          Upload Main Image - Main Categories</v-card-title
+          Upload Main Image - Onboard Dishes</v-card-title
         >
         <v-card-text>
           <image-upload
@@ -312,12 +334,12 @@
 <script>
 import ImageUpload from '@/components/ImageUpload.vue';
 import axios from '@/util/axios';
-import http from 'axios';
 import { setAuthHeader } from '@/util/axios';
 // import app from '@/util/eventBus';
 
 export default {
-  name: 'MainCategories',
+  name: 'OnboardDishes',
+
   data: () => ({
     //fileURL: 'https://admin1.the-gypsy.sg/img/app/',
     valid: false,
@@ -328,11 +350,11 @@ export default {
     isError: false,
     isDelete: false,
     isDeleteLoading: false,
-    mainCategoryIdToDelete: null,
+    onboardDishesIdToDelete: null,
     tableHeaders: [{ text: 'Gambar', value: 'image' }],
     mainImageFile: [],
-    mainCategoryDataToMainImage: {
-      mc_id: 0,
+    onboardDishesDataToMainImage: {
+      obd_id: 0,
       category_name: null,
       description: null,
     },
@@ -340,27 +362,15 @@ export default {
     successMessage: '',
     errorMessage: '',
     input: {
-      mc_id: 0,
-      category_name: null,
-      description: null,
-      main_image: null,
+      obd_id: 0,
+      dish_id: null,
+      mc_id: null,
+      app_id: null,
     },
     resource: {
-      app: [],
-    },
-    rules: {
-      nameRules: [
-        (value) => {
-          if (value) return true;
-          return 'Category name is required.';
-        },
-      ],
-      descriptionRules: [
-        (value) => {
-          if (value) return true;
-          return 'Category description is required.';
-        },
-      ],
+      dishName: [],
+      mainCategory: [],
+      appId: [],
     },
     search: '',
     items: [],
@@ -370,7 +380,10 @@ export default {
     setAuthHeader(token);
   },
   mounted() {
-    this.getMainCategoriesData();
+    this.getOnboardDishesData();
+    this.getAppActive();
+    this.getMainCategories();
+    this.getDishMasters();
   },
   computed: {
     filteredItems() {
@@ -379,157 +392,57 @@ export default {
       }
       const searchTextLower = this.search.toLowerCase();
       return this.items.filter((item) => {
-        const categoryName = item.category_name?.toLowerCase() || '';
-        const description = item.description?.toLowerCase() || '';
+        // const categoryName = item.category_name?.toLowerCase() || '';
+        // const description = item.description?.toLowerCase() || '';
         return (
-          categoryName.includes(searchTextLower) ||
-          description.includes(searchTextLower)
+          item?.dishName.includes(searchTextLower) ||
+          item?.mainCategory.includes(searchTextLower) ||
+          item?.appName.includes(searchTextLower) ||
+          item?.userName.includes(searchTextLower)
         );
       });
     },
   },
   methods: {
-    updateMainImageFile(newImageFile) {
-      this.mainImageFile.push(newImageFile);
-    },
-    deleteMainImageFile() {
-      this.isSending = true;
-      axios
-        .delete(
-          `/main-categories/${this.mainCategoryDataToMainImage.mc_id}/main-image`
-        )
-        .then((response) => {
-          const data = response.data;
-          this.successMessage = data.message;
-          this.isSuccess = true;
-          this.getMainCategoriesData();
-        })
-        .catch((error) => {
-          // eslint-disable-next-line
-          console.log(error);
-          const message =
-            error.response.data.message === ''
-              ? 'Something Wrong!!!'
-              : error.response.data.message;
-          this.errorMessage = message;
-          this.isError = true;
-        })
-        .finally(() => {
-          this.isEdit = false;
-          this.isSending = false;
-          this.imageFile = [];
-        });
-    },
-    openMainImage(prop) {
-      this.isOpenMainImage = true;
-      this.mainCategoryDataToMainImage = {
-        mc_id: prop.mc_id,
-        category_name: prop.category_name,
-        description: prop.description,
-      };
-      this.mainImageFile =
-        prop.main_image != null
-          ? [
-              {
-                file: {
-                  name: prop.main_image,
-                  size: '',
-                  base64: '',
-                  format: '',
-                },
-              },
-            ]
-          : [];
-    },
-    closeMainImage() {
-      this.isOpenMainImage = false;
-      this.mainImageFile = [];
-      this.mainCategoryDataToMainImage = {
-        mc_id: 0,
-        category_name: null,
-        description: null,
-      };
-    },
-    saveMainImage() {
-      this.isSending = true;
-      const payload = {
-        mc_id: this.mainCategoryDataToMainImage.mc_id,
-        category_name: this.mainCategoryDataToMainImage.category_name,
-        description: this.mainCategoryDataToMainImage.description,
-        main_image: this.mainImageFile[0],
-      };
-      http
-        .post(`/main-categories/update`, payload, {
-          headers: {
-            'Content-Type': 'multipart/form-data',
-          },
-        })
-        .then((response) => {
-          const data = response.data;
-          this.successMessage = data.message;
-          this.isSuccess = true;
-          this.getMainCategoriesData();
-        })
-        .catch((error) => {
-          // eslint-disable-next-line
-          console.log(error);
-          const message =
-            error.response.data.message === ''
-              ? 'Something Wrong!!!'
-              : error.response.data.message;
-          this.errorMessage = message;
-          this.isError = true;
-        })
-        .finally(() => {
-          this.isEdit = false;
-          this.isSending = false;
-          this.mainCategoryDataToMainImage = {
-            mc_id: 0,
-            category_name: null,
-            description: null,
-          };
-          this.isOpenMainImage = false;
-          this.mainImageFile = [];
-        });
-    },
-    editMainCategory(prop) {
+    editOnboardDishes(prop) {
       this.isEdit = true;
       this.input = {
+        obd_id: prop.obd_id,
+        dish_id: prop.dish_id,
         mc_id: prop.mc_id,
-        category_name: prop.category_name,
-        description: prop.description,
-        main_image: prop.main_image,
+        app_id: prop.app_id,
       };
     },
     cancelEdit() {
       this.isEdit = false;
       this.input = {
-        mc_id: 0,
-        category_name: null,
-        description: null,
-        main_image: null,
+        obd_id: 0,
+        dish_id: null,
+        mc_id: null,
+        app_id: null,
       };
     },
     saveEdit() {
       if (this.valid) {
         this.isSending = true;
         const payload = {
+          obd_id: this.input.obd_id,
+          dish_id: this.input.dish_id,
           mc_id: this.input.mc_id,
-          category_name: this.input.category_name,
-          description: this.input.description,
+          app_id: this.input.app_id,
         };
         axios
-          .post(`/main-categories/update`, payload)
+          .post(`/onboard-dishes/update`, payload)
           .then((response) => {
             const data = response.data;
             this.successMessage = data.message;
             this.isSuccess = true;
-            this.getMainCategoriesData();
+            this.getOnboardDishesData();
             this.input = {
-              mc_id: 0,
-              category_name: null,
-              description: null,
-              main_image: null,
+              obd_id: 0,
+              dish_id: null,
+              mc_id: null,
+              app_id: null,
             };
           })
           .catch((error) => {
@@ -552,22 +465,22 @@ export default {
       if (this.valid) {
         this.isSending = true;
         const payload = {
-          app_id: 7,
-          category_name: this.input.category_name,
-          description: this.input.description,
+          dish_id: this.input.dish_id,
+          mc_id: this.input.mc_id,
+          app_id: this.input.app_id,
         };
         axios
-          .post(`/main-categories`, payload)
+          .post(`/onboard-dishes`, payload)
           .then((response) => {
             const data = response.data;
             this.successMessage = data.message;
             this.isSuccess = true;
-            this.getMainCategoriesData();
+            this.getOnboardDishesData();
             this.input = {
-              mc_id: 0,
-              category_name: null,
-              description: null,
-              main_image: null,
+              obd_id: 0,
+              dish_id: null,
+              mc_id: null,
+              app_id: null,
             };
           })
           .catch((error) => {
@@ -586,22 +499,22 @@ export default {
       }
     },
     cancelDelete() {
-      this.mainCategoryIdToDelete = null;
+      this.onboardDishesIdToDelete = null;
       this.isDelete = false;
     },
     openDeleteConfirm(itemId) {
-      this.mainCategoryIdToDelete = itemId;
+      this.onboardDishesIdToDelete = itemId;
       this.isDelete = true;
     },
-    deleteMainCategory() {
+    deleteOnboardDishes() {
       this.isDeleteLoading = true;
       axios
-        .delete(`/main-categories/${this.mainCategoryIdToDelete}`)
+        .delete(`/onboard-dishes/${this.onboardDishesIdToDelete}`)
         .then((response) => {
           const data = response.data;
           this.successMessage = data.message;
           this.isSuccess = true;
-          this.getMainCategoriesData();
+          this.getOnboardDishesData();
         })
         .catch((error) => {
           // eslint-disable-next-line
@@ -615,22 +528,25 @@ export default {
         })
         .finally(() => {
           this.isDeleteLoading = false;
-          this.mainCategoryIdToDelete = null;
+          this.onboardDishesIdToDelete = null;
           this.isDelete = false;
         });
     },
-    getMainCategoriesData() {
+    getOnboardDishesData() {
       this.isLoading = true;
       axios
-        .get(`/main-categories`)
+        .get(`/onboard-dishes`)
         .then((response) => {
           const data = response.data.data;
           this.items = data
-            .sort((a, b) => b.mc_id - a.mc_id)
+            .sort((a, b) => b.obd_id - a.obd_id)
             .map((item) => {
               console.log(item);
               return {
                 ...item,
+                dishName: item?.dish?.dish_name || '',
+                mainCategory: item?.main_category?.category_name || '',
+                appName: item?.app?.app_name || '',
                 userName: item?.user?.name || '',
               };
             });
@@ -647,6 +563,87 @@ export default {
         })
         .finally(() => {
           this.isLoading = false;
+        });
+    },
+    getAppActive() {
+      axios
+        .get(`/app/active`)
+        .then((response) => {
+          const data = response.data.data;
+          // console.log(data);
+          this.resource.appId = data
+            .sort((a, b) => a.app_id < b.app_id)
+            .map((app) => {
+              return {
+                id: app.app_id || 0,
+                name: app.app_name || '',
+              };
+            });
+          // console.log(this.items);
+        })
+        .catch((error) => {
+          // eslint-disable-next-line
+          console.log(error);
+          const message =
+            error.response.data.message === ''
+              ? 'Something Wrong!!!'
+              : error.response.data.message;
+          this.errorMessage = message;
+          this.isError = true;
+        });
+    },
+    getMainCategories() {
+      axios
+        .get(`/main-categories`)
+        .then((response) => {
+          const data = response.data.data;
+          // console.log(data);
+          this.resource.mainCategory = data
+            .sort((a, b) => a.mc_id < b.mc_id)
+            .map((cat) => {
+              return {
+                id: cat.mc_id || 0,
+                name: cat.category_name || '',
+              };
+            });
+          // console.log(this.items);
+        })
+        .catch((error) => {
+          // eslint-disable-next-line
+          console.log(error);
+          const message =
+            error.response.data.message === ''
+              ? 'Something Wrong!!!'
+              : error.response.data.message;
+          this.errorMessage = message;
+          this.isError = true;
+        });
+    },
+    getDishMasters() {
+      axios
+        .get(`/biryani-dish-masters`)
+        .then((response) => {
+          const data = response.data.data;
+          //console.log(data);
+          this.resource.dishName = data
+            .sort((a, b) => a.dish_id < b.dish_id)
+            .map((cat) => {
+              return {
+                id: cat.dish_id || 0,
+                name: cat.dish_name || '',
+              };
+            });
+          // console.log(this.items);
+        })
+        .catch((error) => {
+          // eslint-disable-next-line
+          console.log(error);
+          const message =
+            error.response.data.message === ''
+              ? 'Something Wrong!!!'
+              : error.response.data.message;
+          this.errorMessage = message;
+          this.isError = true;
         });
     },
   },
