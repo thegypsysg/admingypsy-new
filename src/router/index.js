@@ -1115,6 +1115,20 @@ const routes = [
     },
   },
   {
+    name: 'biryani onboard prices',
+    path: '/biryani-home/onboard-prices',
+    component: () =>
+      import('@/views/biryani run/onboard prices/OnboardPricesContainer.vue'),
+    beforeEnter: (to, from, next) => {
+      // Pengecekan status login sebelum masuk ke halaman beranda
+      if (localStorage.getItem('token') == null) {
+        next('/auth/login'); // Alihkan ke halaman login jika belum masuk
+      } else {
+        next(); // Lanjutkan ke halaman beranda jika sudah masuk
+      }
+    },
+  },
+  {
     name: 'restaurant master',
     path: '/biryani-home/restaurant-master',
     component: () =>
