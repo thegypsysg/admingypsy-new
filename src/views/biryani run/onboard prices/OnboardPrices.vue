@@ -153,8 +153,12 @@
                       <v-img
                         class="image-upload-item"
                         height="40"
+                        @click="openImage(item)"
+                        style="cursor: pointer"
                         :src="
-                          item?.dish?.main_image != null
+                          item?.dish_image != null
+                            ? $fileURL + item.dish_image
+                            : item?.dish?.main_image != null
                             ? $fileURL + item.dish.main_image
                             : 'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png'
                         "
@@ -332,16 +336,16 @@
         </v-card-actions>
       </v-card>
     </v-dialog>
-    <v-dialog persistent width="auto" v-model="isOpenMainImage">
+    <v-dialog persistent width="auto" v-model="isOpenImage">
       <v-card width="750">
         <v-card-title class="upload-title px-6 py-4">
-          Upload Main Image - Onboard Prices</v-card-title
+          Upload Image - Onboard Prices</v-card-title
         >
         <v-card-text>
           <image-upload
-            :image-file="mainImageFile"
-            @update-image-file="updateMainImageFile"
-            @delete-image-file="deleteMainImageFile"
+            :image-file="imageFile"
+            @update-image-file="updateImageFile"
+            @delete-image-file="deleteImageFile"
           />
         </v-card-text>
         <v-card-actions class="mt-16">
@@ -350,13 +354,13 @@
             style="text-transform: none"
             color="error"
             text
-            @click="closeMainImage"
+            @click="closeImage"
             >Cancel</v-btn
           >
           <v-btn
             style="background-color: #9ddcff; text-transform: none"
             color="black"
-            @click="saveMainImage()"
+            @click="saveImage()"
             >Save</v-btn
           >
         </v-card-actions>
@@ -368,6 +372,7 @@
 <script>
 import ImageUpload from '@/components/ImageUpload.vue';
 import axios from '@/util/axios';
+import http from 'axios';
 import { setAuthHeader } from '@/util/axios';
 // import app from '@/util/eventBus';
 
@@ -384,15 +389,13 @@ export default {
     isError: false,
     isDelete: false,
     isDeleteLoading: false,
+    isOpenImage: false,
     onboardPricesIdToDelete: null,
     tableHeaders: [{ text: 'Gambar', value: 'image' }],
-    mainImageFile: [],
-    onboardPricesDataToMainImage: {
+    imageFile: [],
+    onboardPricesDataToImage: {
       brp_id: 0,
-      category_name: null,
-      description: null,
     },
-    isOpenMainImage: false,
     successMessage: '',
     errorMessage: '',
     input: {
@@ -438,6 +441,114 @@ export default {
     },
   },
   methods: {
+    updateImageFile(newImageFile) {
+      this.imageFile.push(newImageFile);
+    },
+    deleteImageFile() {
+      this.isSending = true;
+      axios
+        .delete(
+          `/biryani-run-prices/${this.onboardPricesDataToImage.brp_id}/image`
+        )
+        .then((response) => {
+          const data = response.data;
+          this.successMessage = data.message;
+          this.isSuccess = true;
+          this.getOnboardPricesData();
+        })
+        .catch((error) => {
+          // eslint-disable-next-line
+          console.log(error);
+          const message =
+            error.response.data.message === ''
+              ? 'Something Wrong!!!'
+              : error.response.data.message;
+          this.errorMessage = message;
+          this.isError = true;
+        })
+        .finally(() => {
+          this.isEdit = false;
+          this.isSending = false;
+          this.imageFile = [];
+        });
+    },
+    openImage(item) {
+      console.log(item);
+      this.isOpenImage = true;
+      this.onboardPricesDataToImage = {
+        brp_id: item.brp_id,
+      };
+      this.imageFile =
+        item?.dish_image != null
+          ? [
+              {
+                file: {
+                  name: item.dish_image,
+                  size: '',
+                  base64: '',
+                  format: '',
+                },
+              },
+            ]
+          : item?.dish?.main_image != null
+          ? [
+              {
+                file: {
+                  name: item.dish.main_image,
+                  size: '',
+                  base64: '',
+                  format: '',
+                },
+              },
+            ]
+          : [];
+    },
+    closeImage() {
+      this.isOpenImage = false;
+      this.imageFile = [];
+      this.onboardPricesDataToImage = {
+        brp_id: 0,
+      };
+    },
+    saveImage() {
+      this.isSending = true;
+      const payload = {
+        brp_id: this.onboardPricesDataToImage.brp_id,
+        dish_image: this.imageFile[0],
+      };
+      http
+        .post(`/biryani-run-prices/update`, payload, {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+        })
+        .then((response) => {
+          const data = response.data;
+          this.successMessage = data.message;
+          this.isSuccess = true;
+          this.getOnboardPricesData();
+          // app.config.globalProperties.$eventBus.$emit('update-image');
+        })
+        .catch((error) => {
+          // eslint-disable-next-line
+          console.log(error);
+          const message =
+            error.response.data.message === ''
+              ? 'Something Wrong!!!'
+              : error.response.data.message;
+          this.errorMessage = message;
+          this.isError = true;
+        })
+        .finally(() => {
+          this.isEdit = false;
+          this.isSending = false;
+          this.onboardPricesDataToImage = {
+            brp_id: 0,
+          };
+          this.isOpenImage = false;
+          this.imageFile = [];
+        });
+    },
     editOnboardPrices(prop) {
       this.isEdit = true;
 
