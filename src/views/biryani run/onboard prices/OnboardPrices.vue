@@ -158,8 +158,6 @@
                         :src="
                           item?.dish_image != null
                             ? $fileURL + item.dish_image
-                            : item?.dish?.main_image != null
-                            ? $fileURL + item.dish.main_image
                             : 'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png'
                         "
                       >
@@ -490,17 +488,6 @@ export default {
                 },
               },
             ]
-          : item?.dish?.main_image != null
-          ? [
-              {
-                file: {
-                  name: item.dish.main_image,
-                  size: '',
-                  base64: '',
-                  format: '',
-                },
-              },
-            ]
           : [];
     },
     closeImage() {
@@ -779,10 +766,10 @@ export default {
           const data = response.data.data;
           //console.log(data);
           this.resource.dishName = data
-            .sort((a, b) => a.obd_id < b.obd_id)
+            .sort((a, b) => a.dish_id < b.dish_id)
             .map((cat) => {
               return {
-                id: cat.obd_id || 0,
+                id: cat.dish_id || 0,
                 name: cat?.dish?.dish_name || '',
               };
             });
