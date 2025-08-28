@@ -282,7 +282,131 @@
                       hide-details
                     ></v-text-field>
                   </td>
-                  <td colspan="5"></td>
+                  <td colspan="4">
+                    <div class="pt-2 pb-4 d-flex ga-4">
+                      <div
+                        style="font-size: 12px; font-weight: 600"
+                        class="ml-8"
+                      >
+                        <p>Active</p>
+
+                        <v-btn-toggle
+                          style="
+                            font-size: 10px !important;
+                            font-weight: 200 !important;
+                            height: 22px !important;
+                            width: 54px !important;
+                          "
+                          class="d-flex align-center"
+                          v-model="item.isActive"
+                          :disabled="isSending2"
+                          @click="togglePrice(item.brp_id, 'active')"
+                          rounded="5"
+                        >
+                          <v-btn size="27" :value="true"> Yes </v-btn>
+
+                          <v-btn size="27" :value="false"> No </v-btn>
+                        </v-btn-toggle>
+                      </div>
+
+                      <div
+                        style="font-size: 12px; font-weight: 600"
+                        class="ml-8"
+                      >
+                        <p>Live</p>
+                        <v-btn-toggle
+                          style="
+                            font-size: 10px !important;
+                            font-weight: 200 !important;
+                            height: 22px !important;
+                            width: 54px !important;
+                          "
+                          class="d-flex align-center"
+                          v-model="item.isLive"
+                          :disabled="isSending2"
+                          @click="togglePrice(item.brp_id, 'live')"
+                          rounded="5"
+                        >
+                          <v-btn size="27" :value="true"> Yes </v-btn>
+
+                          <v-btn size="27" :value="false"> No </v-btn>
+                        </v-btn-toggle>
+                      </div>
+
+                      <div
+                        style="font-size: 12px; font-weight: 600"
+                        class="ml-8"
+                      >
+                        <p>Featured</p>
+                        <v-btn-toggle
+                          style="
+                            font-size: 10px !important;
+                            font-weight: 200 !important;
+                            height: 22px !important;
+                            width: 54px !important;
+                          "
+                          class="d-flex align-center"
+                          v-model="item.isFeatured"
+                          :disabled="isSending2"
+                          @click="togglePrice(item.brp_id, 'featured')"
+                          rounded="5"
+                        >
+                          <v-btn size="27" :value="true"> Yes </v-btn>
+
+                          <v-btn size="27" :value="false"> No </v-btn>
+                        </v-btn-toggle>
+                      </div>
+
+                      <div
+                        style="font-size: 12px; font-weight: 600"
+                        class="ml-8"
+                      >
+                        <p>Platinum</p>
+                        <v-btn-toggle
+                          style="
+                            font-size: 10px !important;
+                            font-weight: 200 !important;
+                            height: 22px !important;
+                            width: 54px !important;
+                          "
+                          class="d-flex align-center"
+                          v-model="item.isPlatinum"
+                          :disabled="isSending2"
+                          @click="togglePrice(item.brp_id, 'platinum')"
+                          rounded="5"
+                        >
+                          <v-btn size="27" :value="true"> Yes </v-btn>
+
+                          <v-btn size="27" :value="false"> No </v-btn>
+                        </v-btn-toggle>
+                      </div>
+
+                      <div
+                        style="font-size: 12px; font-weight: 600"
+                        class="ml-8"
+                      >
+                        <p>Privileged</p>
+                        <v-btn-toggle
+                          style="
+                            font-size: 10px !important;
+                            font-weight: 200 !important;
+                            height: 22px !important;
+                            width: 54px !important;
+                          "
+                          class="d-flex align-center"
+                          v-model="item.isPrivileged"
+                          :disabled="isSending2"
+                          @click="togglePrice(item.brp_id, 'privileged')"
+                          rounded="5"
+                        >
+                          <v-btn size="27" :value="true"> Yes </v-btn>
+
+                          <v-btn size="27" :value="false"> No </v-btn>
+                        </v-btn-toggle>
+                      </div>
+                    </div>
+                  </td>
+                  <td colspan="1"></td>
                 </tr>
               </template>
               <tr v-if="isLoading">
@@ -382,6 +506,7 @@ export default {
     valid: false,
     isLoading: false,
     isSending: false,
+    isSending2: false,
     isEdit: false,
     isSuccess: false,
     isError: false,
@@ -715,6 +840,28 @@ export default {
                 dishName: item?.dish?.dish_name || '',
                 restaurantName: item?.restaurant?.partner?.partner_name || '',
                 userName: item?.user?.name || '',
+                isActive:
+                  item.active == 'N' ? false : item.active == 'Y' ? true : null,
+                isFeatured:
+                  item.featured == 'N'
+                    ? false
+                    : item.featured == 'Y'
+                    ? true
+                    : null,
+                isPlatinum:
+                  item.platinum == 'N'
+                    ? false
+                    : item.platinum == 'Y'
+                    ? true
+                    : null,
+                isPrivileged:
+                  item.privileged == 'N'
+                    ? false
+                    : item.privileged == 'Y'
+                    ? true
+                    : null,
+                isLive:
+                  item.live == 'N' ? false : item.live == 'Y' ? true : null,
               };
             });
         })
@@ -784,6 +931,30 @@ export default {
               : error.response.data.message;
           this.errorMessage = message;
           this.isError = true;
+        });
+    },
+    togglePrice(id, type) {
+      this.isSending2 = true;
+      axios
+        .get(`/biryani-run-prices/toggle-field/${type}/${id}`)
+        .then((response) => {
+          const data = response.data;
+          this.successMessage = data.message;
+          this.isSuccess = true;
+          this.getOnboardPricesData();
+        })
+        .catch((error) => {
+          // eslint-disable-next-line
+          console.log(error);
+          const message =
+            error.response.data.message === ''
+              ? 'Something Wrong!!!'
+              : error.response.data.message;
+          this.errorMessage = message;
+          this.isError = true;
+        })
+        .finally(() => {
+          this.isSending2 = false;
         });
     },
   },
