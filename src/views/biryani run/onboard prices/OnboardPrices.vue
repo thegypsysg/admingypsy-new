@@ -274,7 +274,7 @@
                         debouncedUpdate(
                           item.brp_id,
                           item.actual_dish_name,
-                          'actual'
+                          'actual',
                         )
                       "
                       placeholder="Actual Dish Name"
@@ -282,7 +282,7 @@
                       hide-details
                     ></v-text-field>
                   </td>
-                  <td colspan="4">
+                  <td colspan="2">
                     <div class="pt-2 pb-4 d-flex ga-4">
                       <div
                         style="font-size: 12px; font-weight: 600"
@@ -407,6 +407,37 @@
                     </div>
                   </td>
                   <td colspan="1"></td>
+                </tr>
+                <tr>
+                  <td></td>
+                  <td colspan="2">
+                    <v-text-field
+                      density="compact"
+                      v-model="item.dish_description"
+                      @input="
+                        debouncedUpdate(
+                          item.brp_id,
+                          item.dish_description,
+                          'dish_description',
+                        )
+                      "
+                      placeholder="Dish Description details"
+                      variant="outlined"
+                      hide-details
+                    ></v-text-field>
+                  </td>
+                  <td colspan="1">
+                    <v-text-field
+                      density="compact"
+                      v-model="item.pax_kgs"
+                      @input="
+                        debouncedUpdate(item.brp_id, item.pax_kgs, 'pax_kgs')
+                      "
+                      placeholder="Servings / Kgs"
+                      variant="outlined"
+                      hide-details
+                    ></v-text-field>
+                  </td>
                 </tr>
               </template>
               <tr v-if="isLoading">
@@ -571,7 +602,7 @@ export default {
       this.isSending = true;
       axios
         .delete(
-          `/biryani-run-prices/${this.onboardPricesDataToImage.brp_id}/image`
+          `/biryani-run-prices/${this.onboardPricesDataToImage.brp_id}/image`,
         )
         .then((response) => {
           const data = response.data;
@@ -734,6 +765,18 @@ export default {
         payload = {
           brp_id: id,
           rate: val,
+        };
+      } else if (type == 'dish_description') {
+        url = 'biryani-run-prices/update-dish-description';
+        payload = {
+          brp_id: id,
+          dish_description: val,
+        };
+      } else if (type == 'pax_kgs') {
+        url = 'biryani-run-prices/update-pax-kgs';
+        payload = {
+          brp_id: id,
+          pax_kgs: val,
         };
       } else {
         url = 'biryani-run-prices/update-actual-dish-name';
