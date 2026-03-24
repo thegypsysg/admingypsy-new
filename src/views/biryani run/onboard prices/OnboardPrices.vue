@@ -191,7 +191,7 @@
                     "
                   >
                     <div
-                      class="d-flex align-content-center p-0 w-100"
+                      class="d-flex align-content-center p-0 w-66"
                       style="
                         height: 40px;
                         overflow-y: hidden;
@@ -217,6 +217,7 @@
                         @input="debouncedUpdate(item.brp_id, item.rate, 'rate')"
                       ></v-text-field>
                     </div>
+                    <div class="w-33"></div>
                   </td>
                   <td
                     style="
@@ -411,7 +412,7 @@
                 <tr>
                   <td></td>
                   <td colspan="2">
-                    <v-text-field
+                    <v-textarea
                       density="compact"
                       v-model="item.dish_description"
                       @input="
@@ -424,20 +425,168 @@
                       placeholder="Dish Description details"
                       variant="outlined"
                       hide-details
-                    ></v-text-field>
+                      rows="4"
+                    ></v-textarea>
                   </td>
-                  <td colspan="1">
-                    <v-text-field
-                      density="compact"
-                      v-model="item.pax_kgs"
-                      @input="
-                        debouncedUpdate(item.brp_id, item.pax_kgs, 'pax_kgs')
-                      "
-                      placeholder="Servings / Kgs"
-                      variant="outlined"
-                      hide-details
-                    ></v-text-field>
+                  <td colspan="2">
+                    <div class="d-flex">
+                      <div class="w-66 pr-4">
+                        <v-autocomplete
+                          density="compact"
+                          label="Quantity"
+                          variant="outlined"
+                          required
+                          v-model="item.pq_id"
+                          :items="resource.quantity"
+                          item-title="name"
+                          item-value="id"
+                          @update:modelValue="updateQuantity(item)"
+                        ></v-autocomplete>
+                        <p class="font-weight-bold text-blue-accent-4">
+                          Add Pax / Kgs
+                        </p>
+                      </div>
+                      <div class="w-33 d-flex justify-space-between">
+                        <div
+                          style="font-size: 12px; font-weight: 600"
+                          class="ml-1"
+                        >
+                          <p>Veg</p>
+                          <v-btn-toggle
+                            style="
+                              font-size: 10px !important;
+                              font-weight: 200 !important;
+                              height: 22px !important;
+                              width: 54px !important;
+                            "
+                            class="d-flex align-center"
+                            v-model="item.isVeg"
+                            :disabled="isSending3"
+                            @click="toggleField(item.brp_id, 'veg')"
+                            rounded="5"
+                          >
+                            <v-btn size="27" :value="true"> Yes </v-btn>
+
+                            <v-btn size="27" :value="false"> No </v-btn>
+                          </v-btn-toggle>
+                        </div>
+                        <div
+                          style="font-size: 12px; font-weight: 600"
+                          class="ml-1"
+                        >
+                          <p>Non Veg</p>
+                          <v-btn-toggle
+                            style="
+                              font-size: 10px !important;
+                              font-weight: 200 !important;
+                              height: 22px !important;
+                              width: 54px !important;
+                            "
+                            class="d-flex align-center"
+                            v-model="item.isNonVeg"
+                            :disabled="isSending3"
+                            @click="toggleField(item.brp_id, 'non-veg')"
+                            rounded="5"
+                          >
+                            <v-btn size="27" :value="true"> Yes </v-btn>
+
+                            <v-btn size="27" :value="false"> No </v-btn>
+                          </v-btn-toggle>
+                        </div>
+                      </div>
+                    </div>
                   </td>
+                  <td>
+                    <div
+                      style="font-size: 12px; font-weight: 600"
+                      class="ml-2 mt-n10"
+                    >
+                      <p>Halal</p>
+                      <v-btn-toggle
+                        style="
+                          font-size: 10px !important;
+                          font-weight: 200 !important;
+                          height: 22px !important;
+                          width: 54px !important;
+                        "
+                        class="d-flex align-center"
+                        v-model="item.isHalal"
+                        :disabled="isSending3"
+                        @click="toggleField(item.brp_id, 'halal')"
+                        rounded="5"
+                      >
+                        <v-btn size="27" :value="true"> Yes </v-btn>
+
+                        <v-btn size="27" :value="false"> No </v-btn>
+                      </v-btn-toggle>
+                    </div>
+                  </td>
+                </tr>
+                <tr>
+                  <td style="border-bottom: none !important"></td>
+                  <td style="border-bottom: none !important">
+                    <div class="image-upload-cont mt-2 mb-2">
+                      <v-img
+                        class="image-upload-item"
+                        height="40"
+                        src="https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png"
+                      >
+                        <template #placeholder>
+                          <div class="skeleton" />
+                        </template>
+                      </v-img>
+                    </div>
+                  </td>
+                  <td
+                    style="
+                      font-weight: 800 !important;
+                      border-bottom: none !important;
+                    "
+                  >
+                    Tray Biryani (6 to 7 Pax)
+                  </td>
+                  <td
+                    style="
+                      font-weight: 800 !important;
+                      border-bottom: none !important;
+                    "
+                  >
+                    S$ 18.90
+                  </td>
+                  <td colspan="4" style="border-bottom: none !important"></td>
+                </tr>
+                <tr>
+                  <td style="border-bottom: none !important"></td>
+                  <td style="border-bottom: none !important">
+                    <div class="image-upload-cont mb-2">
+                      <v-img
+                        class="image-upload-item"
+                        height="40"
+                        src="https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png"
+                      >
+                        <template #placeholder>
+                          <div class="skeleton" />
+                        </template>
+                      </v-img>
+                    </div>
+                  </td>
+                  <td
+                    style="
+                      font-weight: 800 !important;
+                      border-bottom: none !important;
+                    "
+                  >
+                    Bucket Biryani (8 to 10 Pax)
+                  </td>
+                  <td
+                    style="
+                      font-weight: 800 !important;
+                      border-bottom: none !important;
+                    "
+                  >
+                    S$ 130.00
+                  </td>
+                  <td colspan="4" style="border-bottom: none !important"></td>
                 </tr>
               </template>
               <tr v-if="isLoading">
@@ -538,6 +687,7 @@ export default {
     isLoading: false,
     isSending: false,
     isSending2: false,
+    isSending3: false,
     isEdit: false,
     isSuccess: false,
     isError: false,
@@ -560,6 +710,7 @@ export default {
     resource: {
       restaurantName: [],
       dishName: [],
+      quantity: [],
     },
     search: '',
     items: [],
@@ -573,6 +724,7 @@ export default {
     this.getOnboardPricesData();
     this.getRestaurants();
     this.getDishMasters();
+    this.getQuantityData();
   },
   computed: {
     filteredItems() {
@@ -905,6 +1057,15 @@ export default {
                     : null,
                 isLive:
                   item.live == 'N' ? false : item.live == 'Y' ? true : null,
+                isVeg: item.veg == 'N' ? false : item.veg == 'Y' ? true : null,
+                isNonVeg:
+                  item['non-veg'] == 'N'
+                    ? false
+                    : item['non-veg'] == 'Y'
+                    ? true
+                    : null,
+                isHalal:
+                  item.halal == 'N' ? false : item.halal == 'Y' ? true : null,
               };
             });
         })
@@ -976,6 +1137,57 @@ export default {
           this.isError = true;
         });
     },
+    getQuantityData() {
+      this.isLoading = true;
+      axios
+        .get(`/product-quantities`)
+        .then((response) => {
+          const data = response.data.data;
+          // console.log(data);
+          this.resource.quantity = data.map((item) => {
+            return {
+              id: item.pq_id || 1,
+              name: item.quantity_name || '',
+            };
+          });
+        })
+        .catch((error) => {
+          // eslint-disable-next-line
+          console.log(error);
+          const message =
+            error.response.data.message === ''
+              ? 'Something Wrong!!!'
+              : error.response.data.message;
+          this.errorMessage = message;
+          this.isError = true;
+        })
+        .finally(() => {
+          this.isLoading = false;
+        });
+    },
+    updateQuantity(item) {
+      const payload = {
+        brp_id: item.brp_id,
+        pq_id: item.pq_id,
+      };
+      axios
+        .post(`/biryani-run-prices/update-product-quantity`, payload)
+        .then((response) => {
+          const data = response.data;
+          this.successMessage = data.message;
+          this.isSuccess = true;
+        })
+        .catch((error) => {
+          // eslint-disable-next-line
+          console.log(error);
+          const message =
+            error.response.data.message === ''
+              ? 'Something Wrong!!!'
+              : error.response.data.message;
+          this.errorMessage = message;
+          this.isError = true;
+        });
+    },
     togglePrice(id, type) {
       this.isSending2 = true;
       axios
@@ -998,6 +1210,30 @@ export default {
         })
         .finally(() => {
           this.isSending2 = false;
+        });
+    },
+    toggleField(id, type) {
+      this.isSending3 = true;
+      axios
+        .get(`/biryani-run-prices/toggle-field/${type}/${id}`)
+        .then((response) => {
+          const data = response.data;
+          this.successMessage = data.message;
+          this.isSuccess = true;
+          this.getOnboardPricesData();
+        })
+        .catch((error) => {
+          // eslint-disable-next-line
+          console.log(error);
+          const message =
+            error.response.data.message === ''
+              ? 'Something Wrong!!!'
+              : error.response.data.message;
+          this.errorMessage = message;
+          this.isError = true;
+        })
+        .finally(() => {
+          this.isSending3 = false;
         });
     },
   },
