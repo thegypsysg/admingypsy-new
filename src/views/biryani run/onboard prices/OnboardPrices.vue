@@ -145,10 +145,10 @@
             <tbody>
               <template v-for="item in filteredItems" :key="item.brp_id">
                 <tr>
-                  <td style="border-bottom: none !important">
+                  <td class="border-b-0 pt-3">
                     {{ item.brp_id }}
                   </td>
-                  <td style="border-bottom: none !important">
+                  <td class="border-b-0 pt-3">
                     <div class="image-upload-cont">
                       <v-img
                         class="image-upload-item"
@@ -166,29 +166,18 @@
                       ></v-img>
                     </div>
                   </td>
-                  <td
-                    style="
-                      font-weight: 500 !important;
-                      border-bottom: none !important;
-                    "
-                  >
+                  <td class="border-b-0 font-weight-bold pt-3">
                     {{ item?.dish?.dish_name }}
                   </td>
                   <td
-                    style="
-                      font-weight: 500 !important;
-                      border-bottom: none !important;
-                      max-width: 300px;
-                    "
+                    style="max-width: 300px"
+                    class="border-b-0 font-weight-bold pt-3"
                   >
                     {{ item?.restaurant?.partner?.partner_name }}
                   </td>
                   <td
-                    style="
-                      font-weight: 500 !important;
-                      border-bottom: none !important;
-                      max-width: 300px;
-                    "
+                    style="max-width: 300px"
+                    class="border-b-0 font-weight-bold pt-3"
                   >
                     <div
                       class="d-flex align-content-center p-0 w-66"
@@ -219,23 +208,13 @@
                     </div>
                     <div class="w-33"></div>
                   </td>
-                  <td
-                    style="
-                      font-weight: 500 !important;
-                      border-bottom: none !important;
-                    "
-                  >
+                  <td class="border-b-0 font-weight-bold pt-3">
                     {{ item.userName }}
                   </td>
-                  <td
-                    style="
-                      font-weight: 500 !important;
-                      border-bottom: none !important;
-                    "
-                  >
+                  <td class="border-b-0 font-weight-bold pt-3">
                     {{ item.dated }}
                   </td>
-                  <td style="border-bottom: none !important">
+                  <td class="border-b-0 pt-3">
                     <div class="d-flex">
                       <v-tooltip location="top">
                         <template v-slot:activator="{ props }">
@@ -266,8 +245,8 @@
                   </td>
                 </tr>
                 <tr>
-                  <td></td>
-                  <td colspan="2">
+                  <td class="border-b-0"></td>
+                  <td colspan="2" class="border-b-0">
                     <v-text-field
                       density="compact"
                       v-model="item.actual_dish_name"
@@ -283,7 +262,7 @@
                       hide-details
                     ></v-text-field>
                   </td>
-                  <td colspan="2">
+                  <td class="border-b-0" colspan="2">
                     <div class="pt-2 pb-4 d-flex ga-4">
                       <div
                         style="font-size: 12px; font-weight: 600"
@@ -407,11 +386,11 @@
                       </div>
                     </div>
                   </td>
-                  <td colspan="1"></td>
+                  <td class="border-b-0" colspan="1"></td>
                 </tr>
                 <tr>
-                  <td></td>
-                  <td colspan="2">
+                  <td class="border-b-0 pb-3"></td>
+                  <td class="border-b-0 pb-3" colspan="2">
                     <v-textarea
                       density="compact"
                       v-model="item.dish_description"
@@ -428,7 +407,7 @@
                       rows="4"
                     ></v-textarea>
                   </td>
-                  <td colspan="2">
+                  <td class="border-b-0 pb-3" colspan="2">
                     <div class="d-flex">
                       <div class="w-66 pr-4">
                         <v-autocomplete
@@ -442,9 +421,21 @@
                           item-value="id"
                           @update:modelValue="updateQuantity(item)"
                         ></v-autocomplete>
-                        <p class="font-weight-bold text-blue-accent-4">
-                          Add Pax / Kgs
-                        </p>
+                        <v-textarea
+                          density="compact"
+                          v-model="item.dish_description"
+                          placeholder="Item Description"
+                          variant="outlined"
+                          hide-details
+                          rows="2"
+                        ></v-textarea>
+                        <!-- @input="
+                        debouncedUpdate(
+                          item.brp_id,
+                          item.dish_description,
+                          'dish_description',
+                        )
+                      " -->
                       </div>
                       <div class="w-33 d-flex justify-space-between">
                         <div
@@ -469,6 +460,9 @@
 
                             <v-btn size="27" :value="false"> No </v-btn>
                           </v-btn-toggle>
+                          <p class="font-weight-black text-blue-accent-4 mt-16">
+                            Add Pax / Kgs
+                          </p>
                         </div>
                         <div
                           style="font-size: 12px; font-weight: 600"
@@ -492,15 +486,15 @@
 
                             <v-btn size="27" :value="false"> No </v-btn>
                           </v-btn-toggle>
+                          <p class="font-weight-black text-red-accent-4 mt-16">
+                            Tags
+                          </p>
                         </div>
                       </div>
                     </div>
                   </td>
-                  <td>
-                    <div
-                      style="font-size: 12px; font-weight: 600"
-                      class="ml-2 mt-n10"
-                    >
+                  <td class="d-flex flex-row justify-start border-b-0 pb-3">
+                    <div style="font-size: 12px; font-weight: 600" class="ml-2">
                       <p>Halal</p>
                       <v-btn-toggle
                         style="
@@ -523,8 +517,8 @@
                   </td>
                 </tr>
                 <tr>
-                  <td style="border-bottom: none !important"></td>
-                  <td style="border-bottom: none !important">
+                  <td class="border-b-sm pb-3"></td>
+                  <td class="border-b-sm pb-3">
                     <div class="image-upload-cont mt-2 mb-2">
                       <v-img
                         class="image-upload-item"
@@ -537,56 +531,11 @@
                       </v-img>
                     </div>
                   </td>
-                  <td
-                    style="
-                      font-weight: 800 !important;
-                      border-bottom: none !important;
-                    "
-                  >
+                  <td class="font-weight-bold border-b-sm pb-3">
                     Tray Biryani (6 to 7 Pax)
                   </td>
-                  <td
-                    style="
-                      font-weight: 800 !important;
-                      border-bottom: none !important;
-                    "
-                  >
-                    S$ 18.90
-                  </td>
-                  <td colspan="4" style="border-bottom: none !important"></td>
-                </tr>
-                <tr>
-                  <td style="border-bottom: none !important"></td>
-                  <td style="border-bottom: none !important">
-                    <div class="image-upload-cont mb-2">
-                      <v-img
-                        class="image-upload-item"
-                        height="40"
-                        src="https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png"
-                      >
-                        <template #placeholder>
-                          <div class="skeleton" />
-                        </template>
-                      </v-img>
-                    </div>
-                  </td>
-                  <td
-                    style="
-                      font-weight: 800 !important;
-                      border-bottom: none !important;
-                    "
-                  >
-                    Bucket Biryani (8 to 10 Pax)
-                  </td>
-                  <td
-                    style="
-                      font-weight: 800 !important;
-                      border-bottom: none !important;
-                    "
-                  >
-                    S$ 130.00
-                  </td>
-                  <td colspan="4" style="border-bottom: none !important"></td>
+                  <td class="font-weight-bold border-b-sm pb-3">S$ 18.90</td>
+                  <td class="border-b-sm pb-3" colspan="4"></td>
                 </tr>
               </template>
               <tr v-if="isLoading">
