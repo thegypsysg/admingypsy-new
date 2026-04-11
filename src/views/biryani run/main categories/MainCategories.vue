@@ -133,6 +133,8 @@
                 <th class="text-left">Main Image</th>
                 <th class="text-left">Category Name</th>
                 <th class="text-left">Category Description</th>
+                <th class="text-left">Veg</th>
+                <th class="text-left">Non-Veg</th>
                 <th class="text-left">User</th>
                 <th class="text-left">Dated</th>
                 <th class="text-center">Actions</th>
@@ -178,6 +180,56 @@
                     "
                   >
                     {{ item.description }}
+                  </td>
+                  <td
+                    style="
+                      font-weight: 500 !important;
+                      border-bottom: none !important;
+                      max-width: 300px;
+                    "
+                  >
+                    <!-- v-model="item.isActive"
+                  :disabled="isSending2"
+                  @click="togglePrice(item.brp_id, 'active')" -->
+                    <v-btn-toggle
+                      style="
+                        font-size: 10px !important;
+                        font-weight: 200 !important;
+                        height: 22px !important;
+                        width: 54px !important;
+                      "
+                      class="d-flex align-center"
+                      rounded="5"
+                    >
+                      <v-btn size="27" :value="true"> Yes </v-btn>
+
+                      <v-btn size="27" :value="false"> No </v-btn>
+                    </v-btn-toggle>
+                  </td>
+                  <td
+                    style="
+                      font-weight: 500 !important;
+                      border-bottom: none !important;
+                      max-width: 300px;
+                    "
+                  >
+                    <!-- v-model="item.isActive"
+                  :disabled="isSending2"
+                  @click="togglePrice(item.brp_id, 'active')" -->
+                    <v-btn-toggle
+                      style="
+                        font-size: 10px !important;
+                        font-weight: 200 !important;
+                        height: 22px !important;
+                        width: 54px !important;
+                      "
+                      class="d-flex align-center"
+                      rounded="5"
+                    >
+                      <v-btn size="27" :value="true"> Yes </v-btn>
+
+                      <v-btn size="27" :value="false"> No </v-btn>
+                    </v-btn-toggle>
                   </td>
                   <td
                     style="
@@ -395,7 +447,7 @@ export default {
       this.isSending = true;
       axios
         .delete(
-          `/main-categories/${this.mainCategoryDataToMainImage.mc_id}/main-image`
+          `/main-categories/${this.mainCategoryDataToMainImage.mc_id}/main-image`,
         )
         .then((response) => {
           const data = response.data;
@@ -648,6 +700,30 @@ export default {
           this.isLoading = false;
         });
     },
+    //     togglePrice(id, type) {
+    //   this.isSending2 = true;
+    //   axios
+    //     .get(`/biryani-run-prices/toggle-field/${type}/${id}`)
+    //     .then((response) => {
+    //       const data = response.data;
+    //       this.successMessage = data.message;
+    //       this.isSuccess = true;
+    //       this.getOnboardPricesData();
+    //     })
+    //     .catch((error) => {
+    //       // eslint-disable-next-line
+    //       console.log(error);
+    //       const message =
+    //         error.response.data.message === ''
+    //           ? 'Something Wrong!!!'
+    //           : error.response.data.message;
+    //       this.errorMessage = message;
+    //       this.isError = true;
+    //     })
+    //     .finally(() => {
+    //       this.isSending2 = false;
+    //     });
+    // },
   },
   components: { ImageUpload },
 };

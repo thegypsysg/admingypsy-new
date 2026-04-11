@@ -72,7 +72,11 @@
                 <th class="text-left">Id</th>
                 <th class="text-left">Restaurant Name</th>
                 <th class="text-left">Location</th>
+                <th class="text-left">Halal</th>
+                <th class="text-left">Veg</th>
+                <th class="text-left">Non-veg</th>
                 <th class="text-left">Active</th>
+                <th class="text-left">Featured</th>
                 <th class="text-left">User</th>
                 <th class="text-left">Dated</th>
                 <th class="text-center">Actions</th>
@@ -114,12 +118,112 @@
                         height: 22px !important;
                         width: 54px !important;
                       "
-                      class="d-flex align-center"
-                      @click="activeRestaurant(item.restaurant_id)"
                       v-model="item.isActive"
+                      class="d-flex align-center"
                       :disabled="isSending2"
                       rounded="5"
                     >
+                      <!-- @click="activeRestaurant(item.restaurant_id)" -->
+                      <v-btn size="27" :value="true"> Yes </v-btn>
+
+                      <v-btn size="27" :value="false"> No </v-btn>
+                    </v-btn-toggle>
+                  </td>
+                  <td
+                    style="
+                      font-weight: 500 !important;
+                      border-bottom: none !important;
+                    "
+                  >
+                    <v-btn-toggle
+                      mandatory
+                      style="
+                        font-size: 10px !important;
+                        font-weight: 200 !important;
+                        height: 22px !important;
+                        width: 54px !important;
+                      "
+                      v-model="item.isActive"
+                      class="d-flex align-center"
+                      :disabled="isSending2"
+                      rounded="5"
+                    >
+                      <!-- @click="activeRestaurant(item.restaurant_id)" -->
+                      <v-btn size="27" :value="true"> Yes </v-btn>
+
+                      <v-btn size="27" :value="false"> No </v-btn>
+                    </v-btn-toggle>
+                  </td>
+                  <td
+                    style="
+                      font-weight: 500 !important;
+                      border-bottom: none !important;
+                    "
+                  >
+                    <v-btn-toggle
+                      mandatory
+                      style="
+                        font-size: 10px !important;
+                        font-weight: 200 !important;
+                        height: 22px !important;
+                        width: 54px !important;
+                      "
+                      v-model="item.isActive"
+                      class="d-flex align-center"
+                      :disabled="isSending2"
+                      rounded="5"
+                    >
+                      <!-- @click="activeRestaurant(item.restaurant_id)" -->
+                      <v-btn size="27" :value="true"> Yes </v-btn>
+
+                      <v-btn size="27" :value="false"> No </v-btn>
+                    </v-btn-toggle>
+                  </td>
+                  <td
+                    style="
+                      font-weight: 500 !important;
+                      border-bottom: none !important;
+                    "
+                  >
+                    <v-btn-toggle
+                      mandatory
+                      style="
+                        font-size: 10px !important;
+                        font-weight: 200 !important;
+                        height: 22px !important;
+                        width: 54px !important;
+                      "
+                      v-model="item.isActive"
+                      @click="activeRestaurant(item.restaurant_id)"
+                      class="d-flex align-center"
+                      :disabled="isSending2"
+                      rounded="5"
+                    >
+                      <v-btn size="27" :value="true"> Yes </v-btn>
+
+                      <v-btn size="27" :value="false"> No </v-btn>
+                    </v-btn-toggle>
+                  </td>
+                  <td
+                    style="
+                      font-weight: 500 !important;
+                      border-bottom: none !important;
+                    "
+                  >
+                    <v-btn-toggle
+                      mandatory
+                      style="
+                        font-size: 10px !important;
+                        font-weight: 200 !important;
+                        height: 22px !important;
+                        width: 54px !important;
+                      "
+                      v-model="item.isActive"
+                      class="d-flex align-center"
+                      :disabled="isSending2"
+                      rounded="5"
+                    >
+                      <!-- @click="activeRestaurant(item.restaurant_id)" -->
                       <v-btn size="27" :value="true"> Yes </v-btn>
 
                       <v-btn size="27" :value="false"> No </v-btn>
@@ -374,7 +478,7 @@ export default {
       return this.items.filter(
         (item) =>
           item.restaurantName.toLowerCase().includes(searchTextLower) ||
-          item.locationName.toLowerCase().includes(searchTextLower)
+          item.locationName.toLowerCase().includes(searchTextLower),
       );
     },
   },

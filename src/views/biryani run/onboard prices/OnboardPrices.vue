@@ -423,19 +423,19 @@
                         ></v-autocomplete>
                         <v-textarea
                           density="compact"
-                          v-model="item.dish_description"
+                          v-model="item.pq_description"
                           placeholder="Item Description"
                           variant="outlined"
                           hide-details
                           rows="2"
+                          @input="
+                            debouncedUpdate(
+                              item.brp_id,
+                              item.pq_description,
+                              'pq_description',
+                            )
+                          "
                         ></v-textarea>
-                        <!-- @input="
-                        debouncedUpdate(
-                          item.brp_id,
-                          item.dish_description,
-                          'dish_description',
-                        )
-                      " -->
                       </div>
                       <div class="w-33 d-flex justify-space-between">
                         <div
@@ -460,9 +460,16 @@
 
                             <v-btn size="27" :value="false"> No </v-btn>
                           </v-btn-toggle>
-                          <p class="font-weight-black text-blue-accent-4 mt-16">
-                            Add Pax / Kgs
-                          </p>
+                          <router-link
+                            :to="`/biryani-home/onboard-prices/pax-kgs/${item.brp_id}`"
+                            class="text-decoration-none"
+                          >
+                            <p
+                              class="font-weight-black text-blue-accent-4 mt-16"
+                            >
+                              Add Pax / Kgs
+                            </p>
+                          </router-link>
                         </div>
                         <div
                           style="font-size: 12px; font-weight: 600"
@@ -872,6 +879,12 @@ export default {
         payload = {
           brp_id: id,
           dish_description: val,
+        };
+      } else if (type == 'pq_description') {
+        url = 'biryani-run-prices/update-pq-description';
+        payload = {
+          brp_id: id,
+          pq_description: val,
         };
       } else if (type == 'pax_kgs') {
         url = 'biryani-run-prices/update-pax-kgs';
