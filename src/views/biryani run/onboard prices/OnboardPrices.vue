@@ -389,8 +389,23 @@
                   <td class="border-b-0" colspan="1"></td>
                 </tr>
                 <tr>
-                  <td class="border-b-0 pb-3"></td>
-                  <td class="border-b-0 pb-3" colspan="2">
+                  <td
+                    class="pb-3"
+                    :class="
+                      item.biryani_run_price2.length > 0
+                        ? 'border-b-0'
+                        : 'border-b-sm'
+                    "
+                  ></td>
+                  <td
+                    class="pb-3"
+                    :class="
+                      item.biryani_run_price2.length > 0
+                        ? 'border-b-0'
+                        : 'border-b-sm'
+                    "
+                    colspan="2"
+                  >
                     <v-textarea
                       density="compact"
                       v-model="item.dish_description"
@@ -407,7 +422,15 @@
                       rows="4"
                     ></v-textarea>
                   </td>
-                  <td class="border-b-0 pb-3" colspan="2">
+                  <td
+                    class="pb-3"
+                    :class="
+                      item.biryani_run_price2.length > 0
+                        ? 'border-b-0'
+                        : 'border-b-sm'
+                    "
+                    colspan="2"
+                  >
                     <div class="d-flex">
                       <div class="w-66 pr-4">
                         <v-autocomplete
@@ -500,7 +523,7 @@
                       </div>
                     </div>
                   </td>
-                  <td class="d-flex flex-row justify-start border-b-0 pb-3">
+                  <td class="d-flex flex-row justify-start pb-3 border-b-0">
                     <div style="font-size: 12px; font-weight: 600" class="ml-2">
                       <p>Halal</p>
                       <v-btn-toggle
@@ -523,27 +546,74 @@
                     </div>
                   </td>
                 </tr>
-                <tr>
-                  <td class="border-b-sm pb-3"></td>
-                  <td class="border-b-sm pb-3">
-                    <div class="image-upload-cont mt-2 mb-2">
-                      <v-img
-                        class="image-upload-item"
-                        height="40"
-                        src="https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png"
-                      >
-                        <template #placeholder>
-                          <div class="skeleton" />
-                        </template>
-                      </v-img>
-                    </div>
-                  </td>
-                  <td class="font-weight-bold border-b-sm pb-3">
-                    Tray Biryani (6 to 7 Pax)
-                  </td>
-                  <td class="font-weight-bold border-b-sm pb-3">S$ 18.90</td>
-                  <td class="border-b-sm pb-3" colspan="4"></td>
-                </tr>
+                <template
+                  v-for="(data, index) in item.biryani_run_price2"
+                  :key="data.brp_id_2"
+                >
+                  <tr>
+                    <td
+                      class="pb-3"
+                      :class="
+                        index == item.biryani_run_price2.length - 1
+                          ? 'border-b-sm'
+                          : 'border-b-0'
+                      "
+                    ></td>
+                    <td
+                      class="pb-3"
+                      :class="
+                        index == item.biryani_run_price2.length - 1
+                          ? 'border-b-sm'
+                          : 'border-b-0'
+                      "
+                    >
+                      <div class="image-upload-cont mt-2 mb-2">
+                        <v-img
+                          class="image-upload-item"
+                          height="40"
+                          :src="
+                            data?.dish_image != null
+                              ? $fileURL + data.dish_image
+                              : 'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png'
+                          "
+                        >
+                          <template #placeholder>
+                            <div class="skeleton" />
+                          </template>
+                        </v-img>
+                      </div>
+                    </td>
+                    <td
+                      class="font-weight-bold pb-3"
+                      :class="
+                        index == item.biryani_run_price2.length - 1
+                          ? 'border-b-sm'
+                          : 'border-b-0'
+                      "
+                    >
+                      {{ data?.product_quantity?.quantity_name || '-' }}
+                    </td>
+                    <td
+                      class="font-weight-bold pb-3"
+                      :class="
+                        index == item.biryani_run_price2.length - 1
+                          ? 'border-b-sm'
+                          : 'border-b-0'
+                      "
+                    >
+                      S$ {{ data?.rate || '-' }}
+                    </td>
+                    <td
+                      class="pb-3"
+                      :class="
+                        index == item.biryani_run_price2.length - 1
+                          ? 'border-b-sm'
+                          : 'border-b-0'
+                      "
+                      colspan="4"
+                    ></td>
+                  </tr>
+                </template>
               </template>
               <tr v-if="isLoading">
                 <td :colspan="6" class="text-center">
