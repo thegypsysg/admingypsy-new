@@ -188,10 +188,10 @@
                       max-width: 300px;
                     "
                   >
-                    <!-- v-model="item.isActive"
-                  :disabled="isSending2"
-                  @click="togglePrice(item.brp_id, 'active')" -->
                     <v-btn-toggle
+                      v-model="item.isVeg"
+                      :disabled="isSending2"
+                      @click="toggleCategory(item.mc_id, 'veg')"
                       style="
                         font-size: 10px !important;
                         font-weight: 200 !important;
@@ -213,10 +213,10 @@
                       max-width: 300px;
                     "
                   >
-                    <!-- v-model="item.isActive"
-                  :disabled="isSending2"
-                  @click="togglePrice(item.brp_id, 'active')" -->
                     <v-btn-toggle
+                      v-model="item.isNonVeg"
+                      :disabled="isSending2"
+                      @click="toggleCategory(item.mc_id, 'non_veg')"
                       style="
                         font-size: 10px !important;
                         font-weight: 200 !important;
@@ -683,6 +683,8 @@ export default {
               return {
                 ...item,
                 userName: item?.user?.name || '',
+                isVeg: item?.veg !== 'Y' ? false : true,
+                isNonVeg: item?.non_veg !== 'Y' ? false : true,
               };
             });
         })
@@ -700,30 +702,30 @@ export default {
           this.isLoading = false;
         });
     },
-    //     togglePrice(id, type) {
-    //   this.isSending2 = true;
-    //   axios
-    //     .get(`/biryani-run-prices/toggle-field/${type}/${id}`)
-    //     .then((response) => {
-    //       const data = response.data;
-    //       this.successMessage = data.message;
-    //       this.isSuccess = true;
-    //       this.getOnboardPricesData();
-    //     })
-    //     .catch((error) => {
-    //       // eslint-disable-next-line
-    //       console.log(error);
-    //       const message =
-    //         error.response.data.message === ''
-    //           ? 'Something Wrong!!!'
-    //           : error.response.data.message;
-    //       this.errorMessage = message;
-    //       this.isError = true;
-    //     })
-    //     .finally(() => {
-    //       this.isSending2 = false;
-    //     });
-    // },
+    toggleCategory(id, type) {
+      this.isSending2 = true;
+      axios
+        .get(`/main-categories/toggle-field/${type}/${id}`)
+        .then((response) => {
+          const data = response.data;
+          this.successMessage = data.message;
+          this.isSuccess = true;
+          this.getMainCategoriesData();
+        })
+        .catch((error) => {
+          // eslint-disable-next-line
+          console.log(error);
+          const message =
+            error.response.data.message === ''
+              ? 'Something Wrong!!!'
+              : error.response.data.message;
+          this.errorMessage = message;
+          this.isError = true;
+        })
+        .finally(() => {
+          this.isSending2 = false;
+        });
+    },
   },
   components: { ImageUpload },
 };
