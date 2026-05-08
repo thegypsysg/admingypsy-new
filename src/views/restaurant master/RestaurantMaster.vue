@@ -118,12 +118,12 @@
                         height: 22px !important;
                         width: 54px !important;
                       "
-                      v-model="item.isActive"
+                      v-model="item.isHalal"
                       class="d-flex align-center"
                       :disabled="isSending2"
                       rounded="5"
+                      @click="toggleField(item.restaurant_id, 'halal')"
                     >
-                      <!-- @click="activeRestaurant(item.restaurant_id)" -->
                       <v-btn size="27" :value="true"> Yes </v-btn>
 
                       <v-btn size="27" :value="false"> No </v-btn>
@@ -143,12 +143,12 @@
                         height: 22px !important;
                         width: 54px !important;
                       "
-                      v-model="item.isActive"
+                      v-model="item.isVeg"
                       class="d-flex align-center"
                       :disabled="isSending2"
                       rounded="5"
+                      @click="toggleField(item.restaurant_id, 'veg')"
                     >
-                      <!-- @click="activeRestaurant(item.restaurant_id)" -->
                       <v-btn size="27" :value="true"> Yes </v-btn>
 
                       <v-btn size="27" :value="false"> No </v-btn>
@@ -168,12 +168,12 @@
                         height: 22px !important;
                         width: 54px !important;
                       "
-                      v-model="item.isActive"
+                      v-model="item.isNonVeg"
                       class="d-flex align-center"
                       :disabled="isSending2"
                       rounded="5"
+                      @click="toggleField(item.restaurant_id, 'non_veg')"
                     >
-                      <!-- @click="activeRestaurant(item.restaurant_id)" -->
                       <v-btn size="27" :value="true"> Yes </v-btn>
 
                       <v-btn size="27" :value="false"> No </v-btn>
@@ -218,12 +218,12 @@
                         height: 22px !important;
                         width: 54px !important;
                       "
-                      v-model="item.isActive"
+                      v-model="item.isFeatured"
+                      @click="toggleField(item.restaurant_id, 'featured')"
                       class="d-flex align-center"
                       :disabled="isSending2"
                       rounded="5"
                     >
-                      <!-- @click="activeRestaurant(item.restaurant_id)" -->
                       <v-btn size="27" :value="true"> Yes </v-btn>
 
                       <v-btn size="27" :value="false"> No </v-btn>
@@ -262,6 +262,89 @@
                       </v-tooltip>
                     </div>
                   </td>
+                </tr>
+                <tr>
+                  <td class="pb-2 mb-2"></td>
+                  <td class="pb-2 mb-2" style="min-width: 250px">
+                    <v-label class="text-caption mb-1">Cuisine Country</v-label>
+                    <v-autocomplete
+                      density="compact"
+                      placeholder="--- Select ---"
+                      variant="outlined"
+                      v-model="item.cuisine_country"
+                      :items="resource.country"
+                      item-title="name"
+                      item-value="id"
+                      hide-details
+                      @update:modelValue="updateCuisineCountry(item)"
+                    ></v-autocomplete>
+                  </td>
+                  <td class="pb-2 mb-2" colspan="6">
+                    <div
+                      class="d-flex align-center justify-space-between ga-4 w-100"
+                    >
+                      <div class="w-33">
+                        <v-label class="text-caption mb-1">Since</v-label>
+                        <v-text-field
+                          density="compact"
+                          v-model="item.since"
+                          maxlength="4"
+                          @input="
+                            item.since = item.since.replace(/[^0-9]/g, '');
+                            debouncedUpdate(
+                              item.restaurant_id,
+                              item.since,
+                              'since',
+                            );
+                          "
+                          variant="outlined"
+                          hide-details
+                        ></v-text-field>
+                      </div>
+                      <div class="w-66">
+                        <v-label class="text-caption mb-1">Tag Line</v-label>
+                        <v-text-field
+                          density="compact"
+                          v-model="item.tag_line"
+                          @input="
+                            debouncedUpdate(
+                              item.restaurant_id,
+                              item.tag_line,
+                              'tag_line',
+                            )
+                          "
+                          variant="outlined"
+                          hide-details
+                        ></v-text-field>
+                      </div>
+                    </div>
+                  </td>
+                  <td class="pb-2 mb-2" style="font-weight: 500 !important">
+                    <v-label class="text-caption mb-3"
+                      >Google Review On</v-label
+                    >
+                    <v-btn-toggle
+                      mandatory
+                      style="
+                        font-size: 10px !important;
+                        font-weight: 200 !important;
+                        height: 22px !important;
+                        width: 54px !important;
+                      "
+                      v-model="item.isGoogleReviewsOn"
+                      class="d-flex align-center"
+                      :disabled="isSending2"
+                      rounded="5"
+                      @click="
+                        toggleField(item.restaurant_id, 'google_reviews_on')
+                      "
+                    >
+                      <v-btn size="27" :value="true"> Yes </v-btn>
+
+                      <v-btn size="27" :value="false"> No </v-btn>
+                    </v-btn-toggle>
+                  </td>
+                  <td colspan="2" class="pb-2 mb-2"></td>
                 </tr>
               </template>
               <tr v-if="isLoading">
@@ -437,6 +520,7 @@ export default {
       location: [],
       city: [],
       town: [],
+      country: [],
     },
     rules: {
       partnerRules: [
@@ -454,6 +538,7 @@ export default {
     },
     search: '',
     items: [],
+    debounceTimer: null,
   }),
   created() {
     const token = JSON.parse(localStorage.getItem('token'));
@@ -462,6 +547,7 @@ export default {
   mounted() {
     this.getRestaurantData();
     this.getPartnerData();
+    this.getCountry();
   },
   watch: {
     'input.partner_id': function () {
@@ -483,6 +569,47 @@ export default {
     },
   },
   methods: {
+    debouncedUpdate(id, value, type) {
+      // Hapus timer sebelumnya jika ada
+      if (this.debounceTimer) {
+        clearTimeout(this.debounceTimer);
+      }
+
+      // Set debounce baru
+      this.debounceTimer = setTimeout(() => {
+        this.updateData(id, value, type);
+      }, 800);
+    },
+    updateData(id, val, type) {
+      let payload = {};
+      let url = '';
+      if (type == 'since') {
+        url = '/biryani-restaurant-masters/update-since';
+        payload = {
+          restaurant_id: id,
+          since: val,
+        };
+      } else if (type == 'tag_line') {
+        url = '/biryani-restaurant-masters/update-tag-line';
+        payload = {
+          restaurant_id: id,
+          tag_line: val,
+        };
+      }
+
+      axios
+        .post(url, payload)
+        .then((response) => {
+          this.successMessage = response.data.message;
+          this.isSuccess = true;
+        })
+        .catch((error) => {
+          console.error(error);
+          this.errorMessage =
+            error.response?.data?.message || 'Something Wrong!!!';
+          this.isError = true;
+        });
+    },
     saveData() {
       if (this.valid) {
         this.isSending = true;
@@ -563,6 +690,23 @@ export default {
           console.log(error);
         });
     },
+    getCountry() {
+      axios
+        .get(`/country`)
+        .then((response) => {
+          const data = response.data.data;
+          this.resource.country = data.map((country) => {
+            return {
+              id: country.country_id,
+              name: country.country_name,
+            };
+          });
+        })
+        .catch((error) => {
+          // eslint-disable-next-line
+          console.log(error);
+        });
+    },
     getLocationData() {
       this.isLoading = true;
       axios
@@ -616,6 +760,19 @@ export default {
                 : item?.town?.town_name && !item?.city?.city_name
                 ? item?.town?.town_name
                 : '-',
+            isHalal:
+              item.halal == 'N' ? false : item.halal == 'Y' ? true : null,
+            isVeg: item.veg == 'N' ? false : item.veg == 'Y' ? true : null,
+            isNonVeg:
+              item.non_veg == 'N' ? false : item.non_veg == 'Y' ? true : null,
+            isFeatured:
+              item.featured == 'N' ? false : item.featured == 'Y' ? true : null,
+            isGoogleReviewsOn:
+              item.google_reviews_on == 'N'
+                ? false
+                : item.google_reviews_on == 'Y'
+                ? true
+                : null,
           }));
         })
         .catch((error) => {
@@ -632,10 +789,57 @@ export default {
           this.isLoading = false;
         });
     },
+    updateCuisineCountry(item) {
+      const payload = {
+        restaurant_id: item.restaurant_id,
+        cuisine_country: item.cuisine_country,
+      };
+      axios
+        .post(`/biryani-restaurant-masters/update-cuisine-country`, payload)
+        .then((response) => {
+          const data = response.data;
+          this.successMessage = data.message;
+          this.isSuccess = true;
+        })
+        .catch((error) => {
+          // eslint-disable-next-line
+          console.log(error);
+          const message =
+            error.response.data.message === ''
+              ? 'Something Wrong!!!'
+              : error.response.data.message;
+          this.errorMessage = message;
+          this.isError = true;
+        });
+    },
     activeRestaurant(restaurant_id) {
       this.isSending2 = true;
       axios
         .get(`/biryani-restaurant-masters/toggle-active/${restaurant_id}`)
+        .then((response) => {
+          const data = response.data;
+          this.successMessage = data.message;
+          this.isSuccess = true;
+          this.getRestaurantData();
+        })
+        .catch((error) => {
+          // eslint-disable-next-line
+          console.log(error);
+          const message =
+            error.response.data.message === ''
+              ? 'Something Wrong!!!'
+              : error.response.data.message;
+          this.errorMessage = message;
+          this.isError = true;
+        })
+        .finally(() => {
+          this.isSending2 = false;
+        });
+    },
+    toggleField(id, type) {
+      this.isSending2 = true;
+      axios
+        .get(`/biryani-restaurant-masters/toggle-field/${type}/${id}`)
         .then((response) => {
           const data = response.data;
           this.successMessage = data.message;
