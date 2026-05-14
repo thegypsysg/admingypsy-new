@@ -366,11 +366,11 @@
                     <v-table class="">
                       <thead>
                         <tr class="py-0">
-                          <th class="text-left py-0"></th>
-                          <th class="text-left py-0"></th>
-                          <th class="text-left py-0"></th>
-                          <th class="text-left py-0"></th>
-                          <th class="text-left py-0"></th>
+                          <th class="text-left py-0">Ref #</th>
+                          <th class="text-left py-0">Item Description</th>
+                          <th class="text-left py-0">Rate</th>
+                          <th class="text-left py-0">Qty</th>
+                          <th class="text-left py-0">Amount</th>
                           <th class="text-left py-0">Order Request</th>
                           <th class="text-left py-0">Request Date</th>
                           <th class="text-left py-0">Request By</th>
@@ -388,8 +388,8 @@
                             style="border-bottom: none !important"
                             class="pr-6 pt-4"
                           >
-                            {{ del?.products[0]?.product_name }}
-                            {{ del?.quantity?.quantity_name }}
+                            {{ getItemDescription(del) }}
+                            {{ getItemQuantityDescription(del) }}
                           </td>
                           <td
                             style="border-bottom: none !important"
@@ -715,6 +715,32 @@ export default {
     formatInfo(info) {
       return info.replace(/\n/g, '<br>');
     },
+    getItemDescription(del) {
+      if (del?.biryani_run_price) {
+        if (del?.biryani_run_price?.actual_dish_name) {
+          return del.biryani_run_price.actual_dish_name;
+        } else if (del?.biryani_run_price?.dish?.dish_name) {
+          return del.biryani_run_price.dish.dish_name;
+        }
+      } else {
+        if (del?.products && del.products.length > 0) {
+          return del.products[0].product_name;
+        }
+      }
+      return '';
+    },
+    getItemQuantityDescription(del) {
+      if (del?.biryani_run_price2) {
+        return del?.biryani_run_price2?.product_quantity?.quantity_name || '';
+      }
+      if (!del?.biryani_run_price2 && del?.biryani_run_price) {
+        return del?.biryani_run_price?.product_quantity?.quantity_name || '';
+      }
+      if (!del?.biryani_run_price) {
+        return del?.quantity?.quantity_name || '';
+      }
+      return '';
+    },
     getItemsData() {
       this.isLoading = true;
       axios
@@ -771,7 +797,7 @@ export default {
           this.orderStatuses = data
             .filter(
               (d) =>
-                d.order_status_value != 'PP' && d.order_status_value != 'DP'
+                d.order_status_value != 'PP' && d.order_status_value != 'DP',
             )
             .map((item) => {
               return {
@@ -1018,7 +1044,7 @@ export default {
     deleteOrderRequest() {
       axios
         .delete(
-          `/order-fullfilment/${this.cancelRequestData?.order_fullfilment?.of_id}`
+          `/order-fullfilment/${this.cancelRequestData?.order_fullfilment?.of_id}`,
         )
         .then((response) => {
           const data = response.data;
