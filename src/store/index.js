@@ -38,6 +38,10 @@ export default createStore({
             path: '/restaurant-master',
           },
           {
+            title: 'Menu Management',
+            path: '/menu-management',
+          },
+          {
             title: 'Dish Master',
             path: '/dish-master',
           },

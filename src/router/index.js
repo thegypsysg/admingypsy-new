@@ -503,6 +503,34 @@ const routes = [
     },
   },
   {
+    name: 'menu management',
+    path: '/menu-management',
+    component: () =>
+      import('@/views/menu management/management/MenuManagementContainer.vue'),
+    beforeEnter: (to, from, next) => {
+      // Pengecekan status login sebelum masuk ke halaman beranda
+      if (localStorage.getItem('token') == null) {
+        next('/auth/login'); // Alihkan ke halaman login jika belum masuk
+      } else {
+        next(); // Lanjutkan ke halaman beranda jika sudah masuk
+      }
+    },
+  },
+  {
+    name: 'menu category',
+    path: '/menu-category',
+    component: () =>
+      import('@/views/menu management/category/MenuCategoryContainer.vue'),
+    beforeEnter: (to, from, next) => {
+      // Pengecekan status login sebelum masuk ke halaman beranda
+      if (localStorage.getItem('token') == null) {
+        next('/auth/login'); // Alihkan ke halaman login jika belum masuk
+      } else {
+        next(); // Lanjutkan ke halaman beranda jika sudah masuk
+      }
+    },
+  },
+  {
     name: 'dish master 2',
     path: '/dish-master',
     component: () => import('@/views/dish master/DishMasterContainer.vue'),
