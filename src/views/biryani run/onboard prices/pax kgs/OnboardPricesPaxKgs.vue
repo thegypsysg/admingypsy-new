@@ -198,8 +198,14 @@
                   </td>
                 </tr>
                 <tr>
-                  <td class="border-b-sm"></td>
-                  <td class="border-b-sm" colspan="2">
+                  <td class="border-b-sm pb-2"></td>
+                  <td class="border-b-sm pb-2" colspan="2">
+                    <div
+                      class="font-weight-bold mb-1"
+                      style="font-size: 12px; color: #555"
+                    >
+                      What's Included. ?
+                    </div>
                     <v-textarea
                       density="compact"
                       v-model="item.dish_description"
@@ -212,9 +218,94 @@
                       placeholder="Dish Description details"
                       variant="outlined"
                       hide-details
-                      rows="3"
+                      rows="4"
                     ></v-textarea>
                   </td>
+                  <td class="pb-2 border-b-sm">
+                    <div class="d-flex ga-4 mb-2 align-center">
+                      <div style="flex: 1">
+                        <fieldset
+                          style="
+                            border: 1px solid #ccc;
+                            border-radius: 4px;
+                            padding: 0 8px 4px 8px;
+                            position: relative;
+                            min-width: 130px;
+                          "
+                        >
+                          <legend
+                            style="
+                              font-size: 11px;
+                              font-weight: bold;
+                              color: #666;
+                              padding: 0 4px;
+                              margin-left: 8px;
+                            "
+                          >
+                            Preparation Time
+                          </legend>
+                          <div class="d-flex align-center mt-1">
+                            <v-select
+                              density="compact"
+                              v-model="item.prep_time_placeholder"
+                              :items="['15', '30', '45', '60']"
+                              variant="plain"
+                              hide-details
+                              class="pa-0 ma-0 font-weight-bold text-blue-accent-4"
+                              style="font-size: 14px"
+                            ></v-select>
+                          </div>
+                        </fieldset>
+                      </div>
+                      <div
+                        class="d-flex align-center font-weight-bold ml-2 mr-4"
+                        style="font-size: 12px"
+                      >
+                        Mins
+                      </div>
+                      <div>
+                        <div
+                          style="
+                            font-size: 11px;
+                            font-weight: bold;
+                            color: #666;
+                          "
+                          class="text-center mb-1 text-no-wrap"
+                        >
+                          24 hrs Notice
+                        </div>
+                        <v-btn-toggle
+                          style="
+                            font-size: 10px !important;
+                            font-weight: 200 !important;
+                            height: 22px !important;
+                            width: 54px !important;
+                          "
+                          class="d-flex align-center mx-auto"
+                          v-model="item.notice_24h_placeholder"
+                          rounded="5"
+                        >
+                          <v-btn size="27" :value="true"> Yes </v-btn>
+                          <v-btn size="27" :value="false"> No </v-btn>
+                        </v-btn-toggle>
+                      </div>
+                    </div>
+                    <div
+                      class="font-weight-bold mb-1"
+                      style="font-size: 12px; color: #555"
+                    >
+                      What's Free
+                    </div>
+                    <v-textarea
+                      density="compact"
+                      v-model="item.whats_free_placeholder"
+                      placeholder="What's Free"
+                      variant="outlined"
+                      hide-details
+                      rows="2"
+                    ></v-textarea>
+                  </td>
+                  <td class="pb-2 border-b-sm" colspan="3"></td>
                 </tr>
               </template>
               <tr v-if="isLoading">
@@ -732,6 +823,16 @@ export default {
 .upload-title {
   background-color: #9ddcff;
   color: white;
+}
+
+.v-btn-toggle .v-btn:not(.v-btn--active) {
+  background-color: #e0e0e0 !important;
+}
+
+/* Latar belakang aktif */
+.v-btn-toggle .v-btn--active {
+  background-color: #2196f3 !important;
+  color: #fff !important;
 }
 
 .skeleton {

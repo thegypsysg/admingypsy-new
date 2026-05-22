@@ -136,6 +136,7 @@
                 <th class="text-left">Main Image</th>
                 <th class="text-left">Dish Name</th>
                 <th class="text-left">Restaurant Name</th>
+                <th class="text-left">Neighbourhood</th>
                 <th class="text-left">Rate</th>
                 <th class="text-left">User</th>
                 <th class="text-left">Dated</th>
@@ -175,17 +176,23 @@
                   >
                     {{ item?.restaurant?.partner?.partner_name }}
                   </td>
+                  <td class="border-b-0 font-weight-bold pt-3">
+                    {{
+                      item?.restaurant?.partner_location?.town?.town_name || '-'
+                    }}
+                  </td>
                   <td
                     style="max-width: 300px"
                     class="border-b-0 font-weight-bold pt-3"
                   >
                     <div
-                      class="d-flex align-content-center p-0 w-66"
+                      class="d-flex align-content-center p-0"
                       style="
                         height: 40px;
                         overflow-y: hidden;
                         border-radius: 5px;
                         border: 1px grey solid;
+                        min-width: 13 0px;
                       "
                     >
                       <div
@@ -206,7 +213,6 @@
                         @input="debouncedUpdate(item.brp_id, item.rate, 'rate')"
                       ></v-text-field>
                     </div>
-                    <div class="w-33"></div>
                   </td>
                   <td class="border-b-0 font-weight-bold pt-3">
                     {{ item.userName }}
@@ -247,6 +253,12 @@
                 <tr>
                   <td class="border-b-0"></td>
                   <td colspan="2" class="border-b-0">
+                    <div
+                      class="font-weight-bold mb-1"
+                      style="font-size: 12px; color: #555"
+                    >
+                      Actual Dish Name
+                    </div>
                     <v-text-field
                       density="compact"
                       v-model="item.actual_dish_name"
@@ -260,13 +272,85 @@
                       placeholder="Actual Dish Name"
                       variant="outlined"
                       hide-details
+                      class="mb-4"
+                      style="min-width: 250px"
                     ></v-text-field>
                   </td>
                   <td class="border-b-0" colspan="2">
+                    <div class="d-flex ga-4 mb-4 align-center">
+                      <div style="flex: 1">
+                        <fieldset
+                          style="
+                            border: 1px solid #ccc;
+                            border-radius: 4px;
+                            padding: 0 8px 4px 8px;
+                            position: relative;
+                            min-width: 130px;
+                          "
+                        >
+                          <legend
+                            style="
+                              font-size: 11px;
+                              font-weight: bold;
+                              color: #666;
+                              padding: 0 4px;
+                              margin-left: 8px;
+                            "
+                          >
+                            Preparation Time
+                          </legend>
+                          <div class="d-flex align-center mt-1">
+                            <v-select
+                              density="compact"
+                              v-model="item.prep_time_placeholder"
+                              :items="['15', '30', '45', '60']"
+                              variant="plain"
+                              hide-details
+                              class="pa-0 ma-0 font-weight-bold text-blue-accent-4"
+                              style="font-size: 14px"
+                            ></v-select>
+                          </div>
+                        </fieldset>
+                      </div>
+                      <div
+                        class="d-flex align-center font-weight-bold ml-2 mr-4"
+                        style="font-size: 12px"
+                      >
+                        Mins
+                      </div>
+                      <div>
+                        <div
+                          style="
+                            font-size: 11px;
+                            font-weight: bold;
+                            color: #666;
+                          "
+                          class="text-center mb-1 text-no-wrap"
+                        >
+                          24 hrs Notice
+                        </div>
+                        <v-btn-toggle
+                          style="
+                            font-size: 10px !important;
+                            font-weight: 200 !important;
+                            height: 22px !important;
+                            width: 54px !important;
+                          "
+                          class="d-flex align-center mx-auto"
+                          v-model="item.notice_24h_placeholder"
+                          rounded="5"
+                        >
+                          <v-btn size="27" :value="true"> Yes </v-btn>
+                          <v-btn size="27" :value="false"> No </v-btn>
+                        </v-btn-toggle>
+                      </div>
+                    </div>
+                  </td>
+                  <td class="border-b-0">
                     <div class="pt-2 pb-4 d-flex ga-4">
                       <div
                         style="font-size: 12px; font-weight: 600"
-                        class="ml-8"
+                        class="mr-8"
                       >
                         <p>Active</p>
 
@@ -289,10 +373,7 @@
                         </v-btn-toggle>
                       </div>
 
-                      <div
-                        style="font-size: 12px; font-weight: 600"
-                        class="ml-8"
-                      >
+                      <div style="font-size: 12px; font-weight: 600">
                         <p>Live</p>
                         <v-btn-toggle
                           style="
@@ -312,12 +393,142 @@
                           <v-btn size="27" :value="false"> No </v-btn>
                         </v-btn-toggle>
                       </div>
+                    </div>
+                  </td>
+                  <td class="border-b-0">
+                    <div style="font-size: 12px; font-weight: 600">
+                      <p>Featured</p>
+                      <v-btn-toggle
+                        style="
+                          font-size: 10px !important;
+                          font-weight: 200 !important;
+                          height: 22px !important;
+                          width: 54px !important;
+                        "
+                        class="d-flex align-center"
+                        v-model="item.isFeatured"
+                        :disabled="isSending2"
+                        @click="togglePrice(item.brp_id, 'featured')"
+                        rounded="5"
+                      >
+                        <v-btn size="27" :value="true"> Yes </v-btn>
 
+                        <v-btn size="27" :value="false"> No </v-btn>
+                      </v-btn-toggle>
+                    </div>
+                  </td>
+                  <td class="border-b-0">
+                    <div style="font-size: 12px; font-weight: 600">
+                      <p>Platinum</p>
+                      <v-btn-toggle
+                        style="
+                          font-size: 10px !important;
+                          font-weight: 200 !important;
+                          height: 22px !important;
+                          width: 54px !important;
+                        "
+                        class="d-flex align-center"
+                        v-model="item.isPlatinum"
+                        :disabled="isSending2"
+                        @click="togglePrice(item.brp_id, 'platinum')"
+                        rounded="5"
+                      >
+                        <v-btn size="27" :value="true"> Yes </v-btn>
+
+                        <v-btn size="27" :value="false"> No </v-btn>
+                      </v-btn-toggle>
+                    </div>
+                  </td>
+                  <td class="border-b-0">
+                    <div style="font-size: 12px; font-weight: 600">
+                      <p>Privileged</p>
+                      <v-btn-toggle
+                        style="
+                          font-size: 10px !important;
+                          font-weight: 200 !important;
+                          height: 22px !important;
+                          width: 54px !important;
+                        "
+                        class="d-flex align-center"
+                        v-model="item.isPrivileged"
+                        :disabled="isSending2"
+                        @click="togglePrice(item.brp_id, 'privileged')"
+                        rounded="5"
+                      >
+                        <v-btn size="27" :value="true"> Yes </v-btn>
+
+                        <v-btn size="27" :value="false"> No </v-btn>
+                      </v-btn-toggle>
+                    </div>
+                  </td>
+                </tr>
+
+                <tr>
+                  <td class="pb-3 border-b-0"></td>
+                  <td class="pb-3 border-b-0" colspan="2">
+                    <div
+                      class="font-weight-bold mb-1"
+                      style="font-size: 12px; color: #555"
+                    >
+                      Dish Description
+                    </div>
+                    <v-textarea
+                      density="compact"
+                      v-model="item.dish_description"
+                      @input="
+                        debouncedUpdate(
+                          item.brp_id,
+                          item.dish_description,
+                          'dish_description',
+                        )
+                      "
+                      placeholder="Dish Description details"
+                      variant="outlined"
+                      hide-details
+                      rows="4"
+                    ></v-textarea>
+                  </td>
+                  <td class="pb-3 border-b-0" colspan="2">
+                    <v-autocomplete
+                      density="compact"
+                      label="Quantity"
+                      variant="outlined"
+                      required
+                      v-model="item.pq_id"
+                      :items="resource.quantity"
+                      item-title="name"
+                      item-value="id"
+                      @update:modelValue="updateQuantity(item)"
+                    ></v-autocomplete>
+                    <div
+                      class="font-weight-bold mb-1"
+                      style="font-size: 12px; color: #555"
+                    >
+                      What's Included. ?
+                    </div>
+                    <v-textarea
+                      density="compact"
+                      v-model="item.pq_description"
+                      placeholder="What's Included. ?"
+                      variant="outlined"
+                      hide-details
+                      rows="2"
+                      @input="
+                        debouncedUpdate(
+                          item.brp_id,
+                          item.pq_description,
+                          'pq_description',
+                        )
+                      "
+                    ></v-textarea>
+                  </td>
+                  <td class="pb-3 border-b-0" colspan="2">
+                    <div class="d-flex justify-space-between mb-4">
                       <div
                         style="font-size: 12px; font-weight: 600"
-                        class="ml-8"
+                        class="ml-1"
                       >
-                        <p>Featured</p>
+                        <p>Veg</p>
                         <v-btn-toggle
                           style="
                             font-size: 10px !important;
@@ -326,9 +537,9 @@
                             width: 54px !important;
                           "
                           class="d-flex align-center"
-                          v-model="item.isFeatured"
-                          :disabled="isSending2"
-                          @click="togglePrice(item.brp_id, 'featured')"
+                          v-model="item.isVeg"
+                          :disabled="isSending3"
+                          @click="toggleField(item.brp_id, 'veg')"
                           rounded="5"
                         >
                           <v-btn size="27" :value="true"> Yes </v-btn>
@@ -336,12 +547,11 @@
                           <v-btn size="27" :value="false"> No </v-btn>
                         </v-btn-toggle>
                       </div>
-
                       <div
                         style="font-size: 12px; font-weight: 600"
-                        class="ml-8"
+                        class="ml-1"
                       >
-                        <p>Platinum</p>
+                        <p>Non Veg</p>
                         <v-btn-toggle
                           style="
                             font-size: 10px !important;
@@ -350,9 +560,9 @@
                             width: 54px !important;
                           "
                           class="d-flex align-center"
-                          v-model="item.isPlatinum"
-                          :disabled="isSending2"
-                          @click="togglePrice(item.brp_id, 'platinum')"
+                          v-model="item.isNonVeg"
+                          :disabled="isSending3"
+                          @click="toggleField(item.brp_id, 'non-veg')"
                           rounded="5"
                         >
                           <v-btn size="27" :value="true"> Yes </v-btn>
@@ -360,12 +570,11 @@
                           <v-btn size="27" :value="false"> No </v-btn>
                         </v-btn-toggle>
                       </div>
-
                       <div
                         style="font-size: 12px; font-weight: 600"
-                        class="ml-8"
+                        class="ml-2"
                       >
-                        <p>Privileged</p>
+                        <p>Halal</p>
                         <v-btn-toggle
                           style="
                             font-size: 10px !important;
@@ -374,9 +583,9 @@
                             width: 54px !important;
                           "
                           class="d-flex align-center"
-                          v-model="item.isPrivileged"
-                          :disabled="isSending2"
-                          @click="togglePrice(item.brp_id, 'privileged')"
+                          v-model="item.isHalal"
+                          :disabled="isSending3"
+                          @click="toggleField(item.brp_id, 'halal')"
                           rounded="5"
                         >
                           <v-btn size="27" :value="true"> Yes </v-btn>
@@ -385,8 +594,22 @@
                         </v-btn-toggle>
                       </div>
                     </div>
+                    <div
+                      class="font-weight-bold mb-1"
+                      style="font-size: 12px; color: #555"
+                    >
+                      What's Free
+                    </div>
+                    <v-textarea
+                      density="compact"
+                      v-model="item.whats_free_placeholder"
+                      placeholder="What's Free"
+                      variant="outlined"
+                      hide-details
+                      rows="2"
+                    ></v-textarea>
                   </td>
-                  <td class="border-b-0" colspan="1"></td>
+                  <td class="pb-3 border-b-0" colspan="2"></td>
                 </tr>
                 <tr>
                   <td
@@ -406,21 +629,27 @@
                     "
                     colspan="2"
                   >
-                    <v-textarea
-                      density="compact"
-                      v-model="item.dish_description"
-                      @input="
-                        debouncedUpdate(
-                          item.brp_id,
-                          item.dish_description,
-                          'dish_description',
-                        )
-                      "
-                      placeholder="Dish Description details"
-                      variant="outlined"
-                      hide-details
-                      rows="4"
-                    ></v-textarea>
+                    <!-- Bottom Links -->
+                    <div
+                      class="d-flex mt-4 font-weight-black"
+                      style="font-size: 12px; gap: 8px"
+                    >
+                      <router-link
+                        :to="`/biryani-home/onboard-prices/pax-kgs/${item.brp_id}`"
+                        class="text-decoration-none text-blue-accent-4"
+                        style="color: #0d47a1 !important"
+                      >
+                        More Range
+                      </router-link>
+                      <span style="color: #0d47a1">|</span>
+                      <router-link
+                        to="#"
+                        class="text-decoration-none text-blue-accent-4"
+                        style="color: #0d47a1 !important"
+                      >
+                        Tags
+                      </router-link>
+                    </div>
                   </td>
                   <td
                     class="pb-3"
@@ -429,122 +658,8 @@
                         ? 'border-b-0'
                         : 'border-b-sm'
                     "
-                    colspan="2"
-                  >
-                    <div class="d-flex">
-                      <div class="w-66 pr-4">
-                        <v-autocomplete
-                          density="compact"
-                          label="Quantity"
-                          variant="outlined"
-                          required
-                          v-model="item.pq_id"
-                          :items="resource.quantity"
-                          item-title="name"
-                          item-value="id"
-                          @update:modelValue="updateQuantity(item)"
-                        ></v-autocomplete>
-                        <v-textarea
-                          density="compact"
-                          v-model="item.pq_description"
-                          placeholder="Item Description"
-                          variant="outlined"
-                          hide-details
-                          rows="2"
-                          @input="
-                            debouncedUpdate(
-                              item.brp_id,
-                              item.pq_description,
-                              'pq_description',
-                            )
-                          "
-                        ></v-textarea>
-                      </div>
-                      <div class="w-33 d-flex justify-space-between">
-                        <div
-                          style="font-size: 12px; font-weight: 600"
-                          class="ml-1"
-                        >
-                          <p>Veg</p>
-                          <v-btn-toggle
-                            style="
-                              font-size: 10px !important;
-                              font-weight: 200 !important;
-                              height: 22px !important;
-                              width: 54px !important;
-                            "
-                            class="d-flex align-center"
-                            v-model="item.isVeg"
-                            :disabled="isSending3"
-                            @click="toggleField(item.brp_id, 'veg')"
-                            rounded="5"
-                          >
-                            <v-btn size="27" :value="true"> Yes </v-btn>
-
-                            <v-btn size="27" :value="false"> No </v-btn>
-                          </v-btn-toggle>
-                          <router-link
-                            :to="`/biryani-home/onboard-prices/pax-kgs/${item.brp_id}`"
-                            class="text-decoration-none"
-                          >
-                            <p
-                              class="font-weight-black text-blue-accent-4 mt-16"
-                            >
-                              Add Pax / Kgs
-                            </p>
-                          </router-link>
-                        </div>
-                        <div
-                          style="font-size: 12px; font-weight: 600"
-                          class="ml-1"
-                        >
-                          <p>Non Veg</p>
-                          <v-btn-toggle
-                            style="
-                              font-size: 10px !important;
-                              font-weight: 200 !important;
-                              height: 22px !important;
-                              width: 54px !important;
-                            "
-                            class="d-flex align-center"
-                            v-model="item.isNonVeg"
-                            :disabled="isSending3"
-                            @click="toggleField(item.brp_id, 'non-veg')"
-                            rounded="5"
-                          >
-                            <v-btn size="27" :value="true"> Yes </v-btn>
-
-                            <v-btn size="27" :value="false"> No </v-btn>
-                          </v-btn-toggle>
-                          <p class="font-weight-black text-red-accent-4 mt-16">
-                            Tags
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-                  </td>
-                  <td class="d-flex flex-row justify-start pb-3 border-b-0">
-                    <div style="font-size: 12px; font-weight: 600" class="ml-2">
-                      <p>Halal</p>
-                      <v-btn-toggle
-                        style="
-                          font-size: 10px !important;
-                          font-weight: 200 !important;
-                          height: 22px !important;
-                          width: 54px !important;
-                        "
-                        class="d-flex align-center"
-                        v-model="item.isHalal"
-                        :disabled="isSending3"
-                        @click="toggleField(item.brp_id, 'halal')"
-                        rounded="5"
-                      >
-                        <v-btn size="27" :value="true"> Yes </v-btn>
-
-                        <v-btn size="27" :value="false"> No </v-btn>
-                      </v-btn-toggle>
-                    </div>
-                  </td>
+                    colspan="6"
+                  ></td>
                 </tr>
                 <template
                   v-for="(data, index) in item.biryani_run_price2"
