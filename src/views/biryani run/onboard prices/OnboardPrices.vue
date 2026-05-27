@@ -299,13 +299,16 @@
                           >
                             Preparation Time
                           </legend>
-                          <div class="d-flex align-center mt-1">
+                          <div class="d-flex align-center">
                             <v-select
                               density="compact"
-                              v-model="item.prep_time_placeholder"
-                              :items="['15', '30', '45', '60']"
+                              v-model="item.prep_id"
+                              :items="resource.prepTime"
+                              @update:modelValue="updatePrepTime(item)"
                               variant="plain"
                               hide-details
+                              item-title="name"
+                              item-value="id"
                               class="pa-0 ma-0 font-weight-bold text-blue-accent-4"
                               style="font-size: 14px"
                             ></v-select>
@@ -337,8 +340,9 @@
                             width: 54px !important;
                           "
                           class="d-flex align-center mx-auto"
-                          v-model="item.notice_24h_placeholder"
+                          v-model="item.is24h"
                           rounded="5"
+                          @click="togglePrice(item.brp_id, '24_hrs_notice')"
                         >
                           <v-btn size="27" :value="true"> Yes </v-btn>
                           <v-btn size="27" :value="false"> No </v-btn>
@@ -602,7 +606,14 @@
                     </div>
                     <v-textarea
                       density="compact"
-                      v-model="item.whats_free_placeholder"
+                      v-model="item.whats_free"
+                      @input="
+                        debouncedUpdate(
+                          item.brp_id,
+                          item.whats_free,
+                          'whats_free',
+                        )
+                      "
                       placeholder="What's Free"
                       variant="outlined"
                       hide-details
@@ -852,6 +863,7 @@ export default {
       restaurantName: [],
       dishName: [],
       quantity: [],
+      prepTime: [],
     },
     search: '',
     items: [],
@@ -866,6 +878,7 @@ export default {
     this.getRestaurants();
     this.getDishMasters();
     this.getQuantityData();
+    this.getPrepMasters();
   },
   computed: {
     filteredItems() {
@@ -1065,6 +1078,12 @@ export default {
           brp_id: id,
           dish_description: val,
         };
+      } else if (type == 'whats_free') {
+        url = 'biryani-run-prices/update-whats-free';
+        payload = {
+          brp_id: id,
+          whats_free: val,
+        };
       } else if (type == 'pq_description') {
         url = 'biryani-run-prices/update-pq-description';
         payload = {
@@ -1213,6 +1232,12 @@ export default {
                     : null,
                 isHalal:
                   item.halal == 'N' ? false : item.halal == 'Y' ? true : null,
+                is24h:
+                  item['24_hrs_notice'] == 'N'
+                    ? false
+                    : item['24_hrs_notice'] == 'Y'
+                    ? true
+                    : null,
               };
             });
         })
@@ -1272,6 +1297,56 @@ export default {
               };
             });
           // console.log(this.items);
+        })
+        .catch((error) => {
+          // eslint-disable-next-line
+          console.log(error);
+          const message =
+            error.response.data.message === ''
+              ? 'Something Wrong!!!'
+              : error.response.data.message;
+          this.errorMessage = message;
+          this.isError = true;
+        });
+    },
+    getPrepMasters() {
+      axios
+        .get(`/prep-master`)
+        .then((response) => {
+          const data = response.data.data;
+          //console.log(data);
+          this.resource.prepTime = data
+            .sort((a, b) => a.prep_id < b.prep_id)
+            .map((cat) => {
+              return {
+                id: cat.prep_id || 0,
+                name: cat?.prep_time || '',
+              };
+            });
+          // console.log(this.items);
+        })
+        .catch((error) => {
+          // eslint-disable-next-line
+          console.log(error);
+          const message =
+            error.response.data.message === ''
+              ? 'Something Wrong!!!'
+              : error.response.data.message;
+          this.errorMessage = message;
+          this.isError = true;
+        });
+    },
+    updatePrepTime(item) {
+      const payload = {
+        brp_id: item.brp_id,
+        prep_id: item.prep_id,
+      };
+      axios
+        .post(`/biryani-run-prices/update-prep-time`, payload)
+        .then((response) => {
+          const data = response.data;
+          this.successMessage = data.message;
+          this.isSuccess = true;
         })
         .catch((error) => {
           // eslint-disable-next-line

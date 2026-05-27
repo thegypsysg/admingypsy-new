@@ -157,7 +157,7 @@
                         density="compact"
                         placeholder="0"
                         v-model="item.rate"
-                        @input="debouncedUpdate(item.id, item.rate)"
+                        @input="debouncedUpdate(item.id, item.rate, 'rate')"
                       ></v-text-field>
                     </div>
                   </td>
@@ -210,9 +210,10 @@
                       density="compact"
                       v-model="item.dish_description"
                       @input="
-                        debouncedUpdateDescription(
+                        debouncedUpdate(
                           item.id,
                           item.dish_description,
+                          'pq_description',
                         )
                       "
                       placeholder="Dish Description details"
@@ -247,8 +248,11 @@
                           <div class="d-flex align-center mt-1">
                             <v-select
                               density="compact"
-                              v-model="item.prep_time_placeholder"
-                              :items="['15', '30', '45', '60']"
+                              v-model="item.prep_id"
+                              :items="resource.prepTime"
+                              item-title="name"
+                              item-value="id"
+                              @update:modelValue="updatePrepTime(item)"
                               variant="plain"
                               hide-details
                               class="pa-0 ma-0 font-weight-bold text-blue-accent-4"
@@ -282,7 +286,10 @@
                             width: 54px !important;
                           "
                           class="d-flex align-center mx-auto"
-                          v-model="item.notice_24h_placeholder"
+                          v-model="item.is24h"
+                          @update:modelValue="
+                            toggleField(item.brp_id_2, '24_hrs_notice')
+                          "
                           rounded="5"
                         >
                           <v-btn size="27" :value="true"> Yes </v-btn>
@@ -298,7 +305,10 @@
                     </div>
                     <v-textarea
                       density="compact"
-                      v-model="item.whats_free_placeholder"
+                      v-model="item.whats_free"
+                      @input="
+                        debouncedUpdate(item.id, item.whats_free, 'whats_free')
+                      "
                       placeholder="What's Free"
                       variant="outlined"
                       hide-details
@@ -422,6 +432,7 @@ export default {
 
     resource: {
       paxKgs: [],
+      prepTime: [],
     },
     rules: {
       paxKgsRules: [
@@ -445,6 +456,7 @@ export default {
     this.getOnboardPriceData();
     this.getPaxKgsData();
     this.getPaxKgsResource();
+    this.getPrepMasters();
   },
   computed: {
     filteredItems() {
@@ -504,6 +516,12 @@ export default {
               pax_kgs_id: item?.pq_id || null,
               pax_kgs_name: item?.product_quantity?.quantity_name || '',
               user: item?.user?.name || '',
+              is24h:
+                item['24_hrs_notice'] == 'N'
+                  ? false
+                  : item['24_hrs_notice'] == 'Y'
+                  ? true
+                  : null,
             };
           });
         })
@@ -518,6 +536,56 @@ export default {
         })
         .finally(() => {
           this.isLoading = false;
+        });
+    },
+    getPrepMasters() {
+      axios
+        .get(`/prep-master`)
+        .then((response) => {
+          const data = response.data.data;
+          //console.log(data);
+          this.resource.prepTime = data
+            .sort((a, b) => a.prep_id < b.prep_id)
+            .map((cat) => {
+              return {
+                id: cat.prep_id || 0,
+                name: cat?.prep_time || '',
+              };
+            });
+          // console.log(this.items);
+        })
+        .catch((error) => {
+          // eslint-disable-next-line
+          console.log(error);
+          const message =
+            error.response.data.message === ''
+              ? 'Something Wrong!!!'
+              : error.response.data.message;
+          this.errorMessage = message;
+          this.isError = true;
+        });
+    },
+    updatePrepTime(item) {
+      const payload = {
+        brp_id_2: item.brp_id_2,
+        prep_id: item.prep_id,
+      };
+      axios
+        .post(`/biryani-run-prices2/update-prep-time`, payload)
+        .then((response) => {
+          const data = response.data;
+          this.successMessage = data.message;
+          this.isSuccess = true;
+        })
+        .catch((error) => {
+          // eslint-disable-next-line
+          console.log(error);
+          const message =
+            error.response.data.message === ''
+              ? 'Something Wrong!!!'
+              : error.response.data.message;
+          this.errorMessage = message;
+          this.isError = true;
         });
     },
     getPaxKgsResource() {
@@ -657,47 +725,42 @@ export default {
           this.isDelete = false;
         });
     },
-    debouncedUpdate(id, value) {
+    debouncedUpdate(id, value, type) {
+      // Hapus timer sebelumnya jika ada
       if (this.debounceTimer) {
         clearTimeout(this.debounceTimer);
       }
+
+      // Set debounce baru
       this.debounceTimer = setTimeout(() => {
-        this.updateRate(id, value);
+        this.updateData(id, value, type);
       }, 800);
     },
-    updateRate(id, val) {
-      const payload = {
-        brp_id_2: id,
-        rate: val,
-      };
-      axios
-        .post(`/biryani-run-prices2/update-rate`, payload)
-        .then((response) => {
-          this.successMessage = response.data.message;
-          this.isSuccess = true;
-        })
-        .catch((error) => {
-          console.error(error);
-          this.errorMessage =
-            error.response?.data?.message || 'Something Wrong!!!';
-          this.isError = true;
-        });
-    },
-    debouncedUpdateDescription(id, value) {
-      if (this.debounceTimerDesc) {
-        clearTimeout(this.debounceTimerDesc);
+    updateData(id, val, type) {
+      let payload = {};
+      let url = '';
+      if (type == 'rate') {
+        url = 'biryani-run-prices2/update-rate';
+        payload = {
+          brp_id_2: id,
+          rate: val,
+        };
+      } else if (type == 'whats_free') {
+        url = 'biryani-run-prices2/update-whats-free';
+        payload = {
+          brp_id_2: id,
+          whats_free: val,
+        };
+      } else if (type == 'pq_description') {
+        url = 'biryani-run-prices2/update-description';
+        payload = {
+          brp_id_2: id,
+          pq_description: val,
+        };
       }
-      this.debounceTimerDesc = setTimeout(() => {
-        this.updateDescription(id, value);
-      }, 800);
-    },
-    updateDescription(id, val) {
-      const payload = {
-        brp_id_2: id,
-        pq_description: val,
-      };
+
       axios
-        .post(`/biryani-run-prices2/update-description`, payload)
+        .post(url, payload)
         .then((response) => {
           this.successMessage = response.data.message;
           this.isSuccess = true;
@@ -797,6 +860,30 @@ export default {
           };
           this.isOpenImage = false;
           this.imageFile = [];
+        });
+    },
+    toggleField(id, type) {
+      this.isSending2 = true;
+      axios
+        .get(`/biryani-run-prices2/toggle-field/${type}/${id}`)
+        .then((response) => {
+          const data = response.data;
+          this.successMessage = data.message;
+          this.isSuccess = true;
+          this.getPaxKgsData();
+        })
+        .catch((error) => {
+          // eslint-disable-next-line
+          console.log(error);
+          const message =
+            error.response.data.message === ''
+              ? 'Something Wrong!!!'
+              : error.response.data.message;
+          this.errorMessage = message;
+          this.isError = true;
+        })
+        .finally(() => {
+          this.isSending2 = false;
         });
     },
   },
