@@ -29,7 +29,7 @@
         <v-row class="d-flex align-baseline mt-n4">
           <v-col cols="12" md="4">
             <v-text-field
-              v-model="input.category_name"
+              v-model="input.menu_header"
               :rules="rules.nameRules"
               label="Menu Category"
               variant="outlined"
@@ -135,7 +135,7 @@
                       border-bottom: none !important;
                     "
                   >
-                    {{ item.category_name }}
+                    {{ item.menu_header }}
                   </td>
 
                   <td
@@ -225,7 +225,7 @@
       <v-card>
         <v-card-title>Confirmation</v-card-title>
         <v-card-text>
-          Are you sure want to delete this main category type?
+          Are you sure want to delete this menu category?
         </v-card-text>
         <v-card-actions>
           <v-spacer></v-spacer>
@@ -237,7 +237,7 @@
     <v-dialog persistent width="auto" v-model="isOpenMainImage">
       <v-card width="750">
         <v-card-title class="upload-title px-6 py-4">
-          Upload Main Image - Main Categories</v-card-title
+          Upload Main Image - Menu Categories</v-card-title
         >
         <v-card-text>
           <image-upload
@@ -291,16 +291,15 @@ export default {
     mainImageFile: [],
     mainCategoryDataToMainImage: {
       mc_id: 0,
-      category_name: null,
-      description: null,
+      menu_header: null,
     },
     isOpenMainImage: false,
     successMessage: '',
     errorMessage: '',
     input: {
       mc_id: 0,
-      category_name: null,
-      description: null,
+      menu_header: null,
+
       main_image: null,
     },
     resource: {
@@ -311,12 +310,6 @@ export default {
         (value) => {
           if (value) return true;
           return 'Category name is required.';
-        },
-      ],
-      descriptionRules: [
-        (value) => {
-          if (value) return true;
-          return 'Category description is required.';
         },
       ],
     },
@@ -337,12 +330,8 @@ export default {
       }
       const searchTextLower = this.search.toLowerCase();
       return this.items.filter((item) => {
-        const categoryName = item.category_name?.toLowerCase() || '';
-        const description = item.description?.toLowerCase() || '';
-        return (
-          categoryName.includes(searchTextLower) ||
-          description.includes(searchTextLower)
-        );
+        const categoryName = item.menu_header?.toLowerCase() || '';
+        return categoryName.includes(searchTextLower);
       });
     },
   },
@@ -354,7 +343,7 @@ export default {
       this.isSending = true;
       axios
         .delete(
-          `/main-categories/${this.mainCategoryDataToMainImage.mc_id}/main-image`,
+          `/menu-categories/${this.mainCategoryDataToMainImage.mc_id}/main-image`,
         )
         .then((response) => {
           const data = response.data;
@@ -382,8 +371,7 @@ export default {
       this.isOpenMainImage = true;
       this.mainCategoryDataToMainImage = {
         mc_id: prop.mc_id,
-        category_name: prop.category_name,
-        description: prop.description,
+        menu_header: prop.menu_header,
       };
       this.mainImageFile =
         prop.main_image != null
@@ -404,20 +392,18 @@ export default {
       this.mainImageFile = [];
       this.mainCategoryDataToMainImage = {
         mc_id: 0,
-        category_name: null,
-        description: null,
+        menu_header: null,
       };
     },
     saveMainImage() {
       this.isSending = true;
       const payload = {
         mc_id: this.mainCategoryDataToMainImage.mc_id,
-        category_name: this.mainCategoryDataToMainImage.category_name,
-        description: this.mainCategoryDataToMainImage.description,
+        menu_header: this.mainCategoryDataToMainImage.menu_header,
         main_image: this.mainImageFile[0],
       };
       http
-        .post(`/main-categories/update`, payload, {
+        .post(`/menu-categories/update`, payload, {
           headers: {
             'Content-Type': 'multipart/form-data',
           },
@@ -443,8 +429,7 @@ export default {
           this.isSending = false;
           this.mainCategoryDataToMainImage = {
             mc_id: 0,
-            category_name: null,
-            description: null,
+            menu_header: null,
           };
           this.isOpenMainImage = false;
           this.mainImageFile = [];
@@ -454,8 +439,7 @@ export default {
       this.isEdit = true;
       this.input = {
         mc_id: prop.mc_id,
-        category_name: prop.category_name,
-        description: prop.description,
+        menu_header: prop.menu_header,
         main_image: prop.main_image,
       };
     },
@@ -463,8 +447,8 @@ export default {
       this.isEdit = false;
       this.input = {
         mc_id: 0,
-        category_name: null,
-        description: null,
+        menu_header: null,
+
         main_image: null,
       };
     },
@@ -473,11 +457,10 @@ export default {
         this.isSending = true;
         const payload = {
           mc_id: this.input.mc_id,
-          category_name: this.input.category_name,
-          description: this.input.description,
+          menu_header: this.input.menu_header,
         };
         axios
-          .post(`/main-categories/update`, payload)
+          .post(`/menu-categories/update`, payload)
           .then((response) => {
             const data = response.data;
             this.successMessage = data.message;
@@ -485,8 +468,8 @@ export default {
             this.getMainCategoriesData();
             this.input = {
               mc_id: 0,
-              category_name: null,
-              description: null,
+              menu_header: null,
+
               main_image: null,
             };
           })
@@ -510,12 +493,10 @@ export default {
       if (this.valid) {
         this.isSending = true;
         const payload = {
-          app_id: 7,
-          category_name: this.input.category_name,
-          description: this.input.description,
+          menu_header: this.input.menu_header,
         };
         axios
-          .post(`/main-categories`, payload)
+          .post(`/menu-categories`, payload)
           .then((response) => {
             const data = response.data;
             this.successMessage = data.message;
@@ -523,8 +504,7 @@ export default {
             this.getMainCategoriesData();
             this.input = {
               mc_id: 0,
-              category_name: null,
-              description: null,
+              menu_header: null,
               main_image: null,
             };
           })
@@ -554,7 +534,7 @@ export default {
     deleteMainCategory() {
       this.isDeleteLoading = true;
       axios
-        .delete(`/main-categories/${this.mainCategoryIdToDelete}`)
+        .delete(`/menu-categories/${this.mainCategoryIdToDelete}`)
         .then((response) => {
           const data = response.data;
           this.successMessage = data.message;
@@ -580,7 +560,7 @@ export default {
     getMainCategoriesData() {
       this.isLoading = true;
       axios
-        .get(`/main-categories`)
+        .get(`/menu-categories`)
         .then((response) => {
           const data = response.data.data;
           this.items = data
@@ -590,8 +570,6 @@ export default {
               return {
                 ...item,
                 userName: item?.user?.name || '',
-                isVeg: item?.veg !== 'Y' ? false : true,
-                isNonVeg: item?.non_veg !== 'Y' ? false : true,
               };
             });
         })
@@ -607,30 +585,6 @@ export default {
         })
         .finally(() => {
           this.isLoading = false;
-        });
-    },
-    toggleCategory(id, type) {
-      this.isSending2 = true;
-      axios
-        .get(`/main-categories/toggle-field/${type}/${id}`)
-        .then((response) => {
-          const data = response.data;
-          this.successMessage = data.message;
-          this.isSuccess = true;
-          this.getMainCategoriesData();
-        })
-        .catch((error) => {
-          // eslint-disable-next-line
-          console.log(error);
-          const message =
-            error.response.data.message === ''
-              ? 'Something Wrong!!!'
-              : error.response.data.message;
-          this.errorMessage = message;
-          this.isError = true;
-        })
-        .finally(() => {
-          this.isSending2 = false;
         });
     },
   },
