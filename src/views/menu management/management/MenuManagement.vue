@@ -47,8 +47,8 @@
               label="Menu Category"
               variant="outlined"
               required
-              v-model="input.restaurant_id"
-              :items="resource.restaurantName"
+              v-model="input.mc_id"
+              :items="resource.categories"
               item-title="name"
               item-value="id"
             ></v-autocomplete>
@@ -139,10 +139,10 @@
               </tr>
             </thead>
             <tbody>
-              <template v-for="item in filteredItems" :key="item.brp_id">
+              <template v-for="item in filteredItems" :key="item.mrp_id">
                 <tr>
                   <td class="border-b-0 pt-3 pb-2">
-                    {{ item.brp_id }}
+                    {{ item.mrp_id }}
                   </td>
                   <td class="border-b-0 pt-3 pb-2">
                     <div class="image-upload-cont">
@@ -152,8 +152,8 @@
                         @click="openImage(item)"
                         style="cursor: pointer"
                         :src="
-                          item?.dish_image != null
-                            ? $fileURL + item.dish_image
+                          item?.dish?.main_image != null
+                            ? $fileURL + item.dish?.main_image
                             : 'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png'
                         "
                       >
@@ -167,7 +167,7 @@
                     <p
                       class="text-blue-darken-1 font-weight-medium text-caption mt-2"
                     >
-                      Biryani Menu
+                      {{ item?.menu_category?.menu_header }}
                     </p>
                   </td>
                   <td
@@ -210,7 +210,7 @@
                         density="compact"
                         placeholder="0"
                         v-model="item.rate"
-                        @input="debouncedUpdate(item.brp_id, item.rate, 'rate')"
+                        @input="debouncedUpdate(item.mrp_id, item.rate, 'rate')"
                       ></v-text-field>
                     </div>
                   </td>
@@ -228,7 +228,7 @@
                             color="green"
                             variant="text"
                             v-bind="props"
-                            @click="editOnboardPrices(item)"
+                            @click="editMenuPrices(item)"
                             icon="mdi-pencil-outline"
                           ></v-btn>
                         </template>
@@ -241,7 +241,7 @@
                             v-bind="props"
                             variant="text"
                             :disabled="isDeleteLoading"
-                            @click="openDeleteConfirm(item.brp_id)"
+                            @click="openDeleteConfirm(item.mrp_id)"
                             icon="mdi-trash-can-outline"
                           ></v-btn>
                         </template>
@@ -258,7 +258,7 @@
                       v-model="item.dish_description"
                       @input="
                         debouncedUpdate(
-                          item.brp_id,
+                          item.mrp_id,
                           item.dish_description,
                           'dish_description',
                         )
@@ -302,7 +302,7 @@
                           class="d-flex align-center"
                           v-model="item.isActive"
                           :disabled="isSending2"
-                          @click="togglePrice(item.brp_id, 'active')"
+                          @click="togglePrice(item.mrp_id, 'active')"
                           rounded="5"
                         >
                           <v-btn size="27" :value="true"> Yes </v-btn>
@@ -323,7 +323,7 @@
                           class="d-flex align-center"
                           v-model="item.isLive"
                           :disabled="isSending2"
-                          @click="togglePrice(item.brp_id, 'live')"
+                          @click="togglePrice(item.mrp_id, 'live')"
                           rounded="5"
                         >
                           <v-btn size="27" :value="true"> Yes </v-btn>
@@ -347,7 +347,7 @@
                           class="d-flex align-center"
                           v-model="item.isVeg"
                           :disabled="isSending3"
-                          @click="toggleField(item.brp_id, 'veg')"
+                          @click="toggleField(item.mrp_id, 'veg')"
                           rounded="5"
                         >
                           <v-btn size="27" :value="true"> Yes </v-btn>
@@ -370,7 +370,7 @@
                           class="d-flex align-center"
                           v-model="item.isNonVeg"
                           :disabled="isSending3"
-                          @click="toggleField(item.brp_id, 'non-veg')"
+                          @click="toggleField(item.mrp_id, 'non-veg')"
                           rounded="5"
                         >
                           <v-btn size="27" :value="true"> Yes </v-btn>
@@ -393,7 +393,7 @@
                           class="d-flex align-center"
                           v-model="item.isHalal"
                           :disabled="isSending3"
-                          @click="toggleField(item.brp_id, 'halal')"
+                          @click="toggleField(item.mrp_id, 'halal')"
                           rounded="5"
                         >
                           <v-btn size="27" :value="true"> Yes </v-btn>
@@ -407,9 +407,16 @@
                 <tr>
                   <td class="pb-3 border-b-0"></td>
                   <td class="pb-3 border-b-0" colspan="2">
+                    <!-- @input="
+                        debouncedUpdate(
+                          item.mrp_id,
+                          item.whats_free,
+                          'whats_free',
+                        )
+                      " -->
                     <v-textarea
                       density="compact"
-                      v-model="item.whats_free_placeholder"
+                      v-model="item.whats_free"
                       placeholder="What's Free"
                       variant="outlined"
                       hide-details
@@ -427,7 +434,7 @@
                       rows="2"
                       @input="
                         debouncedUpdate(
-                          item.brp_id,
+                          item.mrp_id,
                           item.pq_description,
                           'pq_description',
                         )
@@ -458,12 +465,15 @@
                             Preparation Time
                           </legend>
                           <div class="d-flex align-center mt-1">
+                            <!-- @update:modelValue="updatePrepTime(item)" -->
                             <v-select
                               density="compact"
-                              v-model="item.prep_time_placeholder"
-                              :items="['15', '30', '45', '60']"
+                              v-model="item.prep_id"
+                              :items="resource.prepTime"
                               variant="plain"
                               hide-details
+                              item-title="name"
+                              item-value="id"
                               class="pa-0 ma-0 font-weight-bold text-blue-accent-4"
                               style="font-size: 14px"
                             ></v-select>
@@ -495,9 +505,10 @@
                             width: 54px !important;
                           "
                           class="d-flex align-center mx-auto"
-                          v-model="item.notice_24h_placeholder"
+                          v-model="item.is24h"
                           rounded="5"
                         >
+                          <!-- @click="togglePrice(item.mrp_id, '24_hrs_notice') -->
                           <v-btn size="27" :value="true"> Yes </v-btn>
                           <v-btn size="27" :value="false"> No </v-btn>
                         </v-btn-toggle>
@@ -509,30 +520,16 @@
                 </tr>
 
                 <tr>
-                  <td
-                    class="pb-3"
-                    :class="
-                      item.biryani_run_price2.length > 0
-                        ? 'border-b-0'
-                        : 'border-b-sm'
-                    "
-                  ></td>
-                  <td
-                    class="pb-3"
-                    :class="
-                      item.biryani_run_price2.length > 0
-                        ? 'border-b-0'
-                        : 'border-b-sm'
-                    "
-                    colspan="2"
-                  >
+                  <td class="pb-3 border-b-sm"></td>
+                  <td class="pb-3 border-b-sm" colspan="2">
                     <!-- Bottom Links -->
                     <div
                       class="d-flex mt-4 font-weight-black"
                       style="font-size: 12px; gap: 8px"
                     >
+                      <!-- :to="`/biryani-home/onboard-prices/pax-kgs/${item.mrp_id}`" -->
                       <router-link
-                        :to="`/biryani-home/onboard-prices/pax-kgs/${item.brp_id}`"
+                        to="#"
                         class="text-decoration-none text-blue-accent-4"
                         style="color: #0d47a1 !important"
                       >
@@ -548,84 +545,8 @@
                       </router-link>
                     </div>
                   </td>
-                  <td
-                    class="pb-3"
-                    :class="
-                      item.biryani_run_price2.length > 0
-                        ? 'border-b-0'
-                        : 'border-b-sm'
-                    "
-                    colspan="6"
-                  ></td>
+                  <td class="pb-3 border-b-sm" colspan="6"></td>
                 </tr>
-                <template
-                  v-for="(data, index) in item.biryani_run_price2"
-                  :key="data.brp_id_2"
-                >
-                  <tr>
-                    <td
-                      class="pb-3"
-                      :class="
-                        index == item.biryani_run_price2.length - 1
-                          ? 'border-b-sm'
-                          : 'border-b-0'
-                      "
-                    ></td>
-                    <td
-                      class="pb-3"
-                      :class="
-                        index == item.biryani_run_price2.length - 1
-                          ? 'border-b-sm'
-                          : 'border-b-0'
-                      "
-                    >
-                      <div class="image-upload-cont mt-2 mb-2">
-                        <v-img
-                          class="image-upload-item"
-                          height="40"
-                          :src="
-                            data?.dish_image != null
-                              ? $fileURL + data.dish_image
-                              : 'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png'
-                          "
-                        >
-                          <template #placeholder>
-                            <div class="skeleton" />
-                          </template>
-                        </v-img>
-                      </div>
-                    </td>
-                    <td
-                      class="font-weight-bold pb-3"
-                      :class="
-                        index == item.biryani_run_price2.length - 1
-                          ? 'border-b-sm'
-                          : 'border-b-0'
-                      "
-                    >
-                      {{ data?.product_quantity?.quantity_name || '-' }}
-                    </td>
-                    <td
-                      class="font-weight-bold pb-3"
-                      :class="
-                        index == item.biryani_run_price2.length - 1
-                          ? 'border-b-sm'
-                          : 'border-b-0'
-                      "
-                    >
-                      S$ {{ data?.rate || '-' }}
-                    </td>
-                    <td
-                      class="pb-3"
-                      :class="
-                        index == item.biryani_run_price2.length - 1
-                          ? 'border-b-sm'
-                          : 'border-b-0'
-                      "
-                      colspan="4"
-                    ></td>
-                  </tr>
-                </template>
               </template>
               <tr v-if="isLoading">
                 <td :colspan="6" class="text-center">
@@ -667,19 +588,19 @@
       <v-card>
         <v-card-title>Confirmation</v-card-title>
         <v-card-text>
-          Are you sure want to delete this onboard price?
+          Are you sure want to delete this menu rate price?
         </v-card-text>
         <v-card-actions>
           <v-spacer></v-spacer>
           <v-btn color="error" text @click="cancelDelete">No</v-btn>
-          <v-btn color="success" text @click="deleteOnboardPrices">Yes</v-btn>
+          <v-btn color="success" text @click="deleteMenuPrices">Yes</v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
     <v-dialog persistent width="auto" v-model="isOpenImage">
       <v-card width="750">
         <v-card-title class="upload-title px-6 py-4">
-          Upload Image - Onboard Prices</v-card-title
+          Upload Image - Menu Rate Prices</v-card-title
         >
         <v-card-text>
           <image-upload
@@ -717,7 +638,7 @@ import { setAuthHeader } from '@/util/axios';
 // import app from '@/util/eventBus';
 
 export default {
-  name: 'OnboardPrices',
+  name: 'MenuManagement',
 
   data: () => ({
     //fileURL: 'https://admin1.the-gypsy.sg/img/app/',
@@ -732,23 +653,26 @@ export default {
     isDelete: false,
     isDeleteLoading: false,
     isOpenImage: false,
-    onboardPricesIdToDelete: null,
+    menuPricesIdToDelete: null,
     tableHeaders: [{ text: 'Gambar', value: 'image' }],
     imageFile: [],
-    onboardPricesDataToImage: {
-      brp_id: 0,
+    menuPricesDataToImage: {
+      mrp_id: 0,
     },
     successMessage: '',
     errorMessage: '',
     input: {
-      brp_id: 0,
-      dish_id: null,
+      mrp_id: 0,
       restaurant_id: null,
+      mc_id: null,
+      dish_id: null,
     },
     resource: {
       restaurantName: [],
       dishName: [],
       quantity: [],
+      prepTime: [],
+      categories: [],
     },
     search: '',
     items: [],
@@ -759,10 +683,12 @@ export default {
     setAuthHeader(token);
   },
   mounted() {
-    this.getOnboardPricesData();
+    this.getMenuPricesData();
     this.getRestaurants();
     this.getDishMasters();
     this.getQuantityData();
+    this.getPrepMasters();
+    this.getCategoryMasters();
   },
   computed: {
     filteredItems() {
@@ -773,13 +699,9 @@ export default {
       return this.items.filter((item) => {
         const dishName = item.dishName?.toLowerCase() || '';
         const restaurantName = item.restaurantName?.toLowerCase() || '';
-        const actualDishName = item.actual_dish_name?.toLowerCase() || '';
-        const userName = item.userName?.toLowerCase() || '';
         return (
           dishName.includes(searchTextLower) ||
-          restaurantName.includes(searchTextLower) ||
-          actualDishName.includes(searchTextLower) ||
-          userName.includes(searchTextLower)
+          restaurantName.includes(searchTextLower)
         );
       });
     },
@@ -791,14 +713,12 @@ export default {
     deleteImageFile() {
       this.isSending = true;
       axios
-        .delete(
-          `/biryani-run-prices/${this.onboardPricesDataToImage.brp_id}/image`,
-        )
+        .delete(`/menu-rate-prices/${this.menuPricesDataToImage.mrp_id}/image`)
         .then((response) => {
           const data = response.data;
           this.successMessage = data.message;
           this.isSuccess = true;
-          this.getOnboardPricesData();
+          this.getMenuPricesData();
         })
         .catch((error) => {
           // eslint-disable-next-line
@@ -819,15 +739,15 @@ export default {
     openImage(item) {
       console.log(item);
       this.isOpenImage = true;
-      this.onboardPricesDataToImage = {
-        brp_id: item.brp_id,
+      this.menuPricesDataToImage = {
+        mrp_id: item.mrp_id,
       };
       this.imageFile =
-        item?.dish_image != null
+        item?.main_image != null
           ? [
               {
                 file: {
-                  name: item.dish_image,
+                  name: item.main_image,
                   size: '',
                   base64: '',
                   format: '',
@@ -839,18 +759,18 @@ export default {
     closeImage() {
       this.isOpenImage = false;
       this.imageFile = [];
-      this.onboardPricesDataToImage = {
-        brp_id: 0,
+      this.menuPricesDataToImage = {
+        mrp_id: 0,
       };
     },
     saveImage() {
       this.isSending = true;
       const payload = {
-        brp_id: this.onboardPricesDataToImage.brp_id,
-        dish_image: this.imageFile[0],
+        mrp_id: this.menuPricesDataToImage.mrp_id,
+        main_image: this.imageFile[0],
       };
       http
-        .post(`/biryani-run-prices/update`, payload, {
+        .post(`/menu-rate-prices/update`, payload, {
           headers: {
             'Content-Type': 'multipart/form-data',
           },
@@ -859,7 +779,7 @@ export default {
           const data = response.data;
           this.successMessage = data.message;
           this.isSuccess = true;
-          this.getOnboardPricesData();
+          this.getMenuPricesData();
           // app.config.globalProperties.$eventBus.$emit('update-image');
         })
         .catch((error) => {
@@ -875,49 +795,53 @@ export default {
         .finally(() => {
           this.isEdit = false;
           this.isSending = false;
-          this.onboardPricesDataToImage = {
-            brp_id: 0,
+          this.menuPricesDataToImage = {
+            mrp_id: 0,
           };
           this.isOpenImage = false;
           this.imageFile = [];
         });
     },
-    editOnboardPrices(prop) {
+    editMenuPrices(prop) {
       this.isEdit = true;
 
       this.input = {
-        brp_id: prop.brp_id,
+        mrp_id: prop.mrp_id,
         dish_id: prop.dish_id,
         restaurant_id: prop.restaurant_id,
+        mc_id: prop.mc_id,
       };
     },
     cancelEdit() {
       this.isEdit = false;
       this.input = {
-        brp_id: 0,
+        mrp_id: 0,
         dish_id: null,
         restaurant_id: null,
+        mc_id: null,
       };
     },
     saveEdit() {
       if (this.valid) {
         this.isSending = true;
         const payload = {
-          brp_id: this.input.brp_id,
+          mrp_id: this.input.mrp_id,
           restaurant_id: this.input.restaurant_id,
           dish_id: this.input.dish_id,
+          mc_id: this.input.mc_id,
         };
         axios
-          .post(`/biryani-run-prices/update`, payload)
+          .post(`/menu-rate-prices/update`, payload)
           .then((response) => {
             const data = response.data;
             this.successMessage = data.message;
             this.isSuccess = true;
-            this.getOnboardPricesData();
+            this.getMenuPricesData();
             this.input = {
-              brp_id: 0,
+              mrp_id: 0,
               dish_id: null,
               restaurant_id: null,
+              mc_id: null,
             };
           })
           .catch((error) => {
@@ -951,33 +875,39 @@ export default {
       let payload = {};
       let url = '';
       if (type == 'rate') {
-        url = 'biryani-run-prices/update-rate';
+        url = 'menu-rate-prices/update-rate';
         payload = {
-          brp_id: id,
+          mrp_id: id,
           rate: val,
         };
       } else if (type == 'dish_description') {
-        url = 'biryani-run-prices/update-dish-description';
+        url = 'menu-rate-prices/update-dish-description';
         payload = {
-          brp_id: id,
+          mrp_id: id,
           dish_description: val,
         };
-      } else if (type == 'pq_description') {
-        url = 'biryani-run-prices/update-pq-description';
+      } else if (type == 'whats_free') {
+        url = 'menu-rate-prices/update-whats-free';
         payload = {
-          brp_id: id,
+          mrp_id: id,
+          whats_free: val,
+        };
+      } else if (type == 'pq_description') {
+        url = 'menu-rate-prices/update-pq-description';
+        payload = {
+          mrp_id: id,
           pq_description: val,
         };
       } else if (type == 'pax_kgs') {
-        url = 'biryani-run-prices/update-pax-kgs';
+        url = 'menu-rate-prices/update-pax-kgs';
         payload = {
-          brp_id: id,
+          mrp_id: id,
           pax_kgs: val,
         };
       } else {
-        url = 'biryani-run-prices/update-actual-dish-name';
+        url = 'menu-rate-prices/update-actual-dish-name';
         payload = {
-          brp_id: id,
+          mrp_id: id,
           actual_dish_name: val,
         };
       }
@@ -999,20 +929,22 @@ export default {
       if (this.valid) {
         this.isSending = true;
         const payload = {
-          dish_id: this.input.dish_id,
           restaurant_id: this.input.restaurant_id,
+          dish_id: this.input.dish_id,
+          mc_id: this.input.mc_id,
         };
         axios
-          .post(`/biryani-run-prices`, payload)
+          .post(`/menu-rate-prices`, payload)
           .then((response) => {
             const data = response.data;
             this.successMessage = data.message;
             this.isSuccess = true;
-            this.getOnboardPricesData();
+            this.getMenuPricesData();
             this.input = {
-              brp_id: 0,
+              mrp_id: 0,
               dish_id: null,
               restaurant_id: null,
+              mc_id: null,
             };
           })
           .catch((error) => {
@@ -1031,22 +963,22 @@ export default {
       }
     },
     cancelDelete() {
-      this.onboardPricesIdToDelete = null;
+      this.menuPricesIdToDelete = null;
       this.isDelete = false;
     },
     openDeleteConfirm(itemId) {
-      this.onboardPricesIdToDelete = itemId;
+      this.menuPricesIdToDelete = itemId;
       this.isDelete = true;
     },
-    deleteOnboardPrices() {
+    deleteMenuPrices() {
       this.isDeleteLoading = true;
       axios
-        .delete(`/biryani-run-prices/${this.onboardPricesIdToDelete}`)
+        .delete(`/menu-rate-prices/${this.menuPricesIdToDelete}`)
         .then((response) => {
           const data = response.data;
           this.successMessage = data.message;
           this.isSuccess = true;
-          this.getOnboardPricesData();
+          this.getMenuPricesData();
         })
         .catch((error) => {
           // eslint-disable-next-line
@@ -1060,18 +992,18 @@ export default {
         })
         .finally(() => {
           this.isDeleteLoading = false;
-          this.onboardPricesIdToDelete = null;
+          this.menuPricesIdToDelete = null;
           this.isDelete = false;
         });
     },
-    getOnboardPricesData() {
+    getMenuPricesData() {
       this.isLoading = true;
       axios
-        .get(`/biryani-run-prices`)
+        .get(`/menu-rate-prices`)
         .then((response) => {
           const data = response.data.data;
           this.items = data
-            .sort((a, b) => b.brp_id - a.brp_id)
+            .sort((a, b) => b.mrp_id - a.mrp_id)
             .map((item) => {
               console.log(item);
               return {
@@ -1110,6 +1042,12 @@ export default {
                     : null,
                 isHalal:
                   item.halal == 'N' ? false : item.halal == 'Y' ? true : null,
+                is24h:
+                  item['24_hrs_notice'] == 'N'
+                    ? false
+                    : item['24_hrs_notice'] == 'Y'
+                    ? true
+                    : null,
               };
             });
         })
@@ -1156,7 +1094,7 @@ export default {
     },
     getDishMasters() {
       axios
-        .get(`/onboard-dishes`)
+        .get(`/biryani-dish-masters`)
         .then((response) => {
           const data = response.data.data;
           //console.log(data);
@@ -1165,7 +1103,61 @@ export default {
             .map((cat) => {
               return {
                 id: cat.dish_id || 0,
-                name: cat?.dish?.dish_name || '',
+                name: cat.dish_name || '',
+              };
+            });
+          // console.log(this.items);
+        })
+        .catch((error) => {
+          // eslint-disable-next-line
+          console.log(error);
+          const message =
+            error.response.data.message === ''
+              ? 'Something Wrong!!!'
+              : error.response.data.message;
+          this.errorMessage = message;
+          this.isError = true;
+        });
+    },
+    getPrepMasters() {
+      axios
+        .get(`/prep-master`)
+        .then((response) => {
+          const data = response.data.data;
+          //console.log(data);
+          this.resource.prepTime = data
+            .sort((a, b) => a.prep_id < b.prep_id)
+            .map((cat) => {
+              return {
+                id: cat.prep_id || 0,
+                name: cat?.prep_time || '',
+              };
+            });
+          // console.log(this.items);
+        })
+        .catch((error) => {
+          // eslint-disable-next-line
+          console.log(error);
+          const message =
+            error.response.data.message === ''
+              ? 'Something Wrong!!!'
+              : error.response.data.message;
+          this.errorMessage = message;
+          this.isError = true;
+        });
+    },
+    getCategoryMasters() {
+      axios
+        .get(`/menu-categories`)
+        .then((response) => {
+          const data = response.data.data;
+          //console.log(data);
+          this.resource.categories = data
+            .sort((a, b) => a.mc_id < b.mc_id)
+            .map((cat) => {
+              return {
+                id: cat.mc_id || 0,
+                name: cat?.menu_header || '',
               };
             });
           // console.log(this.items);
@@ -1211,11 +1203,11 @@ export default {
     },
     updateQuantity(item) {
       const payload = {
-        brp_id: item.brp_id,
+        mrp_id: item.mrp_id,
         pq_id: item.pq_id,
       };
       axios
-        .post(`/biryani-run-prices/update-product-quantity`, payload)
+        .post(`/menu-rate-prices/update-product-quantity`, payload)
         .then((response) => {
           const data = response.data;
           this.successMessage = data.message;
@@ -1235,12 +1227,12 @@ export default {
     togglePrice(id, type) {
       this.isSending2 = true;
       axios
-        .get(`/biryani-run-prices/toggle-field/${type}/${id}`)
+        .get(`/menu-rate-prices/toggle-field/${type}/${id}`)
         .then((response) => {
           const data = response.data;
           this.successMessage = data.message;
           this.isSuccess = true;
-          this.getOnboardPricesData();
+          this.getMenuPricesData();
         })
         .catch((error) => {
           // eslint-disable-next-line
@@ -1259,12 +1251,12 @@ export default {
     toggleField(id, type) {
       this.isSending3 = true;
       axios
-        .get(`/biryani-run-prices/toggle-field/${type}/${id}`)
+        .get(`/menu-rate-prices/toggle-field/${type}/${id}`)
         .then((response) => {
           const data = response.data;
           this.successMessage = data.message;
           this.isSuccess = true;
-          this.getOnboardPricesData();
+          this.getMenuPricesData();
         })
         .catch((error) => {
           // eslint-disable-next-line
