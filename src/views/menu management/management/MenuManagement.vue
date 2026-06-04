@@ -407,13 +407,6 @@
                 <tr>
                   <td class="pb-3 border-b-0"></td>
                   <td class="pb-3 border-b-0" colspan="2">
-                    <!-- @input="
-                        debouncedUpdate(
-                          item.mrp_id,
-                          item.whats_free,
-                          'whats_free',
-                        )
-                      " -->
                     <v-textarea
                       density="compact"
                       v-model="item.whats_free"
@@ -422,12 +415,19 @@
                       hide-details
                       rows="2"
                       style="min-width: 200px"
+                      @input="
+                        debouncedUpdate(
+                          item.mrp_id,
+                          item.whats_free,
+                          'whats_free',
+                        )
+                      "
                     ></v-textarea>
                   </td>
                   <td class="pb-3 border-b-0">
                     <v-textarea
                       density="compact"
-                      v-model="item.pq_description"
+                      v-model="item.whats_included"
                       placeholder="What's Included. ?"
                       variant="outlined"
                       hide-details
@@ -435,8 +435,8 @@
                       @input="
                         debouncedUpdate(
                           item.mrp_id,
-                          item.pq_description,
-                          'pq_description',
+                          item.whats_included,
+                          'whats_included',
                         )
                       "
                     ></v-textarea>
@@ -465,11 +465,11 @@
                             Preparation Time
                           </legend>
                           <div class="d-flex align-center mt-1">
-                            <!-- @update:modelValue="updatePrepTime(item)" -->
                             <v-select
                               density="compact"
                               v-model="item.prep_id"
                               :items="resource.prepTime"
+                              @update:modelValue="updatePrepTime(item)"
                               variant="plain"
                               hide-details
                               item-title="name"
@@ -507,8 +507,8 @@
                           class="d-flex align-center mx-auto"
                           v-model="item.is24h"
                           rounded="5"
+                          @click="togglePrice(item.mrp_id, '24_hrs_notice')"
                         >
-                          <!-- @click="togglePrice(item.mrp_id, '24_hrs_notice') -->
                           <v-btn size="27" :value="true"> Yes </v-btn>
                           <v-btn size="27" :value="false"> No </v-btn>
                         </v-btn-toggle>
@@ -892,23 +892,11 @@ export default {
           mrp_id: id,
           whats_free: val,
         };
-      } else if (type == 'pq_description') {
-        url = 'menu-rate-prices/update-pq-description';
+      } else if (type == 'whats_included') {
+        url = 'menu-rate-prices/update-whats-included';
         payload = {
           mrp_id: id,
-          pq_description: val,
-        };
-      } else if (type == 'pax_kgs') {
-        url = 'menu-rate-prices/update-pax-kgs';
-        payload = {
-          mrp_id: id,
-          pax_kgs: val,
-        };
-      } else {
-        url = 'menu-rate-prices/update-actual-dish-name';
-        payload = {
-          mrp_id: id,
-          actual_dish_name: val,
+          whats_included: val,
         };
       }
 
@@ -1207,7 +1195,30 @@ export default {
         pq_id: item.pq_id,
       };
       axios
-        .post(`/menu-rate-prices/update-product-quantity`, payload)
+        .post(`/menu-rate-prices/update-quantity`, payload)
+        .then((response) => {
+          const data = response.data;
+          this.successMessage = data.message;
+          this.isSuccess = true;
+        })
+        .catch((error) => {
+          // eslint-disable-next-line
+          console.log(error);
+          const message =
+            error.response.data.message === ''
+              ? 'Something Wrong!!!'
+              : error.response.data.message;
+          this.errorMessage = message;
+          this.isError = true;
+        });
+    },
+    updatePrepTime(item) {
+      const payload = {
+        mrp_id: item.mrp_id,
+        prep_id: item.prep_id,
+      };
+      axios
+        .post(`/menu-rate-prices/update-prep-time`, payload)
         .then((response) => {
           const data = response.data;
           this.successMessage = data.message;
