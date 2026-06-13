@@ -152,8 +152,8 @@
                         @click="openImage(item)"
                         style="cursor: pointer"
                         :src="
-                          item?.dish?.main_image != null
-                            ? $fileURL + item.dish?.main_image
+                          item?.main_image != null
+                            ? $fileURL + item.main_image
                             : 'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png'
                         "
                       >
@@ -713,7 +713,9 @@ export default {
     deleteImageFile() {
       this.isSending = true;
       axios
-        .delete(`/menu-rate-prices/${this.menuPricesDataToImage.mrp_id}/image`)
+        .delete(
+          `/menu-rate-prices/${this.menuPricesDataToImage.mrp_id}/main-image`,
+        )
         .then((response) => {
           const data = response.data;
           this.successMessage = data.message;

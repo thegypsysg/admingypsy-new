@@ -464,7 +464,7 @@ export default {
       this.isSending = true;
       axios
         .delete(
-          `/biryani-dish-masters/${this.dishDataToMainImage.dish_id}/main-image`
+          `/biryani-dish-masters/${this.dishDataToMainImage.dish_id}/main-image`,
         )
         .then((response) => {
           const data = response.data;
@@ -692,19 +692,25 @@ export default {
         .get(`/biryani-dish-masters`)
         .then((response) => {
           const data = response.data.data;
-          this.items = data.map((item) => {
-            return {
-              ...item,
-              isActive:
-                item?.active == 'N' ? false : item?.active == 'Y' ? true : null,
-              isFeatured:
-                item?.is_featured == 'N'
-                  ? false
-                  : item?.is_featured == 'Y'
-                  ? true
-                  : null,
-            };
-          });
+          this.items = data
+            .sort((a, b) => b.dish_id - a.dish_id)
+            .map((item) => {
+              return {
+                ...item,
+                isActive:
+                  item?.active == 'N'
+                    ? false
+                    : item?.active == 'Y'
+                    ? true
+                    : null,
+                isFeatured:
+                  item?.is_featured == 'N'
+                    ? false
+                    : item?.is_featured == 'Y'
+                    ? true
+                    : null,
+              };
+            });
         })
         .catch((error) => {
           // eslint-disable-next-line
@@ -753,7 +759,7 @@ export default {
     },
     filterCity(country_id) {
       return this.resource.city.filter(
-        (item) => item.country_id === country_id
+        (item) => item.country_id === country_id,
       );
     },
     saveDescription(dish_description, item) {
