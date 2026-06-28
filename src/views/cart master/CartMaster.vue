@@ -716,28 +716,14 @@ export default {
       return info.replace(/\n/g, '<br>');
     },
     getItemDescription(del) {
-      if (del?.biryani_run_price) {
-        if (del?.biryani_run_price?.actual_dish_name) {
-          return del.biryani_run_price.actual_dish_name;
-        } else if (del?.biryani_run_price?.dish?.dish_name) {
-          return del.biryani_run_price.dish.dish_name;
-        }
-      } else {
-        if (del?.products && del.products.length > 0) {
-          return del.products[0].product_name;
-        }
+      if (del?.menu_rate_price) {
+        return del?.menu_rate_price?.dish?.dish_name || '';
       }
       return '';
     },
     getItemQuantityDescription(del) {
-      if (del?.biryani_run_price2) {
-        return del?.biryani_run_price2?.product_quantity?.quantity_name || '';
-      }
-      if (!del?.biryani_run_price2 && del?.biryani_run_price) {
-        return del?.biryani_run_price?.product_quantity?.quantity_name || '';
-      }
-      if (!del?.biryani_run_price) {
-        return del?.quantity?.quantity_name || '';
+      if (del?.menu_rate_price) {
+        return del?.menu_rate_price?.product_quantity?.quantity_name || '';
       }
       return '';
     },
