@@ -26,7 +26,7 @@
     </div>
     <v-form v-model="valid" @submit.prevent>
       <v-container>
-        <v-row class="d-flex align-baseline mt-n4">
+        <v-row>
           <v-col cols="12" md="4">
             <v-text-field
               v-model="input.menu_header"
@@ -36,6 +36,20 @@
               density="compact"
               required
             ></v-text-field>
+          </v-col>
+        </v-row>
+        <v-row class="d-flex align-baseline mt-n4">
+          <v-col cols="12" md="4">
+            <v-autocomplete
+              density="compact"
+              label="---App Id---"
+              variant="outlined"
+              required
+              v-model="input.app_id"
+              :items="resource.appId"
+              item-title="name"
+              item-value="id"
+            ></v-autocomplete>
           </v-col>
           <v-col cols="12" md="2">
             <v-btn
@@ -100,6 +114,7 @@
                 <th class="text-left">Id</th>
                 <th class="text-left">Main Image</th>
                 <th class="text-left">Menu Category</th>
+                <th class="text-left">App Name</th>
                 <th class="text-left">User</th>
                 <th class="text-left">Dated</th>
                 <th class="text-center">Actions</th>
@@ -136,6 +151,15 @@
                     "
                   >
                     {{ item.menu_header }}
+                  </td>
+                  <td
+                    style="
+                      font-weight: 500 !important;
+                      border-bottom: none !important;
+                    "
+                  >
+                    <!-- {{ item.app_name }} -->
+                    Biryani Run
                   </td>
 
                   <td
@@ -299,11 +323,12 @@ export default {
     input: {
       mc_id: 0,
       menu_header: null,
-
+      app_id: null,
       main_image: null,
     },
     resource: {
       app: [],
+      appId: [],
     },
     rules: {
       nameRules: [

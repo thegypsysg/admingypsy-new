@@ -37,10 +37,9 @@
               :items="resource.restaurantName"
               item-title="name"
               item-value="id"
-            ></v-autocomplete>
+            >
+            </v-autocomplete>
           </v-col>
-        </v-row>
-        <v-row>
           <v-col cols="12" md="4">
             <v-autocomplete
               density="compact"
@@ -64,6 +63,222 @@
               item-title="name"
               item-value="id"
             ></v-autocomplete>
+          </v-col>
+        </v-row>
+        <v-row>
+          <v-col cols="12" md="4">
+            <div class="d-flex justify-space-between align-center w-100">
+              <div
+                class="d-flex align-content-center p-0 mt-n5 mr-2"
+                style="
+                  height: 40px;
+                  overflow-y: hidden;
+                  border-radius: 5px;
+                  border: 1px grey solid;
+                  min-width: 13 0px;
+                "
+              >
+                <div
+                  class="d-flex justify-center align-center w-33"
+                  style="background: #e9ecef"
+                >
+                  <h4 style="color: #077cff">S$</h4>
+                </div>
+                <v-text-field
+                  class="w-66"
+                  style="margin-top: -1px"
+                  variant="outlined"
+                  type="number"
+                  inputmode="numeric"
+                  density="compact"
+                  placeholder="0"
+                ></v-text-field>
+                <!-- v-model="item.rate"
+                        @input="debouncedUpdate(item.mrp_id, item.rate, 'rate')" -->
+              </div>
+              <v-autocomplete
+                density="compact"
+                label="Quantity"
+                variant="outlined"
+                required
+                :items="resource.quantity"
+                item-title="name"
+                item-value="id"
+                style="min-width: 200px"
+              ></v-autocomplete>
+              <!-- v-model="item.pq_id"
+                      @update:modelValue="updateQuantity(item)" -->
+            </div>
+          </v-col>
+          <v-col cols="12" md="4">
+            <div class="pb-4 d-flex ga-4">
+              <div style="font-size: 12px; font-weight: 600" class="mr-2">
+                <p>Active</p>
+
+                <v-btn-toggle
+                  style="
+                    font-size: 10px !important;
+                    font-weight: 200 !important;
+                    height: 22px !important;
+                    width: 54px !important;
+                  "
+                  class="d-flex align-center"
+                  :disabled="isSending2"
+                  rounded="5"
+                >
+                  <!-- v-model="item.isActive"
+                  @click="togglePrice(item.mrp_id, 'active')" -->
+                  <v-btn size="27" :value="true"> Yes </v-btn>
+
+                  <v-btn size="27" :value="false"> No </v-btn>
+                </v-btn-toggle>
+              </div>
+
+              <div style="font-size: 12px; font-weight: 600">
+                <p>Live</p>
+                <v-btn-toggle
+                  style="
+                    font-size: 10px !important;
+                    font-weight: 200 !important;
+                    height: 22px !important;
+                    width: 54px !important;
+                  "
+                  class="d-flex align-center"
+                  :disabled="isSending2"
+                  rounded="5"
+                >
+                  <!-- v-model="item.isLive"
+                  @click="togglePrice(item.mrp_id, 'live')" -->
+                  <v-btn size="27" :value="true"> Yes </v-btn>
+
+                  <v-btn size="27" :value="false"> No </v-btn>
+                </v-btn-toggle>
+              </div>
+
+              <div style="font-size: 12px; font-weight: 600" class="ml-2">
+                <p>Veg</p>
+                <v-btn-toggle
+                  style="
+                    font-size: 10px !important;
+                    font-weight: 200 !important;
+                    height: 22px !important;
+                    width: 54px !important;
+                  "
+                  class="d-flex align-center"
+                  :disabled="isSending3"
+                  rounded="5"
+                >
+                  <!-- v-model="item.isVeg"
+                  @click="toggleField(item.mrp_id, 'veg')" -->
+                  <v-btn size="27" :value="true"> Yes </v-btn>
+
+                  <v-btn size="27" :value="false"> No </v-btn>
+                </v-btn-toggle>
+              </div>
+              <div style="font-size: 12px; font-weight: 600" class="ml-1">
+                <p>Non Veg</p>
+                <v-btn-toggle
+                  style="
+                    font-size: 10px !important;
+                    font-weight: 200 !important;
+                    height: 22px !important;
+                    width: 54px !important;
+                  "
+                  class="d-flex align-center"
+                  :disabled="isSending3"
+                  rounded="5"
+                >
+                  <!-- v-model="item.isNonVeg"
+                  @click="toggleField(item.mrp_id, 'non-veg')" -->
+                  <v-btn size="27" :value="true"> Yes </v-btn>
+
+                  <v-btn size="27" :value="false"> No </v-btn>
+                </v-btn-toggle>
+              </div>
+              <div style="font-size: 12px; font-weight: 600" class="ml-2">
+                <p>Halal</p>
+                <v-btn-toggle
+                  style="
+                    font-size: 10px !important;
+                    font-weight: 200 !important;
+                    height: 22px !important;
+                    width: 54px !important;
+                  "
+                  class="d-flex align-center"
+                  :disabled="isSending3"
+                  rounded="5"
+                >
+                  <!-- v-model="item.isHalal"
+                  @click="toggleField(item.mrp_id, 'halal')" -->
+                  <v-btn size="27" :value="true"> Yes </v-btn>
+
+                  <v-btn size="27" :value="false"> No </v-btn>
+                </v-btn-toggle>
+              </div>
+            </div>
+          </v-col>
+          <v-col cols="12" md="4">
+            <div class="d-flex align-center justify-space-between">
+              <div class="image-upload-cont">
+                <v-img
+                  class="image-upload-item"
+                  height="40"
+                  style="cursor: pointer"
+                  src="https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png"
+                >
+                  <!-- @click="openImage(item)"
+                        :src="
+                          item?.main_image != null
+                            ? $fileURL + item.main_image
+                            : 'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png'
+                        " -->
+                  <template #placeholder> <div class="skeleton" /> </template
+                ></v-img>
+              </div>
+              <div class="d-flex align-center">
+                <fieldset
+                  style="
+                    border: 1px solid #ccc;
+                    border-radius: 4px;
+                    padding: 0 8px 4px 8px;
+                    position: relative;
+                    min-width: 200px;
+                  "
+                >
+                  <legend
+                    style="
+                      font-size: 11px;
+                      font-weight: bold;
+                      color: #666;
+                      padding: 0 4px;
+                      margin-left: 8px;
+                    "
+                  >
+                    Preparation Time
+                  </legend>
+                  <div class="d-flex align-center mt-1">
+                    <!-- v-model="item.prep_id"
+                  @update:modelValue="updatePrepTime(item)" -->
+                    <v-select
+                      density="compact"
+                      :items="resource.prepTime"
+                      variant="plain"
+                      hide-details
+                      item-title="name"
+                      item-value="id"
+                      class="pa-0 ma-0 font-weight-bold text-blue-accent-4"
+                      style="font-size: 14px"
+                    ></v-select>
+                  </div>
+                </fieldset>
+                <div
+                  class="d-flex align-center font-weight-bold ml-2"
+                  style="font-size: 12px"
+                >
+                  Mins
+                </div>
+              </div>
+            </div>
           </v-col>
         </v-row>
         <v-row class="d-flex align-baseline">
@@ -683,12 +898,12 @@ export default {
     setAuthHeader(token);
   },
   mounted() {
-    this.getMenuPricesData();
-    this.getRestaurants();
-    this.getDishMasters();
-    this.getQuantityData();
-    this.getPrepMasters();
-    this.getCategoryMasters();
+    // this.getMenuPricesData();
+    // this.getRestaurants();
+    // this.getDishMasters();
+    // this.getQuantityData();
+    // this.getPrepMasters();
+    // this.getCategoryMasters();
   },
   computed: {
     filteredItems() {

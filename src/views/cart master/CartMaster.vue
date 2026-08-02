@@ -136,7 +136,7 @@
                   </td>
                   <td>
                     <span v-if="item?.delivery_charge?.rate">S$</span>
-                    {{ item?.delivery_charge?.rate }}
+                    {{ item?.delivery_charges }}
                   </td>
                   <td>
                     <span v-if="item?.platform_fee">S$</span>
@@ -157,133 +157,34 @@
 
                 <tr>
                   <td style="border: none !important"></td>
-                  <td style="border: none !important" colspan="8" class="pa-0">
-                    <v-table class="mb-4">
+                  <td style="border: none !important" colspan="10" class="pa-0">
+                    <v-table density="compact">
                       <thead>
-                        <tr class="py-0">
-                          <th
-                            style="border: none !important"
-                            class="text-left py-0"
-                          >
-                            What's App
-                          </th>
-                          <th
-                            style="border: none !important"
-                            class="text-left py-0"
-                          >
-                            Order Status
-                          </th>
-                          <th
-                            style="border: none !important"
-                            class="text-left py-0"
-                          >
-                            Payment Status
-                          </th>
-                          <th
-                            style="border: none !important"
-                            class="text-left py-0"
-                          >
-                            Paid By
-                          </th>
-                          <th
-                            style="border: none !important"
-                            class="text-left py-0"
-                          >
-                            Payment Verified
-                          </th>
+                        <tr>
+                          <th class="text-left">Email ID</th>
+                          <th class="text-left">What's App</th>
+                          <th class="text-left">Restaurant Name</th>
+                          <th class="text-left">Contact Person</th>
+                          <th class="text-left">What's App</th>
+                          <th class="text-left">Note to Kitchen</th>
                         </tr>
                       </thead>
                       <tbody>
-                        <tr class="font-weight-bold">
+                        <tr>
+                          <td class="">{{ item?.gypsy?.email_id }}</td>
+                          <td class="">{{ item?.gypsy?.whats_app }}</td>
                           <td class="">
-                            <a
-                              :href="
-                                item?.gypsy?.whats_app
-                                  ? `https://api.whatsapp.com/send?phone=${item?.gypsy?.whats_app}&text=Hello`
-                                  : ''
-                              "
-                              class="text-decoration-none text-blue-darken-3 text-no-wrap"
-                            >
-                              {{ item?.gypsy?.whats_app }}
-                              <v-icon
-                                v-if="item?.gypsy?.whats_app"
-                                color="#4EC053"
-                                size="20"
-                                class="ml-2 fab fa-whatsapp"
-                              ></v-icon>
-                            </a>
+                            {{ item?.restaurant?.partner?.partner_name }}
+                          </td>
+                          <td class="">{{ item?.contact_person?.name }}</td>
+                          <td class="">
+                            {{ item?.contact_person?.whats_app }}
                           </td>
                           <td class="">
-                            <v-autocomplete
-                              density="compact"
-                              v-model="item.order_status"
-                              :items="orderStatuses"
-                              :disabled="item.payment_verified"
-                              :class="
-                                item.payment_verified
-                                  ? 'text-blue-darken-2'
-                                  : undefined
-                              "
-                              item-title="label"
-                              item-value="value"
-                              hide-details
-                              style="min-width: 150px !important"
-                              variant="outlined"
-                            ></v-autocomplete>
-                          </td>
-
-                          <td class="">
-                            <v-autocomplete
-                              density="compact"
-                              v-model="item.payment_status"
-                              :items="paymentStatuses"
-                              :disabled="item.payment_verified"
-                              :class="
-                                item.payment_verified
-                                  ? 'text-blue-darken-2'
-                                  : undefined
-                              "
-                              item-title="label"
-                              item-value="value"
-                              hide-details
-                              style="min-width: 100px !important"
-                              variant="outlined"
-                            ></v-autocomplete>
-                          </td>
-                          <td class="">
-                            <v-autocomplete
-                              density="compact"
-                              v-model="item.payment_type_id"
-                              :items="paymentTypes"
-                              item-title="label"
-                              item-value="value"
-                              hide-details
-                              style="min-width: 100px !important"
-                              variant="outlined"
-                              @update:modelValue="updatePaymentType(item)"
-                            ></v-autocomplete>
-                          </td>
-                          <td class="">
-                            <v-autocomplete
-                              class="text-caption"
-                              density="compact"
-                              v-model="item.paymentVerified"
-                              :class="
-                                item.payment_verified
-                                  ? 'text-blue-darken-2'
-                                  : undefined
-                              "
-                              :items="users"
-                              :disabled="item.payment_verified"
-                              @update:modelValue="
-                                handleUpdatePaymentVerified(item)
-                              "
-                              item-title="label"
-                              item-value="value"
-                              hide-details
-                              style="min-width: 150px !important"
-                              variant="outlined"
-                            ></v-autocomplete>
+                            <p
+                              v-if="item?.note_to_kitchen"
+                              v-html="formatInfo(item?.note_to_kitchen)"
+                            />
                           </td>
                         </tr>
                       </tbody>
@@ -292,6 +193,74 @@
                 </tr>
 
                 <tr>
+                  <td style="border: none !important"></td>
+                  <td style="border: none !important" colspan="10">
+                    <div class="d-flex">
+                      <p class="text-body-2 font-weight-bold w-50">
+                        Total Distance & Extra Kms
+                      </p>
+                      <p class="text-body-2 font-weight-bold w-50">
+                        Delivery Charges
+                      </p>
+                    </div>
+                  </td>
+                </tr>
+
+                <tr>
+                  <td style="border: none !important"></td>
+                  <td style="border: none !important" colspan="10" class="pa-0">
+                    <div class="d-flex">
+                      <v-table class="w-50" density="compact">
+                        <thead>
+                          <tr>
+                            <th class="text-left">Total Distance</th>
+                            <th class="text-left">Base Distance</th>
+                            <th class="text-left">Extra Kms</th>
+                            <th class="text-left">Km Rate</th>
+                            <th class="text-left">Is Peak ?</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <tr>
+                            <td class="">{{ item?.total_distance }}</td>
+                            <td class="">{{ item?.base_distance }}</td>
+                            <td class="">{{ item?.extra_kms }}</td>
+                            <td class="">{{ item?.km_rate }}</td>
+                            <td class="">
+                              {{
+                                item?.is_peak == 'P'
+                                  ? 'Peak'
+                                  : item?.is_peak == 'NP'
+                                  ? 'Not Peak'
+                                  : ''
+                              }}
+                            </td>
+                          </tr>
+                        </tbody>
+                      </v-table>
+                      <v-table class="w-50" density="compact">
+                        <thead>
+                          <tr>
+                            <th class="text-left">Base Fee</th>
+                            <th class="text-left">Surge Multiplier</th>
+                            <th class="text-left">Non-Stack Fee</th>
+                            <th class="text-left">Total Delivery Charges</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <tr>
+                            <td class="">{{ item?.base_fee }}</td>
+                            <td class="">{{ item?.surge_multiplier }}</td>
+                            <td class="">{{ item?.non_stack_fee }}</td>
+                            <td class="">{{ item?.delivery_charges }}</td>
+                          </tr>
+                        </tbody>
+                      </v-table>
+                    </div>
+                  </td>
+                </tr>
+
+                <!-- <tr>
                   <td style="border: none !important"></td>
                   <td style="border: none !important" colspan="8" class="pa-0">
                     <v-table class="mb-4">
@@ -350,14 +319,10 @@
                       </tbody>
                     </v-table>
                   </td>
-                </tr>
+                </tr> -->
 
-                <tr v-if="item?.cartDetails.length > 0">
+                <!-- <tr v-if="item?.cartDetails.length > 0">
                   <td style="border: none !important"></td>
-                  <!-- :class="{
-                    'has-border': item?.cart_details.length > 0,
-                    'not-border': item?.cart_details.length == 0,
-                  }" -->
                   <td
                     style="border-bottom: none !important"
                     colspan="11"
@@ -471,35 +436,32 @@
                       </tbody>
                     </v-table>
                   </td>
-                  <!-- <td
-                    :class="{
-                      'has-border': item?.cart_details.length > 0,
-                      'not-border': item?.cart_details.length == 0,
-                    }"
-                    style="border-bottom: none !important"
-                    colspan="4"
-                    class="text-body-1 font-weight-bold"
-                  >
-                    <p class="mt-3">Total Payment : S$ 112.50</p>
-                  </td> -->
+                </tr> -->
+
+                <tr>
+                  <td style="border: none !important"></td>
+                  <td style="border: none !important" colspan="10">
+                    <p class="text-body-2 font-weight-bold">
+                      Deliver Where and to who
+                    </p>
+                  </td>
                 </tr>
 
                 <tr>
                   <td style="border: none !important"></td>
                   <td style="border: none !important" colspan="10" class="pa-0">
-                    <v-table class="mt-4">
+                    <v-table density="compact">
                       <thead>
-                        <tr class="py-0">
-                          <th class="text-left py-0">Delivery Full Address</th>
-                          <th class="text-left py-0">Street</th>
-                          <th class="text-left py-0">Town</th>
-                          <th class="text-left py-0">City</th>
-                          <th class="text-left py-0">Landmark</th>
-                          <th class="text-left py-0">Delivery Instructions</th>
+                        <tr>
+                          <th class="text-left">Delivery Full Address</th>
+                          <th class="text-left">Street</th>
+                          <th class="text-left">Town</th>
+                          <th class="text-left">City</th>
+                          <th class="text-left">Note to Rider</th>
                         </tr>
                       </thead>
                       <tbody>
-                        <tr class="font-weight-bold">
+                        <tr>
                           <td class="">
                             <p
                               v-if="item?.gypsy_address?.full_address"
@@ -525,7 +487,6 @@
                                 ?.city_name
                             }}
                           </td>
-                          <td class=""></td>
                           <td class="">
                             <p
                               v-if="item?.order_instructions"
@@ -539,29 +500,34 @@
                 </tr>
 
                 <tr>
-                  <td></td>
-                  <td colspan="10" class="pa-0">
-                    <v-table class="mt-2">
+                  <td style="border: none !important"></td>
+                  <td style="border: none !important" colspan="10">
+                    <p class="text-body-2 font-weight-bold">Type of Dwelling</p>
+                  </td>
+                </tr>
+
+                <tr>
+                  <td style="border: none !important"></td>
+                  <td style="border: none !important" colspan="10" class="pa-0">
+                    <v-table density="compact">
                       <thead>
-                        <tr class="py-0">
-                          <th class="text-left py-0">Dwelling Type</th>
-                          <th class="text-left py-0">Condo / Apartment</th>
-                          <th class="text-center py-0">Block | Tower</th>
-                          <th class="text-center py-0">Floor - Unit #</th>
-                          <th class="text-left py-0"></th>
-                          <th class="text-left py-0"></th>
-                          <th class="text-left py-0"></th>
-                          <th class="text-left py-0"></th>
+                        <tr>
+                          <th class="text-left">Dwelling Type</th>
+                          <th class="text-left">Estate/Building/Condo Name</th>
+                          <th class="text-left">Floor - Unit #</th>
+                          <th class="text-left">Lobby | Tower</th>
+                          <th class="text-left"></th>
+                          <th class="text-left"></th>
+                          <th class="text-left"></th>
+                          <th class="text-left"></th>
                         </tr>
                       </thead>
                       <tbody>
-                        <tr class="font-weight-bold">
+                        <tr>
                           <td class="">Condo</td>
                           <td class="">The Bayshore</td>
-                          <td class="d-flex justify-space-around align-center">
-                            <span>26</span> <span>2B</span>
-                          </td>
-                          <td class="text-center"># 12 - 35</td>
+                          <td class=""># 12 - 35</td>
+                          <td class="">Lobby A</td>
                           <td class=""></td>
                           <td class=""></td>
                           <td class=""></td>
@@ -570,6 +536,137 @@
                       </tbody>
                     </v-table>
                   </td>
+                </tr>
+
+                <tr>
+                  <td style="border: none !important"></td>
+                  <td style="border: none !important" colspan="10">
+                    <p class="text-body-2 font-weight-bold">
+                      Order & Payment Details
+                    </p>
+                  </td>
+                </tr>
+
+                <tr>
+                  <td></td>
+                  <td colspan="8" class="pa-0">
+                    <v-table density="compact" class="mb-4">
+                      <thead>
+                        <tr>
+                          <!-- <th style="border: none !important" class="text-left">
+                            What's App
+                          </th> -->
+                          <th style="border: none !important" class="text-left">
+                            Order Status
+                          </th>
+                          <th style="border: none !important" class="text-left">
+                            Payment Status
+                          </th>
+                          <th style="border: none !important" class="text-left">
+                            Paid By
+                          </th>
+                          <th style="border: none !important" class="text-left">
+                            Payment Verified
+                          </th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr class="font-weight-bold">
+                          <!-- <td class="">
+                            <a
+                              :href="
+                                item?.gypsy?.whats_app
+                                  ? `https://api.whatsapp.com/send?phone=${item?.gypsy?.whats_app}&text=Hello`
+                                  : ''
+                              "
+                              class="text-decoration-none text-blue-darken-3 text-no-wrap"
+                            >
+                              {{ item?.gypsy?.whats_app }}
+                              <v-icon
+                                v-if="item?.gypsy?.whats_app"
+                                color="#4EC053"
+                                size="20"
+                                class="ml-2 fab fa-whatsapp"
+                              ></v-icon>
+                            </a>
+                          </td> -->
+                          <td class="">
+                            <v-autocomplete
+                              density="compact"
+                              v-model="item.order_status"
+                              :items="orderStatuses"
+                              :disabled="item.payment_verified"
+                              :class="
+                                item.payment_verified
+                                  ? 'text-blue-darken-2'
+                                  : undefined
+                              "
+                              item-title="label"
+                              item-value="value"
+                              hide-details
+                              style="min-width: 150px !important"
+                              variant="outlined"
+                            ></v-autocomplete>
+                          </td>
+
+                          <td class="">
+                            <v-autocomplete
+                              density="compact"
+                              v-model="item.payment_status"
+                              :items="paymentStatuses"
+                              :disabled="item.payment_verified"
+                              :class="
+                                item.payment_verified
+                                  ? 'text-blue-darken-2'
+                                  : undefined
+                              "
+                              item-title="label"
+                              item-value="value"
+                              hide-details
+                              style="min-width: 100px !important"
+                              variant="outlined"
+                            ></v-autocomplete>
+                          </td>
+                          <td class="">
+                            <v-autocomplete
+                              density="compact"
+                              v-model="item.payment_type_id"
+                              :items="paymentTypes"
+                              item-title="label"
+                              item-value="value"
+                              hide-details
+                              style="min-width: 100px !important"
+                              variant="outlined"
+                              @update:modelValue="updatePaymentType(item)"
+                            ></v-autocomplete>
+                          </td>
+                          <td class="">
+                            <v-autocomplete
+                              class="text-caption"
+                              density="compact"
+                              v-model="item.paymentVerified"
+                              :class="
+                                item.payment_verified
+                                  ? 'text-blue-darken-2'
+                                  : undefined
+                              "
+                              :items="users"
+                              :disabled="item.payment_verified"
+                              @update:modelValue="
+                                handleUpdatePaymentVerified(item)
+                              "
+                              item-title="label"
+                              item-value="value"
+                              hide-details
+                              style="min-width: 150px !important"
+                              variant="outlined"
+                            ></v-autocomplete>
+                          </td>
+                        </tr>
+                      </tbody>
+                    </v-table>
+                  </td>
+                  <td colspan="2"></td>
                 </tr>
               </template>
               <tr v-if="isLoading">
@@ -774,10 +871,10 @@ export default {
           });
 
           // Perbarui pagination
-          this.currentPage = data?.current_page;
-          this.perPage = data?.per_page;
-          this.totalItems = data?.total;
-          this.totalPages = data?.last_page;
+          this.currentPage = data?.meta?.pagination?.current_page;
+          this.perPage = data?.meta?.pagination?.per_page;
+          this.totalItems = data?.meta?.pagination?.total;
+          this.totalPages = data?.meta?.pagination?.last_page;
         })
         .catch((error) => {
           // eslint-disable-next-line
