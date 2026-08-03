@@ -321,123 +321,6 @@
                   </td>
                 </tr> -->
 
-                <!-- <tr v-if="item?.cartDetails.length > 0">
-                  <td style="border: none !important"></td>
-                  <td
-                    style="border-bottom: none !important"
-                    colspan="11"
-                    class="pa-0"
-                  >
-                    <v-table class="">
-                      <thead>
-                        <tr class="py-0">
-                          <th class="text-left py-0">Ref #</th>
-                          <th class="text-left py-0">Item Description</th>
-                          <th class="text-left py-0">Rate</th>
-                          <th class="text-left py-0">Qty</th>
-                          <th class="text-left py-0">Amount</th>
-                          <th class="text-left py-0">Order Request</th>
-                          <th class="text-left py-0">Request Date</th>
-                          <th class="text-left py-0">Request By</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        <tr v-for="del in item?.cartDetails" :key="del?.cd_id">
-                          <td
-                            style="border-bottom: none !important"
-                            class="pr-6 pt-4"
-                          >
-                            {{ del?.cd_id }}
-                          </td>
-                          <td
-                            style="border-bottom: none !important"
-                            class="pr-6 pt-4"
-                          >
-                            {{ getItemDescription(del) }}
-                            {{ getItemQuantityDescription(del) }}
-                          </td>
-                          <td
-                            style="border-bottom: none !important"
-                            class="pr-6 pt-4 text-no-wrap"
-                          >
-                            <span v-if="del?.rate">S$</span> {{ del?.rate }}
-                          </td>
-                          <td
-                            style="border-bottom: none !important"
-                            class="pr-6 pt-4"
-                          >
-                            {{ del?.qty }}
-                          </td>
-                          <td
-                            style="border-bottom: none !important"
-                            class="pr-6 pt-4 text-no-wrap"
-                          >
-                            <span v-if="del?.amount">S$</span> {{ del?.amount }}
-                          </td>
-                          <td
-                            style="border-bottom: none !important"
-                            class="pr-6 pt-2 pb-4 d-flex align-center"
-                          >
-                            <v-btn-toggle
-                              style="
-                                font-size: 10px !important;
-                                font-weight: 200 !important;
-                                height: 22px !important;
-                                width: 54px !important;
-                              "
-                              class="d-flex align-center"
-                              v-model="del.isOrderReq"
-                              :disabled="isSending2"
-                              rounded="5"
-                              @click="orderRequest(del)"
-                            >
-                              <v-btn
-                                size="27"
-                                :disabled="del.isOrderReq"
-                                :value="true"
-                              >
-                                Yes
-                              </v-btn>
-
-                              <v-btn
-                                size="27"
-                                :disabled="del.isOrderReq"
-                                :value="false"
-                              >
-                                No
-                              </v-btn>
-                            </v-btn-toggle>
-                            <span
-                              v-if="del.isOrderReq"
-                              @click="cancelRequest(del)"
-                              class="text-red-darken-1 ml-2"
-                              style="cursor: pointer"
-                              >Cancel</span
-                            >
-                          </td>
-
-                          <td
-                            style="border-bottom: none !important"
-                            class="pr-6 pt-4"
-                          >
-                            <span v-if="del.isOrderReq">{{
-                              del?.order_fullfilment?.order_request_date
-                            }}</span>
-                          </td>
-                          <td
-                            style="border-bottom: none !important"
-                            class="pr-6 pt-4"
-                          >
-                            <span v-if="del.isOrderReq">{{
-                              del?.order_fullfilment?.user?.name
-                            }}</span>
-                          </td>
-                        </tr>
-                      </tbody>
-                    </v-table>
-                  </td>
-                </tr> -->
-
                 <tr>
                   <td style="border: none !important"></td>
                   <td style="border: none !important" colspan="10">
@@ -548,8 +431,8 @@
                 </tr>
 
                 <tr>
-                  <td></td>
-                  <td colspan="8" class="pa-0">
+                  <td style="border: none !important"></td>
+                  <td style="border: none !important" colspan="8" class="pa-0">
                     <v-table density="compact" class="mb-4">
                       <thead>
                         <tr>
@@ -666,7 +549,105 @@
                       </tbody>
                     </v-table>
                   </td>
-                  <td colspan="2"></td>
+                  <td style="border: none !important" colspan="2"></td>
+                </tr>
+
+                <tr v-if="item?.cartDetails.length > 0">
+                  <td></td>
+                  <td colspan="11" class="pa-0">
+                    <v-table density="compact">
+                      <thead>
+                        <tr>
+                          <th class="text-left">Ref #</th>
+                          <th class="text-left">Item Description</th>
+                          <th class="text-left">Rate</th>
+                          <th class="text-left">Qty</th>
+                          <th class="text-left">Amount</th>
+                          <th class="text-left">Order Request</th>
+                          <th class="text-left">Request Date</th>
+                          <th class="text-left">Request By</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr v-for="del in item?.cartDetails" :key="del?.cd_id">
+                          <td style="border-bottom: none !important">
+                            {{ del?.cd_id }}
+                          </td>
+                          <td style="border-bottom: none !important">
+                            {{ getItemDescription(del) }}
+                            {{ getItemQuantityDescription(del) }}
+                          </td>
+                          <td
+                            style="border-bottom: none !important"
+                            class="text-no-wrap"
+                          >
+                            <span v-if="del?.rate">S$</span> {{ del?.rate }}
+                          </td>
+                          <td style="border-bottom: none !important">
+                            {{ del?.qty }}
+                          </td>
+                          <td
+                            style="border-bottom: none !important"
+                            class="text-no-wrap"
+                          >
+                            <span v-if="del?.amount">S$</span> {{ del?.amount }}
+                          </td>
+                          <td
+                            style="border-bottom: none !important"
+                            class="d-flex align-center"
+                          >
+                            <v-btn-toggle
+                              style="
+                                font-size: 10px !important;
+                                font-weight: 200 !important;
+                                height: 22px !important;
+                                width: 54px !important;
+                              "
+                              class="d-flex align-center"
+                              v-model="del.isOrderReq"
+                              :disabled="isSending2"
+                              rounded="5"
+                              @click="orderRequest(del)"
+                            >
+                              <v-btn
+                                size="27"
+                                :disabled="del.isOrderReq"
+                                :value="true"
+                              >
+                                Yes
+                              </v-btn>
+
+                              <v-btn
+                                size="27"
+                                :disabled="del.isOrderReq"
+                                :value="false"
+                              >
+                                No
+                              </v-btn>
+                            </v-btn-toggle>
+                            <span
+                              v-if="del.isOrderReq"
+                              @click="cancelRequest(del)"
+                              class="text-red-darken-1 ml-2"
+                              style="cursor: pointer"
+                              >Cancel</span
+                            >
+                          </td>
+
+                          <td style="border-bottom: none !important">
+                            <span v-if="del.isOrderReq">{{
+                              del?.order_fullfilment?.order_request_date
+                            }}</span>
+                          </td>
+                          <td style="border-bottom: none !important">
+                            <span v-if="del.isOrderReq">{{
+                              del?.order_fullfilment?.user?.name
+                            }}</span>
+                          </td>
+                        </tr>
+                      </tbody>
+                    </v-table>
+                  </td>
                 </tr>
               </template>
               <tr v-if="isLoading">
