@@ -49,6 +49,7 @@
               :items="resource.appId"
               item-title="name"
               item-value="id"
+              :rules="rules.appRules"
             ></v-autocomplete>
           </v-col>
           <v-col cols="12" md="2">
@@ -121,7 +122,7 @@
               </tr>
             </thead>
             <tbody>
-              <template v-for="item in filteredItems" :key="item.mc_id">
+              <template v-for="item in items" :key="item.mc_id">
                 <tr>
                   <td style="border-bottom: none !important">
                     {{ item.mc_id }}
@@ -158,8 +159,7 @@
                       border-bottom: none !important;
                     "
                   >
-                    <!-- {{ item.app_name }} -->
-                    Biryani Run
+                    {{ item.app_name }}
                   </td>
 
                   <td
@@ -316,6 +316,7 @@ export default {
     mainCategoryDataToMainImage: {
       mc_id: 0,
       menu_header: null,
+      app_id: null,
     },
     isOpenMainImage: false,
     successMessage: '',
@@ -327,7 +328,6 @@ export default {
       main_image: null,
     },
     resource: {
-      app: [],
       appId: [],
     },
     rules: {
@@ -337,8 +337,15 @@ export default {
           return 'Category name is required.';
         },
       ],
+      appRules: [
+        (value) => {
+          if (value) return true;
+          return 'App is required.';
+        },
+      ],
     },
     search: '',
+    searchTimeout: null,
     items: [],
   }),
   created() {
@@ -347,17 +354,16 @@ export default {
   },
   mounted() {
     this.getMainCategoriesData();
+    this.getApps();
   },
-  computed: {
-    filteredItems() {
-      if (!this.search) {
-        return this.items;
+  watch: {
+    search(newVal) {
+      if (this.searchTimeout) {
+        clearTimeout(this.searchTimeout);
       }
-      const searchTextLower = this.search.toLowerCase();
-      return this.items.filter((item) => {
-        const categoryName = item.menu_header?.toLowerCase() || '';
-        return categoryName.includes(searchTextLower);
-      });
+      this.searchTimeout = setTimeout(() => {
+        this.searchMenuCategories(newVal);
+      }, 500);
     },
   },
   methods: {
@@ -397,6 +403,7 @@ export default {
       this.mainCategoryDataToMainImage = {
         mc_id: prop.mc_id,
         menu_header: prop.menu_header,
+        app_id: prop.app_id,
       };
       this.mainImageFile =
         prop.main_image != null
@@ -418,6 +425,7 @@ export default {
       this.mainCategoryDataToMainImage = {
         mc_id: 0,
         menu_header: null,
+        app_id: null,
       };
     },
     saveMainImage() {
@@ -425,6 +433,7 @@ export default {
       const payload = {
         mc_id: this.mainCategoryDataToMainImage.mc_id,
         menu_header: this.mainCategoryDataToMainImage.menu_header,
+        app_id: this.mainCategoryDataToMainImage.app_id,
         main_image: this.mainImageFile[0],
       };
       http
@@ -455,6 +464,7 @@ export default {
           this.mainCategoryDataToMainImage = {
             mc_id: 0,
             menu_header: null,
+            app_id: null,
           };
           this.isOpenMainImage = false;
           this.mainImageFile = [];
@@ -465,6 +475,7 @@ export default {
       this.input = {
         mc_id: prop.mc_id,
         menu_header: prop.menu_header,
+        app_id: prop.app_id,
         main_image: prop.main_image,
       };
     },
@@ -473,7 +484,7 @@ export default {
       this.input = {
         mc_id: 0,
         menu_header: null,
-
+        app_id: null,
         main_image: null,
       };
     },
@@ -483,6 +494,7 @@ export default {
         const payload = {
           mc_id: this.input.mc_id,
           menu_header: this.input.menu_header,
+          app_id: this.input.app_id,
         };
         axios
           .post(`/menu-categories/update`, payload)
@@ -494,7 +506,7 @@ export default {
             this.input = {
               mc_id: 0,
               menu_header: null,
-
+              app_id: null,
               main_image: null,
             };
           })
@@ -519,6 +531,7 @@ export default {
         this.isSending = true;
         const payload = {
           menu_header: this.input.menu_header,
+          app_id: this.input.app_id,
         };
         axios
           .post(`/menu-categories`, payload)
@@ -531,6 +544,7 @@ export default {
               mc_id: 0,
               menu_header: null,
               main_image: null,
+              app_id: null,
             };
           })
           .catch((error) => {
@@ -610,6 +624,64 @@ export default {
         })
         .finally(() => {
           this.isLoading = false;
+        });
+    },
+    searchMenuCategories(keyword) {
+      if (!keyword) {
+        this.getMainCategoriesData();
+        return;
+      }
+      this.isLoading = true;
+      axios
+        .get(`/menu-categories/search?keyword=${keyword}`)
+        .then((response) => {
+          const data = response.data.data;
+          this.items = data
+            .sort((a, b) => b.mc_id - a.mc_id)
+            .map((item) => {
+              return {
+                ...item,
+                userName: item?.user?.name || '',
+              };
+            });
+        })
+        .catch((error) => {
+          // eslint-disable-next-line
+          console.log(error);
+          const message =
+            error.response?.data?.message === ''
+              ? 'Something Wrong!!!'
+              : error.response?.data?.message || 'Error occurred';
+          this.errorMessage = message;
+          this.isError = true;
+        })
+        .finally(() => {
+          this.isLoading = false;
+        });
+    },
+    getApps() {
+      axios
+        .get(`/app/active`)
+        .then((response) => {
+          const data = response.data.data;
+          this.resource.appId = data
+            .sort((a, b) => a.app_id < b.app_id)
+            .map((cat) => {
+              return {
+                id: cat.app_id || 0,
+                name: cat.app_name || '',
+              };
+            });
+        })
+        .catch((error) => {
+          // eslint-disable-next-line
+          console.log(error);
+          const message =
+            error.response.data.message === ''
+              ? 'Something Wrong!!!'
+              : error.response.data.message;
+          this.errorMessage = message;
+          this.isError = true;
         });
     },
   },

@@ -891,19 +891,19 @@ export default {
     },
     search: '',
     items: [],
-    debounceTimer: null,
+    debounceTimers: {},
   }),
   created() {
     const token = JSON.parse(localStorage.getItem('token'));
     setAuthHeader(token);
   },
   mounted() {
-    // this.getMenuPricesData();
-    // this.getRestaurants();
-    // this.getDishMasters();
-    // this.getQuantityData();
-    // this.getPrepMasters();
-    // this.getCategoryMasters();
+    this.getMenuPricesData();
+    this.getRestaurants();
+    this.getDishMasters();
+    this.getQuantityData();
+    this.getPrepMasters();
+    this.getCategoryMasters();
   },
   computed: {
     filteredItems() {
@@ -1078,13 +1078,15 @@ export default {
       }
     },
     debouncedUpdate(id, value, type) {
+      const timerKey = `${id}_${type}`;
+
       // Hapus timer sebelumnya jika ada
-      if (this.debounceTimer) {
-        clearTimeout(this.debounceTimer);
+      if (this.debounceTimers[timerKey]) {
+        clearTimeout(this.debounceTimers[timerKey]);
       }
 
       // Set debounce baru
-      this.debounceTimer = setTimeout(() => {
+      this.debounceTimers[timerKey] = setTimeout(() => {
         this.updateData(id, value, type);
       }, 800);
     },
