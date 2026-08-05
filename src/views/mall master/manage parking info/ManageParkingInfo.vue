@@ -318,19 +318,13 @@
                           >Edit</span
                         ></v-btn
                       >
-                      <v-tooltip location="top">
-                        <template v-slot:activator="{ props }">
-                          <v-btn
-                            color="red"
-                            v-bind="props"
-                            variant="text"
+                      <v-btn
+                            color="red" variant="text"
                             :disabled="isDeleteLoading"
                             @click="openDeleteConfirm(item.id)"
                             icon="mdi-trash-can-outline"
-                          ></v-btn>
-                        </template>
-                        <span>Delete</span>
-                      </v-tooltip>
+                          >  <v-tooltip location="top" activator="parent">Delete</v-tooltip>
+</v-btn>
                     </div>
                   </td>
                 </tr>

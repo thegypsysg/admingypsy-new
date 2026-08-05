@@ -269,31 +269,19 @@
                 </td>
                 <td>
                   <div class="d-flex app-column">
-                    <v-tooltip location="top">
-                      <template v-slot:activator="{ props }">
-                        <v-btn
+                    <v-btn
                           color="green"
-                          variant="text"
-                          v-bind="props"
-                          @click="editBrands(item)"
+                          variant="text" @click="editBrands(item)"
                           icon="mdi-pencil-outline"
-                        ></v-btn>
-                      </template>
-                      <span>Edit</span>
-                    </v-tooltip>
-                    <v-tooltip location="top">
-                      <template v-slot:activator="{ props }">
-                        <v-btn
-                          color="red"
-                          v-bind="props"
-                          variant="text"
+                        >  <v-tooltip location="top" activator="parent">Edit</v-tooltip>
+</v-btn>
+                    <v-btn
+                          color="red" variant="text"
                           :disabled="isDeleteLoading"
                           @click="openDeleteConfirm(item.id)"
                           icon="mdi-trash-can-outline"
-                        ></v-btn>
-                      </template>
-                      <span>Delete</span>
-                    </v-tooltip>
+                        >  <v-tooltip location="top" activator="parent">Delete</v-tooltip>
+</v-btn>
                   </div>
                   <v-table class="app-column-table"></v-table>
                 </td>

@@ -142,31 +142,19 @@
                   </td>
                   <td>
                     <div class="d-flex">
-                      <!-- <v-tooltip location="top">
-                        <template v-slot:activator="{ props }">
-                          <v-btn
+                      <!-- <v-btn
                             color="green"
-                            variant="text"
-                            v-bind="props"
-                            @click="editPropertyDeveloper(item)"
+                            variant="text" @click="editPropertyDeveloper(item)"
                             icon="mdi-pencil-outline"
-                          ></v-btn>
-                        </template>
-                        <span>Edit</span>
-                      </v-tooltip> -->
-                      <v-tooltip location="top">
-                        <template v-slot:activator="{ props }">
-                          <v-btn
-                            color="red"
-                            v-bind="props"
-                            variant="text"
+                          >  <v-tooltip location="top" activator="parent">Edit</v-tooltip>
+</v-btn> -->
+                      <v-btn
+                            color="red" variant="text"
                             :disabled="isDeleteLoading"
                             @click="openDeleteConfirm(item.developer_id)"
                             icon="mdi-trash-can-outline"
-                          ></v-btn>
-                        </template>
-                        <span>Delete</span>
-                      </v-tooltip>
+                          >  <v-tooltip location="top" activator="parent">Delete</v-tooltip>
+</v-btn>
                     </div>
                   </td>
                 </tr>
