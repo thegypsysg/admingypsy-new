@@ -400,7 +400,7 @@
                           </td>
                         </tr>
                       </v-table>
-                      <table class="text-left pt-4 pb-2">
+                      <v-table class="text-left pt-4 pb-2">
                         <tr>
                           <td>
                             <v-row>
@@ -684,8 +684,8 @@
                               </v-col>
                             </v-row>
                           </td>
-                        </tr>
-                      </table>
+                          </tr>
+                        </v-table>
                     </div>
                   </td>
                 </tr>

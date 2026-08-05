@@ -427,7 +427,7 @@
                           </td>
                         </tr>
                       </v-table>
-                      <table class="text-left pl-16 pt-4 pb-2">
+                      <v-table class="text-left pl-16 pt-4 pb-2">
                         <tr>
                           <td>
                             <v-row>
@@ -452,8 +452,8 @@
                               </v-col>
                             </v-row>
                           </td>
-                        </tr>
-                      </table>
+                          </tr>
+                        </v-table>
                       <v-table class="text-left pl-10 mt-2">
                         <tr>
                           <td class="pt-2 pr-3"></td>
