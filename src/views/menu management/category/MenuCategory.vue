@@ -107,6 +107,23 @@
           ></v-text-field>
         </v-col>
       </v-row>
+      <v-row align="center" justify="space-between">
+        <v-col cols="8">
+          <span>
+            Showing {{ startItem }} - {{ endItem }} from {{ totalItems }} item
+          </span>
+        </v-col>
+        <v-col cols="4" class="text-right">
+          <v-select
+            v-model="perPage"
+            :items="[5, 10, 15, 20]"
+            label="Items per page"
+            density="compact"
+            variant="outlined"
+            hide-details
+          ></v-select>
+        </v-col>
+      </v-row>
       <v-row>
         <v-col cols="12">
           <v-table class="country-table">
@@ -181,20 +198,28 @@
                   <td style="border-bottom: none !important">
                     <div class="d-flex justify-center">
                       <v-btn
-                            color="green"
-                            variant="text" @click="editMainCategory(item)"
-                            icon
-                          >
-  <v-icon>mdi-pencil-outline</v-icon>  <v-tooltip location="top" activator="parent">Edit</v-tooltip>
-</v-btn>
+                        color="green"
+                        variant="text"
+                        @click="editMainCategory(item)"
+                        icon
+                      >
+                        <v-icon>mdi-pencil-outline</v-icon>
+                        <v-tooltip location="top" activator="parent"
+                          >Edit</v-tooltip
+                        >
+                      </v-btn>
                       <v-btn
-                            color="red" variant="text"
-                            :disabled="isDeleteLoading"
-                            @click="openDeleteConfirm(item.mc_id)"
-                            icon
-                          >
-  <v-icon>mdi-trash-can-outline</v-icon>  <v-tooltip location="top" activator="parent">Delete</v-tooltip>
-</v-btn>
+                        color="red"
+                        variant="text"
+                        :disabled="isDeleteLoading"
+                        @click="openDeleteConfirm(item.mc_id)"
+                        icon
+                      >
+                        <v-icon>mdi-trash-can-outline</v-icon>
+                        <v-tooltip location="top" activator="parent"
+                          >Delete</v-tooltip
+                        >
+                      </v-btn>
                     </div>
                   </td>
                 </tr>
@@ -209,6 +234,11 @@
               </tr>
             </tbody>
           </v-table>
+          <v-pagination
+            v-model="currentPage"
+            :length="totalPages"
+            @update:modelValue="getMainCategoriesData"
+          ></v-pagination>
         </v-col>
       </v-row>
     </v-sheet>
@@ -337,6 +367,10 @@ export default {
     search: '',
     searchTimeout: null,
     items: [],
+    currentPage: 1,
+    perPage: 5,
+    totalPages: 1,
+    totalItems: 0,
   }),
   created() {
     const token = JSON.parse(localStorage.getItem('token'));
@@ -346,13 +380,26 @@ export default {
     this.getMainCategoriesData();
     this.getApps();
   },
+  computed: {
+    startItem() {
+      return (this.currentPage - 1) * this.perPage + 1;
+    },
+    endItem() {
+      return Math.min(this.currentPage * this.perPage, this.totalItems);
+    },
+  },
   watch: {
-    search(newVal) {
+    perPage() {
+      this.currentPage = 1;
+      this.getMainCategoriesData();
+    },
+    search() {
       if (this.searchTimeout) {
         clearTimeout(this.searchTimeout);
       }
       this.searchTimeout = setTimeout(() => {
-        this.searchMenuCategories(newVal);
+        this.currentPage = 1;
+        this.getMainCategoriesData();
       }, 500);
     },
   },
@@ -588,52 +635,29 @@ export default {
     },
     getMainCategoriesData() {
       this.isLoading = true;
-      axios
-        .get(`/menu-categories`)
-        .then((response) => {
-          const data = response.data.data;
-          this.items = data
-            .sort((a, b) => b.mc_id - a.mc_id)
-            .map((item) => {
-              console.log(item);
-              return {
-                ...item,
-                userName: item?.user?.name || '',
-              };
-            });
-        })
-        .catch((error) => {
-          // eslint-disable-next-line
-          console.log(error);
-          const message =
-            error.response.data.message === ''
-              ? 'Something Wrong!!!'
-              : error.response.data.message;
-          this.errorMessage = message;
-          this.isError = true;
-        })
-        .finally(() => {
-          this.isLoading = false;
-        });
-    },
-    searchMenuCategories(keyword) {
-      if (!keyword) {
-        this.getMainCategoriesData();
-        return;
+      let url = this.search ? `/menu-categories/search` : `/menu-categories`;
+      let params = {
+        page: this.currentPage,
+        perPage: this.perPage,
+      };
+      if (this.search) {
+        params.keyword = this.search;
       }
-      this.isLoading = true;
+
       axios
-        .get(`/menu-categories/search?keyword=${keyword}`)
+        .get(url, { params })
         .then((response) => {
-          const data = response.data.data;
-          this.items = data
-            .sort((a, b) => b.mc_id - a.mc_id)
-            .map((item) => {
-              return {
-                ...item,
-                userName: item?.user?.name || '',
-              };
-            });
+          const data = response.data;
+          this.items = data.data.map((item) => {
+            return {
+              ...item,
+              userName: item?.user?.name || '',
+            };
+          });
+          this.currentPage = data?.meta?.pagination?.current_page || 1;
+          this.perPage = data?.meta?.pagination?.per_page || 5;
+          this.totalItems = data?.meta?.pagination?.total || 0;
+          this.totalPages = data?.meta?.pagination?.last_page || 1;
         })
         .catch((error) => {
           // eslint-disable-next-line

@@ -337,6 +337,24 @@
           ></v-text-field>
         </v-col>
       </v-row>
+      <v-row align="center" justify="space-between">
+        <v-col cols="8">
+          <span>
+            Showing {{ startItem }} - {{ endItem }} from {{ totalItems }} item
+          </span>
+        </v-col>
+        <v-col cols="4" class="text-right">
+          <v-select
+            v-model="perPage"
+            :items="[5, 10, 15, 20]"
+            label="Items per page"
+            density="compact"
+            variant="outlined"
+            hide-details
+            @update:modelValue="getMenuPricesData"
+          ></v-select>
+        </v-col>
+      </v-row>
       <v-row>
         <v-col cols="12">
           <v-table class="country-table">
@@ -354,7 +372,7 @@
               </tr>
             </thead>
             <tbody>
-              <template v-for="item in filteredItems" :key="item.mrp_id">
+              <template v-for="item in items" :key="item.mrp_id">
                 <tr>
                   <td class="border-b-0 pt-3 pb-2">
                     {{ item.mrp_id }}
@@ -438,20 +456,28 @@
                   <td class="border-b-0 pt-3 pb-2">
                     <div class="d-flex">
                       <v-btn
-                            color="green"
-                            variant="text" @click="editMenuPrices(item)"
-                            icon
-                          >
-  <v-icon>mdi-pencil-outline</v-icon>  <v-tooltip location="top" activator="parent">Edit</v-tooltip>
-</v-btn>
+                        color="green"
+                        variant="text"
+                        @click="editMenuPrices(item)"
+                        icon
+                      >
+                        <v-icon>mdi-pencil-outline</v-icon>
+                        <v-tooltip location="top" activator="parent"
+                          >Edit</v-tooltip
+                        >
+                      </v-btn>
                       <v-btn
-                            color="red" variant="text"
-                            :disabled="isDeleteLoading"
-                            @click="openDeleteConfirm(item.mrp_id)"
-                            icon
-                          >
-  <v-icon>mdi-trash-can-outline</v-icon>  <v-tooltip location="top" activator="parent">Delete</v-tooltip>
-</v-btn>
+                        color="red"
+                        variant="text"
+                        :disabled="isDeleteLoading"
+                        @click="openDeleteConfirm(item.mrp_id)"
+                        icon
+                      >
+                        <v-icon>mdi-trash-can-outline</v-icon>
+                        <v-tooltip location="top" activator="parent"
+                          >Delete</v-tooltip
+                        >
+                      </v-btn>
                     </div>
                   </td>
                 </tr>
@@ -763,6 +789,11 @@
               </tr>
             </tbody>
           </v-table>
+          <v-pagination
+            v-model="currentPage"
+            :length="totalPages"
+            @update:modelValue="getMenuPricesData"
+          ></v-pagination>
         </v-col>
       </v-row>
     </v-sheet>
@@ -880,8 +911,13 @@ export default {
       categories: [],
     },
     search: '',
+    searchTimeout: null,
     items: [],
     debounceTimers: {},
+    currentPage: 1,
+    perPage: 5,
+    totalPages: 1,
+    totalItems: 0,
   }),
   created() {
     const token = JSON.parse(localStorage.getItem('token'));
@@ -896,19 +932,26 @@ export default {
     this.getCategoryMasters();
   },
   computed: {
-    filteredItems() {
-      if (!this.search) {
-        return this.items;
+    startItem() {
+      return (this.currentPage - 1) * this.perPage + 1;
+    },
+    endItem() {
+      return Math.min(this.currentPage * this.perPage, this.totalItems);
+    },
+  },
+  watch: {
+    perPage() {
+      this.currentPage = 1;
+      this.getMenuPricesData();
+    },
+    search() {
+      if (this.searchTimeout) {
+        clearTimeout(this.searchTimeout);
       }
-      const searchTextLower = this.search.toLowerCase();
-      return this.items.filter((item) => {
-        const dishName = item.dishName?.toLowerCase() || '';
-        const restaurantName = item.restaurantName?.toLowerCase() || '';
-        return (
-          dishName.includes(searchTextLower) ||
-          restaurantName.includes(searchTextLower)
-        );
-      });
+      this.searchTimeout = setTimeout(() => {
+        this.currentPage = 1;
+        this.getMenuPricesData();
+      }, 500);
     },
   },
   methods: {
@@ -1195,58 +1238,69 @@ export default {
     },
     getMenuPricesData() {
       this.isLoading = true;
+      let url = this.search ? `/menu-rate-prices/search` : `/menu-rate-prices`;
+      let params = {
+        page: this.currentPage,
+        perPage: this.perPage,
+      };
+      if (this.search) {
+        params.keyword = this.search;
+      }
+
       axios
-        .get(`/menu-rate-prices`)
+        .get(url, { params })
         .then((response) => {
-          const data = response.data.data;
-          this.items = data
-            .sort((a, b) => b.mrp_id - a.mrp_id)
-            .map((item) => {
-              console.log(item);
-              return {
-                ...item,
-                dishName: item?.dish?.dish_name || '',
-                restaurantName: item?.restaurant?.partner?.partner_name || '',
-                userName: item?.user?.name || '',
-                isActive:
-                  item.active == 'N' ? false : item.active == 'Y' ? true : null,
-                isFeatured:
-                  item.featured == 'N'
-                    ? false
-                    : item.featured == 'Y'
-                    ? true
-                    : null,
-                isPlatinum:
-                  item.platinum == 'N'
-                    ? false
-                    : item.platinum == 'Y'
-                    ? true
-                    : null,
-                isPrivileged:
-                  item.privileged == 'N'
-                    ? false
-                    : item.privileged == 'Y'
-                    ? true
-                    : null,
-                isLive:
-                  item.live == 'N' ? false : item.live == 'Y' ? true : null,
-                isVeg: item.veg == 'N' ? false : item.veg == 'Y' ? true : null,
-                isNonVeg:
-                  item['non-veg'] == 'N'
-                    ? false
-                    : item['non-veg'] == 'Y'
-                    ? true
-                    : null,
-                isHalal:
-                  item.halal == 'N' ? false : item.halal == 'Y' ? true : null,
-                is24h:
-                  item['24_hrs_notice'] == 'N'
-                    ? false
-                    : item['24_hrs_notice'] == 'Y'
-                    ? true
-                    : null,
-              };
-            });
+          const data = response.data;
+          this.items = data.data.map((item) => {
+            console.log(item);
+            return {
+              ...item,
+              dishName: item?.dish?.dish_name || '',
+              restaurantName: item?.restaurant?.partner?.partner_name || '',
+              userName: item?.user?.name || '',
+              isActive:
+                item.active == 'N' ? false : item.active == 'Y' ? true : null,
+              isFeatured:
+                item.featured == 'N'
+                  ? false
+                  : item.featured == 'Y'
+                  ? true
+                  : null,
+              isPlatinum:
+                item.platinum == 'N'
+                  ? false
+                  : item.platinum == 'Y'
+                  ? true
+                  : null,
+              isPrivileged:
+                item.privileged == 'N'
+                  ? false
+                  : item.privileged == 'Y'
+                  ? true
+                  : null,
+              isLive: item.live == 'N' ? false : item.live == 'Y' ? true : null,
+              isVeg: item.veg == 'N' ? false : item.veg == 'Y' ? true : null,
+              isNonVeg:
+                item['non-veg'] == 'N'
+                  ? false
+                  : item['non-veg'] == 'Y'
+                  ? true
+                  : null,
+              isHalal:
+                item.halal == 'N' ? false : item.halal == 'Y' ? true : null,
+              is24h:
+                item['24_hrs_notice'] == 'N'
+                  ? false
+                  : item['24_hrs_notice'] == 'Y'
+                  ? true
+                  : null,
+            };
+          });
+
+          this.currentPage = data?.meta?.pagination?.current_page;
+          this.perPage = data?.meta?.pagination?.per_page;
+          this.totalItems = data?.meta?.pagination?.total;
+          this.totalPages = data?.meta?.pagination?.last_page;
         })
         .catch((error) => {
           // eslint-disable-next-line
@@ -1345,7 +1399,12 @@ export default {
     },
     getCategoryMasters() {
       axios
-        .get(`/menu-categories`)
+        .get(`/menu-categories`, {
+          params: {
+            page: 1,
+            perPage: 1000,
+          },
+        })
         .then((response) => {
           const data = response.data.data;
           //console.log(data);
