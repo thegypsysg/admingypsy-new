@@ -225,15 +225,17 @@
                       <v-btn
                             color="green"
                             variant="text" @click="editOnboardPrices(item)"
-                            icon="mdi-pencil-outline"
-                          >  <v-tooltip location="top" activator="parent">Edit</v-tooltip>
+                            icon
+                          >
+  <v-icon>mdi-pencil-outline</v-icon>  <v-tooltip location="top" activator="parent">Edit</v-tooltip>
 </v-btn>
                       <v-btn
                             color="red" variant="text"
                             :disabled="isDeleteLoading"
                             @click="openDeleteConfirm(item.brp_id)"
-                            icon="mdi-trash-can-outline"
-                          >  <v-tooltip location="top" activator="parent">Delete</v-tooltip>
+                            icon
+                          >
+  <v-icon>mdi-trash-can-outline</v-icon>  <v-tooltip location="top" activator="parent">Delete</v-tooltip>
 </v-btn>
                     </div>
                   </td>

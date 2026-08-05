@@ -205,15 +205,17 @@
                       <v-btn
                             color="green"
                             variant="text" @click="editPrimarySkill(item)"
-                            icon="mdi-pencil-outline"
-                          >  <v-tooltip location="top" activator="parent">Edit</v-tooltip>
+                            icon
+                          >
+  <v-icon>mdi-pencil-outline</v-icon>  <v-tooltip location="top" activator="parent">Edit</v-tooltip>
 </v-btn>
                       <v-btn
                             color="red" variant="text"
                             :disabled="isDeleteLoading"
                             @click="openDeleteConfirm(item.id)"
-                            icon="mdi-trash-can-outline"
-                          >  <v-tooltip location="top" activator="parent">Delete</v-tooltip>
+                            icon
+                          >
+  <v-icon>mdi-trash-can-outline</v-icon>  <v-tooltip location="top" activator="parent">Delete</v-tooltip>
 </v-btn>
                     </div>
                   </td>
@@ -233,32 +235,28 @@
                             >
                           </td>
                           <td>
-                            <tr>
-                              <th class="pt-2 text-red-darken-4">
-                                Stand Alone
-                              </th>
-                            </tr>
-                            <tr>
-                              <td class="pt-4 pb-1">
-                                <v-btn-toggle
-                                  style="
-                                    font-size: 10px !important;
-                                    font-weight: 200 !important;
-                                    height: 22px !important;
-                                    width: 54px !important;
-                                  "
-                                  class="d-flex align-center"
-                                  v-model="item.isStandAlone"
-                                  :disabled="isSending2"
-                                  @click="standAloneSkill(item.id)"
-                                  rounded="5"
-                                >
-                                  <v-btn size="27" :value="true"> Yes </v-btn>
+                            <div class="pt-2 text-red-darken-4 font-weight-bold">
+                              Stand Alone
+                            </div>
+                            <div class="pt-4 pb-1">
+                              <v-btn-toggle
+                                style="
+                                  font-size: 10px !important;
+                                  font-weight: 200 !important;
+                                  height: 22px !important;
+                                  width: 54px !important;
+                                "
+                                class="d-flex align-center"
+                                v-model="item.isStandAlone"
+                                :disabled="isSending2"
+                                @click="standAloneSkill(item.id)"
+                                rounded="5"
+                              >
+                                <v-btn size="27" :value="true"> Yes </v-btn>
 
-                                  <v-btn size="27" :value="false"> No </v-btn>
-                                </v-btn-toggle>
-                              </td>
-                            </tr>
+                                <v-btn size="27" :value="false"> No </v-btn>
+                              </v-btn-toggle>
+                            </div>
                           </td>
                           <td class="pt-2">
                             <router-link

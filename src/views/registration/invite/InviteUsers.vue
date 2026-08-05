@@ -274,15 +274,17 @@
                         color="green"
                         variant="text"
                         @click="editUser(item)"
-                        icon="mdi-pencil-outline"
-                      ></v-btn>
+                        icon
+                      >
+  <v-icon>mdi-pencil-outline</v-icon></v-btn>
                       <v-btn
                         color="red"
                         variant="text"
                         :disabled="isDeleteLoading"
                         @click="openDeleteConfirm(item.id)"
-                        icon="mdi-trash-can-outline"
-                      ></v-btn>
+                        icon
+                      >
+  <v-icon>mdi-trash-can-outline</v-icon></v-btn>
                     </div>
                   </td>
                 </tr>

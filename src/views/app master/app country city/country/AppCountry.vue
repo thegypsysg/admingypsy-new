@@ -144,8 +144,9 @@
                     variant="text"
                     :disabled="isDeleteLoading"
                     @click="openDeleteConfirm(item.id)"
-                    icon="mdi-trash-can-outline"
-                  ></v-btn>
+                    icon
+                  >
+  <v-icon>mdi-trash-can-outline</v-icon></v-btn>
                 </td>
               </tr>
               <tr v-if="isLoading">

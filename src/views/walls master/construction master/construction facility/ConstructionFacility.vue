@@ -149,8 +149,9 @@
                             color="red" variant="text"
                             :disabled="isDeleteLoading"
                             @click="openDeleteConfirm(item.cf_id)"
-                            icon="mdi-trash-can-outline"
-                          >  <v-tooltip location="top" activator="parent">Delete</v-tooltip>
+                            icon
+                          >
+  <v-icon>mdi-trash-can-outline</v-icon>  <v-tooltip location="top" activator="parent">Delete</v-tooltip>
 </v-btn>
                     </div>
                   </td>

@@ -351,8 +351,9 @@
                         variant="text"
                         :disabled="isDeleteLoading"
                         @click="openDeleteConfirm(item.id)"
-                        icon="mdi-trash-can-outline"
-                      ></v-btn>
+                        icon
+                      >
+  <v-icon>mdi-trash-can-outline</v-icon></v-btn>
                     </div>
                   </td>
                 </tr>
@@ -641,8 +642,9 @@
                                       variant="text"
                                       :disabled="isDeleteLoading2"
                                       @click="openDeleteConfirm2(data?.mpl_id)"
-                                      icon="mdi-trash-can-outline"
-                                    ></v-btn>
+                                      icon
+                                    >
+  <v-icon>mdi-trash-can-outline</v-icon></v-btn>
                                   </v-col>
                                 </v-row>
                                 <v-row class="py-0">

@@ -164,8 +164,9 @@
                             color="green"
                             variant="text"
                             v-bind="props"
-                            icon="mdi-pencil-outline"
-                          ></v-btn>
+                            icon
+                          >
+  <v-icon>mdi-pencil-outline</v-icon></v-btn>
                           <!-- @click="editPropertyRates(item)" -->
                         </template>
                         <span>Edit</span>
@@ -177,8 +178,9 @@
                             v-bind="props"
                             variant="text"
                             :disabled="isDeleteLoading"
-                            icon="mdi-trash-can-outline"
-                          ></v-btn>
+                            icon
+                          >
+  <v-icon>mdi-trash-can-outline</v-icon></v-btn>
                           <!-- @click="openDeleteConfirm(item.id)" -->
                         </template>
                         <span>Delete</span>
