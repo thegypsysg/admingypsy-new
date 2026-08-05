@@ -61,8 +61,9 @@
 
 <script>
 import Dropdown from './Dropdown.vue';
-import app from '@/util/eventBus';
+import eventBus from '@/util/eventBus';
 import { tokenStorage } from '@/util/tokenStorage';
+import { useNavigationStore } from '@/stores/navigation';
 
 export default {
   components: { Dropdown },
@@ -76,6 +77,7 @@ export default {
       role: '',
       loginTime: null,
       localDrawerOpen: true,
+      navStore: null,
     };
   },
   props: {
@@ -90,13 +92,11 @@ export default {
     },
   },
   created() {
-    app.config.globalProperties.$eventBus.$on('update-image', this.updateImage);
+    this.navStore = useNavigationStore();
+    eventBus.on('update-image', this.updateImage);
   },
   beforeUnmount() {
-    app.config.globalProperties.$eventBus.$off(
-      'update-image',
-      this.updateImage
-    );
+    eventBus.off('update-image', this.updateImage);
   },
   mounted() {
     this.name = tokenStorage.getName();
@@ -116,7 +116,7 @@ export default {
   },
   computed: {
     navigation() {
-      return this.$store.getters.navigation;
+      return this.navStore ? this.navStore.navigation : [];
     },
   },
   methods: {

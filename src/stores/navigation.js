@@ -1,7 +1,15 @@
-import { createStore } from 'vuex';
+/**
+ * navigation.js — Pinia Store
+ *
+ * Menggantikan Vuex navigation state.
+ * Digunakan oleh SidebarDashboard.vue dan AdminDashboard.vue
+ * untuk mendapatkan daftar menu navigasi sidebar.
+ */
 
-export default createStore({
-  state: {
+import { defineStore } from 'pinia';
+
+export const useNavigationStore = defineStore('navigation', {
+  state: () => ({
     navigation: [
       {
         title: 'Masters',
@@ -121,18 +129,9 @@ export default createStore({
         subnav: [{ title: 'Websites' }, { title: 'Open Source' }],
       },
     ],
-    items: [],
-  },
+  }),
+
   getters: {
-    navigation: (state) => {
-      return state.navigation;
-    },
+    getNavigation: (state) => state.navigation,
   },
-  mutations: {
-    items(state, data) {
-      state.items = data;
-    },
-  },
-  actions: {},
-  modules: {},
 });

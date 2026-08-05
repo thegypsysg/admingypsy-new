@@ -1,35 +1,20 @@
-// eventBus.js
-import { createApp } from 'vue';
+/**
+ * eventBus.js
+ *
+ * Global event bus menggunakan `mitt`.
+ * Menggantikan implementasi sebelumnya yang menggunakan createApp({}) kedua.
+ *
+ * API yang tersedia:
+ *   eventBus.emit('event-name', payload)
+ *   eventBus.on('event-name', handler)
+ *   eventBus.off('event-name', handler)
+ *
+ * Cara import di komponen:
+ *   import eventBus from '@/util/eventBus';
+ */
 
-const app = createApp({});
-const eventBus = (app.config.globalProperties.$eventBus = {});
-eventBus.callbacks = {};
+import mitt from 'mitt';
 
-eventBus.$on = (event, callback) => {
-  if (!eventBus.callbacks[event]) {
-    eventBus.callbacks[event] = [];
-  }
-  eventBus.callbacks[event].push(callback);
-};
+const eventBus = mitt();
 
-eventBus.$off = (event, callback) => {
-  if (eventBus.callbacks[event]) {
-    if (callback) {
-      eventBus.callbacks[event] = eventBus.callbacks[event].filter(
-        (cb) => cb !== callback
-      );
-    } else {
-      delete eventBus.callbacks[event];
-    }
-  }
-};
-
-eventBus.$emit = (event, ...args) => {
-  if (eventBus.callbacks[event]) {
-    eventBus.callbacks[event].forEach((callback) => {
-      callback(...args);
-    });
-  }
-};
-
-export default app;
+export default eventBus;

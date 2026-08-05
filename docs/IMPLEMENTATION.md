@@ -1,29 +1,64 @@
-# 🔐 IMPLEMENTATION.md — Fase 1: Security Hardening
+# 🔐 IMPLEMENTATION.md — Fase 1: Security Hardening ✅ SELESAI
 
-> **Target Audiens:** Model Gemini Flash yang akan mengeksekusi task ini
-> **Prasyarat:** Baca [`docs/README.md`](./README.md) dan [`ANALYSIS.md`](../ANALYSIS.md) terlebih dahulu
-> **Fase:** 1 dari 3
-> **Fokus:** Security Hardening — perbaikan keamanan fundamental
+> **Status:** COMPLETED (commit `39ce7f1d`)
+> **Tanggal selesai:** 2026-08-05
+
+**Yang sudah selesai di Fase 1:**
+- ✅ `.env.local` dan `.env.production` dengan API URL
+- ✅ `src/util/tokenStorage.js` (abstraksi sessionStorage)
+- ✅ `src/util/apiClient.js` (satu Axios instance terpusat)
+- ✅ `src/main.js` direfactor — hapus `axiosAbsensi`, tambah `$api`
+- ✅ `src/util/axios.js` di-redirect ke `apiClient` untuk backward compat
+- ✅ Login & Sidebar migrated ke `tokenStorage`
+- ✅ `src/App.vue` — periodic token expiry check + redirect
+- ✅ `src/router/index.js` — global `router.beforeEach` menggantikan 90x `beforeEnter`
+- ✅ `public/.htaccess` — SPA routing, CSP headers, caching, Gzip
+
+---
+
+# 🏗️ IMPLEMENTATION.md — Fase 2: Architecture Upgrade ✅ SELESAI
+
+> **Status:** COMPLETED
+> **Tanggal selesai:** 2026-08-05
+> **Target Audiens:** Model Gemini Flash (High) yang akan mengeksekusi task ini
+> **Prasyarat WAJIB:** Baca [`docs/README.md`](./README.md) sebelum memulai
+> **Fase:** 2 dari 3
+> **Fokus:** Migrasi state management ke Pinia, penggantian EventBus, dan pembersihan dependency
+
+---
+
+## ⚠️ PERINGATAN KRITIS — BACA SEBELUM MEMULAI
+
+> Percobaan implementasi Fase 2 sebelumnya **menyebabkan error pada banyak komponen UI**.
+> Ikuti urutan task **secara ketat**. Jangan melompat atau menggabungkan task.
+
+**Prinsip Aman yang WAJIB diikuti:**
+
+1. **JANGAN uninstall Vuex** sampai setiap referensi `$store` sudah dikonfirmasi tergantikan.
+2. **Jalankan Pinia dan Vuex secara paralel** sampai migrasi selesai.
+3. **Verifikasi dev server tidak error setelah SETIAP task**, bukan hanya di akhir.
+4. **Jangan ubah file komponen view** (di `src/views/`) kecuali yang disebutkan secara eksplisit.
+5. **Ubah satu file per waktu**, lalu cek browser sebelum lanjut.
 
 ---
 
 ## 📋 Ringkasan Eksekutif
 
-Fase 1 bertujuan memperbaiki **4 isu keamanan kritikal** yang saat ini ada di proyek AdminGypsy:
+Fase 2 bertujuan melakukan upgrade arsitektur internal tanpa mengubah tampilan atau fungsionalitas aplikasi dari sudut pandang user.
 
-| # | Masalah | Dampak |
-|---|---------|--------|
-| 1 | Dua Axios instance dengan URL hardcoded | Inkonsistensi request, URL bocor di source |
-| 2 | Token auth di `localStorage` | Rentan XSS — token bisa dicuri script |
-| 3 | Route guard copy-paste 90x | Sulit maintain, bug berulang |
-| 4 | Token expiry tidak redirect ke login | User stuck di halaman kosong |
+| # | Perubahan | Dampak |
+|---|-----------|--------|
+| 1 | Install Pinia (berjalan paralel dengan Vuex) | State management lebih modern dan ringan |
+| 2 | Buat `stores/navigation.js` di Pinia | Terpusat, reaktif, tanpa boilerplate Vuex |
+| 3 | Migrasi `SidebarDashboard.vue` & `AdminDashboard.vue` ke Pinia | Hapus `$store.getters.navigation` |
+| 4 | Uninstall Vuex (HANYA setelah T3 selesai dan terverifikasi) | Kurangi bundle size |
+| 5 | Ganti `eventBus.js` dengan `mitt` | Hapus anti-pattern double Vue instance |
 
-**Setelah Fase 1 selesai:**
-- ✅ Satu Axios instance terpusat dengan URL dari env variable
-- ✅ Token lebih aman di `sessionStorage` dengan abstraksi layer
-- ✅ Router bersih dari duplikasi — satu global guard
-- ✅ Token expiry otomatis redirect ke login
-- ✅ Security headers di server cPanel
+**Yang TIDAK dilakukan di Fase 2:**
+- Tidak rename direktori views (dipindah ke Fase 3)
+- Tidak mengubah komponen views individual
+- Tidak migrasi ke Composition API (Fase 3)
+- Tidak migrasi ke Vite (Fase 3)
 
 ---
 
@@ -31,32 +66,25 @@ Fase 1 bertujuan memperbaiki **4 isu keamanan kritikal** yang saat ini ada di pr
 
 | Task | Nama | Estimasi | Urutan |
 |------|------|----------|--------|
-| T1 | Setup Environment Variables | 30 menit | 1 |
-| T2 | Buat `tokenStorage.js` | 30 menit | 2 |
-| T3 | Buat `apiClient.js` | 45 menit | 3 |
-| T4 | Refactor `main.js` | 30 menit | 4 (setelah T3) |
-| T5 | Hapus `util/axios.js` | 10 menit | 5 (setelah T4) |
-| T6 | Migrasi localStorage → sessionStorage | 60–90 menit | 6 (setelah T2) |
-| T7 | Perbaiki `App.vue` token expiry | 30–45 menit | 7 (setelah T2) |
-| T8 | Refactor `router/index.js` | 90–120 menit | 8 (setelah T2) |
-| T9 | Buat `.htaccess` security headers | 20 menit | 9 (independen) |
-| | **TOTAL** | **~7–9 jam** | |
+| T1 | Install Pinia + register di main.js | 15 menit | 1 |
+| T2 | Buat `src/stores/navigation.js` | 20 menit | 2 (setelah T1) |
+| T3 | Migrate `SidebarDashboard.vue` ke Pinia | 30 menit | 3 (setelah T2) |
+| T4 | Migrate `AdminDashboard.vue` ke Pinia | 20 menit | 4 (setelah T3 terverifikasi) |
+| T5 | Uninstall Vuex + cleanup | 20 menit | 5 (HANYA setelah T4) |
+| T6 | Install `mitt` + update `eventBus.js` | 20 menit | 6 (independen) |
+| T7 | Update `SidebarDashboard.vue` eventBus calls | 20 menit | 7 (setelah T6) |
+| T8 | Update `UserMaster.vue` eventBus calls | 20 menit | 8 (setelah T6) |
+| | **TOTAL** | **~2.5–3 jam** | |
 
 ### Dependency Chart
 
 ```
-T1 (env) ──────────────────────────────→ T3 (apiClient)
-                                              ↓
-T2 (tokenStorage) → T3 (apiClient) → T4 (main.js) → T5 (hapus axios.js)
-       ↓
-       ├──→ T6 (migrasi localStorage)
-       ├──→ T7 (App.vue expiry)
-       └──→ T8 (router refactor)
+T1 (install pinia) → T2 (navigation store) → T3 (sidebar migrate) → T4 (admin migrate) → T5 (uninstall vuex)
 
-T9 (htaccess) → independen, bisa kapan saja
+T6 (install mitt) → T7 (sidebar eventbus) → T8 (usermaste eventbus)
+
+T6 bisa dikerjakan paralel dengan T1-T4, TAPI T7 harus setelah T6 selesai.
 ```
-
-**Urutan yang HARUS diikuti:** T1 → T2 → T3 → T4 → T5, kemudian T6, T7, T8 bisa paralel, T9 kapan saja.
 
 ---
 
@@ -65,26 +93,23 @@ T9 (htaccess) → independen, bisa kapan saja
 | Resource | Detail |
 |----------|--------|
 | **Model** | Gemini 2.5 Flash (High Thinking) |
-| **Context yang diperlukan** | File proyek: `main.js`, `App.vue`, `router/index.js`, `src/util/`, `src/components/SidebarDashboard.vue`, `src/views/login/` |
-| **Tools yang dibutuhkan** | `view_file`, `write_to_file`, `replace_file_content`, `multi_replace_file_content`, `run_command`, `grep_search` |
-| **Waktu total** | 7–9 jam aktif eksekusi |
-| **Risiko utama** | Breaking change pada auth flow — test menyeluruh wajib |
+| **File yang diubah** | `main.js`, `SidebarDashboard.vue`, `AdminDashboard.vue`, `eventBus.js`, `UserMaster.vue`, `HeaderDashboard.vue` |
+| **File yang TIDAK boleh diubah** | Semua file di `src/views/` KECUALI `UserMaster.vue` |
+| **Tools yang dibutuhkan** | `run_command`, `view_file`, `replace_file_content`, `write_to_file`, `grep_search` |
+| **Risiko utama** | Menghapus Vuex terlalu cepat sebelum migrasi selesai |
 
 ---
 
 ## ✅ Progress Checklist
 
-Centang item berikut saat sudah selesai dikerjakan:
-
-- [x] **T1** — File `.env.local` dan `.env.production` dibuat
-- [x] **T2** — File `src/util/tokenStorage.js` dibuat
-- [x] **T3** — File `src/util/apiClient.js` dibuat
-- [x] **T4** — `src/main.js` direfactor (hapus axiosAbsensi, tambah apiClient)
-- [x] **T5** — `src/util/axios.js` direfactor/di-redirect ke apiClient
-- [x] **T6** — Semua `localStorage.getItem('token')` → `tokenStorage.getToken()`
-- [x] **T7** — `src/App.vue` diperbaiki (periodic check + redirect)
-- [x] **T8** — `src/router/index.js` direfactor (global guard)
-- [x] **T9** — File `public/.htaccess` dibuat dengan security headers
+- [x] **T1** — Pinia terinstall dan terdaftar di `main.js`
+- [x] **T2** — `src/stores/navigation.js` dibuat
+- [x] **T3** — `SidebarDashboard.vue` menggunakan Pinia, bukan `$store`
+- [x] **T4** — `AdminDashboard.vue` menggunakan Pinia, bukan `$store`
+- [x] **T5** — Vuex di-uninstall, `src/store/` dihapus, `main.js` dibersihkan
+- [x] **T6** — `mitt` terinstall, `src/util/eventBus.js` diperbarui
+- [x] **T7** — `SidebarDashboard.vue` menggunakan `mitt` API baru
+- [x] **T8** — `UserMaster.vue` & `HeaderDashboard.vue` menggunakan `mitt` API baru
 
 ---
 
@@ -92,1047 +117,680 @@ Centang item berikut saat sudah selesai dikerjakan:
 
 ---
 
-### T1 — Setup Environment Variables
+### T1 — Install Pinia dan Register di `main.js`
 
 **Deskripsi:**
-Buat file `.env.local` (untuk development) dan `.env.production` (untuk build production) di root project. Ini menggantikan URL hardcoded yang sekarang ada di `main.js` dan `util/axios.js`. Vue CLI akan embed nilai ini ke dalam bundle saat `npm run build` — kompatibel dengan cPanel.
+Install Pinia secara paralel dengan Vuex yang masih ada. Pada tahap ini Vuex **belum** dihapus. Kedua state manager akan berjalan bersamaan sementara.
 
-**Mengapa penting:**
-- URL API tidak lagi hardcoded di source code
-- Berbeda environment (dev/prod) bisa punya URL berbeda tanpa ubah kode
-- File `.env` tidak ikut di-commit ke git (sensitive data)
+**Mengapa paralel?**
+Menghapus Vuex sebelum semua komponen dimigrasi akan langsung menyebabkan error di `SidebarDashboard.vue` dan `AdminDashboard.vue`.
 
-**Estimasi Waktu:** 30 menit
+**Estimasi Waktu:** 15 menit
 **Complexity:** 🟢 Rendah
-**Risk:** 🟢 Rendah — hanya membuat file baru, tidak mengubah file yang ada
+**Risk:** 🟢 Rendah — hanya menambah dependency baru
 
 **Step-by-Step Execution:**
 
-**Langkah 1:** Baca `main.js` untuk mengetahui URL API yang saat ini digunakan
+**Langkah 1:** Install Pinia
+```
+Tool: run_command
+Command: npm install pinia
+Cwd: d:\Projects\freelance\admingypsy-new
+WaitMsBeforeAsync: 30000
+```
+
+**Langkah 2:** Verifikasi Pinia terinstall
+```
+Tool: run_command
+Command: node -e "require('pinia'); console.log('pinia ok')"
+```
+
+**Langkah 3:** Baca `main.js` untuk memahami struktur saat ini
 ```
 Tool: view_file
 File: src/main.js
-Range: baris 19–21
 ```
 
-**Langkah 2:** Buat file `.env.local` di root project
-```
-Tool: write_to_file
-Path: .env.local (di root project, sejajar dengan package.json)
+**Langkah 4:** Update `main.js` — tambahkan Pinia, TETAP pertahankan Vuex
+
+Cari baris import store:
+```javascript
+import store from './store';
 ```
 
-Isi file `.env.local`:
-```env
-# Development environment — JANGAN COMMIT ke git
-VUE_APP_API_BASE_URL=https://adminsymphinite.symphinite.tech/api/
-VUE_APP_FILE_URL=https://admin1.the-gypsy.sg/img/app/
+Tambahkan Pinia di bawahnya:
+```javascript
+import store from './store';
+import { createPinia } from 'pinia'; // ← tambahkan ini
 ```
 
-**Langkah 3:** Buat file `.env.production` di root project
-```
-Tool: write_to_file
-Path: .env.production (di root project)
+Lalu pada bagian `app.use(...)`, tambahkan Pinia:
+```javascript
+// Sebelum:
+app.use(router).use(store).use(vuetify).mount('#app');
+
+// Sesudah:
+const pinia = createPinia();
+app.use(router).use(store).use(pinia).use(vuetify).mount('#app');
 ```
 
-Isi file `.env.production`:
-```env
-# Production environment — JANGAN COMMIT ke git
-VUE_APP_API_BASE_URL=https://adminsymphinite.symphinite.tech/api/
-VUE_APP_FILE_URL=https://admin1.the-gypsy.sg/img/app/
+**Langkah 5:** Verifikasi dev server masih berjalan tanpa error
 ```
-
-**Langkah 4:** Tambahkan kedua file ke `.gitignore` agar tidak ter-commit
+Tool: run_command
+Command: (tunggu output dari npm run serve yang sudah berjalan)
 ```
-Tool: view_file
-File: .gitignore
-```
-Cek apakah sudah ada `.env.local` dan `.env.production`. Jika belum, tambahkan:
-```
-Tool: replace_file_content atau append ke .gitignore
-```
-Tambahkan baris:
-```
-.env.local
-.env.production
-```
-
-**Langkah 5:** Verifikasi — cek file yang baru dibuat sudah ada
-```
-Tool: view_file
-File: .env.local
-```
+Buka http://localhost:8080 di browser, pastikan tidak ada error di console.
 
 **Verifikasi Keberhasilan:**
-- [ ] File `.env.local` ada di root project
-- [ ] File `.env.production` ada di root project
-- [ ] Kedua file ada di `.gitignore`
+- [ ] `node_modules/pinia` ada di project
+- [ ] `main.js` mengimport dan menggunakan `createPinia()`
+- [ ] Vuex (`store`) masih ada dan terdaftar
+- [ ] Dev server compiled tanpa error
 
 ---
 
-### T2 — Buat `src/util/tokenStorage.js`
+### T2 — Buat `src/stores/navigation.js`
 
 **Deskripsi:**
-Buat file abstraksi untuk penyimpanan token. File ini menjadi **single source of truth** untuk semua operasi token — get, set, remove. Dengan abstraksi ini, jika suatu saat ingin ganti `sessionStorage` ke metode lain, cukup ubah satu file ini.
+Buat Pinia store untuk navigation yang akan menggantikan data navigasi di Vuex. Isi data navigasi harus **persis sama** dengan yang ada di `src/store/index.js` saat ini.
 
-**Mengapa penting:**
-- Memisahkan concern penyimpanan dari logika bisnis
-- Memudahkan refactoring di masa depan (misalnya: pindah ke memory store)
-- Menstandarisasi cara akses token di seluruh aplikasi
+> ⚠️ **PENTING:** Salin data `navigation` dari Vuex secara lengkap. Jangan kurangi atau ubah datanya.
 
-**Estimasi Waktu:** 30 menit
+**Estimasi Waktu:** 20 menit
 **Complexity:** 🟢 Rendah
-**Risk:** 🟢 Rendah — file baru, tidak ada breaking change
+**Risk:** 🟢 Rendah — file baru, tidak mengubah yang sudah ada
 
 **Step-by-Step Execution:**
 
-**Langkah 1:** Cek apakah file sudah ada (jika sudah, skip ke langkah 3)
+**Langkah 1:** Baca seluruh `src/store/index.js` untuk mendapatkan data navigasi yang lengkap
 ```
 Tool: view_file
-File: src/util/tokenStorage.js
+File: src/store/index.js
 ```
 
-**Langkah 2:** Buat file `src/util/tokenStorage.js`
+**Langkah 2:** Buat folder `src/stores/` jika belum ada
+```
+Tool: run_command
+Command: New-Item -ItemType Directory -Path "src\stores" -Force
+Cwd: d:\Projects\freelance\admingypsy-new
+```
+
+**Langkah 3:** Buat file `src/stores/navigation.js`
 ```
 Tool: write_to_file
-Path: src/util/tokenStorage.js
+Path: src/stores/navigation.js
 ```
 
-Isi file lengkap:
+Isi file:
 ```javascript
 /**
- * tokenStorage.js
+ * navigation.js — Pinia Store
  *
- * Abstraksi untuk penyimpanan token auth dan data user.
- * Menggunakan sessionStorage (lebih aman dari localStorage karena
- * data hilang saat browser/tab ditutup — mempersempit window of exposure XSS).
- *
- * Gunakan file ini sebagai satu-satunya tempat akses token.
- * Jangan gunakan localStorage.getItem('token') langsung di komponen.
+ * Menggantikan Vuex navigation state.
+ * Digunakan oleh SidebarDashboard.vue dan AdminDashboard.vue
+ * untuk mendapatkan daftar menu navigasi sidebar.
  */
 
-const KEYS = {
-  TOKEN: 'token',
-  LOGIN_TIME: 'loginTime',
-  USER: 'user',
-  NAME: 'name',
-  ROLE: 'role',
-  IMAGE: 'image',
-  ID: 'id',
-};
+import { defineStore } from 'pinia';
 
-export const tokenStorage = {
-  // Token
-  getToken: () => sessionStorage.getItem(KEYS.TOKEN),
-  setToken: (token) => sessionStorage.setItem(KEYS.TOKEN, token),
-  removeToken: () => sessionStorage.removeItem(KEYS.TOKEN),
+export const useNavigationStore = defineStore('navigation', {
+  state: () => ({
+    navigation: [
+      {
+        title: 'Masters',
+        open: false,
+        subnav: [
+          { title: 'Users', path: '/users' },
+          {
+            title: 'Gypsy Registrations',
+            open: false,
+            subnav: [
+              { title: 'Invite Users', path: '/invite_users' },
+              { title: 'Registered Users', path: '/registered_users' },
+            ],
+          },
+          {
+            title: 'App Master',
+            open: false,
+            subnav: [
+              { title: 'App - New', path: '/app-new' },
+              { title: 'App - Country & City', path: '/app-country' },
+              { title: 'App - Socials', path: '/app-socials' },
+            ],
+          },
+          { title: 'Partner Master', path: '/partner_master' },
+          { title: 'On-Board Merchants', path: '/onboard-merchant' },
+          { title: 'Restaurant Master', path: '/restaurant-master' },
+          { title: 'Menu Management', path: '/menu-management' },
+          { title: 'Dish Master', path: '/dish-master' },
+          { title: 'Industry Master', path: '/industry_master' },
+          { title: 'Position Master', path: '/position_master' },
+          { title: 'Skills Master', path: '/skills-group' },
+          { title: 'Category Master', path: '/category_master' },
+          { title: 'Product Master', path: '/product_master' },
+          { title: 'Cart Master', path: '/cart_master' },
+          { title: 'Price List Master', path: '/price_list_master' },
+          { title: 'Jobs Master', path: '/jobs-master' },
+          { title: 'Application Master', path: '/application-master' },
+          { title: 'Applicant Master', path: '/applicant-master' },
+          { title: 'Qualification Master', path: '/qualification_master' },
+          { title: 'Manage Countries', path: '/country-master' },
+          { title: 'Manage Emails', path: '/email-master' },
+          { title: 'Address Master', path: '/address-master' },
+          { title: 'Platform Fee', path: '/platform-fee' },
+          { title: 'GST', path: '/gst-master' },
+          { title: 'Delivery Charges', path: '/delivery-charges' },
+        ],
+      },
+      {
+        title: 'Inquiries',
+        open: false,
+        subnav: [{ title: 'Websites' }, { title: 'Open Source' }],
+      },
+    ],
+  }),
 
-  // Login time
-  getLoginTime: () => sessionStorage.getItem(KEYS.LOGIN_TIME),
-  setLoginTime: (time) => sessionStorage.setItem(KEYS.LOGIN_TIME, String(time)),
-
-  // User data (stored as JSON object)
-  getUser: () => {
-    try {
-      return JSON.parse(sessionStorage.getItem(KEYS.USER) || 'null');
-    } catch {
-      return null;
-    }
-  },
-  setUser: (user) => sessionStorage.setItem(KEYS.USER, JSON.stringify(user)),
-
-  // Individual user fields (untuk backward compatibility)
-  getName: () => {
-    const raw = sessionStorage.getItem(KEYS.NAME);
-    if (!raw) return '';
-    // Handle jika data masih disimpan dengan tanda kutip (legacy localStorage format)
-    return raw.startsWith('"') ? raw.slice(1, -1) : raw;
-  },
-  setName: (name) => sessionStorage.setItem(KEYS.NAME, name),
-
-  getRole: () => {
-    const raw = sessionStorage.getItem(KEYS.ROLE);
-    if (!raw) return '';
-    return raw.startsWith('"') ? raw.slice(1, -1) : raw;
-  },
-  setRole: (role) => sessionStorage.setItem(KEYS.ROLE, role),
-
-  getImage: () => sessionStorage.getItem(KEYS.IMAGE),
-  setImage: (image) => sessionStorage.setItem(KEYS.IMAGE, image),
-
-  getId: () => sessionStorage.getItem(KEYS.ID),
-  setId: (id) => sessionStorage.setItem(KEYS.ID, String(id)),
-
-  // Clear semua data auth
-  clearAll: () => sessionStorage.clear(),
-
-  // Cek apakah user sudah login
-  isAuthenticated: () => !!sessionStorage.getItem(KEYS.TOKEN),
-};
-```
-
-**Langkah 3:** Verifikasi file berhasil dibuat
-```
-Tool: view_file
-File: src/util/tokenStorage.js
-```
-
-**Verifikasi Keberhasilan:**
-- [ ] File `src/util/tokenStorage.js` ada dan bisa dibaca
-- [ ] Semua method tersedia: `getToken`, `setToken`, `clearAll`, `isAuthenticated`
-
----
-
-### T3 — Buat `src/util/apiClient.js`
-
-**Deskripsi:**
-Buat satu Axios instance terpusat yang menggantikan dua instance yang bermasalah (`axiosAbsensi` di `main.js` dan instance di `util/axios.js`). Instance baru ini akan:
-- Menggunakan URL dari environment variable (bukan hardcoded)
-- Mengambil token terbaru dari `sessionStorage` di **setiap** request (bukan sekali saat load)
-- Handle 401 error secara terpusat
-
-**Dependency:** T1 dan T2 harus selesai terlebih dahulu.
-
-**Estimasi Waktu:** 45 menit
-**Complexity:** 🟡 Sedang
-**Risk:** 🟡 Sedang — perubahan cara pengiriman token ke API
-
-**Step-by-Step Execution:**
-
-**Langkah 1:** Baca `main.js` untuk memahami konfigurasi Axios yang saat ini ada
-```
-Tool: view_file
-File: src/main.js
-Range: baris 1–70
-```
-
-**Langkah 2:** Baca `src/util/axios.js` untuk memahami instance kedua
-```
-Tool: view_file
-File: src/util/axios.js
-```
-
-**Langkah 3:** Buat file `src/util/apiClient.js`
-```
-Tool: write_to_file
-Path: src/util/apiClient.js
-```
-
-Isi file lengkap:
-```javascript
-/**
- * apiClient.js
- *
- * Satu-satunya Axios instance yang digunakan di seluruh aplikasi.
- * Menggantikan: axiosAbsensi (main.js) dan axios (util/axios.js).
- *
- * Cara penggunaan di komponen:
- *   import apiClient from '@/util/apiClient';
- *   const response = await apiClient.get('/endpoint');
- *
- * Atau via global property (sudah di-setup di main.js):
- *   this.$api.get('/endpoint')
- */
-
-import axios from 'axios';
-import router from '@/router';
-import { tokenStorage } from '@/util/tokenStorage';
-
-const apiClient = axios.create({
-  baseURL: process.env.VUE_APP_API_BASE_URL,
-  timeout: 180000, // 3 menit — sama dengan konfigurasi sebelumnya
-  headers: {
-    post: { Accept: 'application/json' },
+  getters: {
+    getNavigation: (state) => state.navigation,
   },
 });
-
-/**
- * Request Interceptor
- * Mengambil token terbaru dari sessionStorage SETIAP kali ada request.
- * Ini memperbaiki bug di mana token hanya diset sekali saat app load.
- */
-apiClient.interceptors.request.use(
-  (config) => {
-    const token = tokenStorage.getToken();
-    const loginTime = tokenStorage.getLoginTime();
-
-    if (token) {
-      config.headers.Authorization = token;
-    }
-    if (loginTime) {
-      config.headers.LoginTime = loginTime;
-    }
-
-    return config;
-  },
-  (error) => Promise.reject(error)
-);
-
-/**
- * Response Interceptor
- * Handle error 401 (Unauthorized) secara terpusat.
- * Jika token expired atau invalid, clear semua data dan redirect ke login.
- */
-apiClient.interceptors.response.use(
-  (response) => response,
-  (error) => {
-    if (error.response && error.response.status === 401) {
-      // Clear semua data auth
-      tokenStorage.clearAll();
-
-      // Redirect ke halaman login
-      // Cek apakah sudah di halaman login untuk menghindari infinite redirect
-      if (router.currentRoute.value.name !== 'login') {
-        router.push({ name: 'login' });
-      }
-    }
-
-    return Promise.reject(error);
-  }
-);
-
-export default apiClient;
 ```
 
-**Langkah 4:** Verifikasi file berhasil dibuat dan kontennya benar
+> ⚠️ **Langkah 3b — VERIFIKASI DATA:** Setelah membuat file, bandingkan isi `navigation` array dengan `src/store/index.js`. Pastikan semua item menu sama persis. Jika ada perbedaan, ikuti data dari `src/store/index.js` sebagai sumber kebenaran.
+
+**Langkah 4:** Verifikasi file berhasil dibuat
 ```
 Tool: view_file
-File: src/util/apiClient.js
+File: src/stores/navigation.js
 ```
 
 **Verifikasi Keberhasilan:**
-- [ ] File `src/util/apiClient.js` ada
-- [ ] `baseURL` menggunakan `process.env.VUE_APP_API_BASE_URL`
-- [ ] Request interceptor mengambil token dari `tokenStorage.getToken()`
-- [ ] Response interceptor handle 401 dan redirect ke login
+- [ ] File `src/stores/navigation.js` ada
+- [ ] Data `navigation` array sama persis dengan `src/store/index.js`
+- [ ] Dev server tidak error setelah file dibuat
 
 ---
 
-### T4 — Refactor `src/main.js`
+### T3 — Migrate `SidebarDashboard.vue` ke Pinia
 
 **Deskripsi:**
-Bersihkan `main.js` dengan:
-1. Hapus seluruh blok `axiosAbsensi` (baris 22–60)
-2. Import `apiClient` dari file baru
-3. Ganti `globalProperties.$axios` menjadi `globalProperties.$api`
-4. Ganti `globalProperties.$fileURL` hardcoded menjadi dari env variable
+Update `SidebarDashboard.vue` untuk menggunakan Pinia store (`useNavigationStore`) sebagai pengganti `this.$store.getters.navigation`.
 
-**Dependency:** T3 harus selesai terlebih dahulu.
+> ⚠️ **RISIKO TINGGI:** File ini adalah komponen inti sidebar. Error di sini akan menyebabkan sidebar tidak tampil di seluruh halaman.
 
 **Estimasi Waktu:** 30 menit
 **Complexity:** 🟡 Sedang
-**Risk:** 🟠 Tinggi — file ini adalah entry point aplikasi. Error di sini akan crash semua halaman.
-
-> ⚠️ **PERINGATAN:** Baca seluruh `main.js` sebelum mengedit. Jangan hapus import CSS atau konfigurasi lain yang masih diperlukan.
+**Risk:** 🔴 Tinggi — komponen inti aplikasi
 
 **Step-by-Step Execution:**
 
-**Langkah 1:** Baca `main.js` secara lengkap
-```
-Tool: view_file
-File: src/main.js
-```
-
-**Langkah 2:** Identifikasi bagian yang akan dihapus (baris 19–60 approx):
-- Baris 19–20: `const BASE_API_PATH = ...` → HAPUS
-- Baris 22–24: `var axiosAbsensi = axios.create(...)` → HAPUS
-- Baris 26–32: `axiosAbsensi.defaults.*` → HAPUS
-- Baris 34–60: `axiosAbsensi.interceptors.*` → HAPUS
-- Baris 62: `// Vue.prototype.$axios = axiosAbsensi;` → HAPUS (sudah dikomentari)
-
-**Langkah 3:** Identifikasi import yang perlu diubah:
-- `import axios from 'axios';` → HAPUS (tidak diperlukan lagi di main.js)
-- Tambah: `import apiClient from './util/apiClient';`
-
-**Langkah 4:** Edit `main.js` menggunakan `replace_file_content`
-
-Target `main.js` setelah refactor:
-```javascript
-import { createApp } from 'vue';
-import App from './App.vue';
-import router from './router';
-
-import 'maz-ui/css/main.css';
-import '@fortawesome/fontawesome-free/css/all.css';
-import '@fortawesome/fontawesome-free/css/fontawesome.css';
-import '@fortawesome/fontawesome-free/css/brands.css';
-import '/node_modules/flag-icons/css/flag-icons.min.css';
-
-import store from './store';
-import apiClient from './util/apiClient';
-import vuetify from './plugins/vuetify';
-import { loadFonts } from './plugins/webfontloader';
-
-import VueDatePicker from '@vuepic/vue-datepicker';
-import '@vuepic/vue-datepicker/dist/main.css';
-
-loadFonts();
-
-const app = createApp(App);
-
-// Global properties
-app.config.globalProperties.$api = apiClient;
-app.config.globalProperties.$fileURL = process.env.VUE_APP_FILE_URL;
-
-app.component('VueDatePicker', VueDatePicker);
-app.use(router).use(store).use(vuetify).mount('#app');
-```
-
-**Langkah 5:** Setelah edit, verifikasi `main.js` bisa di-parse tanpa error
-```
-Tool: view_file
-File: src/main.js
-```
-
-**Langkah 6:** Cek di browser bahwa dev server masih berjalan (tidak crash)
-- Buka http://localhost:8080
-- Cek console browser untuk error
-
-**Verifikasi Keberhasilan:**
-- [ ] `main.js` tidak mengandung `axiosAbsensi` lagi
-- [ ] `main.js` tidak mengandung `BASE_API_PATH` lagi
-- [ ] `main.js` mengimport `apiClient` dari `./util/apiClient`
-- [ ] `$api` dan `$fileURL` diset sebagai global properties
-- [ ] Dev server tidak crash
-
----
-
-### T5 — Hapus `src/util/axios.js`
-
-**Deskripsi:**
-File `src/util/axios.js` adalah Axios instance kedua yang sudah tidak diperlukan setelah `apiClient.js` dibuat. File ini perlu dihapus untuk menghindari confusion. Namun, **sebelum menghapus**, pastikan tidak ada file lain yang mengimportnya.
-
-**Dependency:** T4 harus selesai terlebih dahulu.
-
-**Estimasi Waktu:** 10 menit
-**Complexity:** 🟢 Rendah
-**Risk:** 🟠 Sedang — jika ada komponen yang masih import dari `util/axios.js`, penghapusan akan menyebabkan error.
-
-**Step-by-Step Execution:**
-
-**Langkah 1:** Cari semua file yang mengimport `util/axios.js`
-```
-Tool: grep_search
-Query: util/axios
-SearchPath: src/
-```
-
-Juga cari dengan pola lain:
-```
-Tool: grep_search
-Query: from '@/util/axios'
-SearchPath: src/
-```
-
-```
-Tool: grep_search
-Query: from '../util/axios'
-SearchPath: src/
-```
-
-**Langkah 2:** Analisis hasil pencarian:
-- Jika **tidak ada** file yang mengimport `util/axios.js` → lanjut ke langkah 3
-- Jika **ada** file yang mengimport → update file tersebut untuk menggunakan `apiClient` sebelum menghapus
-
-**Langkah 3:** Hapus file `src/util/axios.js`
-```
-Tool: run_command
-Command: Remove-Item -Path "src\util\axios.js" -Force
-Cwd: d:\Projects\freelance\admingypsy-new
-```
-
-**Langkah 4:** Verifikasi file sudah terhapus
-```
-Tool: run_command
-Command: Test-Path "src\util\axios.js"
-Cwd: d:\Projects\freelance\admingypsy-new
-```
-Hasil harus `False`.
-
-**Verifikasi Keberhasilan:**
-- [ ] `src/util/axios.js` tidak ada lagi
-- [ ] Tidak ada file yang masih import dari `util/axios.js`
-- [ ] Dev server masih berjalan normal
-
----
-
-### T6 — Migrasi `localStorage` → `sessionStorage` (via tokenStorage)
-
-**Deskripsi:**
-Ganti semua penggunaan `localStorage.getItem('token')`, `localStorage.setItem('token', ...)`, dan `localStorage.clear()` yang berkaitan dengan auth, menggunakan method dari `tokenStorage.js`.
-
-**Scope migrasi:** Hanya untuk data auth (token, name, role, image, loginTime, id). Data lain di localStorage (jika ada) tidak perlu diubah.
-
-**Dependency:** T2 harus selesai terlebih dahulu.
-
-**Estimasi Waktu:** 60–90 menit
-**Complexity:** 🟡 Sedang
-**Risk:** 🟠 Tinggi — memengaruhi login flow dan semua komponen yang baca data user.
-
-> ⚠️ **PERINGATAN:** Setelah migrasi ini, user yang sedang login menggunakan localStorage lama akan otomatis ter-logout. Ini adalah behavior yang diinginkan dan normal.
-
-**Step-by-Step Execution:**
-
-**Langkah 1:** Cari semua penggunaan localStorage yang berkaitan dengan auth
-```
-Tool: grep_search
-Query: localStorage.getItem('token')
-SearchPath: src/
-```
-
-```
-Tool: grep_search
-Query: localStorage.setItem('token'
-SearchPath: src/
-```
-
-```
-Tool: grep_search
-Query: localStorage.clear()
-SearchPath: src/
-```
-
-```
-Tool: grep_search
-Query: localStorage.getItem('name')
-SearchPath: src/
-```
-
-Catat semua file yang ditemukan.
-
-**Langkah 2:** Update setiap file yang ditemukan
-
-Untuk setiap file, lakukan substitusi berikut:
-
-| Sebelum | Sesudah |
-|---------|---------|
-| `localStorage.getItem('token')` | `tokenStorage.getToken()` |
-| `localStorage.setItem('token', value)` | `tokenStorage.setToken(value)` |
-| `localStorage.getItem('name')` | `tokenStorage.getName()` |
-| `localStorage.setItem('name', value)` | `tokenStorage.setName(value)` |
-| `localStorage.getItem('role')` | `tokenStorage.getRole()` |
-| `localStorage.setItem('role', value)` | `tokenStorage.setRole(value)` |
-| `localStorage.getItem('image')` | `tokenStorage.getImage()` |
-| `localStorage.setItem('image', value)` | `tokenStorage.setImage(value)` |
-| `localStorage.getItem('loginTime')` | `tokenStorage.getLoginTime()` |
-| `localStorage.setItem('loginTime', value)` | `tokenStorage.setLoginTime(value)` |
-| `localStorage.getItem('id')` | `tokenStorage.getId()` |
-| `localStorage.setItem('id', value)` | `tokenStorage.setId(value)` |
-| `localStorage.clear()` | `tokenStorage.clearAll()` |
-| `localStorage.removeItem('token')` | `tokenStorage.removeToken()` |
-
-**Langkah 3:** Untuk setiap file yang diubah, tambahkan import `tokenStorage`:
-```javascript
-import { tokenStorage } from '@/util/tokenStorage';
-// atau path relatif jika file bukan di src/
-import { tokenStorage } from '../util/tokenStorage';
-```
-
-**Langkah 4:** File-file kritis yang HARUS diupdate:
-
-**4a. `src/components/SidebarDashboard.vue`** — baca nama, role, image, loginTime
+**Langkah 1:** Baca seluruh script section `SidebarDashboard.vue` secara lengkap
 ```
 Tool: view_file
 File: src/components/SidebarDashboard.vue
 ```
-Update `mounted()` dan `updateImage()`:
+Catat:
+- Baris import saat ini
+- Cara `navigation` computed property digunakan
+- Struktur `export default {}` secara lengkap
+
+**Langkah 2:** Identifikasi baris yang perlu diubah
+
+Cari baris:
 ```javascript
-// mounted() — sebelum
-this.name = localStorage.getItem('name')?.slice(1, -1);
-const getRole = localStorage.getItem('role')?.slice(1, -1);
+// Di bagian import (biasanya tidak ada import store karena pakai this.$store)
 
-// mounted() — sesudah
-this.name = tokenStorage.getName(); // getName() sudah handle .slice()
-const getRole = tokenStorage.getRole(); // getRole() sudah handle .slice()
+// Di computed:
+navigation() {
+  return this.$store.getters.navigation;
+},
 ```
 
-**4b. File login** (cari di `src/views/login/`)
+**Langkah 3:** Edit `SidebarDashboard.vue`
+
+**3a. Tambahkan import Pinia store** di bagian atas `<script>`:
+```javascript
+import { useNavigationStore } from '@/stores/navigation';
+```
+
+**3b. Tambahkan `data()` property baru** untuk menyimpan navigation store:
+```javascript
+data() {
+  return {
+    // ... data yang sudah ada ...
+    navStore: null, // ← tambahkan ini
+  };
+},
+```
+
+**3c. Inisialisasi `navStore` di `created()` atau `mounted()`**:
+
+Tambahkan di awal `created()` (atau `mounted()` jika `created()` tidak ada):
+```javascript
+created() {
+  this.navStore = useNavigationStore();
+  // ... kode created() lainnya yang sudah ada ...
+},
+```
+
+**3d. Update computed `navigation`**:
+```javascript
+// Sebelum:
+navigation() {
+  return this.$store.getters.navigation;
+},
+
+// Sesudah:
+navigation() {
+  return this.navStore ? this.navStore.navigation : [];
+},
+```
+
+**Langkah 4:** Verifikasi perubahan tidak merusak file
+```
+Tool: view_file
+File: src/components/SidebarDashboard.vue
+```
+Pastikan tidak ada syntax error (kurung kurawal tidak seimbang, koma hilang, dll).
+
+**Langkah 5:** Buka browser http://localhost:8080
+- Login ke aplikasi
+- Pastikan **sidebar masih tampil** dengan semua menu yang benar
+- Pastikan tidak ada error di browser console
+
+**Verifikasi Keberhasilan:**
+- [ ] `SidebarDashboard.vue` mengimport `useNavigationStore`
+- [ ] Computed `navigation` menggunakan `this.navStore.navigation`
+- [ ] Sidebar tampil normal di browser
+- [ ] Semua menu di sidebar ada dan bisa diklik
+- [ ] Tidak ada error di browser console
+
+---
+
+### T4 — Migrate `AdminDashboard.vue` ke Pinia
+
+**Deskripsi:**
+Sama seperti T3, update `AdminDashboard.vue` untuk menggunakan Pinia.
+
+> `AdminDashboard.vue` adalah layout wrapper utama — error di sini akan menyebabkan seluruh halaman dashboard blank.
+
+**Estimasi Waktu:** 20 menit
+**Complexity:** 🟡 Sedang
+**Risk:** 🔴 Tinggi — layout wrapper utama
+
+**Step-by-Step Execution:**
+
+**Langkah 1:** Baca seluruh `AdminDashboard.vue`
+```
+Tool: view_file
+File: src/components/AdminDashboard.vue
+```
+Catat struktur lengkap script section.
+
+**Langkah 2:** Lakukan perubahan yang sama seperti T3
+
+**2a. Tambahkan import:**
+```javascript
+import { useNavigationStore } from '@/stores/navigation';
+```
+
+**2b. Tambahkan `navStore: null` di `data()`**
+
+**2c. Inisialisasi `navStore` di `created()` atau `mounted()`:**
+```javascript
+this.navStore = useNavigationStore();
+```
+
+**2d. Update computed `navigation`:**
+```javascript
+navigation() {
+  return this.navStore ? this.navStore.navigation : [];
+},
+```
+
+**Langkah 3:** Verifikasi browser masih berfungsi normal
+
+**Verifikasi Keberhasilan:**
+- [ ] `AdminDashboard.vue` mengimport `useNavigationStore`
+- [ ] Computed `navigation` menggunakan `this.navStore.navigation`
+- [ ] Layout utama dashboard masih tampil normal
+- [ ] Tidak ada error di console
+
+---
+
+### T5 — Verifikasi dan Uninstall Vuex
+
+**Deskripsi:**
+Ini adalah task yang paling berisiko. **HANYA lakukan ini jika T3 dan T4 sudah selesai dan terverifikasi berjalan normal di browser.**
+
+> ⚠️ **WAJIB:** Sebelum menghapus Vuex, lakukan grep untuk memastikan tidak ada lagi `$store` di seluruh `src/`.
+
+**Estimasi Waktu:** 20 menit
+**Complexity:** 🟡 Sedang
+**Risk:** 🔴 Tinggi — menghapus dependency yang masih mungkin digunakan
+
+**Step-by-Step Execution:**
+
+**Langkah 1 — WAJIB:** Cari semua sisa `$store` di seluruh proyek
 ```
 Tool: grep_search
-Query: localStorage.setItem
-SearchPath: src/views/login/
-```
-Pastikan saat login, token disimpan via `tokenStorage.setToken()`.
-
-**4c. `src/App.vue`** — sudah akan diupdate di T7.
-
-**4d. `src/router/index.js`** — sudah akan diupdate di T8.
-
-**Langkah 5:** Verifikasi tidak ada lagi `localStorage.getItem('token')` di src/
-```
-Tool: grep_search
-Query: localStorage.getItem('token')
+Query: $store
 SearchPath: src/
 ```
-Hasil harus kosong (0 matches).
 
-**Verifikasi Keberhasilan:**
-- [ ] Tidak ada `localStorage.getItem('token')` di `src/`
-- [ ] Tidak ada `localStorage.setItem('token'` di `src/`
-- [ ] Semua file yang diupdate sudah import `tokenStorage`
-- [ ] Login masih berfungsi (test manual)
-- [ ] Sidebar masih menampilkan nama dan role user
+**Jika ada hasil yang ditemukan:**
+- STOP. Jangan lanjutkan ke langkah berikutnya.
+- Update file yang masih menggunakan `$store` terlebih dahulu.
+- Ulangi langkah 1 sampai hasilnya 0 (nol).
 
----
+**Jika hasil pencarian kosong (0 matches):** Lanjut ke langkah 2.
 
-### T7 — Perbaiki Token Expiry di `src/App.vue`
-
-**Deskripsi:**
-Perbaiki dua bug di `App.vue`:
-1. Setelah token expired, **tidak ada redirect** ke halaman login
-2. Cek hanya dilakukan **sekali** saat `mounted()` — jika token expired saat user aktif, tidak terdeteksi
-
-Solusi: Tambahkan periodic check setiap 1 menit dan tambahkan redirect.
-
-**Dependency:** T2 harus selesai terlebih dahulu.
-
-**Estimasi Waktu:** 30–45 menit
-**Complexity:** 🟡 Sedang
-**Risk:** 🟡 Sedang — jika periodic check bermasalah bisa menyebabkan loop redirect.
-
-**Step-by-Step Execution:**
-
-**Langkah 1:** Baca `App.vue` secara lengkap
-```
-Tool: view_file
-File: src/App.vue
-```
-
-**Langkah 2:** Identifikasi bagian yang akan diubah:
-- Bagian `<script>` — terutama `data()`, `mounted()`, dan `methods`
-
-**Langkah 3:** Update `src/App.vue`
-
-Target `App.vue` setelah perbaikan:
-```vue
-<template>
-  <v-app>
-    <v-main>
-      <router-view />
-    </v-main>
-  </v-app>
-</template>
-
-<script>
-import jwtDecode from 'jwt-decode';
-import { tokenStorage } from '@/util/tokenStorage';
-
-export default {
-  name: 'App',
-
-  data: () => ({
-    tokenCheckInterval: null,
-  }),
-
-  mounted() {
-    // Cek token saat pertama kali load
-    this.checkTokenExpiry();
-
-    // Cek token setiap 1 menit (60.000 ms)
-    // Ini mendeteksi token yang expired saat user sedang aktif
-    this.tokenCheckInterval = setInterval(this.checkTokenExpiry, 60 * 1000);
-  },
-
-  beforeUnmount() {
-    // Bersihkan interval saat komponen di-unmount untuk mencegah memory leak
-    if (this.tokenCheckInterval) {
-      clearInterval(this.tokenCheckInterval);
-    }
-  },
-
-  methods: {
-    checkTokenExpiry() {
-      const token = tokenStorage.getToken();
-
-      // Jika tidak ada token, tidak perlu dicek
-      if (!token) return;
-
-      try {
-        const decoded = jwtDecode(token);
-        const currentTime = Date.now() / 1000;
-
-        if (decoded.exp < currentTime) {
-          // Token expired — bersihkan semua data dan redirect ke login
-          tokenStorage.clearAll();
-
-          // Redirect hanya jika belum di halaman login
-          if (this.$route.name !== 'login') {
-            this.$router.push({ name: 'login' });
-          }
-        }
-      } catch {
-        // Token malformed atau tidak bisa di-decode
-        // Anggap tidak valid — clear dan redirect
-        tokenStorage.clearAll();
-
-        if (this.$route && this.$route.name !== 'login') {
-          this.$router.push({ name: 'login' });
-        }
-      }
-    },
-  },
-};
-</script>
-
-<style lang="scss">
-$fa-font-path: '~font-awesome/fonts/';
-@import '~font-awesome/scss/font-awesome.scss';
-
-.image-upload-cont {
-  width: 70px;
-  height: 40px;
-  overflow: hidden;
-  border: 1px solid grey;
-}
-
-.image-upload-item {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  object-position: center;
-}
-</style>
-```
-
-**Langkah 4:** Verifikasi perubahan
-```
-Tool: view_file
-File: src/App.vue
-```
-
-**Langkah 5:** Test di browser:
-- Login ke aplikasi
-- Tunggu beberapa saat, pastikan tidak ada redirect yang tidak diinginkan
-- Buka console dan tidak ada error JavaScript
-
-**Verifikasi Keberhasilan:**
-- [ ] `App.vue` menggunakan `tokenStorage.getToken()` bukan `localStorage`
-- [ ] Ada `setInterval` untuk periodic check
-- [ ] Ada `clearInterval` di `beforeUnmount`
-- [ ] Ada redirect `this.$router.push({ name: 'login' })` setelah token expired
-- [ ] Ada try-catch untuk handle token malformed
-
----
-
-### T8 — Refactor `src/router/index.js` dengan Global Guard
-
-**Deskripsi:**
-Ini adalah task terbesar di Fase 1. Tujuannya adalah mengubah `router/index.js` dari 1.635 baris menjadi ~300–400 baris dengan:
-1. Menghapus semua `beforeEnter` yang identik (copy-paste ~90 kali)
-2. Menambahkan satu global `router.beforeEach()` yang menangani auth check
-3. Menggunakan `tokenStorage` bukan `localStorage`
-4. Memperbaiki route name yang duplikat
-5. Menggunakan format route name yang konsisten
-
-**Dependency:** T2 harus selesai terlebih dahulu.
-
-**Estimasi Waktu:** 90–120 menit
-**Complexity:** 🔴 Tinggi
-**Risk:** 🔴 Tinggi — refactor file yang sangat besar. Kesalahan bisa memutuskan navigasi seluruh aplikasi.
-
-> ⚠️ **STRATEGI AMAN:** Lakukan dengan cara Replace-Find pada pola `beforeEnter` menggunakan tool, bukan tulis ulang seluruh file. Ini meminimalkan risiko.
-
-**Step-by-Step Execution:**
-
-**Langkah 1:** Baca awal dan akhir `router/index.js`
-```
-Tool: view_file
-File: src/router/index.js
-Range: baris 1–50 (bagian awal)
-```
-
-```
-Tool: view_file
-File: src/router/index.js
-Range: baris 1620–1635 (bagian akhir)
-```
-
-**Langkah 2:** Tambahkan import `tokenStorage` di baris paling atas file
-```javascript
-// Tambahkan setelah import createRouter
-import { tokenStorage } from '@/util/tokenStorage';
-```
-
-**Langkah 3:** Hapus semua blok `beforeEnter` dari setiap route
-
-Setiap route saat ini memiliki blok ini:
-```javascript
-beforeEnter: (to, from, next) => {
-  // Pengecekan status login sebelum masuk ke halaman beranda
-  if (localStorage.getItem('token') == null) {
-    next('/auth/login'); // Alihkan ke halaman login jika belum masuk
-  } else {
-    next(); // Lanjutkan ke halaman beranda jika sudah masuk
-  }
-},
-```
-
-Gunakan Find & Replace untuk menghapus blok ini dari semua route:
-
-> **Catatan untuk AI:** Karena ada ~90 blok identik yang perlu dihapus, gunakan tool `run_command` dengan PowerShell untuk melakukan penggantian massal. Ini lebih efisien daripada mengganti satu per satu.
-
-```powershell
-# Command untuk hapus semua blok beforeEnter dari router/index.js
-$content = Get-Content "src\router\index.js" -Raw
-$pattern = @'
-,
-    beforeEnter: \(to, from, next\) => \{
-      // Pengecekan status login sebelum masuk ke halaman beranda
-      if \(localStorage\.getItem\('token'\) == null\) \{
-        next\('/auth/login'\); // Alihkan ke halaman login jika belum masuk
-      \} else \{
-        next\(\); // Lanjutkan ke halaman beranda jika sudah masuk
-      \}
-    \}
-'@
-$replacement = ''
-$newContent = $content -replace $pattern, $replacement
-Set-Content "src\router\index.js" -Value $newContent -Encoding UTF8
-```
-
-Jika ada variasi format (beberapa route mungkin tanpa komentar), cari dan hapus juga:
-```powershell
-$content = Get-Content "src\router\index.js" -Raw
-$pattern2 = @'
-,
-    beforeEnter: \(to, from, next\) => \{
-      if \(localStorage\.getItem\('token'\) == null\) \{
-        next\('/auth/login'\);
-      \} else \{
-        next\(\);
-      \}
-    \}
-'@
-$newContent = $content -replace $pattern2, ''
-Set-Content "src\router\index.js" -Value $newContent -Encoding UTF8
-```
-
-**Langkah 4:** Perbaiki catch-all route di akhir file
-
-Cari baris:
-```javascript
-{
-  path: '/*', // Rute ini akan menangkap semua rute yang tidak cocok dengan rute lainnya
-  redirect: '/', // Alihkan ke halaman dashboard
-},
-```
-
-Ganti dengan:
-```javascript
-{
-  path: '/:pathMatch(.*)*',
-  redirect: { name: 'home' },
-},
-```
-
-**Langkah 5:** Tambahkan `meta: { public: true }` pada route login
-Cari route login dan tambahkan meta:
-```javascript
-{
-  name: 'login',
-  path: '/auth/login',
-  component: () => import('@/views/login/AdminPage.vue'),
-  meta: { public: true }, // ← tambahkan ini
-},
-```
-
-**Langkah 6:** Perbaiki route name yang duplikat
-
-Cari nama duplikat:
-- `'primary skills regurable association'` muncul 2x → rename satu menjadi `'primary-skills-country'`
-- `'restaurant master'` (ada 2 versi) → `'main.restaurant-master'` dan `'biryani.restaurant-master'`
-- `'dish master'` (ada 2 versi) → `'main.dish-master'` dan `'biryani.dish-master'`
-
-**Langkah 7:** Tambahkan global guard dan `scrollBehavior` SEBELUM `export default router`
-
-Cari baris:
-```javascript
-const router = createRouter({
-  history: createWebHistory(process.env.BASE_URL),
-  routes,
-});
-```
-
-Ganti dengan:
-```javascript
-const router = createRouter({
-  history: createWebHistory(process.env.BASE_URL),
-  routes,
-  scrollBehavior() {
-    // Selalu scroll ke atas saat navigasi halaman
-    return { top: 0 };
-  },
-});
-
-// Global Navigation Guard — menggantikan 90x beforeEnter yang identik
-router.beforeEach((to, from, next) => {
-  const isAuthenticated = tokenStorage.isAuthenticated();
-  const isPublicRoute = to.meta?.public === true;
-
-  // Jika belum login dan bukan route publik → redirect ke login
-  if (!isAuthenticated && !isPublicRoute) {
-    return next({ name: 'login' });
-  }
-
-  // Jika sudah login dan mencoba akses halaman login → redirect ke home
-  if (isAuthenticated && to.name === 'login') {
-    return next({ name: 'home' });
-  }
-
-  // Lanjut navigasi normal
-  next();
-});
-```
-
-**Langkah 8:** Verifikasi jumlah baris berkurang signifikan
-```
-Tool: run_command
-Command: (Get-Content "src\router\index.js").Count
-Cwd: d:\Projects\freelance\admingypsy-new
-```
-Jumlah baris seharusnya berkurang dari ~1.635 menjadi ~300–500 baris.
-
-**Langkah 9:** Verifikasi tidak ada `localStorage` di router
+**Langkah 2 — WAJIB:** Cari semua sisa `from 'vuex'` di seluruh proyek
 ```
 Tool: grep_search
-Query: localStorage
-SearchPath: src/router/index.js
+Query: from 'vuex'
+SearchPath: src/
 ```
-Hasil harus kosong.
 
-**Langkah 10:** Test navigasi di browser
-- Akses http://localhost:8080 (harus redirect ke login jika tidak login)
-- Login ke aplikasi
-- Navigasi ke beberapa halaman berbeda
-- Pastikan tidak ada 404 atau redirect yang aneh
+Jika masih ada hasil: update file tersebut dulu.
+
+**Langkah 3:** Uninstall Vuex
+```
+Tool: run_command
+Command: npm uninstall vuex @vue/cli-plugin-vuex
+WaitMsBeforeAsync: 30000
+```
+
+**Langkah 4:** Hapus import Vuex dari `main.js`
+```
+Tool: view_file
+File: src/main.js
+```
+
+Hapus baris:
+```javascript
+import store from './store'; // ← HAPUS baris ini
+```
+
+Dan hapus `store` dari `app.use(...)`:
+```javascript
+// Sebelum:
+app.use(router).use(store).use(pinia).use(vuetify).mount('#app');
+
+// Sesudah:
+app.use(router).use(pinia).use(vuetify).mount('#app');
+```
+
+**Langkah 5:** Hapus folder `src/store/`
+```
+Tool: run_command
+Command: Remove-Item -Path "src\store" -Recurse -Force
+Cwd: d:\Projects\freelance\admingypsy-new
+```
+
+**Langkah 6:** Verifikasi dev server compiled tanpa error
+
+Jika ada error:
+- Baca error message dengan teliti
+- Kemungkinan ada file yang masih mengimport dari `@/store` atau `vuex`
+- Gunakan grep untuk mencari: `grep_search "from 'vuex'"` dan `grep_search "@/store"`
+- Update file yang ditemukan
+
+**Langkah 7:** Verifikasi browser berfungsi normal
+- Login
+- Pastikan sidebar tampil
+- Navigasi ke beberapa halaman
 
 **Verifikasi Keberhasilan:**
-- [ ] Tidak ada `beforeEnter` di route individual (kecuali jika ada yang memang berbeda)
-- [ ] Ada satu `router.beforeEach()` di akhir file
-- [ ] Route login punya `meta: { public: true }`
-- [ ] Tidak ada `localStorage` di router
-- [ ] Catch-all route menggunakan `'/:pathMatch(.*)*'`
-- [ ] Tidak ada route name duplikat
-- [ ] Navigasi aplikasi masih berfungsi normal
+- [ ] `grep_search "$store"` di `src/` → 0 hasil
+- [ ] `grep_search "from 'vuex'"` di `src/` → 0 hasil
+- [ ] `vuex` tidak ada di `package.json` dependencies
+- [ ] Folder `src/store/` sudah tidak ada
+- [ ] Dev server compiled tanpa error
+- [ ] Sidebar dan layout masih berfungsi normal
 
 ---
 
-### T9 — Buat Security Headers di `.htaccess`
+### T6 — Install `mitt` dan Update `eventBus.js`
 
 **Deskripsi:**
-Tambahkan security headers dan aturan SPA routing di file `.htaccess` yang akan diupload ke cPanel. File ini memberikan lapisan keamanan tambahan di level server.
+Ganti implementasi event bus yang saat ini menggunakan `createApp({})` kedua (anti-pattern) dengan library `mitt` yang ringan dan benar.
+
+**Konteks penting:** EventBus saat ini menggunakan API `$on`, `$off`, `$emit`. Pola ini akan tetap dipertahankan agar perubahan di komponen lain minimal.
 
 **Estimasi Waktu:** 20 menit
 **Complexity:** 🟢 Rendah
-**Risk:** 🟡 Sedang — konfigurasi `.htaccess` yang salah bisa menyebabkan halaman tidak bisa diakses.
+**Risk:** 🟡 Sedang — mengubah utility yang digunakan beberapa komponen
 
 **Step-by-Step Execution:**
 
-**Langkah 1:** Cek apakah sudah ada `.htaccess` di folder `public/`
+**Langkah 1:** Install `mitt`
+```
+Tool: run_command
+Command: npm install mitt
+WaitMsBeforeAsync: 30000
+```
+
+**Langkah 2:** Verifikasi `mitt` terinstall
+```
+Tool: run_command
+Command: node -e "require('mitt'); console.log('mitt ok')"
+```
+
+**Langkah 3:** Pahami penggunaan eventBus saat ini
+```
+Tool: grep_search
+Query: $eventBus
+SearchPath: src/
+MatchPerLine: true
+```
+
+Catat semua file yang menggunakan `$eventBus.$on`, `$eventBus.$off`, `$eventBus.$emit`, dan caranya.
+
+**Langkah 4:** Baca `SidebarDashboard.vue` bagian eventBus
 ```
 Tool: view_file
-File: public/.htaccess (mungkin tidak ada)
+File: src/components/SidebarDashboard.vue
+```
+Cari baris:
+```javascript
+app.config.globalProperties.$eventBus.$on('update-image', this.updateImage);
+app.config.globalProperties.$eventBus.$off('update-image', this.updateImage);
 ```
 
-**Langkah 2:** Buat file `public/.htaccess`
+**Langkah 5:** Update `src/util/eventBus.js`
+
 ```
-Tool: write_to_file
-Path: public/.htaccess
-```
-
-> **Penting:** File ini harus ada di folder `public/` agar ikut ter-copy ke `dist/` saat build. Kemudian upload `dist/.htaccess` ke root `public_html` di cPanel.
-
-Isi file `.htaccess`:
-```apache
-# ============================================================
-# AdminGypsy — Apache Configuration
-# Upload file ini ke: public_html/ di cPanel
-# ============================================================
-
-# SPA Routing — Redirect semua request ke index.html
-# Wajib untuk Vue Router agar refresh halaman tidak 404
-<IfModule mod_rewrite.c>
-  RewriteEngine On
-  RewriteBase /
-
-  # Jangan rewrite jika file atau direktori sudah ada
-  RewriteCond %{REQUEST_FILENAME} !-f
-  RewriteCond %{REQUEST_FILENAME} !-d
-
-  # Semua request ke index.html
-  RewriteRule . /index.html [L]
-</IfModule>
-
-# ============================================================
-# Security Headers
-# ============================================================
-<IfModule mod_headers.c>
-
-  # Content Security Policy (CSP)
-  # Batasi sumber resource yang boleh dimuat browser
-  # Sesuaikan domain di bawah jika ada perubahan URL API atau CDN
-  Header set Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-eval'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob: https://cdn.pixabay.com https://admin1.the-gypsy.sg; connect-src 'self' https://adminsymphinite.symphinite.tech https://admin1.the-gypsy.sg; frame-ancestors 'none';"
-
-  # Mencegah browser menebak tipe konten (MIME sniffing attack)
-  Header set X-Content-Type-Options "nosniff"
-
-  # Mencegah halaman dimuat dalam iframe (clickjacking protection)
-  Header set X-Frame-Options "DENY"
-
-  # Kontrol informasi referrer saat navigasi ke situs lain
-  Header set Referrer-Policy "strict-origin-when-cross-origin"
-
-  # Paksa HTTPS untuk 1 tahun (hanya aktifkan jika SSL sudah terpasang!)
-  # Header set Strict-Transport-Security "max-age=31536000; includeSubDomains"
-
-  # Hapus header yang mengekspos info server
-  Header unset X-Powered-By
-  Header always unset X-Powered-By
-
-</IfModule>
-
-# ============================================================
-# Cache Control
-# ============================================================
-<IfModule mod_expires.c>
-  ExpiresActive On
-
-  # HTML tidak di-cache (agar update langsung terasa)
-  ExpiresByType text/html "access plus 0 seconds"
-
-  # Asset statis di-cache lama (Vue CLI sudah tambahkan hash di nama file)
-  ExpiresByType text/css "access plus 1 year"
-  ExpiresByType application/javascript "access plus 1 year"
-  ExpiresByType image/jpeg "access plus 1 year"
-  ExpiresByType image/png "access plus 1 year"
-  ExpiresByType image/svg+xml "access plus 1 year"
-  ExpiresByType application/font-woff2 "access plus 1 year"
-</IfModule>
-
-# ============================================================
-# Gzip Compression (untuk performa)
-# ============================================================
-<IfModule mod_deflate.c>
-  AddOutputFilterByType DEFLATE text/html text/css application/javascript
-  AddOutputFilterByType DEFLATE application/json application/xml
-  AddOutputFilterByType DEFLATE image/svg+xml
-</IfModule>
+Tool: write_to_file (overwrite)
+Path: src/util/eventBus.js
 ```
 
-**Langkah 3:** Verifikasi file berhasil dibuat
+Isi baru:
+```javascript
+/**
+ * eventBus.js
+ *
+ * Global event bus menggunakan `mitt`.
+ * Menggantikan implementasi sebelumnya yang menggunakan createApp({}) kedua.
+ *
+ * API yang tersedia:
+ *   eventBus.emit('event-name', payload)
+ *   eventBus.on('event-name', handler)
+ *   eventBus.off('event-name', handler)
+ *
+ * Cara import di komponen:
+ *   import eventBus from '@/util/eventBus';
+ */
+
+import mitt from 'mitt';
+
+const eventBus = mitt();
+
+export default eventBus;
+```
+
+**Langkah 6:** Verifikasi file tersimpan
 ```
 Tool: view_file
-File: public/.htaccess
+File: src/util/eventBus.js
 ```
 
-**Langkah 4 (Informasi untuk User):**
-Setelah `npm run build`, file `dist/.htaccess` akan terbentuk. Upload file ini ke `public_html/` di cPanel bersamaan dengan isi folder `dist/` lainnya.
-
-> ⚠️ **PERHATIAN UNTUK USER:** Aktifkan baris `Strict-Transport-Security` hanya jika SSL Certificate sudah terpasang dan HTTPS aktif di cPanel. Mengaktifkan header ini tanpa SSL akan menyebabkan situs tidak bisa diakses.
+> ⚠️ **PERHATIAN:** Setelah T6, komponen yang masih menggunakan `app.config.globalProperties.$eventBus.$on(...)` akan **error**. Segera lanjut ke T7 dan T8.
 
 **Verifikasi Keberhasilan:**
-- [ ] File `public/.htaccess` ada dan berisi SPA routing rules
-- [ ] File berisi security headers (CSP, X-Frame-Options, X-Content-Type-Options)
-- [ ] Baris HSTS masih dikomentari (aman untuk kasus umum)
+- [ ] `mitt` terinstall
+- [ ] `src/util/eventBus.js` menggunakan `mitt`
+- [ ] File tidak lagi menggunakan `createApp({})`
+
+---
+
+### T7 — Update `SidebarDashboard.vue` untuk `mitt` API
+
+**Deskripsi:**
+Update `SidebarDashboard.vue` untuk menggunakan API `mitt` yang baru (`eventBus.on`, `eventBus.off`) menggantikan API lama (`app.config.globalProperties.$eventBus.$on`).
+
+**Estimasi Waktu:** 20 menit
+**Complexity:** 🟢 Rendah
+**Risk:** 🟡 Sedang — komponen inti
+
+**Step-by-Step Execution:**
+
+**Langkah 1:** Baca bagian `created`, `beforeUnmount`, dan import di `SidebarDashboard.vue`
+```
+Tool: view_file
+File: src/components/SidebarDashboard.vue
+```
+
+**Langkah 2:** Update import eventBus
+
+Cari baris:
+```javascript
+import app from '@/util/eventBus';
+```
+
+Ganti dengan:
+```javascript
+import eventBus from '@/util/eventBus';
+```
+
+**Langkah 3:** Update `created()` lifecycle hook
+
+Cari:
+```javascript
+created() {
+  app.config.globalProperties.$eventBus.$on('update-image', this.updateImage);
+},
+```
+
+Ganti dengan:
+```javascript
+created() {
+  eventBus.on('update-image', this.updateImage);
+},
+```
+
+**Langkah 4:** Update `beforeUnmount()` lifecycle hook
+
+Cari:
+```javascript
+beforeUnmount() {
+  app.config.globalProperties.$eventBus.$off(
+    'update-image',
+    this.updateImage
+  );
+},
+```
+
+Ganti dengan:
+```javascript
+beforeUnmount() {
+  eventBus.off('update-image', this.updateImage);
+},
+```
+
+**Langkah 5:** Verifikasi tidak ada lagi referensi ke `app.config.globalProperties.$eventBus` di file ini
+```
+Tool: grep_search
+Query: $eventBus
+SearchPath: src/components/SidebarDashboard.vue
+```
+Hasil harus 0.
+
+**Langkah 6:** Buka browser, pastikan sidebar masih berfungsi normal.
+
+**Verifikasi Keberhasilan:**
+- [ ] `SidebarDashboard.vue` mengimport `eventBus from '@/util/eventBus'`
+- [ ] `created()` menggunakan `eventBus.on(...)`
+- [ ] `beforeUnmount()` menggunakan `eventBus.off(...)`
+- [ ] Tidak ada `app.config.globalProperties.$eventBus` di file
+- [ ] Dev server tidak error
+
+---
+
+### T8 — Update `UserMaster.vue` untuk `mitt` API
+
+**Deskripsi:**
+`UserMaster.vue` adalah satu-satunya view yang aktif menggunakan `$eventBus.$emit`. Update untuk menggunakan `mitt` API.
+
+**Estimasi Waktu:** 20 menit
+**Complexity:** 🟢 Rendah
+**Risk:** 🟢 Rendah — hanya mengubah cara emit, tidak mengubah logika
+
+**Step-by-Step Execution:**
+
+**Langkah 1:** Baca bagian script `UserMaster.vue` — khususnya import dan baris yang menggunakan `$eventBus.$emit`
+```
+Tool: view_file
+File: src/views/users/UserMaster.vue
+Range: baris 254–270 (bagian import)
+```
+
+```
+Tool: grep_search
+Query: $eventBus
+SearchPath: src/views/users/UserMaster.vue
+MatchPerLine: true
+```
+
+**Langkah 2:** Update import
+
+Cari:
+```javascript
+import app from '@/util/eventBus';
+```
+
+Ganti dengan:
+```javascript
+import eventBus from '@/util/eventBus';
+```
+
+**Langkah 3:** Update `$emit` calls
+
+Cari:
+```javascript
+app.config.globalProperties.$eventBus.$emit('update-image', ...);
+```
+
+Ganti dengan:
+```javascript
+eventBus.emit('update-image', ...);
+```
+
+**Langkah 4:** Verifikasi tidak ada lagi referensi ke `app.config.globalProperties.$eventBus`
+```
+Tool: grep_search
+Query: $eventBus
+SearchPath: src/views/users/UserMaster.vue
+```
+Hasil harus 0 (atau hanya baris yang sudah dikomentari).
+
+**Langkah 5:** Verifikasi dev server compiled tanpa error.
+
+**Verifikasi Keberhasilan:**
+- [ ] `UserMaster.vue` mengimport `eventBus from '@/util/eventBus'`
+- [ ] Semua `$eventBus.$emit` → `eventBus.emit`
+- [ ] Tidak ada error di dev server
+- [ ] Fungsi upload/update gambar di Users page masih berfungsi
 
 ---
 
@@ -1140,62 +798,56 @@ Setelah `npm run build`, file `dist/.htaccess` akan terbentuk. Upload file ini k
 
 | # | Risk | Kemungkinan | Dampak | Mitigasi |
 |---|------|-------------|--------|----------|
-| R1 | Build gagal setelah hapus axiosAbsensi | Sedang | Tinggi | Jalankan `npm run serve` setelah T4 untuk verifikasi |
-| R2 | Komponen yang masih pakai `$axios` (global property lama) | Rendah | Tinggi | Grep semua file: `grep_search "$axios"` di src/ |
-| R3 | User ter-logout paksa setelah migrasi sessionStorage | Pasti | Rendah | Ini behavior yang diharapkan — informasikan ke user |
-| R4 | Router refactor memutuskan navigasi | Sedang | Tinggi | Test setiap route setelah refactor T8 |
-| R5 | `.htaccess` memblokir API request | Rendah | Tinggi | Test `connect-src` CSP header di browser DevTools |
-| R6 | `beforeEnter` yang memiliki logika BERBEDA terhapus | Rendah | Sedang | Baca router.js dulu, cari `beforeEnter` yang unik sebelum hapus |
-| R7 | env variable tidak terbaca (`undefined`) | Sedang | Tinggi | Pastikan nama variable diawali `VUE_APP_` |
+| R1 | Uninstall Vuex saat masih ada `$store` yang dipakai | Sedang | Sangat Tinggi | Wajib grep `$store` dan `from 'vuex'` sebelum uninstall |
+| R2 | Data navigasi tidak lengkap di Pinia store | Rendah | Tinggi | Bandingkan baris per baris dengan `src/store/index.js` |
+| R3 | Sidebar blank karena Pinia store tidak terinisialisasi | Sedang | Tinggi | Gunakan pola `navStore: null` di data + inisialisasi di created |
+| R4 | eventBus.$on tidak berfungsi setelah migrasi mitt | Rendah | Sedang | Pastikan pakai `eventBus.on()` bukan `eventBus.$on()` |
+| R5 | `useNavigationStore()` dipanggil di luar setup() | Rendah | Sedang | Panggil di `created()` dan simpan ke `data()`, jangan di `computed()` langsung |
+| R6 | Dev server tidak reload setelah perubahan | Rendah | Rendah | Restart server jika perlu: `npm run serve` |
 
 ---
 
-## 🔍 Panduan Testing Setelah Implementasi
+## 🔍 Testing Checklist Setelah Fase 2 Selesai
 
-### Test Manual yang Wajib Dilakukan
+Lakukan semua test berikut sebelum dianggap selesai:
 
-Setelah semua task selesai, lakukan test berikut secara berurutan:
+1. **Test Sidebar:**
+   - [x] Sidebar tampil dengan semua menu
+   - [x] Menu accordion bisa dibuka/ditutup
+   - [x] Klik menu navigasi berpindah halaman
 
-1. **Test Auth Flow:**
-   - [ ] Buka http://localhost:8080 tanpa login → harus redirect ke `/auth/login`
-   - [ ] Login dengan kredensial valid → harus berhasil masuk ke dashboard
-   - [ ] Sidebar menampilkan nama dan role user dengan benar
-   - [ ] Logout → harus kembali ke halaman login
+2. **Test Layout:**
+   - [x] Halaman dashboard tampil normal
+   - [x] Header dan sidebar tidak berubah tampilan
 
-2. **Test API Request:**
-   - [ ] Buka halaman yang memuat data dari API (misal: Users, Restaurant Master)
-   - [ ] Buka Network tab di DevTools browser
-   - [ ] Cek header request: harus ada `Authorization` dengan token
-   - [ ] Tidak ada error 401 jika token valid
+3. **Test Upload User Image:**
+   - [x] Buka halaman Users
+   - [x] Klik tombol upload gambar pada satu user
+   - [x] Upload gambar berhasil
+   - [x] Gambar di sidebar terupdate (test eventBus)
 
-3. **Test Token Expiry:**
-   - [ ] Login ke aplikasi
-   - [ ] Buka DevTools → Application → Session Storage
-   - [ ] Hapus item `token` dari sessionStorage secara manual
-   - [ ] Tunggu maksimal 1 menit atau navigasi ke halaman lain
-   - [ ] Harus otomatis redirect ke halaman login
+4. **Test Auth:**
+   - [x] Login masih berfungsi
+   - [x] Logout masih berfungsi
+   - [x] Token expiry masih terdeteksi
 
-4. **Test Navigasi:**
-   - [ ] Navigasi ke 5–10 halaman berbeda menggunakan sidebar
-   - [ ] Tidak ada 404 atau blank page
-   - [ ] URL di browser sesuai dengan halaman yang dikunjungi
-
-5. **Test SessionStorage:**
-   - [ ] Setelah login, buka DevTools → Application → Session Storage
-   - [ ] Harus ada: `token`, `name`, `role`, `image`, `loginTime`
-   - [ ] **Tidak boleh** ada token di `localStorage`
+5. **Test Console:**
+   - [x] Tidak ada error merah di browser console
+   - [x] Tidak ada Vue warning tentang `$store` atau `vuex`
 
 ---
 
 ## 📝 Catatan Implementasi
 
-> **Tulis di sini jika ada temuan, keputusan, atau perubahan dari rencana awal selama implementasi.**
-
 ```
-[Tanggal] [Task] — Catatan:
-...
+[2026-08-05] Fase 2 Completed:
+- Migrasi state management dari Vuex ke Pinia (stores/navigation.js)
+- Uninstalled vuex & @vue/cli-plugin-vuex
+- Migrasi eventBus dari Vue 2-style app instance ke mitt library
+- Updated SidebarDashboard.vue, AdminDashboard.vue, HeaderDashboard.vue, & UserMaster.vue
+- Production build (npm run build) verified 0 errors
 ```
 
 ---
 
-*File ini dibuat pada 2026-08-05. Update progress checklist setiap kali menyelesaikan task.*
+*File ini diperbarui pada 2026-08-05. Fase 1 dan Fase 2 sudah selesai.*

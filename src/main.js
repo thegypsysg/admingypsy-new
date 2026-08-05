@@ -8,7 +8,7 @@ import '@fortawesome/fontawesome-free/css/fontawesome.css';
 import '@fortawesome/fontawesome-free/css/brands.css';
 import '/node_modules/flag-icons/css/flag-icons.min.css';
 
-import store from './store';
+import { createPinia } from 'pinia';
 import apiClient from './util/apiClient';
 import vuetify from './plugins/vuetify';
 import { loadFonts } from './plugins/webfontloader';
@@ -19,10 +19,11 @@ import '@vuepic/vue-datepicker/dist/main.css';
 loadFonts();
 
 const app = createApp(App);
+const pinia = createPinia();
 
 // Global properties
 app.config.globalProperties.$api = apiClient;
 app.config.globalProperties.$fileURL = process.env.VUE_APP_FILE_URL;
 
 app.component('VueDatePicker', VueDatePicker);
-app.use(router).use(store).use(vuetify).mount('#app');
+app.use(router).use(pinia).use(vuetify).mount('#app');
