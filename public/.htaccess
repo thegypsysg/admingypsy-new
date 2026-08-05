@@ -1,0 +1,72 @@
+# ============================================================
+# AdminGypsy — Apache Configuration
+# Upload file ini ke: public_html/ di cPanel
+# ============================================================
+
+# SPA Routing — Redirect semua request ke index.html
+# Wajib untuk Vue Router agar refresh halaman tidak 404
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  RewriteBase /
+
+  # Jangan rewrite jika file atau direktori sudah ada
+  RewriteCond %{REQUEST_FILENAME} !-f
+  RewriteCond %{REQUEST_FILENAME} !-d
+
+  # Semua request ke index.html
+  RewriteRule . /index.html [L]
+</IfModule>
+
+# ============================================================
+# Security Headers
+# ============================================================
+<IfModule mod_headers.c>
+
+  # Content Security Policy (CSP)
+  # Batasi sumber resource yang boleh dimuat browser
+  Header set Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-eval'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob: https://cdn.pixabay.com https://admin1.the-gypsy.sg; connect-src 'self' https://adminsymphinite.symphinite.tech https://admin1.the-gypsy.sg; frame-ancestors 'none';"
+
+  # Mencegah browser menebak tipe konten (MIME sniffing attack)
+  Header set X-Content-Type-Options "nosniff"
+
+  # Mencegah halaman dimuat dalam iframe (clickjacking protection)
+  Header set X-Frame-Options "DENY"
+
+  # Kontrol informasi referrer saat navigasi ke situs lain
+  Header set Referrer-Policy "strict-origin-when-cross-origin"
+
+  # Paksa HTTPS untuk 1 tahun (hanya aktifkan jika SSL sudah terpasang!)
+  # Header set Strict-Transport-Security "max-age=31536000; includeSubDomains"
+
+  # Hapus header yang mengekspos info server
+  Header unset X-Powered-By
+  Header always unset X-Powered-By
+
+</IfModule>
+
+# ============================================================
+# Cache Control
+# ============================================================
+<IfModule mod_expires.c>
+  ExpiresActive On
+
+  # HTML tidak di-cache (agar update langsung terasa)
+  ExpiresByType text/html "access plus 0 seconds"
+
+  # Asset statis di-cache lama (Vue CLI sudah tambahkan hash di nama file)
+  ExpiresByType text/css "access plus 1 year"
+  ExpiresByType application/javascript "access plus 1 year"
+  ExpiresByType image/jpeg "access plus 1 year"
+  ExpiresByType image/png "access plus 1 year"
+  ExpiresByType image/svg+xml "access plus 1 year"
+  ExpiresByType application/font-woff2 "access plus 1 year"
+</IfModule>
+
+# ============================================================
+# Gzip Compression (untuk performa)
+# ============================================================
+<IfModule mod_deflate.c>
+  AddOutputFilterByType DEFLATE text/html text/css application/javascript
+  AddOutputFilterByType DEFLATE application/json application/xml
+  AddOutputFilterByType DEFLATE image/svg+xml
+</IfModule>

@@ -62,6 +62,7 @@
 <script>
 import Dropdown from './Dropdown.vue';
 import app from '@/util/eventBus';
+import { tokenStorage } from '@/util/tokenStorage';
 
 export default {
   components: { Dropdown },
@@ -98,26 +99,21 @@ export default {
     );
   },
   mounted() {
-    this.name = localStorage.getItem('name')
-      ? localStorage.getItem('name').slice(1, -1)
-      : '';
-    const getRole = localStorage.getItem('role')
-      ? localStorage.getItem('role').slice(1, -1)
-      : '';
+    this.name = tokenStorage.getName();
+    const getRole = tokenStorage.getRole();
     this.role = getRole == 'S' ? 'Superadmin' : getRole == 'A' ? 'Admin' : '';
-    const getImg = localStorage.getItem('image');
+    const getImg = tokenStorage.getImage();
     this.image =
-      getImg == 'null'
+      !getImg || getImg == 'null'
         ? 'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png'
         : this.$fileURL + getImg;
-    const storedLoginTime = localStorage.getItem('loginTime');
-    const time = new Date(parseInt(storedLoginTime));
-    const options = { day: 'numeric', month: 'long', year: 'numeric' };
-    this.loginTime = time.toLocaleDateString('en-GB', options);
+    const storedLoginTime = tokenStorage.getLoginTime();
+    if (storedLoginTime) {
+      const time = new Date(parseInt(storedLoginTime));
+      const options = { day: 'numeric', month: 'long', year: 'numeric' };
+      this.loginTime = time.toLocaleDateString('en-GB', options);
+    }
   },
-  // mounted() {
-  //   this.image = localStorage.getItem('image') == 'null'
-  // },
   computed: {
     navigation() {
       return this.$store.getters.navigation;
@@ -125,21 +121,19 @@ export default {
   },
   methods: {
     updateImage(dataItems) {
-      const id = parseInt(localStorage.getItem('id'));
-      // console.log(id);
+      const id = parseInt(tokenStorage.getId());
       const image = dataItems
         .filter((data) => data.id === id)
         .map((item) => item.image);
-      // console.log(image);
-      localStorage.setItem('image', image[0]);
-      const getImg = localStorage.getItem('image');
+      tokenStorage.setImage(image[0]);
+      const getImg = tokenStorage.getImage();
       this.image =
-        getImg == 'null'
+        !getImg || getImg == 'null'
           ? 'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png'
           : this.$fileURL + getImg;
     },
     logout() {
-      localStorage.clear();
+      tokenStorage.clearAll();
       this.$router.push('/auth/login');
     },
   },

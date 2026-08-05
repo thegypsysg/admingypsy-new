@@ -8,35 +8,61 @@
 
 <script>
 import jwtDecode from 'jwt-decode';
+import { tokenStorage } from '@/util/tokenStorage';
 
 export default {
   name: 'App',
 
   data: () => ({
-    //
+    tokenCheckInterval: null,
   }),
-  mounted() {
-    // if (localStorage.getItem('token') == null) {
-    //   this.$router.replace('/auth/login');
-    // } else {
-    const token = localStorage.getItem('token');
-    if (token) {
-      const decodedToken = jwtDecode(token);
-      const currentTime = Date.now() / 1000;
 
-      if (decodedToken.exp < currentTime) {
-        localStorage.removeItem('token');
-        localStorage.clear();
-        // console.log(decodedToken.exp, currentTime);
-        // console.log(decodedToken.exp < currentTime);
-        // console.log('TOKEN EXPIRED');
-      }
-      // else {
-      // console.log(decodedToken.exp, currentTime);
-      // console.log(decodedToken.exp < currentTime);
-      // console.log('TOKEN TIDAK EXPIRED');
-      // }
+  mounted() {
+    // Cek token saat pertama kali load
+    this.checkTokenExpiry();
+
+    // Cek token setiap 1 menit (60.000 ms)
+    // Ini mendeteksi token yang expired saat user sedang aktif
+    this.tokenCheckInterval = setInterval(this.checkTokenExpiry, 60 * 1000);
+  },
+
+  beforeUnmount() {
+    // Bersihkan interval saat komponen di-unmount untuk mencegah memory leak
+    if (this.tokenCheckInterval) {
+      clearInterval(this.tokenCheckInterval);
     }
+  },
+
+  methods: {
+    checkTokenExpiry() {
+      const token = tokenStorage.getToken();
+
+      // Jika tidak ada token, tidak perlu dicek
+      if (!token) return;
+
+      try {
+        const decoded = jwtDecode(token);
+        const currentTime = Date.now() / 1000;
+
+        if (decoded.exp < currentTime) {
+          // Token expired — bersihkan semua data dan redirect ke login
+          tokenStorage.clearAll();
+
+          // Redirect hanya jika belum di halaman login
+          if (this.$route && this.$route.name !== 'login') {
+            this.$router.push({ name: 'login' });
+          }
+        }
+      } catch {
+        // Token malformed atau tidak bisa di-decode
+        // Anggap tidak valid — clear dan redirect
+        tokenStorage.clearAll();
+
+        if (this.$route && this.$route.name !== 'login') {
+          this.$router.push({ name: 'login' });
+        }
+      }
+    },
   },
 };
 </script>

@@ -175,6 +175,7 @@
 <script>
 import axios from '@/util/axios';
 import { setAuthHeader } from '@/util/axios';
+import { tokenStorage } from '@/util/tokenStorage';
 // import { router } from '@/router';
 
 // const baseUrl = `https://admin1.the-gypsy.sg/api/`;
@@ -225,7 +226,7 @@ export default {
     //   }
     // });
 
-    if (localStorage.getItem('token') != null) {
+    if (tokenStorage.isAuthenticated()) {
       this.$router.replace('/');
     } else {
       window.addEventListener('resize', this.handleResize);
@@ -266,22 +267,18 @@ export default {
         );
         // eslint-disable-next-line no-unused-vars
 
-        localStorage.setItem(
-          'token',
-          JSON.stringify(response.data.access_token)
-        );
-        setAuthHeader(response.data.access_token);
-        // localStorage.setItem('user', JSON.stringify(response.data.user));
-        localStorage.setItem('name', JSON.stringify(response.data.user.name));
-        localStorage.setItem('role', JSON.stringify(response.data.user.role));
-        localStorage.setItem('image', response.data.user.image);
-        localStorage.setItem('id', JSON.stringify(response.data.user.id));
+        const token = response.data.access_token;
+        tokenStorage.setToken(token);
+        setAuthHeader(token);
+        tokenStorage.setName(response.data.user.name);
+        tokenStorage.setRole(response.data.user.role);
+        tokenStorage.setImage(response.data.user.image);
+        tokenStorage.setId(response.data.user.id);
+        tokenStorage.setUser(response.data.user);
 
         const loginTime = new Date().getTime();
-        localStorage.setItem('loginTime', loginTime);
+        tokenStorage.setLoginTime(loginTime);
 
-        // this.$axios.defaults.headers.common['Authorization'] =
-        //   localStorage.getItem('token');
         this.$router.push('/');
       } catch (error) {
         if (error.response.status == 401) {
