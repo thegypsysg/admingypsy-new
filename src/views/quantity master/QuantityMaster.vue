@@ -176,7 +176,6 @@
 
 <script>
 import axios from '@/util/axios';
-// import http from 'axios';
 import { setAuthHeader } from '@/util/axios';
 // import app from '@/util/eventBus';
 

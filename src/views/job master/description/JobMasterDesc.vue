@@ -94,7 +94,6 @@
 
 <script>
 import axios from '@/util/axios';
-// import http from 'axios';
 import { setAuthHeader } from '@/util/axios';
 import { QuillEditor } from '@vueup/vue-quill';
 import '@vueup/vue-quill/dist/vue-quill.snow.css';

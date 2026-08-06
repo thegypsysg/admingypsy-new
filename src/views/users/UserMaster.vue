@@ -255,7 +255,6 @@
 <script>
 import ImageUpload from '@/components/ImageUpload.vue';
 import axios from '@/util/axios';
-import http from 'axios';
 import { setAuthHeader } from '@/util/axios';
 import eventBus from '@/util/eventBus';
 
@@ -413,7 +412,7 @@ export default {
         id: this.userIdToImage,
         file: this.imageFile[0],
       };
-      http
+      axios
         .post(`/user/update`, payload, {
           headers: {
             'Content-Type': 'multipart/form-data',

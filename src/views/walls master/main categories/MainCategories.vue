@@ -394,7 +394,6 @@
 <script>
 import ImageUpload from '@/components/ImageUpload.vue';
 import axios from '@/util/axios';
-import http from 'axios';
 import { setAuthHeader } from '@/util/axios';
 import HeaderWallMaster from '@/components/HeaderWallMaster.vue';
 // import app from '@/util/eventBus';
@@ -622,7 +621,7 @@ export default {
         description: this.propertyDataToIconImage.description,
         icon_image: this.iconImageFile[0],  
       };
-      http
+      axios
         .post(`/4walls-main-categories/update`, payload, {
           headers: {
             'Content-Type': 'multipart/form-data',
@@ -694,7 +693,7 @@ export default {
         description: this.propertyDataToLongImage.description,
         long_image: this.longImageFile[0],
       };
-      http
+      axios
         .post(`/4walls-main-categories/update`, payload, {
           headers: {
             'Content-Type': 'multipart/form-data',
@@ -766,7 +765,7 @@ export default {
         description: this.propertyDataToMainImage.description,
         main_image: this.mainImageFile[0],
       };
-      http
+      axios
         .post(`/4walls-main-categories/update`, payload, {
           headers: {
             'Content-Type': 'multipart/form-data',

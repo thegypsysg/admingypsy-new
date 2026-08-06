@@ -472,7 +472,6 @@
 <script>
 import ImageUpload from '@/components/ImageUpload.vue';
 import axios from '@/util/axios';
-import http from 'axios';
 import { setAuthHeader } from '@/util/axios';
 import HeaderWallMaster from '@/components/HeaderWallMaster.vue';
 // import app from '@/util/eventBus';
@@ -588,7 +587,7 @@ export default {
         country_id: prop.country_id,
         city_id: this.input.city_id,
       };
-      http
+      axios
         .post(`/4walls-property-developments/update`, payload, {
           headers: {
             'Content-Type': 'multipart/form-data',
@@ -635,7 +634,7 @@ export default {
         country_id: prop.country_id,
         town_id: this.input.town_id,
       };
-      http
+      axios
         .post(`/4walls-property-developments/update`, payload, {
           headers: {
             'Content-Type': 'multipart/form-data',
@@ -796,7 +795,7 @@ export default {
         town_id: this.propertyDataToLogo.town_id,
         logo: this.logoFile[0],
       };
-      http
+      axios
         .post(`/4walls-property-developments/update`, payload, {
           headers: {
             'Content-Type': 'multipart/form-data',
@@ -881,7 +880,7 @@ export default {
         main_image: this.mainImageFile[0],
       };
       console.log(this.mainImageFile);
-      http
+      axios
         .post(`/4walls-property-developments/update`, payload, {
           headers: {
             'Content-Type': 'multipart/form-data',

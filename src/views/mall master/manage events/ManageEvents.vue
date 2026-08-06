@@ -532,7 +532,6 @@
 <script>
 import ImageUpload from '@/components/ImageUpload.vue';
 import axios from '@/util/axios';
-import http from 'axios';
 import { setAuthHeader } from '@/util/axios';
 // import app from '@/util/eventBus';
 
@@ -728,7 +727,7 @@ export default {
         event_id: this.partnerLocationDataToImage.id,
         event_image: this.imageFile[0],
       };
-      http
+      axios
         .post(`/mall-events/update`, payload, {
           headers: {
             'Content-Type': 'multipart/form-data',

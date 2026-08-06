@@ -243,7 +243,6 @@
 import ImageUpload from '@/components/ImageUpload.vue';
 import axios from '@/util/axios';
 // import moment from 'moment';
-// import http from 'axios';
 import { setAuthHeader } from '@/util/axios';
 // import app from '@/util/eventBus';
 

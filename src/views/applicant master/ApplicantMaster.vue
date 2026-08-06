@@ -437,7 +437,6 @@
 <script>
 import ImageUpload from '@/components/ImageUpload.vue';
 import axios from '@/util/axios';
-import http from 'axios';
 import { setAuthHeader } from '@/util/axios';
 // import app from '@/util/eventBus';
 
@@ -743,7 +742,7 @@ export default {
         image: this.imageFile[0],
       };
 
-      http
+      axios
         .post(`/gypsy-registration/update`, payload, {
           headers: {
             'Content-Type': 'multipart/form-data',

@@ -168,7 +168,6 @@
 import axios from '@/util/axios';
 import moment from 'moment';
 import ImageUpload from '@/components/ImageUpload.vue';
-import http from 'axios';
 import { setAuthHeader } from '@/util/axios';
 // import app from '@/util/eventBus';
 
@@ -367,7 +366,7 @@ export default {
         image: this.imageFile[0],
       };
 
-      http
+      axios
         .post(`/mall-displays/update`, payload, {
           headers: {
             'Content-Type': 'multipart/form-data',

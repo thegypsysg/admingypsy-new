@@ -319,7 +319,6 @@ import VideoUpload from '@/components/VideoUpload.vue';
 import ImageMultiUpload from '@/components/ImageMultiUpload.vue';
 //import handyUploader from 'handy-uploader/src/components/handyUploader';
 import axios from '@/util/axios';
-import http from 'axios';
 import { setAuthHeader } from '@/util/axios';
 // import app from '@/util/eventBus';
 
@@ -607,7 +606,7 @@ export default {
         payload.video_1 = this.videoFile[0];
       }
 
-      http
+      axios
         .post(`/product-ranges/update`, payload, {
           headers: {
             'Content-Type': 'multipart/form-data',
@@ -653,7 +652,7 @@ export default {
         image: this.imageFile[0],
       };
 
-      http
+      axios
         .post(`/products/update`, payload, {
           headers: {
             'Content-Type': 'multipart/form-data',

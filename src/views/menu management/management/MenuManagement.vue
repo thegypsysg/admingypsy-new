@@ -869,7 +869,6 @@
 <script>
 import ImageUpload from '@/components/ImageUpload.vue';
 import axios from '@/util/axios';
-import http from 'axios';
 import { setAuthHeader } from '@/util/axios';
 // import app from '@/util/eventBus';
 
@@ -1019,7 +1018,7 @@ export default {
         mrp_id: this.menuPricesDataToImage.mrp_id,
         main_image: this.imageFile[0],
       };
-      http
+      axios
         .post(`/menu-rate-prices/update`, payload, {
           headers: {
             'Content-Type': 'multipart/form-data',

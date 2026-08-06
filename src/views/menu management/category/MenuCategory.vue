@@ -314,7 +314,6 @@
 <script>
 import ImageUpload from '@/components/ImageUpload.vue';
 import axios from '@/util/axios';
-import http from 'axios';
 import { setAuthHeader } from '@/util/axios';
 // import app from '@/util/eventBus';
 
@@ -473,7 +472,7 @@ export default {
         app_id: this.mainCategoryDataToMainImage.app_id,
         main_image: this.mainImageFile[0],
       };
-      http
+      axios
         .post(`/menu-categories/update`, payload, {
           headers: {
             'Content-Type': 'multipart/form-data',

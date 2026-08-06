@@ -253,7 +253,6 @@
 <script>
 import ImageUpload from '@/components/ImageUpload.vue';
 import axios from '@/util/axios';
-import http from 'axios';
 import { setAuthHeader } from '@/util/axios';
 // import app from '@/util/eventBus';
 
@@ -479,7 +478,7 @@ export default {
         location_address: this.partnerLocationDataToImage.address,
         location_image: this.imageFile[0],
       };
-      http
+      axios
         .post(`/partner-locations/update`, payload, {
           headers: {
             'Content-Type': 'multipart/form-data',

@@ -239,20 +239,15 @@
                     </v-card-subtitle>
                   </td>
                   <td>
-                    <v-tooltip location="top">
-                      <template v-slot:activator="{ props }">
-                        <v-btn
-                          icon
-                          variant="text"
-                          color="red"
-                          v-bind="props"
-                          @click="openDeleteDialog(index, '')"
-                        >
-                          <v-icon>mdi-delete</v-icon></v-btn
-                        >
-                      </template>
-                      <span>Delete</span>
-                    </v-tooltip>
+                    <v-btn
+                      icon
+                      variant="text"
+                      color="red"
+                      @click="openDeleteDialog(index, '')"
+                    >
+                      <v-icon>mdi-delete</v-icon>
+                      <v-tooltip location="top" activator="parent">Delete</v-tooltip>
+                    </v-btn>
                   </td>
                 </tr>
               </tbody>
@@ -433,7 +428,6 @@ export default {
   methods: {
     openInputImage() {
       this.btnLoader = false;
-      this.tempAttachment = [];
       this.isInsertImage = true;
     },
     openDeleteDialog(index, deleteId) {
