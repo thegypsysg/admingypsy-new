@@ -242,6 +242,12 @@ const routes = [
     path: '/dish-master',
     component: () => import('@/views/dish master/DishMasterContainer.vue'),
   },
+
+  {
+    name: 'inquiry master',
+    path: '/inquiry-master',
+    component: () => import('@/views/inquiry-master/InquiryContainer.vue'),
+  },
   {
     name: 'partner master',
     path: '/partner_master',

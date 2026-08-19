@@ -38,6 +38,10 @@ export const useNavigationStore = defineStore('navigation', {
             path: '/partner_master',
           },
           {
+            title: 'Inquiry Master',
+            path: '/inquiry-master',
+          },
+          {
             title: 'On-Board Merchants',
             path: '/onboard-merchant',
           },
