@@ -46,28 +46,28 @@
               </tr>
             </thead>
             <tbody>
-              <template v-for="item in items" :key="item.id">
+              <template v-for="item in items" :key="item.inquiry_id">
                 <tr>
                   <td style="border-bottom: none !important">
-                    {{ item.id }}
+                    {{ item.inquiry_id }}
                   </td>
                   <td style="border-bottom: none !important">
-                    {{ item.business_name }}
+                    {{ item.company_name || '-' }}
                   </td>
                   <td style="border-bottom: none !important">
-                    {{ item.contact_person }}
+                    {{ item.contact_person || '-' }}
                   </td>
                   <td style="border-bottom: none !important">
-                    {{ item.whatsapp }}
+                    {{ item.contact_number || '-' }}
                   </td>
                   <td style="border-bottom: none !important">
-                    {{ item.email_id }}
+                    {{ item.email_id || '-' }}
                   </td>
                   <td style="border-bottom: none !important">
-                    {{ item.city }}
+                    {{ item.city || '-' }}
                   </td>
                   <td style="border-bottom: none !important">
-                    {{ item.inquiry_date }}
+                    {{ item.inquiry_date || '-' }}
                   </td>
                   <td style="border-bottom: none !important">
                     <div class="d-flex justify-center">
@@ -86,7 +86,7 @@
                         color="red"
                         variant="text"
                         :disabled="isDeleteLoading"
-                        @click="openDeleteConfirm(item.id)"
+                        @click="openDeleteConfirm(item.inquiry_id)"
                         icon
                       >
                         <v-icon>mdi-trash-can-outline</v-icon>
@@ -177,7 +177,7 @@
         <v-card-text class="pt-4">
           <v-form ref="editForm" v-model="valid">
             <v-text-field
-              v-model="input.business_name"
+              v-model="input.company_name"
               label="Business Name"
               variant="outlined"
               density="compact"
@@ -191,7 +191,7 @@
               class="mb-3"
             ></v-text-field>
             <v-text-field
-              v-model="input.whatsapp"
+              v-model="input.contact_number"
               label="Whats app"
               variant="outlined"
               density="compact"
@@ -236,6 +236,8 @@
 </template>
 
 <script>
+import apiClient from '@/util/apiClient';
+
 export default {
   name: 'InquiryMaster',
   data: () => ({
@@ -253,33 +255,23 @@ export default {
     search: '',
     searchTimeout: null,
     input: {
-      id: null,
-      business_name: '',
+      inquiry_id: null,
+      company_name: '',
       contact_person: '',
-      whatsapp: '',
+      contact_number: '',
       email_id: '',
       city: '',
       inquiry_date: '',
     },
-    allInquiries: [
-      {
-        id: 1,
-        business_name: 'Delhi Darbar',
-        contact_person: 'Vasu',
-        whatsapp: '+6591992000',
-        email_id: 'vasu@gmail.com',
-        city: 'Singapore',
-        inquiry_date: '18/08/2026',
-      },
-    ],
+    allInquiries: [],
     items: [],
     currentPage: 1,
     perPage: 5,
     totalPages: 1,
-    totalItems: 1,
+    totalItems: 0,
   }),
   mounted() {
-    this.getInquiriesData();
+    this.fetchInquiries();
   },
   computed: {
     startItem() {
@@ -306,30 +298,55 @@ export default {
     },
   },
   methods: {
-    getInquiriesData() {
+    async fetchInquiries() {
       this.isLoading = true;
-      setTimeout(() => {
-        let filtered = [...this.allInquiries];
-        if (this.search) {
-          const q = this.search.toLowerCase();
-          filtered = filtered.filter(
-            (item) =>
-              (item.business_name &&
-                item.business_name.toLowerCase().includes(q)) ||
-              (item.contact_person &&
-                item.contact_person.toLowerCase().includes(q)) ||
-              (item.whatsapp && item.whatsapp.toLowerCase().includes(q)) ||
-              (item.email_id && item.email_id.toLowerCase().includes(q)) ||
-              (item.city && item.city.toLowerCase().includes(q)) ||
-              (item.inquiry_date && item.inquiry_date.toLowerCase().includes(q)),
-          );
+      try {
+        const response = await apiClient.get('/inquiry');
+        if (response.data && Array.isArray(response.data.data)) {
+          this.allInquiries = response.data.data;
+        } else if (Array.isArray(response.data)) {
+          this.allInquiries = response.data;
+        } else {
+          this.allInquiries = [];
         }
-        this.totalItems = filtered.length;
-        this.totalPages = Math.ceil(this.totalItems / this.perPage) || 1;
-        const start = (this.currentPage - 1) * this.perPage;
-        this.items = filtered.slice(start, start + this.perPage);
+        this.getInquiriesData();
+      } catch (error) {
+        this.errorMessage =
+          error?.response?.data?.message || 'Failed to fetch inquiry data';
+        this.isError = true;
+      } finally {
         this.isLoading = false;
-      }, 150);
+      }
+    },
+    getInquiriesData() {
+      let filtered = [...this.allInquiries];
+      if (this.search) {
+        const q = this.search.toLowerCase();
+        filtered = filtered.filter(
+          (item) =>
+            (item.company_name &&
+              String(item.company_name).toLowerCase().includes(q)) ||
+            (item.contact_person &&
+              String(item.contact_person).toLowerCase().includes(q)) ||
+            (item.contact_number &&
+              String(item.contact_number).toLowerCase().includes(q)) ||
+            (item.email_id &&
+              String(item.email_id).toLowerCase().includes(q)) ||
+            (item.city &&
+              String(item.city).toLowerCase().includes(q)) ||
+            (item.inquiry_date &&
+              String(item.inquiry_date).toLowerCase().includes(q)) ||
+            (item.inquiry_id &&
+              String(item.inquiry_id).toLowerCase().includes(q)),
+        );
+      }
+      this.totalItems = filtered.length;
+      this.totalPages = Math.ceil(this.totalItems / this.perPage) || 1;
+      if (this.currentPage > this.totalPages) {
+        this.currentPage = this.totalPages;
+      }
+      const start = (this.currentPage - 1) * this.perPage;
+      this.items = filtered.slice(start, start + this.perPage);
     },
     editInquiry(item) {
       this.input = { ...item };
@@ -338,10 +355,10 @@ export default {
     cancelEdit() {
       this.isEdit = false;
       this.input = {
-        id: null,
-        business_name: '',
+        inquiry_id: null,
+        company_name: '',
         contact_person: '',
-        whatsapp: '',
+        contact_number: '',
         email_id: '',
         city: '',
         inquiry_date: '',
@@ -351,7 +368,7 @@ export default {
       this.isSending = true;
       setTimeout(() => {
         const index = this.allInquiries.findIndex(
-          (i) => i.id === this.input.id,
+          (i) => i.inquiry_id === this.input.inquiry_id,
         );
         if (index !== -1) {
           this.allInquiries[index] = { ...this.input };
@@ -375,7 +392,7 @@ export default {
       this.isDeleteLoading = true;
       setTimeout(() => {
         this.allInquiries = this.allInquiries.filter(
-          (i) => i.id !== this.inquiryIdToDelete,
+          (i) => i.inquiry_id !== this.inquiryIdToDelete,
         );
         this.successMessage = 'Inquiry deleted successfully';
         this.isSuccess = true;
