@@ -1,7 +1,7 @@
 # 📖 AdminGypsy — Agent Reference Guide (docs/README.md)
 
 > **Untuk:** Model AI (Gemini / Claude) yang akan bekerja di proyek ini.
-> **Update terakhir:** 2026-08-05
+> **Update terakhir:** 2026-09-01 (Fase 4 ditambahkan)
 
 ---
 
@@ -11,130 +11,169 @@
 |------|------|--------|
 | Fase 1 | Security Hardening | ✅ SELESAI (commit `39ce7f1d`) |
 | Fase 2 | Architecture Upgrade | ✅ SELESAI |
-| Fase 3 | Performance & Modernization | ⏳ BELUM DIMULAI |
+| Fase 3 | Code Quality & Performance | ✅ SELESAI |
+| Fase 4 | UX & Security Polish | ⏳ **SIAP DIEKSEKUSI** — baca `IMPLEMENTATION.md` bagian Fase 4 |
+
+Fase 1, 2, dan 3 telah selesai dan diverifikasi via production build. **Jika kamu ditugaskan Fase 4**, langsung buka [`IMPLEMENTATION.md`](./IMPLEMENTATION.md) dan cari section `# 🎨 IMPLEMENTATION.md — Fase 4`.
+
+> **Catatan untuk AI:** Sebelum memulai apapun, WAJIB baca README ini sampai selesai, baca IMPLEMENTATION.md Fase 4, dan verifikasi keadaan file dengan `view_file` sebelum mengedit.
 
 ---
 
-## ⚡ Quick Start (Baca Ini Dulu)
+## ⚡ Quick Start — Baca Ini Sebelum Melakukan Apapun
 
 **Proyek ini adalah Admin Dashboard berbasis:**
-- **Framework:** Vue 3 (via Vue CLI / Webpack) — BUKAN Vite
+- **Framework:** Vue 3 (via Vue CLI / Webpack) — **BUKAN Vite**
 - **UI Library:** Vuetify 3
-- **State:** Vuex 4 (saat ini) → akan migrasi ke Pinia di Fase 2
-- **Routing:** Vue Router 4
-- **HTTP:** Axios (centralized di `src/util/apiClient.js`)
+- **State Management:** Pinia (migrasi dari Vuex selesai di Fase 2)
+- **Event Bus:** `mitt` (migrasi dari Vue 2-style eventBus selesai di Fase 2)
+- **Routing:** Vue Router 4 (global `router.beforeEach` guard)
+- **HTTP:** Axios tersentralisasi di `src/util/apiClient.js` dan `src/util/axios.js` (wrapper)
+- **Auth Storage:** `sessionStorage` via `src/util/tokenStorage.js`
 - **Hosting:** cPanel shared hosting — `npm run build` menghasilkan `dist/` yang diupload ke server
 
-**Branch aktif:** `refactor`
+**Branch aktif:** `dev` (atau `refactor` — cek dengan `git branch`)
+
+**Dev server:** `npm run serve` → http://localhost:8080
 
 ---
 
-## 📁 Struktur Direktori Penting
+## ⛔ ATURAN PALING PENTING — JANGAN DILANGGAR
+
+1. **Jangan ubah file di `src/views/`** kecuali ada instruksi eksplisit di IMPLEMENTATION.md
+2. **Jangan uninstall package** tanpa memverifikasi bahwa package tersebut tidak digunakan (gunakan `grep_search`)
+3. **Verifikasi `npm run serve` tidak error** setelah SETIAP perubahan
+4. **Baca file lengkap sebelum mengedit** — jangan asumsi isi file berdasarkan namanya
+
+---
+
+## 📁 Struktur Direktori Penting (State Terkini)
 
 ```
 admingypsy-new/
 ├── public/
-│   └── .htaccess          ← SPA routing + security headers (dibuat Fase 1)
+│   └── .htaccess           ← ✅ SPA routing + security headers (Fase 1)
 ├── src/
 │   ├── components/
-│   │   ├── AdminDashboard.vue   ← Layout utama (menggunakan $store.navigation)
-│   │   ├── SidebarDashboard.vue ← Sidebar navigasi (menggunakan $store.navigation)
+│   │   ├── AdminDashboard.vue    ← Layout utama (sudah pakai Pinia)
+│   │   ├── SidebarDashboard.vue  ← Sidebar navigasi (sudah pakai Pinia + mitt)
+│   │   ├── HeaderDashboard.vue   ← Header (sudah pakai mitt)
 │   │   ├── Dropdown.vue
-│   │   └── ImageUpload.vue
+│   │   ├── ImageUpload.vue       ← Komponen upload gambar (single)
+│   │   ├── ImageMultiUpload.vue  ← Komponen upload multi gambar
+│   │   └── VideoUpload.vue       ← Komponen upload video
+│   ├── composables/        ← ✅ Sudah ada (dibuat di Fase 3)
+│   │   ├── useDebounce.js  ← ✅ Reusable debounce utility
+│   │   ├── useApi.js       ← ✅ Reactive API wrapper
+│   │   ├── usePagination.js       ← [AKAN DIBUAT] Fase 4 T7
+│   │   └── useApiWithCache.js     ← [AKAN DIBUAT] Fase 4 T8
 │   ├── router/
-│   │   └── index.js       ← ~750 baris. Global beforeEach guard sudah ada
-│   ├── store/
-│   │   └── index.js       ← Vuex store (AKAN dihapus di Fase 2)
-│   ├── stores/             ← [BELUM ADA] Akan dibuat untuk Pinia (Fase 2)
+│   │   └── index.js        ← ~750 baris. Global beforeEach guard sudah ada (Fase 1)
+│   ├── stores/             ← ✅ Pinia stores (dibuat Fase 2)
+│   │   ├── navigation.js   ← ✅ Navigation store
+│   │   └── notification.js ← [AKAN DIBUAT] Fase 4 T3
 │   ├── util/
-│   │   ├── apiClient.js    ← ✅ Satu Axios instance terpusat [dibuat Fase 1]
-│   │   ├── axios.js        ← ✅ Backward compat wrapper → apiClient [diubah Fase 1]
-│   │   ├── tokenStorage.js ← ✅ Abstraksi sessionStorage auth [dibuat Fase 1]
-│   │   └── eventBus.js     ← Custom event bus (AKAN diganti mitt di Fase 2)
-│   ├── views/              ← Banyak subdirektori dengan nama mengandung spasi
-│   │   └── login/
-│   │       └── LoginComponent.vue  ← ✅ Sudah pakai tokenStorage
-│   ├── App.vue             ← ✅ Periodic token expiry check [diubah Fase 1]
-│   └── main.js             ← ✅ Centralized setup [$api, $fileURL] [diubah Fase 1]
+│   │   ├── apiClient.js    ← ✅ Satu Axios instance terpusat (Fase 1)
+│   │   ├── axios.js        ← ✅ Backward compat wrapper → apiClient (Fase 1)
+│   │   ├── tokenStorage.js ← ✅ Abstraksi sessionStorage auth (Fase 1)
+│   │   └── eventBus.js     ← ✅ Global event bus via `mitt` (Fase 2)
+│   ├── views/              ← ⚠️ JANGAN UBAH kecuali instruksi eksplisit
+│   │   ├── login/
+│   │   │   └── LoginComponent.vue ← ✅ Sudah pakai tokenStorage
+│   │   └── [35+ direktori view lain — banyak yang namanya mengandung spasi]
+│   ├── App.vue             ← ✅ Periodic token expiry check (Fase 1)
+│   └── main.js             ← ✅ Centralized setup [$api, $fileURL, Pinia] (Fase 1 & 2)
 ├── docs/
 │   ├── README.md           ← File ini
-│   └── IMPLEMENTATION.md  ← Rencana implementasi fase-per-fase
-├── ANALYSIS.md             ← Analisis lengkap proyek
+│   ├── IMPLEMENTATION.md   ← Rencana implementasi detail per fase (Fase 1–4)
+│   └── IMPROVEMENT.md      ← ✅ Daftar semua improvement yang bisa diterapkan
+├── ANALYSIS.md             ← Analisis lengkap proyek (referensi sumber kebenaran)
 ├── .env.local              ← ✅ Environment variables (TIDAK di-commit)
 └── .env.production         ← ✅ Environment variables prod (TIDAK di-commit)
 ```
 
 ---
 
-## 🔐 Yang Sudah Dikerjakan di Fase 1
+## ✅ Yang Sudah Selesai (Fase 1 – 3)
 
-### Perubahan File:
+### Fase 1 — Security Hardening
 
 | File | Perubahan |
 |------|-----------|
-| `src/util/apiClient.js` | **[BARU]** Satu Axios instance dengan interceptors |
+| `src/util/apiClient.js` | **[BARU]** Satu Axios instance dengan request/response interceptors |
 | `src/util/tokenStorage.js` | **[BARU]** Abstraksi sessionStorage untuk token auth |
-| `src/main.js` | Hapus `axiosAbsensi`, tambah `$api` global property |
-| `src/App.vue` | Tambah periodic token expiry check setiap 1 menit |
+| `src/main.js` | Hapus `axiosAbsensi`, tambah `$api` global property, global error handler |
+| `src/App.vue` | Token expiry check + redirect ke login |
 | `src/router/index.js` | Hapus ~90 `beforeEnter` duplikat, tambah global `router.beforeEach` |
-| `src/components/SidebarDashboard.vue` | Migrasi dari `localStorage` ke `tokenStorage` |
+| `src/components/SidebarDashboard.vue` | Migrasi dari `localStorage` ke `tokenStorage`, script setup |
 | `src/views/login/LoginComponent.vue` | Migrasi dari `localStorage` ke `tokenStorage` |
 | `src/util/axios.js` | Diubah menjadi re-export wrapper ke `apiClient` |
 | `public/.htaccess` | **[BARU]** SPA routing, CSP, cache control, Gzip |
-| `.env.local`, `.env.production` | **[BARU]** Environment variables |
 
-### Aturan penting dari Fase 1:
-- **Token** sekarang disimpan di `sessionStorage`, bukan `localStorage`
-- **Semua request HTTP** harus menggunakan `apiClient` atau `$api`, bukan `axios` langsung
-- **Auth header** otomatis diisi oleh request interceptor di `apiClient`
-- **Route protection** dilakukan oleh satu `router.beforeEach` di `router/index.js`
+### Fase 2 — Architecture Upgrade
+
+| Perubahan | Detail |
+|-----------|--------|
+| Vuex → Pinia | `src/stores/navigation.js` dibuat. Vuex diuninstall. |
+| eventBus → mitt | `src/util/eventBus.js` diperbarui ke `mitt`. |
+| Komponen diupdate | `SidebarDashboard.vue`, `AdminDashboard.vue`, `HeaderDashboard.vue` sudah pakai Pinia & mitt |
+
+### Fase 3 — Code Quality & Performance
+
+| Perubahan | Detail |
+|-----------|--------|
+| Dead code cleanup | `ImageUpload.vue`, `ImageMultiUpload.vue`, `VideoUpload.vue`, `AdminDashboard.vue` |
+| Dependency cleanup | Uninstall: `flag-icon-css`, `handy-uploader`, `buffer-es6`, `roboto-fontface` |
+| Route names verified | 112 route, 0 duplikat |
+| Global error handler | `app.config.errorHandler` + `unhandledrejection` di `main.js` |
+| Composables baru | `src/composables/useDebounce.js`, `src/composables/useApi.js` |
+| ImageUpload.vue | Template disimplifikasi + migrasi ke `<script setup>` + bug preview fix |
+| HeaderDashboard.vue | Migrasi ke `<script setup>` Composition API |
+| SidebarDashboard.vue | Migrasi ke `<script setup>` Composition API |
+| ESLint | `vue/setup-compiler-macros: true` ditambahkan |
 
 ---
 
 ## ⚠️ Hal Kritis yang Harus Diketahui
 
-### 1. Jangan Langsung Uninstall Vuex
-Vuex masih digunakan oleh `SidebarDashboard.vue` dan `AdminDashboard.vue` via `$store.getters.navigation`. Jangan uninstall Vuex sampai kedua komponen ini sudah dimigrasi ke Pinia.
+### 1. Token Storage — Gunakan `tokenStorage`, Bukan `localStorage`
+```javascript
+import { tokenStorage } from '@/util/tokenStorage';
+tokenStorage.getToken()       // ambil token (dari sessionStorage)
+tokenStorage.setToken(value)  // simpan token
+tokenStorage.clearAll()       // hapus semua data auth
+```
 
-### 2. eventBus Menggunakan Custom Implementation
-`src/util/eventBus.js` saat ini menggunakan anti-pattern (membuat Vue app kedua). Yang **aktif** menggunakan eventBus:
-- `SidebarDashboard.vue` — `$on`/`$off` untuk `update-image` event
-- `UserMaster.vue` — `$emit` untuk `update-image` event
-- Banyak file lain sudah mengkomentari import eventBus (tidak aktif)
+### 2. HTTP Request — Gunakan `axios` dari `@/util/axios`, Bukan Raw Axios
+```javascript
+import axios from '@/util/axios'; // ← ini adalah wrapper ke apiClient
+// JANGAN: import axios from 'axios' — ini raw axios tanpa base URL / auth header
+```
 
-### 3. Nama Direktori Mengandung Spasi
-Banyak folder di `src/views/` mengandung spasi, misalnya: `walls master`, `menu management`, dll. Ini adalah teknikal debt yang akan dirapikan di Fase 3. **Jangan ubah** nama direktori di Fase 2.
+### 3. Event Bus — Gunakan API `mitt`
+```javascript
+import eventBus from '@/util/eventBus';
+eventBus.emit('event-name', payload)   // kirim event
+eventBus.on('event-name', handler)     // subscribe event
+eventBus.off('event-name', handler)    // unsubscribe event
+// JANGAN pakai: eventBus.$emit / eventBus.$on — itu API Vue 2
+```
 
-### 4. Global Properties
+### 4. Navigation Store — Gunakan Pinia
+```javascript
+import { useNavigationStore } from '@/stores/navigation';
+// Di dalam Options API (created/mounted):
+this.navStore = useNavigationStore();
+const nav = this.navStore.navigation;
+```
+
+### 5. Global Properties
 Tersedia di semua komponen:
 - `this.$api` → Axios instance (`apiClient.js`)
 - `this.$fileURL` → URL base untuk gambar (`https://admin1.the-gypsy.sg/img/app/`)
 
-### 5. Token Storage API
-Gunakan `tokenStorage` (dari `@/util/tokenStorage`) bukan `localStorage`/`sessionStorage` langsung:
-```javascript
-import { tokenStorage } from '@/util/tokenStorage';
-tokenStorage.getToken()        // ambil token
-tokenStorage.setToken(value)   // simpan token
-tokenStorage.clearAll()        // hapus semua data auth
-tokenStorage.isAuthenticated() // cek apakah sudah login
-```
-
----
-
-## 📋 Yang Perlu Dikerjakan di Fase 2
-
-Lihat detail lengkap di [IMPLEMENTATION.md](./IMPLEMENTATION.md).
-
-**Ringkasan singkat Fase 2 (urutan penting):**
-1. Install Pinia (JANGAN uninstall Vuex dulu)
-2. Buat `src/stores/navigation.js`
-3. Migrate `SidebarDashboard.vue` ke Pinia
-4. Migrate `AdminDashboard.vue` ke Pinia
-5. **Setelah itu baru** uninstall Vuex
-6. Install `mitt`, update `eventBus.js`
-7. Update `SidebarDashboard.vue` eventBus calls
-8. Update `UserMaster.vue` eventBus calls
+### 6. Direktori Views Mengandung Spasi
+Banyak folder di `src/views/` mengandung spasi (contoh: `walls master`, `menu management`). Ini adalah technical debt yang **belum** diselesaikan. Jangan ubah nama direktori ini — bisa menyebabkan breaking import di 90+ route.
 
 ---
 
@@ -142,11 +181,13 @@ Lihat detail lengkap di [IMPLEMENTATION.md](./IMPLEMENTATION.md).
 
 | Butuh | Command |
 |-------|---------|
-| Cari semua `$store` | `grep_search "$store" SearchPath: src/` |
-| Cari semua `localStorage` | `grep_search "localStorage" SearchPath: src/` |
-| Cari semua import `eventBus` | `grep_search "eventBus" SearchPath: src/ MatchPerLine: true` |
-| Cek berapa baris sebuah file | `(Get-Content "path").Count` |
-| Cek apakah package sudah install | `node -e "require('pinia'); console.log('ok')"` |
+| Cari semua `localStorage` yang tersisa | `grep_search "localStorage" SearchPath: src/ MatchPerLine: true` |
+| Cari komponen yang masih pakai Vuex | `grep_search "$store" SearchPath: src/ MatchPerLine: true` |
+| Cari semua import raw axios | `grep_search "import http from 'axios'" SearchPath: src/ MatchPerLine: true` |
+| Cari semua eventBus usage | `grep_search "eventBus" SearchPath: src/ MatchPerLine: true` |
+| Hitung baris sebuah file | `(Get-Content "src/path/file.vue").Count` |
+| Cek apakah package terinstall | `node -e "require('mitt'); console.log('ok')"` |
+| Lihat perubahan git yang belum di-commit | `git diff` atau `git status` |
 
 ---
 
@@ -159,14 +200,14 @@ npm run serve
 # Build untuk production (upload ke cPanel)
 npm run build
 
-# Install package baru
-npm install <nama-package>
-
-# Uninstall package
-npm uninstall <nama-package>
-
-# Cek semua dependency
+# Cek semua dependency terinstall
 npm list --depth=0
+
+# Cek git history (baca log tanpa pager)
+git log --oneline -20
+
+# Kembalikan file ke kondisi terakhir commit (rollback satu file)
+git checkout src/components/SidebarDashboard.vue
 ```
 
 ---
@@ -183,9 +224,9 @@ Semua variabel Vue CLI **wajib diawali** `VUE_APP_` agar bisa dibaca via `proces
 
 ---
 
-## 📂 File yang TIDAK BOLEH Diubah (kecuali ada instruksi eksplisit)
+## 📂 File yang TIDAK BOLEH Diubah (kecuali ada instruksi eksplisit di IMPLEMENTATION.md)
 
-- `src/views/**/*` (semua file view) — kecuali file yang disebutkan di IMPLEMENTATION.md
+- `src/views/**/*` — semua file view, tanpa pengecualian
 - `src/plugins/vuetify.js` — konfigurasi Vuetify
 - `src/plugins/webfontloader.js`
 - `vue.config.js`
@@ -199,6 +240,20 @@ Semua variabel Vue CLI **wajib diawali** `VUE_APP_` agar bisa dibaca via `proces
 |-----------|--------|
 | Gunakan `sessionStorage` bukan `localStorage` untuk token | Lebih aman dari XSS — data hilang saat browser/tab ditutup |
 | Pertahankan `src/util/axios.js` sebagai wrapper | Backward compatibility — ratusan file masih import dari sini |
-| Tidak rename direktori dengan spasi di Fase 2 | Risiko breaking change pada ratusan import path, defer ke Fase 3 |
+| Tidak rename direktori dengan spasi di Fase 2, 3, & 4 | Risiko breaking change pada 90+ import path — defer ke masa mendatang |
 | Jalankan Pinia & Vuex paralel sebelum uninstall | Mencegah error komponen saat migrasi bertahap |
-| Gunakan Option API bukan Composition API | Project sudah established dengan Options API, migrasi di Fase 3 |
+| Tidak migrasi semua views ke Composition API | Terlalu berisiko — cukup komponen shared di Fase 3 |
+| Gunakan `mitt` bukan custom Vue app untuk eventBus | mitt lebih ringan, API lebih standar, tidak ada anti-pattern |
+| Fase 4 komponen baru bersifat additive | Tidak memaksa view lama berubah — risiko breaking change nol |
+| Pertahankan `font-awesome` meski ada `@fortawesome/fontawesome-free` | 170+ `Container.vue` di views masih import `~font-awesome/scss/font-awesome.scss` |
+
+---
+
+## 📚 Referensi Dokumen
+
+| Dokumen | Tujuan |
+|---------|--------|
+| [`ANALYSIS.md`](../ANALYSIS.md) | Audit lengkap codebase — sumber kebenaran untuk semua keputusan |
+| [`docs/IMPLEMENTATION.md`](./IMPLEMENTATION.md) | Rencana implementasi per fase dengan step-by-step execution |
+| [`docs/IMPROVEMENT.md`](./IMPROVEMENT.md) | Daftar semua improvement yang bisa diterapkan (roadmap jangka panjang) |
+

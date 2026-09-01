@@ -59,85 +59,86 @@
   </v-navigation-drawer>
 </template>
 
-<script>
+<script setup>
+import { ref, computed, watch, onMounted, onBeforeUnmount } from 'vue';
+import { useRouter } from 'vue-router';
 import Dropdown from './Dropdown.vue';
 import eventBus from '@/util/eventBus';
 import { tokenStorage } from '@/util/tokenStorage';
 import { useNavigationStore } from '@/stores/navigation';
 
-export default {
-  components: { Dropdown },
-  data() {
-    return {
-      // fileURL: 'https://admin1.the-gypsy.sg/img/app/',
-      rail: false,
-      image: '',
-      imagetoShow: '',
-      name: '',
-      role: '',
-      loginTime: null,
-      localDrawerOpen: true,
-      navStore: null,
-    };
+const props = defineProps({
+  drawerOpen: {
+    type: Boolean,
+    required: true,
   },
-  props: {
-    drawerOpen: {
-      type: Boolean,
-      required: true,
-    },
-  },
-  watch: {
-    drawerOpen(newVal) {
-      this.localDrawerOpen = newVal;
-    },
-  },
-  created() {
-    this.navStore = useNavigationStore();
-    eventBus.on('update-image', this.updateImage);
-  },
-  beforeUnmount() {
-    eventBus.off('update-image', this.updateImage);
-  },
-  mounted() {
-    this.name = tokenStorage.getName();
-    const getRole = tokenStorage.getRole();
-    this.role = getRole == 'S' ? 'Superadmin' : getRole == 'A' ? 'Admin' : '';
-    const getImg = tokenStorage.getImage();
-    this.image =
-      !getImg || getImg == 'null'
-        ? 'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png'
-        : this.$fileURL + getImg;
-    const storedLoginTime = tokenStorage.getLoginTime();
-    if (storedLoginTime) {
-      const time = new Date(parseInt(storedLoginTime));
-      const options = { day: 'numeric', month: 'long', year: 'numeric' };
-      this.loginTime = time.toLocaleDateString('en-GB', options);
-    }
-  },
-  computed: {
-    navigation() {
-      return this.navStore ? this.navStore.navigation : [];
-    },
-  },
-  methods: {
-    updateImage(dataItems) {
-      const id = parseInt(tokenStorage.getId());
-      const image = dataItems
-        .filter((data) => data.id === id)
-        .map((item) => item.image);
-      tokenStorage.setImage(image[0]);
-      const getImg = tokenStorage.getImage();
-      this.image =
-        !getImg || getImg == 'null'
-          ? 'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png'
-          : this.$fileURL + getImg;
-    },
-    logout() {
-      tokenStorage.clearAll();
-      this.$router.push('/auth/login');
-    },
-  },
+});
+
+const router = useRouter();
+const navStore = useNavigationStore();
+const fileURL = process.env.VUE_APP_FILE_URL || '';
+
+const rail = ref(false);
+const image = ref('');
+const name = ref('');
+const role = ref('');
+const loginTime = ref(null);
+const localDrawerOpen = ref(props.drawerOpen);
+
+watch(
+  () => props.drawerOpen,
+  (newVal) => {
+    localDrawerOpen.value = newVal;
+  }
+);
+
+const navigation = computed(() => {
+  return navStore ? navStore.navigation : [];
+});
+
+const updateImage = (dataItems) => {
+  const id = parseInt(tokenStorage.getId());
+  const matched = Array.isArray(dataItems)
+    ? dataItems.find((data) => data.id === id)
+    : null;
+  if (matched && matched.image) {
+    tokenStorage.setImage(matched.image);
+  }
+  const getImg = tokenStorage.getImage();
+  image.value =
+    !getImg || getImg === 'null'
+      ? 'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png'
+      : fileURL + getImg;
 };
+
+const logout = () => {
+  tokenStorage.clearAll();
+  router.push('/auth/login');
+};
+
+onMounted(() => {
+  name.value = tokenStorage.getName() || '';
+  const getRole = tokenStorage.getRole();
+  role.value = getRole === 'S' ? 'Superadmin' : getRole === 'A' ? 'Admin' : '';
+  const getImg = tokenStorage.getImage();
+  image.value =
+    !getImg || getImg === 'null'
+      ? 'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png'
+      : fileURL + getImg;
+
+  const storedLoginTime = tokenStorage.getLoginTime();
+  if (storedLoginTime) {
+    const time = new Date(parseInt(storedLoginTime));
+    const options = { day: 'numeric', month: 'long', year: 'numeric' };
+    loginTime.value = time.toLocaleDateString('en-GB', options);
+  }
+
+  eventBus.on('update-image', updateImage);
+});
+
+onBeforeUnmount(() => {
+  eventBus.off('update-image', updateImage);
+});
 </script>
 
 <style lang="scss" scoped>

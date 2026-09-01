@@ -26,212 +26,46 @@
                   :key="`attachment-${index}`"
                 >
                   <td>
-                    <template
-                      v-if="
-                        attachment.file.name.split('.').pop().toLowerCase() ==
-                          'jpg' ||
-                        attachment.file.name.split('.').pop().toLowerCase() ==
-                          'jpeg' ||
-                        attachment.file.name.split('.').pop().toLowerCase() ==
-                          'png' ||
-                        attachment.file.name.split('.').pop().toLowerCase() ==
-                          'tif' ||
-                        attachment.file.name.split('.').pop().toLowerCase() ==
-                          'bmp'
-                      "
-                    >
+                    <template v-if="isImageFile(getAttachmentName(attachment))">
                       <v-img
                         style="margin: 10px"
-                        :src="
-                          image[0].image_path !== ''
-                            ? attachment.file.file
-                            : $fileURL + attachment.file.name
-                        "
+                        :src="getAttachmentSrc(attachment)"
                         height="50px"
                         width="50px"
                       ></v-img>
                     </template>
                     <template v-else>
                       <v-icon
-                        v-if="
-                          attachment.file.name
-                            .split('.')
-                            .pop()
-                            .toLowerCase() === 'pdf'
-                        "
                         style="margin-left: 10px"
                         size="50"
-                        file-word-outline
-                        color="red darken-1"
-                        >mdi-file-pdf-outline</v-icon
+                        :color="getFileColor(getAttachmentName(attachment))"
                       >
-                      <v-icon
-                        v-else-if="
-                          attachment.file.name
-                            .split('.')
-                            .pop()
-                            .toLowerCase() === 'doc' ||
-                          attachment.file.name
-                            .split('.')
-                            .pop()
-                            .toLowerCase() === 'docx' ||
-                          attachment.file.name
-                            .split('.')
-                            .pop()
-                            .toLowerCase() === 'odt'
-                        "
-                        style="margin-left: 10px"
-                        size="50"
-                        file-word-outline
-                        color="blue darken-1"
-                        >mdi-file-word-outline</v-icon
-                      >
-                      <v-icon
-                        v-else-if="
-                          attachment.file.name
-                            .split('.')
-                            .pop()
-                            .toLowerCase() === 'xls' ||
-                          attachment.file.name
-                            .split('.')
-                            .pop()
-                            .toLowerCase() === 'xlsx'
-                        "
-                        style="margin-left: 10px"
-                        size="50"
-                        file-word-outline
-                        color="teal darken-1"
-                        >mdi-file-excel-outline</v-icon
-                      >
-                      <v-icon
-                        v-else-if="
-                          attachment.file.name
-                            .split('.')
-                            .pop()
-                            .toLowerCase() === 'pptx' ||
-                          attachment.file.name
-                            .split('.')
-                            .pop()
-                            .toLowerCase() === 'pptm' ||
-                          attachment.file.name
-                            .split('.')
-                            .pop()
-                            .toLowerCase() === 'ppt'
-                        "
-                        style="margin-left: 10px"
-                        size="50"
-                        file-word-outline
-                        color="orange darken-3"
-                        >mdi-file-powerpoint-outline</v-icon
-                      >
-                      <v-icon
-                        v-else-if="
-                          attachment.file.name
-                            .split('.')
-                            .pop()
-                            .toLowerCase() === 'mp4' ||
-                          attachment.file.name
-                            .split('.')
-                            .pop()
-                            .toLowerCase() === 'mov' ||
-                          attachment.file.name
-                            .split('.')
-                            .pop()
-                            .toLowerCase() === 'flv' ||
-                          attachment.file.name
-                            .split('.')
-                            .pop()
-                            .toLowerCase() === 'wmv' ||
-                          attachment.file.name
-                            .split('.')
-                            .pop()
-                            .toLowerCase() === 'avi'
-                        "
-                        style="margin-left: 10px"
-                        size="50"
-                        file-word-outline
-                        color="red lighten-1"
-                        >mdi-file-video-outline</v-icon
-                      >
-                      <v-icon
-                        v-else-if="
-                          attachment.file.name
-                            .split('.')
-                            .pop()
-                            .toLowerCase() === 'dwg'
-                        "
-                        style="margin-left: 10px"
-                        size="50"
-                        file-word-outline
-                        color="indigo lighten-2"
-                        >mdi-file-cad</v-icon
-                      >
-                      <v-icon
-                        v-else-if="
-                          attachment.file.name
-                            .split('.')
-                            .pop()
-                            .toLowerCase() === 'zip' ||
-                          attachment.file.name
-                            .split('.')
-                            .pop()
-                            .toLowerCase() === 'rar' ||
-                          attachment.file.name
-                            .split('.')
-                            .pop()
-                            .toLowerCase() === '7-zip'
-                        "
-                        size="120"
-                        file-word-outline
-                        color="lime lighten-1"
-                        >mdi-folder-zip-outline</v-icon
-                      >
-                      <v-icon
-                        v-else-if="
-                          attachment.file.name
-                            .split('.')
-                            .pop()
-                            .toLowerCase() === 'txt'
-                        "
-                        style="margin-left: 10px"
-                        size="50"
-                        file-word-outline
-                        color="light-green darken-3"
-                        >mdi-script-text-outline</v-icon
-                      >
-                      <v-icon
-                        v-else
-                        x-large
-                        file-word-outline
-                        color="indigo lighten-1"
-                        >mdi-file-question-outline</v-icon
-                      >
+                        {{ getFileIcon(getAttachmentName(attachment)) }}
+                      </v-icon>
                     </template>
                   </td>
                   <td>
                     <v-card-subtitle
                       v-if="
-                        Number((attachment.file.size / 1000).toFixed(1)) < 1024 * 10
+                        Number((getAttachmentSize(attachment) / 1000).toFixed(1)) < 1024 * 10
                       "
                       class="mt2"
                     >
                       <v-chip color="teal lighten-2" label text-color="white">
                         {{
-                          Number((attachment.file.size / 1000).toFixed(1)) +
+                          Number((getAttachmentSize(attachment) / 1000).toFixed(1)) +
                           ' kb'
                         }}
                         <v-icon right>mdi-harddisk</v-icon>
                       </v-chip>
                     </v-card-subtitle>
                     <v-card-subtitle
-                      v-if="
-                        Number((attachment.file.size / 1000).toFixed(1)) > 1024 * 10
-                      "
+                      v-else
                     >
                       <v-chip color="teal lighten-2" label text-color="white">
                         {{
                           Number(
-                            (attachment.file.size / 1000 / 1024).toFixed(1)
+                            (getAttachmentSize(attachment) / 1000 / 1024).toFixed(1)
                           ) + ' mb'
                         }}
                         <v-icon right>mdi-harddisk</v-icon>
@@ -293,13 +127,6 @@
                   >
                     {{ fileName }}
                   </v-chip>
-
-                  <!-- <span
-                    v-else-if="index === 2"
-                    class="text-overline text-grey-darken-3 mx-2"
-                  >
-                    +{{ tempAttachment.length - 2 }} File(s)
-                  </span> -->
                 </template>
               </template>
             </v-file-input>
@@ -307,7 +134,7 @@
           <v-card-actions>
             <v-btn
               class="BYekan"
-              :disabled="tempAttachment == null || btnLoader"
+              :disabled="image[0].image == null || btnLoader"
               :loading="btnLoader"
               style="background-color: #329ef4 !important"
               @click="saveNewImage"
@@ -362,302 +189,240 @@
   </v-container>
 </template>
 
-<script>
-// import { Buffer } from 'buffer';
+<script setup>
+import { ref, watch, onMounted, onUnmounted } from 'vue';
 
-export default {
-  name: 'ImageUpload',
-  props: {
-    imageFile: [Array],
-    isVertical: {
-      type: Boolean,
-      default: false,
-    },
+const props = defineProps({
+  imageFile: {
+    type: Array,
+    default: () => [],
   },
-  data() {
+  isVertical: {
+    type: Boolean,
+    default: false,
+  },
+});
+
+const emit = defineEmits(['update-image-file', 'delete-image-file']);
+
+const fileURL = process.env.VUE_APP_FILE_URL || '';
+
+const isInsertImage = ref(false);
+const isDeleteImage = ref(false);
+const btnLoader = ref(false);
+const selectedIndex = ref('');
+const selectedId = ref('');
+const fileUploaderSnackBarAlert = ref(false);
+const fileUploaderSnackText = ref('');
+const fileUploaderSnackBarAlertColor = ref('green');
+
+const image = ref([
+  {
+    image_path: '',
+    image: null,
+  },
+]);
+
+const tempAttachment = ref([]);
+const documentAttachmentAPI = ref({});
+
+const fileTypeConfig = {
+  // image types
+  jpg: { icon: 'mdi-file-image-outline', color: 'blue-grey' },
+  jpeg: { icon: 'mdi-file-image-outline', color: 'blue-grey' },
+  png: { icon: 'mdi-file-image-outline', color: 'blue-grey' },
+  tif: { icon: 'mdi-file-image-outline', color: 'blue-grey' },
+  bmp: { icon: 'mdi-file-image-outline', color: 'blue-grey' },
+  webp: { icon: 'mdi-file-image-outline', color: 'blue-grey' },
+  gif: { icon: 'mdi-file-image-outline', color: 'blue-grey' },
+  svg: { icon: 'mdi-file-image-outline', color: 'blue-grey' },
+  // document types
+  pdf: { icon: 'mdi-file-pdf-outline', color: 'red darken-1' },
+  doc: { icon: 'mdi-file-word-outline', color: 'blue darken-1' },
+  docx: { icon: 'mdi-file-word-outline', color: 'blue darken-1' },
+  odt: { icon: 'mdi-file-word-outline', color: 'blue darken-1' },
+  xls: { icon: 'mdi-file-excel-outline', color: 'teal darken-1' },
+  xlsx: { icon: 'mdi-file-excel-outline', color: 'teal darken-1' },
+  pptx: { icon: 'mdi-file-powerpoint-outline', color: 'orange darken-3' },
+  pptm: { icon: 'mdi-file-powerpoint-outline', color: 'orange darken-3' },
+  ppt: { icon: 'mdi-file-powerpoint-outline', color: 'orange darken-3' },
+  // media types
+  mp4: { icon: 'mdi-file-video-outline', color: 'red lighten-1' },
+  mov: { icon: 'mdi-file-video-outline', color: 'red lighten-1' },
+  flv: { icon: 'mdi-file-video-outline', color: 'red lighten-1' },
+  wmv: { icon: 'mdi-file-video-outline', color: 'red lighten-1' },
+  avi: { icon: 'mdi-file-video-outline', color: 'red lighten-1' },
+  dwg: { icon: 'mdi-file-cad', color: 'indigo lighten-2' },
+  // archive types
+  zip: { icon: 'mdi-folder-zip-outline', color: 'lime lighten-1' },
+  rar: { icon: 'mdi-folder-zip-outline', color: 'lime lighten-1' },
+  '7-zip': { icon: 'mdi-folder-zip-outline', color: 'lime lighten-1' },
+  // text types
+  txt: { icon: 'mdi-script-text-outline', color: 'light-green darken-3' },
+};
+
+const getFileExt = (filename) => {
+  if (!filename || typeof filename !== 'string') return '';
+  return filename.split('.').pop().toLowerCase();
+};
+
+const isImageFile = (filename) => {
+  const ext = getFileExt(filename);
+  const imageExts = ['jpg', 'jpeg', 'png', 'tif', 'tiff', 'bmp', 'webp', 'gif', 'svg'];
+  return imageExts.includes(ext);
+};
+
+const getFileIcon = (filename) => {
+  const ext = getFileExt(filename);
+  return (fileTypeConfig[ext] || { icon: 'mdi-file-question-outline' }).icon;
+};
+
+const getFileColor = (filename) => {
+  const ext = getFileExt(filename);
+  return (fileTypeConfig[ext] || { color: 'indigo lighten-1' }).color;
+};
+
+const normalizeAttachment = (item) => {
+  if (!item) return null;
+  if (item.file && typeof item.file === 'object') {
     return {
-      // fileURL: 'https://admin1.the-gypsy.sg/img/app/',
-      isInsertImage: false,
-      isDeleteImage: false,
-
-      image: [
-        {
-          image_path: '',
-          image: null,
-        },
-      ],
-
-      tempAttachment: [],
-      tempAttachmentChanged: [],
-      documentAttachmentAPI: {},
-
-      fileUploaderSnackBarAlert: false,
-      fileUploaderSnackText: '',
-      fileUploaderSnackBarAlertColor: 'green',
-      // readerFile: null,
-      // registryDocFile: [],
-      btnLoader: false,
-      showDetail: false,
-      showDetailState: [],
-      selectedIndex: '',
-      selectedId: '',
-      returnedRecord: {},
-      //Card Theme
-      outlined: false,
-      raised: false,
-      shaped: false,
-      tile: false,
-      selectedLang: {},
-      beforeInsertAttachments: {},
-      attachmentIndex: '',
+      file: {
+        name: item.file.name || '',
+        size: item.file.size || 0,
+        file: item.file.file || (item.file.name ? (item.file.name.startsWith('blob:') || item.file.name.startsWith('http') ? item.file.name : fileURL + item.file.name) : ''),
+        format: item.file.format || '',
+      },
     };
+  }
+  if (item instanceof File || (item.name && item.size !== undefined)) {
+    const blobUrl = image.value[0]?.image_path || (item instanceof Blob ? URL.createObjectURL(item) : '');
+    return {
+      file: {
+        name: item.name,
+        size: item.size,
+        file: blobUrl,
+        format: item.type || '',
+      },
+    };
+  }
+  if (typeof item === 'string') {
+    return {
+      file: {
+        name: item,
+        size: 0,
+        file: item.startsWith('blob:') || item.startsWith('http') ? item : fileURL + item,
+        format: '',
+      },
+    };
+  }
+  return { file: { name: '', size: 0, file: '', format: '' } };
+};
+
+const getAttachmentName = (attachment) => {
+  if (!attachment) return '';
+  if (attachment.file?.name) return attachment.file.name;
+  if (attachment.name) return attachment.name;
+  return '';
+};
+
+const getAttachmentSize = (attachment) => {
+  if (!attachment) return 0;
+  if (attachment.file?.size !== undefined) return attachment.file.size;
+  if (attachment.size !== undefined) return attachment.size;
+  return 0;
+};
+
+const getAttachmentSrc = (attachment) => {
+  if (!attachment) return '';
+  if (attachment.file?.file) return attachment.file.file;
+  if (attachment.file?.name) {
+    const name = attachment.file.name;
+    return name.startsWith('blob:') || name.startsWith('http') ? name : fileURL + name;
+  }
+  if (image.value[0]?.image_path) return image.value[0].image_path;
+  if (attachment.name) {
+    return attachment.name.startsWith('blob:') || attachment.name.startsWith('http') ? attachment.name : fileURL + attachment.name;
+  }
+  return '';
+};
+
+watch(
+  () => props.imageFile,
+  (newVal) => {
+    if (Array.isArray(newVal)) {
+      tempAttachment.value = newVal.map(normalizeAttachment).filter(Boolean);
+    } else {
+      tempAttachment.value = [];
+    }
   },
-  // watch: {
-  //   tempAttachment: function (newValue) {
-  //     if (this.tempAttachment.length > 0) this.getAttachmentDetails(newValue);
-  //     else this.tempAttachmentChanged = [];
-  //   },
-  // },
-  mounted() {
-    this.tempAttachment = this.imageFile;
-    // console.log(this.tempAttachment);
-  },
-  unmounted() {
-    this.tempAttachment = [];
-  },
-  methods: {
-    openInputImage() {
-      this.btnLoader = false;
-      this.isInsertImage = true;
-    },
-    openDeleteDialog(index, deleteId) {
-      this.btnLoader = false;
-      this.selectedIndex = index;
-      this.selectedId = deleteId;
-      this.isDeleteImage = true;
-    },
-    deleteImage() {
-      this.tempAttachment.splice(this.selectedIndex, 1);
-      this.$emit('delete-image-file');
-      // this.$emit('update:documentAttachment', this.registryDocFile);
-      this.isDeleteImage = false;
-    },
+  { deep: true, immediate: true }
+);
 
-    // onImageInput(e) {
-    //   var files = e.target.files || e.dataTransfer.files;
-    //   // console.log(files);
-    //   if (!files.length) return;
-    //   else if (files[0].size > 5242880) {
-    //     this.fileUploaderSnackText = 'File size cannot more than 5 mb';
-    //     this.fileUploaderSnackBarAlert = true;
-    //     this.fileUploaderSnackBarAlertColor = 'red';
-    //     return;
-    //   }
-    //   this.image[0].image = files[0];
-    //   this.image[0].image_path = URL.createObjectURL(files[0]);
-    //   // console.log(this.image[0]);
-    // },
+onMounted(() => {
+  if (Array.isArray(props.imageFile)) {
+    tempAttachment.value = props.imageFile.map(normalizeAttachment).filter(Boolean);
+  }
+});
 
-    onImageInput(e) {
-      const files = e.target.files || e.dataTransfer.files;
-      if (!files.length) return;
+onUnmounted(() => {
+  tempAttachment.value = [];
+});
 
-      if (this.isVertical) {
-        const reader = new FileReader();
-        reader.onload = (event) => {
-          const img = new Image();
-          img.src = event.target.result;
-          img.onload = () => {
-            // if (img.width > img.height) {
-            //   this.fileUploaderSnackText = 'Please upload a vertical image.';
-            //   this.fileUploaderSnackBarAlert = true;
-            //   this.fileUploaderSnackBarAlertColor = 'red';
-            //   return;
-            // }
-            // else if (files[0].size > 1242880) {
-            //   this.fileUploaderSnackText = 'File size cannot be more than 1 MB';
-            //   this.fileUploaderSnackBarAlert = true;
-            //   this.fileUploaderSnackBarAlertColor = 'red';
-            //   return;
-            // } else {
-            this.image[0].image = files[0];
-            this.image[0].image_path = URL.createObjectURL(files[0]);
-            // }
-          };
-        };
-        reader.readAsDataURL(files[0]);
-      } else {
-        // if (files[0].size > 1242880) {
-        //   this.fileUploaderSnackText = 'File size cannot be more than 1 MB';
-        //   this.fileUploaderSnackBarAlert = true;
-        //   this.fileUploaderSnackBarAlertColor = 'red';
-        //   return;
-        // } else {
-        this.image[0].image = files[0];
-        this.image[0].image_path = URL.createObjectURL(files[0]);
-        // }
-      }
-    },
+const openInputImage = () => {
+  btnLoader.value = false;
+  isInsertImage.value = true;
+};
 
-    saveNewImage() {
-      this.tempAttachment = this.image.map((img) => {
-        return {
-          file: {
-            name: img.image.name,
-            size: img.image.size,
-            file: img.image_path,
-            format: img.image.type,
-          },
-        };
-      });
-      this.documentAttachmentAPI = this.image[0].image;
-      this.$emit('update-image-file', this.documentAttachmentAPI);
-      this.isInsertImage = false;
-    },
+const openDeleteDialog = (index, deleteId) => {
+  btnLoader.value = false;
+  selectedIndex.value = index;
+  selectedId.value = deleteId;
+  isDeleteImage.value = true;
+};
 
-    // getShowDetailState(index) {
-    //   this.showDetailState[index] = !this.showDetailState[index];
-    //   console.log('showDetailState' + JSON.stringify(this.showDetailState));
-    // },
+const deleteImage = () => {
+  tempAttachment.value.splice(selectedIndex.value, 1);
+  image.value = [{ image_path: '', image: null }];
+  emit('delete-image-file');
+  isDeleteImage.value = false;
+};
 
-    // handleUpload(fileAttachment) {
-    //   let reader = new FileReader();
-    //   return new Promise(function (resolve) {
-    //     reader.onloadend = () => {
-    //       resolve(reader.result);
-    //     };
-    //     reader.readAsDataURL(fileAttachment);
-    //   });
-    // },
+const onImageInput = (e) => {
+  const files = e.target.files || e.dataTransfer.files;
+  if (!files.length) return;
 
-    /**
-     * asynchronous method to insert selected file(s)
-     *
-     * @public
-     * @returns {Array} selected file(s)
-     */
+  if (props.isVertical) {
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const img = new Image();
+      img.src = event.target.result;
+      img.onload = () => {
+        image.value[0].image = files[0];
+        image.value[0].image_path = URL.createObjectURL(files[0]);
+      };
+    };
+    reader.readAsDataURL(files[0]);
+  } else {
+    image.value[0].image = files[0];
+    image.value[0].image_path = URL.createObjectURL(files[0]);
+  }
+};
 
-    // async uploadFieldChange() {
-    //   this.btnLoader = true;
-    //   for (let [index, item] of this.tempAttachment.entries()) {
-    //     if (this.documentAttachment.length <= 1) {
-    //       if ((item.size / 1000).toFixed(1) > this.maxFileSize) {
-    //         this.fileUploaderSnackBarAlertColor = 'red';
-    //         this.fileUploaderSnackText = `Max file Size is 2 MB`;
-    //         this.fileUploaderSnackBarAlert = true;
-    //       } else {
-    //         let tempFile = {};
-    //         let file = {};
-    //         try {
-    //           // console.log(item);
-    //           this.readerFile = await this.handleUpload(item);
-    //         } catch (e) {
-    //           console.log(e);
-    //         }
-    //         let fullFileType = this.readerFile.split(';');
-    //         let fileType = fullFileType[0].split(':');
-    //         let sizeInKb = 0;
-    //         // let  status = true;
-    //         let imgFile = await this.compressImage(
-    //           this.readerFile,
-    //           fileType[1]
-    //         );
-    //         //tempFile.subject= this.tempAttachmentChanged[index].name + '.' + this.tempAttachmentChanged[index].format;
-    //         let strTemp = this.readerFile.split(',');
-    //         let imgTemp = imgFile.split(',');
-    //         tempFile.base64 = imgTemp[1];
-    //         sizeInKb = new Buffer(imgFile, 'base64').length;
-    //         tempFile.size = String(sizeInKb);
-    //         tempFile.name =
-    //           this.tempAttachmentChanged[index].name +
-    //           '.' +
-    //           this.tempAttachmentChanged[index].format;
-    //         // if (this.tempAttachmentChanged[index].tags === undefined)
-    //         //   tempFile.tags = [];
-    //         // else tempFile.tags = this.tempAttachmentChanged[index].tags;
-    //         // if (this.tempAttachmentChanged[index].description === undefined)
-    //         //   tempFile.description = "";
-    //         // else
-    //         //   tempFile.description = this.tempAttachmentChanged[
-    //         //     index
-    //         //   ].description;
-    //         tempFile.showDetailState = false;
-
-    //         tempFile.format = strTemp[0].replace('data:', '');
-    //         file.file = tempFile;
-    //         /* const convertedToFile = this.convertBase64ToFile(
-    //           imgFile,
-    //           tempFile.name
-    //         ); */
-    //         // console.log(convertedToFile)
-    //         this.registryDocFile.push(file);
-    //         this.$emit('update:documentAttachment', this.registryDocFile);
-    //       }
-    //     } else {
-    //       this.fileUploaderSnackBarAlertColor = 'red';
-    //       this.fileUploaderSnackText = `Max file count is 1`;
-    //       this.fileUploaderSnackBarAlert = true;
-    //     }
-    //   }
-    //   this.documentAttachmentAPI = [];
-    //   this.tempAttachmentChanged = [];
-    //   this.isInsertImage = false;
-    // },
-
-    // compressImage(base64) {
-    //   const canvas = document.createElement('canvas');
-    //   const img = document.createElement('img');
-
-    //   return new Promise((resolve, reject) => {
-    //     let imageCompressLevelTemp = 0.8;
-    //     img.onload = function () {
-    //       let width = img.width;
-    //       let height = img.height;
-    //       canvas.width = width;
-    //       canvas.height = height;
-
-    //       const ctx = canvas.getContext('2d');
-    //       ctx.drawImage(img, 0, 0, width, height);
-
-    //       resolve(canvas.toDataURL('image/jpeg', imageCompressLevelTemp));
-    //     };
-    //     img.onerror = function (err) {
-    //       reject(err);
-    //     };
-    //     img.src = base64;
-    //   });
-    // },
-
-    // convertBase64ToFile(base64, fileName) {
-    //   const byteString = atob(base64.split(',')[1]);
-    //   const ab = new ArrayBuffer(byteString.length);
-    //   const ia = new Uint8Array(ab);
-    //   for (let i = 0; i < byteString.length; i += 1) {
-    //     ia[i] = byteString.charCodeAt(i);
-    //   }
-    //   const newBlob = new Blob([ab], {
-    //     type: 'image/jpeg',
-    //   });
-    //   return new File([newBlob], fileName);
-    // },
-
-    // async getAttachmentDetails(selectedAttachment) {
-    //   for (let item of selectedAttachment) {
-    //     try {
-    //       this.readerFile = await this.handleUpload(item);
-    //     } catch (e) {
-    //       console.log(e);
-    //     }
-    //     let obj = {};
-    //     let name = '';
-    //     name = item.name.split('.');
-    //     obj.format = item.name.substr(item.name.lastIndexOf('.') + 1);
-    //     obj.name = name[0];
-    //     obj.base64 = this.readerFile;
-    //     this.tempAttachmentChanged.push(obj);
-    //   }
-    // },
-  },
+const saveNewImage = () => {
+  const newAttachment = image.value.map((img) => {
+    return {
+      file: {
+        name: img.image?.name || '',
+        size: img.image?.size || 0,
+        file: img.image_path || '',
+        format: img.image?.type || '',
+      },
+    };
+  });
+  tempAttachment.value = newAttachment;
+  documentAttachmentAPI.value = image.value[0].image;
+  emit('update-image-file', documentAttachmentAPI.value);
+  isInsertImage.value = false;
 };
 </script>
 

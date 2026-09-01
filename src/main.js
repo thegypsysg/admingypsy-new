@@ -25,5 +25,17 @@ const pinia = createPinia();
 app.config.globalProperties.$api = apiClient;
 app.config.globalProperties.$fileURL = process.env.VUE_APP_FILE_URL;
 
+// Global error handler
+app.config.errorHandler = (err, instance, info) => {
+  console.error('[Vue Error]', err);
+  console.error('[Vue Error Info]', info);
+  console.error('[Vue Error Component]', instance?.$options?.name || 'Unknown');
+};
+
+// Global unhandled promise rejection handler
+window.addEventListener('unhandledrejection', (event) => {
+  console.error('[Unhandled Promise Rejection]', event.reason);
+});
+
 app.component('VueDatePicker', VueDatePicker);
 app.use(router).use(pinia).use(vuetify).mount('#app');

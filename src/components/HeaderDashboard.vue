@@ -72,88 +72,83 @@
   </v-app-bar>
 </template>
 
-<script>
+<script setup>
+import { ref, onMounted, onBeforeUnmount } from 'vue';
 import axios from '@/util/axios';
 import eventBus from '@/util/eventBus';
 import { tokenStorage } from '@/util/tokenStorage';
 
-export default {
-  data() {
-    return {
-      // fileURL: 'https://admin1.the-gypsy.sg/img/app/',
-      linksNavBar: ['Chat', 'Calendar', 'Notes'],
-      items: [],
-      image: '',
-    };
-  },
-  created() {
-    eventBus.on('update-image', this.updateImage);
-  },
-  beforeUnmount() {
-    eventBus.off('update-image', this.updateImage);
-  },
-  mounted() {
-    this.getAppActive();
-    const getImg = tokenStorage.getImage();
-    this.image =
-      !getImg || getImg == 'null'
-        ? 'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png'
-        : this.$fileURL + getImg;
-  },
-  methods: {
-    getAppActive() {
-      axios
-        .get(`/app/active`)
-        .then((response) => {
-          const data = response.data.data;
-          // console.log(data);
-          this.items = data
-            .sort((a, b) => a.app_id < b.app_id)
-            .map((app) => {
-              return {
-                id: app.app_id || 1,
-                title: app.app_name || '',
-                path:
-                  app.app_name == 'The Syringe'
-                    ? '/healthcare-settings'
-                    : app.app_name == 'Mall-e'
-                    ? '/mall_master'
-                    : app.app_name == '4 Walls'
-                    ? '/walls_master'
-                    : app.app_name == 'Biryani Run'
-                    ? '/biryani-home/main-categories'
-                    : app.app_name == 'i-Study'
-                    ? '/course_master'
-                    : app.app_name == 'Boozards'
-                    ? ''
-                    : '',
-                image: this.$fileURL + app.app_main_image || null,
-              };
-            });
-          //console.log(this.items);
-        })
-        .catch((error) => {
-          // eslint-disable-next-line
-          console.log(error);
-        });
-    },
-    toggleDrawer() {
-      this.$emit('toggle-drawer');
-    },
-    updateImage(dataItems) {
-      const id = parseInt(tokenStorage.getId());
-      const image = dataItems
-        .filter((data) => data.id === id)
-        .map((item) => item.image);
-      tokenStorage.setImage(image[0]);
-      const getImg = tokenStorage.getImage();
-      this.image =
-        !getImg || getImg == 'null'
-          ? 'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png'
-          : this.$fileURL + getImg;
-    },
-  },
+const emit = defineEmits(['toggle-drawer']);
+
+const fileURL = process.env.VUE_APP_FILE_URL || '';
+const linksNavBar = ref(['Chat', 'Calendar', 'Notes']);
+const items = ref([]);
+const image = ref('');
+
+const toggleDrawer = () => {
+  emit('toggle-drawer');
 };
+
+const updateImage = (dataItems) => {
+  const id = parseInt(tokenStorage.getId());
+  const matched = Array.isArray(dataItems)
+    ? dataItems.find((data) => data.id === id)
+    : null;
+  if (matched && matched.image) {
+    tokenStorage.setImage(matched.image);
+  }
+  const getImg = tokenStorage.getImage();
+  image.value =
+    !getImg || getImg === 'null'
+      ? 'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png'
+      : fileURL + getImg;
+};
+
+const getAppActive = () => {
+  axios
+    .get('/app/active')
+    .then((response) => {
+      const data = response.data.data;
+      items.value = data
+        .sort((a, b) => a.app_id < b.app_id)
+        .map((app) => {
+          return {
+            id: app.app_id || 1,
+            title: app.app_name || '',
+            path:
+              app.app_name === 'The Syringe'
+                ? '/healthcare-settings'
+                : app.app_name === 'Mall-e'
+                ? '/mall_master'
+                : app.app_name === '4 Walls'
+                ? '/walls_master'
+                : app.app_name === 'Biryani Run'
+                ? '/biryani-home/main-categories'
+                : app.app_name === 'i-Study'
+                ? '/course_master'
+                : '',
+            image: app.app_main_image ? fileURL + app.app_main_image : null,
+          };
+        });
+    })
+    .catch((error) => {
+      console.error(error);
+    });
+};
+
+onMounted(() => {
+  eventBus.on('update-image', updateImage);
+  getAppActive();
+  const getImg = tokenStorage.getImage();
+  image.value =
+    !getImg || getImg === 'null'
+      ? 'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png'
+      : fileURL + getImg;
+});
+
+onBeforeUnmount(() => {
+  eventBus.off('update-image', updateImage);
+});
 </script>
 
 <style lang="scss" scoped>

@@ -359,8 +359,6 @@
 </template>
 
 <script>
-// import { Buffer } from 'buffer';
-
 export default {
   name: 'ImageMultiUpload',
   props: {
@@ -368,7 +366,6 @@ export default {
   },
   data() {
     return {
-      // fileURL: 'https://admin1.the-gypsy.sg/img/app/',
       isInsertImage: false,
       isDeleteImage: false,
       isEmptyImageFile: true,
@@ -376,36 +373,16 @@ export default {
       image: [],
 
       tempAttachment: [],
-      tempAttachmentChanged: [],
       documentAttachmentAPI: {},
 
       fileUploaderSnackBarAlert: false,
       fileUploaderSnackText: '',
       fileUploaderSnackBarAlertColor: 'green',
-      // readerFile: null,
-      // registryDocFile: [],
       btnLoader: false,
-      showDetail: false,
-      showDetailState: [],
       selectedIndex: '',
       selectedId: '',
-      returnedRecord: {},
-      //Card Theme
-      outlined: false,
-      raised: false,
-      shaped: false,
-      tile: false,
-      selectedLang: {},
-      beforeInsertAttachments: {},
-      attachmentIndex: '',
     };
   },
-  // watch: {
-  //   tempAttachment: function (newValue) {
-  //     if (this.tempAttachment.length > 0) this.getAttachmentDetails(newValue);
-  //     else this.tempAttachmentChanged = [];
-  //   },
-  // },
   mounted() {
     this.tempAttachment = this.imageFile;
     if (this.imageFile.length > 0) {
@@ -420,11 +397,9 @@ export default {
   methods: {
     openInputImage() {
       this.btnLoader = false;
-      // this.tempAttachment = [];
       if (this.isEmptyImageFile == false) {
         this.image = [...this.tempAttachment];
       }
-      console.log(this.image);
       this.isInsertImage = true;
     },
     openDeleteDialog(index, deleteId) {
@@ -436,28 +411,17 @@ export default {
     deleteImage() {
       this.tempAttachment.splice(this.selectedIndex, 1);
       this.$emit('delete-image-file', this.selectedIndex);
-      // this.$emit('update:documentAttachment', this.registryDocFile);
       this.isDeleteImage = false;
     },
 
     onImageInput(e) {
-      var files = e.target.files || e.dataTransfer.files;
-      // console.log(files);
+      const files = e.target.files || e.dataTransfer.files;
       if (!files.length) return;
-      // else if (files[0].size > 5242880) {
-      //   this.fileUploaderSnackText = 'File size cannot more than 5 mb';
-      //   this.fileUploaderSnackBarAlert = true;
-      //   this.fileUploaderSnackBarAlertColor = 'red';
-      //   return;
-      // }
-      // this.image[0].image = files[0];
-      // this.image[0].image_path = URL.createObjectURL(files[0]);
       const newImage = {
         image_path: URL.createObjectURL(files[0]),
         image: files[0],
       };
       this.image.push(newImage);
-      console.log(this.image);
     },
 
     saveNewImage() {
@@ -484,7 +448,6 @@ export default {
           };
         });
       }
-      // console.log(this.tempAttachment);
       this.documentAttachmentAPI = this.image.map((img) => img.image);
       this.$emit('update-image-file', this.documentAttachmentAPI);
       this.isInsertImage = false;
