@@ -6,7 +6,7 @@ import 'maz-ui/css/main.css';
 import '@fortawesome/fontawesome-free/css/all.css';
 import '@fortawesome/fontawesome-free/css/fontawesome.css';
 import '@fortawesome/fontawesome-free/css/brands.css';
-import '/node_modules/flag-icons/css/flag-icons.min.css';
+import 'flag-icons/css/flag-icons.min.css';
 
 import { createPinia } from 'pinia';
 import apiClient from './util/apiClient';
@@ -23,7 +23,7 @@ const pinia = createPinia();
 
 // Global properties
 app.config.globalProperties.$api = apiClient;
-app.config.globalProperties.$fileURL = process.env.VUE_APP_FILE_URL;
+app.config.globalProperties.$fileURL = import.meta.env.VITE_FILE_URL;
 
 // Global error handler
 app.config.errorHandler = (err, instance, info) => {

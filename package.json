@@ -3,9 +3,11 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "serve": "vue-cli-service serve",
-    "build": "vue-cli-service build",
-    "lint": "vue-cli-service lint",
+    "dev": "vite",
+    "serve": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "lint": "eslint . --ext .vue,.js --fix --ignore-path .eslintignore",
     "prepare": "husky"
   },
   "dependencies": {
@@ -32,10 +34,8 @@
   "devDependencies": {
     "@babel/core": "^7.12.16",
     "@babel/eslint-parser": "^7.12.16",
-    "@vue/cli-plugin-babel": "~5.0.0",
-    "@vue/cli-plugin-eslint": "~5.0.0",
-    "@vue/cli-plugin-router": "~5.0.0",
-    "@vue/cli-service": "~5.0.0",
+    "@vitejs/plugin-vue": "^6.0.8",
+    "@vue/devtools-api": "^8.2.1",
     "eslint": "^7.32.0",
     "eslint-config-prettier": "^8.10.2",
     "eslint-plugin-prettier": "^4.2.5",
@@ -43,10 +43,10 @@
     "husky": "^9.1.7",
     "lint-staged": "^17.4.1",
     "prettier": "^2.8.8",
-    "sass": "^1.32.7",
+    "sass": "^1.103.1",
     "sass-loader": "^12.0.0",
-    "vue-cli-plugin-vuetify": "~2.5.8",
-    "webpack-plugin-vuetify": "^2.0.0-alpha.0"
+    "vite": "^8.2.2",
+    "vite-plugin-vuetify": "^2.1.3"
   },
   "lint-staged": {
     "*.{vue,js}": [

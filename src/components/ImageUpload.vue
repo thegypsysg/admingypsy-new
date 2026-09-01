@@ -205,7 +205,7 @@ const props = defineProps({
 
 const emit = defineEmits(['update-image-file', 'delete-image-file']);
 
-const fileURL = process.env.VUE_APP_FILE_URL || '';
+const fileURL = import.meta.env.VITE_FILE_URL || '';
 
 const isInsertImage = ref(false);
 const isDeleteImage = ref(false);

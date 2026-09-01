@@ -576,7 +576,7 @@ setAuthHeader(token);
 	let autocomplete;
 	const streetRef = ref(null);
 	const googleMapsApiKey = ref('AIzaSyDepjJJsj2zb9pi5j-9G0beqBTtTtfYhno');
-	// const googleMapsApiKey = process.env.VUE_APP_GOOGLE_MAPS_API_KEY;
+	// const googleMapsApiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
 
 	const initAutocomplete = async () => {
 		console.log(streetRef.value)

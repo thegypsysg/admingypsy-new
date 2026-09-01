@@ -80,7 +80,7 @@ import { tokenStorage } from '@/util/tokenStorage';
 
 const emit = defineEmits(['toggle-drawer']);
 
-const fileURL = process.env.VUE_APP_FILE_URL || '';
+const fileURL = import.meta.env.VITE_FILE_URL || '';
 const linksNavBar = ref(['Chat', 'Calendar', 'Notes']);
 const items = ref([]);
 const image = ref('');

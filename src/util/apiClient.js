@@ -17,7 +17,7 @@ import router from '@/router';
 import { tokenStorage } from '@/util/tokenStorage';
 
 const apiClient = axios.create({
-  baseURL: process.env.VUE_APP_API_BASE_URL,
+  baseURL: import.meta.env.VITE_API_BASE_URL,
   timeout: 180000, // 3 menit — sama dengan konfigurasi sebelumnya
   headers: {
     post: { Accept: 'application/json' },

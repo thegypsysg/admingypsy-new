@@ -1,7 +1,7 @@
 # 📖 AdminGypsy — Agent Reference Guide (docs/README.md)
 
 > **Untuk:** Model AI (Gemini / Claude) yang akan bekerja di proyek ini.
-> **Update terakhir:** 2026-09-01 (Fase 6 ditambahkan)
+> **Update terakhir:** 2026-09-01 (Fase Opsional P4 — Vite Migration Selesai)
 
 ---
 
@@ -15,8 +15,9 @@
 | Fase 4 | UX & Security Polish       | ✅ SELESAI                     |
 | Fase 5 | Performance Optimization   | ✅ SELESAI                     |
 | Fase 6 | Developer Experience       | ✅ SELESAI                     |
+| Fase Opsional P4 | Migrasi Vue CLI → Vite | ✅ SELESAI (branch `vite-migration`) |
 
-Semua fase perbaikan (Fase 1, 2, 3, 4, 5, dan 6) telah berhasil diimplementasikan dan diverifikasi via production build (0 error).
+Semua fase perbaikan (Fase 1–6 dan Fase Opsional P4) telah berhasil diimplementasikan dan diverifikasi via production build (0 error).
 
 ---
 
@@ -24,8 +25,8 @@ Semua fase perbaikan (Fase 1, 2, 3, 4, 5, dan 6) telah berhasil diimplementasika
 
 **Proyek ini adalah Admin Dashboard berbasis:**
 
-- **Framework:** Vue 3 (via Vue CLI / Webpack) — **BUKAN Vite**
-- **UI Library:** Vuetify 3
+- **Framework:** Vue 3 (via Vite)
+- **UI Library:** Vuetify 3 (dengan `vite-plugin-vuetify` auto-import)
 - **State Management:** Pinia (migrasi dari Vuex selesai di Fase 2)
 - **Event Bus:** `mitt` (migrasi dari Vue 2-style eventBus selesai di Fase 2)
 - **Routing:** Vue Router 4 (global `router.beforeEach` guard)
@@ -33,9 +34,9 @@ Semua fase perbaikan (Fase 1, 2, 3, 4, 5, dan 6) telah berhasil diimplementasika
 - **Auth Storage:** `sessionStorage` via `src/util/tokenStorage.js`
 - **Hosting:** cPanel shared hosting — `npm run build` menghasilkan `dist/` yang diupload ke server
 
-**Branch aktif:** `dev` (atau `refactor` — cek dengan `git branch`)
+**Branch aktif:** `vite-migration` (atau `refactor` — cek dengan `git branch`)
 
-**Dev server:** `npm run serve` → http://localhost:8080
+**Dev server:** `npm run dev` (atau `npm run serve`) → http://localhost:8080
 
 ---
 
@@ -231,21 +232,19 @@ git checkout src/components/SidebarDashboard.vue
 File `.env.local` (tidak di-commit) berisi:
 
 ```
-VUE_APP_API_BASE_URL=https://adminsymphinite.symphinite.tech/api/
-VUE_APP_FILE_URL=https://admin1.the-gypsy.sg/img/app/
+VITE_API_BASE_URL=https://admin1.the-gypsy.sg/api/
+VITE_FILE_URL=https://admin1.the-gypsy.sg/img/app/
 ```
 
-Semua variabel Vue CLI **wajib diawali** `VUE_APP_` agar bisa dibaca via `process.env.VUE_APP_*`.
+Semua variabel Vite **wajib diawali** `VITE_` agar bisa dibaca via `import.meta.env.VITE_*`.
 
 ---
 
 ## 📂 File yang TIDAK BOLEH Diubah (kecuali ada instruksi eksplisit di IMPLEMENTATION.md)
 
 - `src/views/**/*` — semua file view, tanpa pengecualian
-- `src/plugins/vuetify.js` — konfigurasi Vuetify
-- `src/plugins/webfontloader.js`
-- `vue.config.js`
-- `babel.config.js`
+- `vite.config.mjs` — konfigurasi Vite build tool
+- `.husky/**/*` — pre-commit git hooks
 
 ---
 

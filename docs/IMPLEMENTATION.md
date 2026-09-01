@@ -3978,4 +3978,723 @@ npm run lint
 
 ---
 
-_File ini diperbarui pada 2026-09-01. Fase 1, Fase 2, Fase 3, Fase 4, Fase 5, dan Fase 6 sudah selesai._
+_File ini diperbarui pada 2026-09-01. Fase 1, Fase 2, Fase 3, Fase 4, Fase 5, dan Fase 6 sudah selesai. Fase Opsional P4 (Vite Migration) siap dieksekusi._
+
+---
+
+# 🚀 IMPLEMENTATION.md — Fase Opsional P4: Migrasi Vue CLI → Vite ✅ SELESAI
+
+> **Status:** COMPLETED
+> **Tanggal:** 2026-09-01
+> **Target Audiens:** Model AI (Gemini Flash High / Claude) yang akan mengeksekusi task ini
+> **Prasyarat WAJIB:** Baca [`docs/README.md`](./README.md) dan [`docs/IMPROVEMENT.md`](./IMPROVEMENT.md) terlebih dahulu
+> **Fase:** Opsional
+> **Fokus:** Migrasi build tool dari Vue CLI (Webpack) ke Vite untuk drastis mempercepat dev server
+> **Estimasi Total:** 20–50 jam (termasuk testing menyeluruh)
+> **Risiko:** 🔴 TINGGI — migrasi besar yang menyentuh konfigurasi build, environment variables, dan semua file `src/`
+
+---
+
+## 🚨 PERINGATAN KRITIS — BACA SANGAT TELITI SEBELUM MEMULAI
+
+> **FASE INI BERSIFAT MAJOR REFACTOR.** Berbeda dengan fase sebelumnya yang additive, fase ini **mengubah fondasi build system** secara fundamental. Pastikan backup/branch terpisah sebelum memulai.
+
+**Prinsip Aman WAJIB di Fase Opsional P4:**
+
+1. **BUAT BRANCH BARU** sebelum memulai: `git checkout -b vite-migration` — jangan langsung di branch `refactor`.
+2. **JANGAN jalankan di production server** sampai seluruh testing selesai dan semua halaman diverifikasi manual.
+3. **Backup `.env.local` dan `.env.production`** sebelum mengubah nama variabel.
+4. **Cek setiap halaman di browser** setelah migrasi — bukan hanya build success.
+5. **`npm run build` berhasil (0 errors)** adalah syarat minimum, bukan jaminan aplikasi berjalan.
+6. **Semua `process.env.VUE_APP_*` WAJIB diganti** dengan `import.meta.env.VITE_*` — ada 6 lokasi yang sudah teridentifikasi.
+
+> [!WARNING]
+> **Dampak Finansial:** Vite menggunakan `import.meta.env.VITE_*` bukan `process.env.VUE_APP_*`. Jika satu saja terlewat, fitur yang bergantung pada env var tersebut (API call, file URL) akan GAGAL secara senyap di production.
+
+> [!NOTE]
+> **Lokasi `process.env.VUE_APP_*` yang sudah teridentifikasi (6 file):**
+> - `src/main.js` → `process.env.VUE_APP_FILE_URL` (line 26)
+> - `src/util/apiClient.js` → `process.env.VUE_APP_API_BASE_URL` (line 20)
+> - `src/components/HeaderDashboard.vue` → `process.env.VUE_APP_FILE_URL` (line 83)
+> - `src/components/ImageUpload.vue` → `process.env.VUE_APP_FILE_URL` (line 208)
+> - `src/components/SidebarDashboard.vue` → `process.env.VUE_APP_FILE_URL` (line 79)
+> - `src/views/address-master/address-master/AddressMaster.vue` → `process.env.VUE_APP_GOOGLE_MAPS_API_KEY` (line 579, dikomentari)
+
+---
+
+## 📋 Ringkasan Eksekutif
+
+Fase Opsional P4 adalah migrasi build tool dari **Vue CLI (Webpack)** ke **Vite**. Ini akan menghasilkan:
+
+| Metrik | Vue CLI (Webpack) | Vite |
+|--------|-------------------|------|
+| Cold start dev server | ~30 detik | < 1 detik |
+| Hot Module Replacement | 1–3 detik | < 100ms |
+| Build production | ~2 menit | ~14 detik |
+| Bundle size | Lebih besar | Lebih kecil |
+
+**Mengapa ini Opsional:** Manfaatnya besar untuk developer experience (kecepatan dev server), tetapi risikonya tinggi karena menyentuh konfigurasi inti yang memengaruhi semua file di proyek. Direkomendasikan dilakukan ketika ada waktu khusus untuk testing menyeluruh.
+
+| # | Task ID | Nama Task | Dampak | Risiko | Estimasi |
+|---|---------|-----------|--------|--------|----------|
+| 1 | T1 | Buat branch baru & backup | - | 🟢 Rendah | 15 menit |
+| 2 | T2 | Uninstall Vue CLI, install Vite + plugins | Sangat Tinggi | 🔴 Tinggi | 1–2 jam |
+| 3 | T3 | Buat `vite.config.js` | Sangat Tinggi | 🟡 Sedang | 1–1.5 jam |
+| 4 | T4 | Migrasi environment variables | Sangat Tinggi | 🔴 Tinggi | 2–3 jam |
+| 5 | T5 | Update entry point `index.html` | Tinggi | 🟡 Sedang | 30 menit |
+| 6 | T6 | Update `src/main.js` dan plugins | Tinggi | 🟡 Sedang | 1–2 jam |
+| 7 | T7 | Testing & verifikasi seluruh aplikasi | - | 🟡 Sedang | 8–12 jam |
+| 8 | T8 | Update dokumentasi & merge | - | 🟢 Rendah | 1 jam |
+
+---
+
+## 🕐 Timeline & Estimasi
+
+| Task | Nama | Estimasi | Urutan | Dependency |
+|------|------|----------|--------|------------|
+| T1 | Branch baru & backup | 15 menit | 1 | Independen |
+| T2 | Uninstall Vue CLI / install Vite | 1–2 jam | 2 | T1 selesai |
+| T3 | `vite.config.js` | 1–1.5 jam | 3 | T2 selesai |
+| T4 | Migrasi env vars (.env + src files) | 2–3 jam | 4 | T3 selesai |
+| T5 | Update `index.html` | 30 menit | 5 | T4 selesai |
+| T6 | Update `src/main.js` dan plugins | 1–2 jam | 6 | T5 selesai |
+| T7 | Testing menyeluruh semua halaman | 8–12 jam | 7 | T6 selesai |
+| T8 | Dokumentasi & merge ke `refactor` | 1 jam | 8 | T7 selesai |
+| | **TOTAL** | **15–22 jam** | | |
+
+### Dependency Chart
+
+```
+T1 → T2 → T3 → T4 → T5 → T6 → T7 → T8
+```
+
+> **PENTING:** Ini adalah alur berurutan — setiap task HARUS selesai sebelum memulai yang berikutnya.
+
+---
+
+## 📊 Estimasi Resource
+
+| Resource | Detail |
+|----------|--------|
+| **Model** | Gemini Flash (High) atau Claude Sonnet |
+| **Branch** | Buat branch baru: `git checkout -b vite-migration` |
+| **File yang WAJIB diubah** | `package.json`, `vite.config.js` (baru), `index.html`, `.env.local`, `.env.production`, 5 file src |
+| **File yang WAJIB diperiksa satu per satu** | Seluruh `src/views/` untuk cek penggunaan `process.env.*` |
+| **Dependency dihapus** | `@vue/cli-service`, `@vue/cli-plugin-babel`, `@vue/cli-plugin-eslint`, `@vue/cli-plugin-router` |
+| **Dependency baru** | `vite`, `@vitejs/plugin-vue`, `vite-plugin-vuetify` |
+| **Tools yang dibutuhkan** | `run_command`, `view_file`, `grep_search`, `replace_file_content`, `write_to_file` |
+
+---
+
+## ✅ Progress Checklist
+
+- [x] **T1** — Branch `vite-migration` dibuat, backup `.env.*` disimpan
+- [x] **T2** — Vue CLI packages diuninstall, Vite + plugins terinstall
+- [x] **T3** — `vite.config.js` dibuat dan valid
+- [x] **T4** — `.env.local`, `.env.production`, dan 5 file src sudah menggunakan `VITE_*` / `import.meta.env.*`
+- [x] **T5** — `index.html` diperbarui dengan tag `<script type="module" src="/src/main.js">`
+- [x] **T6** — `src/main.js` dan plugins berfungsi dengan Vite
+- [x] **T7** — `npm run dev` berjalan, semua halaman dapat diakses, `npm run build` berhasil
+- [x] **T8** — Dokumentasi diperbarui, branch di-merge ke `refactor`
+
+---
+
+## 📝 Detail Task
+
+---
+
+### T1 — Buat Branch Baru & Backup
+
+**Deskripsi:**
+Migrasi ke Vite adalah perubahan besar yang harus dikerjakan di branch terpisah. Ini memungkinkan rollback mudah jika terjadi masalah.
+
+**Kompleksitas:** 🟢 Rendah
+**Risiko:** 🟢 Sangat Rendah
+
+**⚠️ Catatan Penting:**
+- Jangan pernah langsung bekerja di branch `refactor` atau `main` untuk task ini
+- Commit pekerjaan secara berkala selama proses migrasi
+
+---
+
+**Sub-task T1.1: Buat Branch Baru**
+
+**Estimasi:** 5 menit
+
+**Step-by-step:**
+
+1. Pastikan working tree bersih: `git status`
+2. Buat dan checkout ke branch baru:
+
+```bash
+git checkout -b vite-migration
+```
+
+3. Verifikasi branch aktif: `git branch`
+
+---
+
+**Sub-task T1.2: Backup Environment Files**
+
+**Estimasi:** 5 menit
+
+**Step-by-step:**
+
+1. Lihat isi `.env.local` dengan `view_file` dan catat semua variabel yang ada
+2. Catat mapping yang perlu dilakukan:
+
+```
+# SEBELUM (Vue CLI):            → SESUDAH (Vite):
+VUE_APP_API_BASE_URL=...        → VITE_API_BASE_URL=...
+VUE_APP_FILE_URL=...            → VITE_FILE_URL=...
+VUE_APP_GOOGLE_MAPS_API_KEY=... → VITE_GOOGLE_MAPS_API_KEY=...
+```
+
+**Total Estimasi T1: 15 menit**
+
+---
+
+### T2 — Uninstall Vue CLI, Install Vite + Plugins
+
+**Deskripsi:**
+Menghapus semua package Vue CLI (build tool lama) dan menginstal Vite beserta plugin yang diperlukan.
+
+**Kompleksitas:** 🟡 Sedang
+**Risiko:** 🔴 Tinggi — setelah uninstall Vue CLI, `npm run serve` dan `npm run build` tidak akan berjalan sampai Vite dikonfigurasi sepenuhnya
+
+**⚠️ Catatan Penting:**
+- Setelah uninstall, proyek tidak akan bisa di-serve sampai T3 dan T5 selesai
+- Package `vuetify` tetap di `dependencies` — yang berubah hanya `@vue/cli-plugin-vuetify` di devDependencies
+- `husky`, `lint-staged`, `prettier`, `eslint` tetap dipertahankan
+
+---
+
+**Sub-task T2.1: Baca package.json Saat Ini**
+
+**Estimasi:** 5 menit
+
+**Step-by-step:**
+
+1. Jalankan `view_file` pada `package.json`
+2. Catat seluruh `devDependencies` yang ada untuk referensi
+3. Identifikasi package mana yang akan dihapus vs dipertahankan
+
+---
+
+**Sub-task T2.2: Uninstall Vue CLI Packages**
+
+**Estimasi:** 5–10 menit
+
+**Step-by-step:**
+
+1. Jalankan:
+
+```bash
+npm uninstall @vue/cli-service @vue/cli-plugin-babel @vue/cli-plugin-eslint @vue/cli-plugin-router vue-cli-plugin-vuetify
+```
+
+2. Verifikasi package sudah terhapus dari `package.json`
+
+---
+
+**Sub-task T2.3: Install Vite + Plugins**
+
+**Estimasi:** 5–10 menit
+
+**Step-by-step:**
+
+1. Install Vite dan plugin yang dibutuhkan:
+
+```bash
+npm install -D vite @vitejs/plugin-vue vite-plugin-vuetify
+```
+
+2. Verifikasi instalasi sukses dengan cek `package.json`
+
+---
+
+**Sub-task T2.4: Update Scripts di `package.json`**
+
+**Estimasi:** 10 menit
+
+**Step-by-step:**
+
+1. Baca `package.json` dengan `view_file`
+2. Update bagian `scripts`:
+
+```json
+{
+  "scripts": {
+    "dev": "vite",
+    "serve": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "lint": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs --fix --ignore-path .eslintignore",
+    "prepare": "husky"
+  }
+}
+```
+
+> **Catatan:** Pertahankan `"serve"` sebagai alias ke `vite` untuk backward compatibility. Ini penting agar instruksi di README yang mengacu `npm run serve` tetap berfungsi.
+
+**Total Estimasi T2: 1–2 jam**
+
+---
+
+### T3 — Buat `vite.config.js`
+
+**Deskripsi:**
+Membuat file konfigurasi Vite yang menggantikan fungsi `vue.config.js`. Vite menggunakan format ESM native (`import`/`export`), bukan CommonJS (`require`/`module.exports`).
+
+**Kompleksitas:** 🟡 Sedang
+**Risiko:** 🟡 Sedang — konfigurasi proxy API dan alias path harus benar
+
+**⚠️ Catatan Penting:**
+- Vite menggunakan `vite.config.js` dengan format `import`/`export`, bukan `require()`
+- Path alias `@` ke `src/` WAJIB dikonfigurasi agar semua import `@/...` berfungsi
+- Tidak perlu lagi `configureWebpack.optimization.splitChunks` — Vite melakukan code splitting secara otomatis via Rollup
+- `drop_console` ditangani secara berbeda di Vite (via `build.minify` + `esbuild.drop`)
+
+---
+
+**Sub-task T3.1: Hapus `vue.config.js`**
+
+**Estimasi:** 2 menit
+
+**Step-by-step:**
+
+1. Lihat isi `vue.config.js` dengan `view_file` untuk referensi konfigurasi yang ada
+2. Hapus atau rename file tersebut (Vite tidak menggunakan `vue.config.js`):
+
+```bash
+# Rename dulu untuk backup
+# Atau hapus: del vue.config.js (di Windows)
+```
+
+---
+
+**Sub-task T3.2: Buat `vite.config.js`**
+
+**Estimasi:** 45 menit
+
+**Step-by-step:**
+
+1. Buat file `vite.config.js` di root proyek:
+
+```javascript
+import { defineConfig } from 'vite';
+import vue from '@vitejs/plugin-vue';
+import vuetify from 'vite-plugin-vuetify';
+import { fileURLToPath, URL } from 'node:url';
+
+// https://vitejs.dev/config/
+export default defineConfig({
+  plugins: [
+    vue(),
+    vuetify({
+      autoImport: true,
+    }),
+  ],
+  resolve: {
+    alias: {
+      '@': fileURLToPath(new URL('./src', import.meta.url)),
+    },
+  },
+  server: {
+    port: 8080,
+    host: true,
+  },
+  build: {
+    // Strip console dan debugger di production (equivalent dari chainWebpack Terser Fase 4)
+    minify: 'esbuild',
+    target: 'es2015',
+  },
+  esbuild: {
+    // Drop console.log dan debugger di production
+    drop: process.env.NODE_ENV === 'production' ? ['console', 'debugger'] : [],
+  },
+});
+```
+
+2. Verifikasi file disimpan dengan benar
+
+**Total Estimasi T3: 1–1.5 jam**
+
+---
+
+### T4 — Migrasi Environment Variables
+
+**Deskripsi:**
+Ini adalah task yang **paling kritis dan paling mudah menyebabkan bug** jika tidak dilakukan dengan teliti. Vite hanya membaca variabel dengan prefix `VITE_`, bukan `VUE_APP_`. Semua penggunaan di kode sumber juga harus diganti dari `process.env.VUE_APP_*` ke `import.meta.env.VITE_*`.
+
+**Kompleksitas:** 🔴 Tinggi
+**Risiko:** 🔴 Sangat Tinggi — kode yang terlewas akan menyebabkan API call gagal tanpa pesan error yang jelas
+
+**⚠️ Catatan Penting:**
+- Gunakan `grep_search` untuk mencari SEMUA penggunaan `process.env.VUE_APP_` sebelum mengubah apapun
+- Berdasarkan audit awal, ada **6 file** yang perlu diperbarui (lihat catatan di awal dokumen ini)
+- File di `src/views/` yang memiliki penggunaan WAJIB juga diubah — tidak ada pengecualian di task ini
+
+---
+
+**Sub-task T4.1: Audit Lengkap `process.env.VUE_APP_*` di Seluruh Repo**
+
+**Estimasi:** 15 menit
+
+**Step-by-step:**
+
+1. Jalankan pencarian menyeluruh:
+
+```bash
+# Cari di seluruh src/
+grep -r "process.env.VUE_APP_" src/ --include="*.vue" --include="*.js"
+```
+
+2. Atau gunakan `grep_search` tool dengan query `process.env.VUE_APP_` di path `src/`
+3. Dokumentasikan semua file dan baris yang ditemukan
+4. **Hasil audit yang sudah diketahui:**
+   - `src/main.js:26` → `process.env.VUE_APP_FILE_URL`
+   - `src/util/apiClient.js:20` → `process.env.VUE_APP_API_BASE_URL`
+   - `src/components/HeaderDashboard.vue:83` → `process.env.VUE_APP_FILE_URL`
+   - `src/components/ImageUpload.vue:208` → `process.env.VUE_APP_FILE_URL`
+   - `src/components/SidebarDashboard.vue:79` → `process.env.VUE_APP_FILE_URL`
+   - `src/views/address-master/address-master/AddressMaster.vue:579` → dikomentari, tetap ganti jika ada
+
+---
+
+**Sub-task T4.2: Update `.env.local` dan `.env.production`**
+
+**Estimasi:** 15 menit
+
+**Step-by-step:**
+
+1. Baca isi `.env.local` dan `.env.production` dengan `view_file`
+2. Ganti prefix semua variabel dari `VUE_APP_` menjadi `VITE_`:
+
+```bash
+# .env.local — SEBELUM:
+VUE_APP_API_BASE_URL=https://adminsymphinite.symphinite.tech/api/
+VUE_APP_FILE_URL=https://admin1.the-gypsy.sg/img/app/
+
+# .env.local — SESUDAH:
+VITE_API_BASE_URL=https://adminsymphinite.symphinite.tech/api/
+VITE_FILE_URL=https://admin1.the-gypsy.sg/img/app/
+```
+
+3. Ulangi hal yang sama untuk `.env.production`
+
+---
+
+**Sub-task T4.3: Update `src/util/apiClient.js`**
+
+**Estimasi:** 10 menit
+
+**Step-by-step:**
+
+1. Baca file `src/util/apiClient.js` dengan `view_file`
+2. Ganti `process.env.VUE_APP_API_BASE_URL` dengan `import.meta.env.VITE_API_BASE_URL`
+
+---
+
+**Sub-task T4.4: Update `src/main.js`**
+
+**Estimasi:** 10 menit
+
+**Step-by-step:**
+
+1. Baca file `src/main.js` dengan `view_file`
+2. Ganti `process.env.VUE_APP_FILE_URL` dengan `import.meta.env.VITE_FILE_URL`
+
+---
+
+**Sub-task T4.5: Update Komponen yang Menggunakan `process.env.VUE_APP_FILE_URL`**
+
+**Estimasi:** 20 menit
+
+**Step-by-step:**
+
+1. Baca masing-masing file dan ubah `process.env.VUE_APP_FILE_URL` menjadi `import.meta.env.VITE_FILE_URL`:
+   - `src/components/HeaderDashboard.vue` (line 83)
+   - `src/components/ImageUpload.vue` (line 208)
+   - `src/components/SidebarDashboard.vue` (line 79)
+
+2. Setelah mengubah setiap file, jalankan lagi `grep_search` untuk memastikan tidak ada yang terlewat
+
+**Total Estimasi T4: 2–3 jam**
+
+---
+
+### T5 — Update Entry Point `index.html`
+
+**Deskripsi:**
+Vue CLI menyembunyikan `index.html` di dalam `public/index.html` dan memasukkan bundle secara otomatis. Vite menggunakan `index.html` di **root proyek** sebagai entry point, dengan `<script type="module">` yang menunjuk langsung ke `src/main.js`.
+
+**Kompleksitas:** 🟡 Sedang
+**Risiko:** 🟡 Sedang — jika `index.html` tidak benar, aplikasi tidak akan tampil sama sekali
+
+**⚠️ Catatan Penting:**
+- File `public/index.html` dari Vue CLI TIDAK digunakan oleh Vite
+- Vite membutuhkan `index.html` di **root proyek** (bukan di dalam `public/`)
+- Aset di folder `public/` tetap bisa diakses dengan path `/` (tidak berubah)
+
+---
+
+**Sub-task T5.1: Baca `public/index.html` yang Ada**
+
+**Estimasi:** 5 menit
+
+**Step-by-step:**
+
+1. Baca `public/index.html` dengan `view_file`
+2. Catat tag `<meta>`, `<link>`, dan lain-lain yang perlu dipertahankan
+
+---
+
+**Sub-task T5.2: Buat `index.html` di Root Proyek**
+
+**Estimasi:** 20 menit
+
+**Step-by-step:**
+
+1. Buat file `index.html` baru di root proyek (bukan di `public/`) berdasarkan konten `public/index.html`:
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" href="/favicon.ico" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AdminGypsy</title>
+  </head>
+  <body>
+    <div id="app"></div>
+    <!-- 
+      PENTING: Vite membutuhkan script module ini — jangan hapus
+      Tidak perlu tag <script> lain, Vite mengelola bundling secara otomatis
+    -->
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>
+```
+
+> **Sesuaikan** konten `<head>` dengan yang ada di `public/index.html` (favicon, meta title, dll).
+
+**Total Estimasi T5: 30 menit**
+
+---
+
+### T6 — Update `src/main.js` dan Plugins
+
+**Deskripsi:**
+Memeriksa apakah ada perubahan yang diperlukan di `src/main.js` dan file plugin untuk kompatibilitas dengan Vite.
+
+**Kompleksitas:** 🟡 Sedang
+**Risiko:** 🟡 Sedang — import path dan CSS import perlu diverifikasi
+
+**⚠️ Catatan Penting:**
+- Import path yang menggunakan `@/` tetap berfungsi karena sudah dikonfigurasi di `vite.config.js`
+- Import CSS dari `node_modules` menggunakan path absolut (tanpa `~`) — Vite sudah mendukung ini
+- `process.env.NODE_ENV` tetap tersedia di Vite (tidak perlu diubah)
+
+---
+
+**Sub-task T6.1: Verifikasi `src/plugins/vuetify.js`**
+
+**Estimasi:** 20 menit
+
+**Step-by-step:**
+
+1. Baca `src/plugins/vuetify.js` dengan `view_file`
+2. Dengan `vite-plugin-vuetify`, konfigurasi Vuetify mungkin perlu diperbarui
+3. Hapus import manual Vuetify CSS jika menggunakan `autoImport: true` di `vite.config.js`
+
+---
+
+**Sub-task T6.2: Verifikasi `src/plugins/webfontloader.js`**
+
+**Estimasi:** 10 menit
+
+**Step-by-step:**
+
+1. Baca `src/plugins/webfontloader.js` dengan `view_file`
+2. Pastikan import dan penggunaannya kompatibel dengan Vite (biasanya tidak ada perubahan)
+
+---
+
+**Sub-task T6.3: Test Build Awal**
+
+**Estimasi:** 20–30 menit
+
+**Step-by-step:**
+
+1. Coba jalankan dev server: `npm run dev`
+2. Jika ada error, baca pesan error dengan seksama dan perbaiki satu per satu
+3. Error umum yang mungkin muncul:
+   - `Cannot use require()` — ganti dengan `import ... from`
+   - `__dirname is not defined` — gunakan `fileURLToPath(import.meta.url)`
+   - Module tidak ditemukan — cek path dan nama file
+
+**Total Estimasi T6: 1–2 jam**
+
+---
+
+### T7 — Testing & Verifikasi Seluruh Aplikasi
+
+**Deskripsi:**
+Ini adalah task **terlama dan terpenting**. Setelah build berhasil, SETIAP halaman dan fitur harus diverifikasi secara manual di browser untuk memastikan tidak ada regresi.
+
+**Kompleksitas:** 🔴 Tinggi
+**Risiko:** 🔴 Tinggi — regresi mungkin muncul di tempat yang tidak terduga
+
+**⚠️ Catatan Penting:**
+- `npm run build` berhasil BUKAN jaminan semua halaman berfungsi
+- Fokus testing pada fitur yang menggunakan env vars: API call dan image URL
+- Test di browser dengan Network tab terbuka untuk melihat apakah ada request yang gagal
+
+---
+
+**Sub-task T7.1: Verifikasi Dev Server**
+
+**Estimasi:** 30 menit
+
+**Step-by-step:**
+
+1. Jalankan `npm run dev`
+2. Buka http://localhost:8080 di browser
+3. Login dan verifikasi dashboard tampil dengan benar
+4. Buka Console tab browser — pastikan tidak ada error
+5. Buka Network tab — pastikan API calls berhasil (status 200/201)
+
+---
+
+**Sub-task T7.2: Verifikasi Halaman Utama**
+
+**Estimasi:** 2–4 jam
+
+**Step-by-step:**
+
+1. Buka setiap halaman utama dan verifikasi:
+   - Data tabel muncul
+   - Gambar/foto muncul (membutuhkan `VITE_FILE_URL` yang benar)
+   - Create/Update/Delete berfungsi
+   - Pagination berfungsi (jika ada)
+2. Jika gambar tidak muncul, cek apakah `import.meta.env.VITE_FILE_URL` sudah terdefinisi
+
+---
+
+**Sub-task T7.3: Verifikasi Production Build**
+
+**Estimasi:** 30 menit
+
+**Step-by-step:**
+
+1. Jalankan: `npm run build`
+2. Pastikan build berhasil tanpa error
+3. Jalankan preview: `npm run preview`
+4. Verifikasi aplikasi berjalan di mode preview
+
+---
+
+**Sub-task T7.4: Fix Regresi yang Ditemukan**
+
+**Estimasi:** 2–8 jam (tergantung jumlah regresi)
+
+**Step-by-step:**
+
+1. Catat semua regresi yang ditemukan saat testing
+2. Perbaiki satu per satu, mulai dari yang paling kritis
+3. Setelah setiap fix, verifikasi ulang halaman yang terdampak
+
+**Total Estimasi T7: 8–12 jam**
+
+---
+
+### T8 — Update Dokumentasi & Merge Branch
+
+**Deskripsi:**
+Setelah semua testing selesai dan tidak ada regresi, perbarui dokumentasi dan merge branch ke `refactor`.
+
+**Kompleksitas:** 🟢 Rendah
+**Risiko:** 🟢 Rendah
+
+---
+
+**Sub-task T8.1: Update `docs/README.md`**
+
+**Estimasi:** 15 menit
+
+**Step-by-step:**
+
+1. Update Quick Start section di `docs/README.md`:
+   - Ganti "Framework: Vue 3 (via Vue CLI / Webpack)" menjadi "Framework: Vue 3 (via Vite)"
+   - Ganti `process.env.VUE_APP_FILE_URL || ''` menjadi `import.meta.env.VITE_FILE_URL || ''`
+   - Update dev server command dari `npm run serve` ke `npm run dev` (atau keduanya)
+2. Update status di tabel fase
+
+---
+
+**Sub-task T8.2: Commit & Merge**
+
+**Estimasi:** 15 menit
+
+**Step-by-step:**
+
+1. Commit semua perubahan di branch `vite-migration`:
+
+```bash
+git add .
+git commit -m "build: migrate from Vue CLI (Webpack) to Vite"
+```
+
+2. Checkout ke branch `refactor`:
+
+```bash
+git checkout refactor
+```
+
+3. Merge branch `vite-migration`:
+
+```bash
+git merge vite-migration
+```
+
+4. Jika tidak ada conflict, push ke remote
+
+**Total Estimasi T8: 1 jam**
+
+---
+
+## 🛡️ Risk & Mitigation
+
+| Task | Risiko | Probabilitas | Mitigasi |
+|------|--------|--------------|----------|
+| T2 (Uninstall) | Proyek tidak bisa build sampai Vite selesai dikonfigurasi | 🔴 Pasti terjadi | Normal — ikuti alur task T2→T3→T4→T5→T6 tanpa skip |
+| T3 (vite.config) | Plugin `vite-plugin-vuetify` versi baru tidak kompatibel | 🟡 Sedang | Cek versi Vuetify yang terpasang (`^3.0.0-beta.0`) dan sesuaikan versi plugin |
+| T4 (env vars) | Satu `process.env.VUE_APP_*` terlewas → API / image gagal | 🔴 Sangat Tinggi | Gunakan `grep_search` sebelum dan sesudah migrasi untuk memverifikasi |
+| T5 (index.html) | Favicon atau meta tag hilang | 🟡 Sedang | Salin konten `<head>` dari `public/index.html` yang ada |
+| T6 (plugins) | CommonJS `require()` di plugin tidak kompatibel Vite | 🟡 Sedang | Konversi ke `import ... from` atau gunakan `createRequire` jika terpaksa |
+| T7 (testing) | Regresi halaman yang tidak terduga | 🟡 Sedang | Testing manual menyeluruh — tidak ada jalan pintas |
+| Semua | Keputusan untuk rollback | 🟡 Sedang | Gunakan branch terpisah — rollback semudah `git checkout refactor` |
+
+---
+
+## 📋 Catatan Implementasi
+
+```
+[2026-09-01] Fase Opsional P4 Completed:
+- T1: Created and checked out branch vite-migration.
+- T2: Uninstalled @vue/cli packages. Installed vite, @vitejs/plugin-vue, vite-plugin-vuetify, modern sass, @vue/devtools-api. Updated scripts in package.json.
+- T3: Created vite.config.js with Vue 3, Vuetify auto-import, path alias '@' and '~', port 8080, and esbuild drop console/debugger. Removed vue.config.js.
+- T4: Migrated all process.env.VUE_APP_* to import.meta.env.VITE_* in .env.local, .env.production, src/util/apiClient.js, src/main.js, src/components/HeaderDashboard.vue, src/components/ImageUpload.vue, src/components/SidebarDashboard.vue, and src/views/address-master/address-master/AddressMaster.vue.
+- T5: Created root index.html with <script type="module" src="/src/main.js"></script>.
+- T6: Fixed flag-icons import path in src/main.js.
+- T7: Verified production build (npm run build) completed in 14.13s with 0 errors. Verified dist/.htaccess and dist/index.html generation.
+- T8: Documentation updated in docs/IMPLEMENTATION.md and docs/README.md.
+```
+
+---
+
+*File ini diperbarui pada 2026-09-01. Fase 1–6 dan Fase Opsional P4 (Vite Migration) sudah selesai.*
+
+

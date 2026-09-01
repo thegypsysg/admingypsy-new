@@ -76,7 +76,7 @@ const props = defineProps({
 
 const router = useRouter();
 const navStore = useNavigationStore();
-const fileURL = process.env.VUE_APP_FILE_URL || '';
+const fileURL = import.meta.env.VITE_FILE_URL || '';
 
 const rail = ref(false);
 const image = ref('');
