@@ -2856,6 +2856,626 @@ Tandai semua item checklist di bagian `✅ Progress Checklist` sebagai `[x]` set
 
 ---
 
-*File ini diperbarui pada 2026-09-01. Fase 1, Fase 2, Fase 3, dan Fase 4 sudah selesai.*
+*File ini diperbarui pada 2026-09-01. Fase 1, Fase 2, Fase 3, dan Fase 4 sudah selesai. Fase 5 siap dieksekusi.*
+
+---
+
+# ⚡ IMPLEMENTATION.md — Fase 5: Performance Optimization ✅ SELESAI
+
+> **Status:** COMPLETED
+> **Tanggal:** 2026-09-01
+> **Target Audiens:** Model AI (Gemini Flash High / Claude) yang akan mengeksekusi task ini
+> **Prasyarat WAJIB:** Baca [`docs/README.md`](./README.md) dan [`docs/IMPROVEMENT.md`](./IMPROVEMENT.md) terlebih dahulu
+> **Fase:** 5 dari N
+> **Fokus:** Meningkatkan performa load halaman dan interaktivitas UI — tanpa menyentuh file di `src/views/`
+> **Estimasi Total:** 10–14 jam
+
+---
+
+## ⚠️ PERINGATAN KRITIS — BACA SEBELUM MEMULAI
+
+> Fase ini dirancang sepenuhnya **ADDITIVE** — semua perubahan berupa penambahan file baru atau modifikasi minimal di file infrastruktur (`vue.config.js`, `src/main.js`).
+
+**Prinsip Aman WAJIB di Fase 5:**
+
+1. **JANGAN ubah file di `src/views/`** — tanpa pengecualian apapun.
+2. **Jangan hapus atau ubah composable yang sudah ada** (`useApi.js`, `useDebounce.js`, `usePagination.js`, `useApiWithCache.js`).
+3. **Verifikasi `npm run build` berhasil (0 errors)** setelah setiap task diselesaikan.
+4. **Baca file target secara lengkap** sebelum mengedit menggunakan `view_file`.
+5. **Jangan install dependency baru** tanpa memverifikasi bahwa tidak ada paket yang sudah tersedia secara built-in di Vuetify 3.
+6. **Skeleton loader** menggunakan `v-skeleton-loader` dari Vuetify 3 — sudah tersedia, tidak perlu install apa-apa.
+
+---
+
+## 📋 Ringkasan Eksekutif
+
+Fase 5 berfokus pada tiga pilar peningkatan performa:
+
+1. **Skeleton Screen Loading** — Menggantikan spinner loading polos dengan skeleton loader yang informatif dan premium secara visual.
+2. **Chunk Splitting Optimization** — Mengoptimasi cara Webpack memecah bundle agar halaman awal lebih cepat di-load.
+3. **Image Lazy Loading** — Menambahkan lazy loading pada komponen `v-img` di seluruh tabel untuk mengurangi beban network awal.
+
+Semua perubahan bersifat **additive** dan **tidak memaksa view yang sudah ada untuk berubah**. Komponen dan composable baru dapat digunakan secara opsional oleh view yang ingin memanfaatkannya.
+
+| # | Task ID | Nama Task | Dampak | Risiko | Estimasi |
+|---|---------|-----------|--------|--------|----------|
+| 1 | T1 | Webpack chunk splitting optimization | Tinggi | 🟢 Rendah | 1–1.5 jam |
+| 2 | T2 | Composable `useSkeletonLoader.js` | Tinggi | 🟢 Rendah | 1 jam |
+| 3 | T3 | Komponen `SkeletonTable.vue` reusable | Tinggi | 🟢 Rendah | 2–3 jam |
+| 4 | T4 | Composable `useImageLazy.js` (image lazy loading helper) | Sedang | 🟢 Rendah | 1 jam |
+| 5 | T5 | Integrasi dan verifikasi akhir | - | 🟢 Rendah | 1–2 jam |
+
+**Yang TIDAK dilakukan di Fase 5:**
+- Tidak mengubah file di `src/views/` — semua komponen baru bersifat opsional
+- Tidak migrasi ke Vite
+- Tidak rename direktori views
+- Tidak mengubah logika API call yang sudah ada
+
+---
+
+## 🕐 Timeline & Estimasi
+
+| Task | Nama | Estimasi | Urutan | Dependency |
+|------|------|----------|--------|------------|
+| T1 | Webpack chunk splitting | 1–1.5 jam | 1 | Independen |
+| T2 | `useSkeletonLoader.js` composable | 1 jam | 2 | Independen |
+| T3 | `SkeletonTable.vue` component | 2–3 jam | 3 | T2 selesai |
+| T4 | `useImageLazy.js` composable | 1 jam | 4 | Independen |
+| T5 | Verifikasi akhir | 1–2 jam | 5 | T1–T4 selesai |
+| | **TOTAL** | **6–9.5 jam** | | |
+
+### Dependency Chart
+
+```
+T1 (chunk splitting) ─────────────────── T5 (verifikasi)
+T2 (useSkeletonLoader) ──→ T3 (SkeletonTable) ─ T5
+T4 (useImageLazy) ────────────────────── T5
+```
+
+---
+
+## 📊 Estimasi Resource
+
+| Resource | Detail |
+|----------|--------|
+| **Model** | Gemini Flash (High) atau Claude Sonnet |
+| **File yang boleh dibuat/diubah** | `vue.config.js`, `src/composables/*.js` (baru), `src/components/SkeletonTable.vue` (baru) |
+| **File yang TIDAK BOLEH diubah** | Semua file di `src/views/` — **tanpa pengecualian** |
+| **File yang SUDAH ADA — baca dulu sebelum edit** | `vue.config.js` |
+| **Dependency baru** | Tidak ada — `v-skeleton-loader` sudah tersedia via Vuetify 3 |
+| **Tools yang dibutuhkan** | `run_command`, `view_file`, `replace_file_content`, `write_to_file`, `grep_search` |
+
+---
+
+## ✅ Progress Checklist
+
+- [x] **T1** — Webpack chunk splitting dikonfigurasi di `vue.config.js`
+- [x] **T2** — `src/composables/useSkeletonLoader.js` dibuat
+- [x] **T3** — `src/components/SkeletonTable.vue` dibuat
+- [x] **T4** — `src/composables/useImageLazy.js` dibuat
+- [x] **T5** — `npm run build` berhasil 0 error, semua file baru terdaftar
+
+---
+
+## 📝 Detail Task
+
+---
+
+### T1 — Webpack Chunk Splitting Optimization
+
+**Deskripsi:**
+Mengoptimasi konfigurasi `splitChunks` Webpack di `vue.config.js` agar Vuetify dipisah ke chunk tersendiri (`chunk-vuetify`), sehingga browser bisa meng-cache library UI secara independen dari kode aplikasi yang berubah lebih sering. Ini mengurangi ukuran bundle yang harus di-download ulang saat deploy baru.
+
+**Kompleksitas:** 🟢 Rendah
+**Risiko:** 🟢 Rendah — hanya modifikasi config Webpack, tidak menyentuh kode Vue
+
+**⚠️ Catatan Penting:**
+- Baca isi `vue.config.js` terlebih dahulu dengan `view_file` sebelum mengedit
+- `chainWebpack` untuk terser (`drop_console`) sudah ada dari Fase 4 — jangan hapus, cukup tambahkan `configureWebpack`
+- Kedua key (`chainWebpack` dan `configureWebpack`) bisa koeksistensi dalam `defineConfig({...})`
+
+---
+
+**Sub-task T1.1: Baca dan Pahami `vue.config.js` yang Sudah Ada**
+
+**Estimasi:** 10 menit
+
+**Step-by-step:**
+1. Jalankan `view_file` pada `vue.config.js`
+2. Pastikan konfigurasi `chainWebpack` (dari Fase 4) masih ada
+3. Identifikasi posisi untuk menambahkan `configureWebpack`
+
+---
+
+**Sub-task T1.2: Tambahkan `configureWebpack` untuk Chunk Splitting**
+
+**Estimasi:** 30–45 menit
+
+**Step-by-step:**
+
+1. Tambahkan konfigurasi `configureWebpack` di dalam `defineConfig({...})` di `vue.config.js`, **setelah** konfigurasi `chainWebpack` yang sudah ada:
+
+```javascript
+// vue.config.js — tambahkan setelah chainWebpack
+configureWebpack: {
+  optimization: {
+    splitChunks: {
+      chunks: 'all',
+      maxInitialRequests: 10,
+      cacheGroups: {
+        // Pisahkan Vuetify ke chunk tersendiri
+        vuetify: {
+          name: 'chunk-vuetify',
+          test: /[\\/]node_modules[\\/]vuetify[\\/]/,
+          priority: 20,
+          reuseExistingChunk: true,
+        },
+        // Library node_modules lainnya
+        vendor: {
+          name: 'chunk-vendors',
+          test: /[\\/]node_modules[\\/]/,
+          priority: 10,
+          reuseExistingChunk: true,
+        },
+      },
+    },
+  },
+},
+```
+
+2. Jalankan `npm run build` dan verifikasi hasilnya berhasil
+3. Periksa apakah muncul output `chunk-vuetify.[hash].js` di list dist
+
+**Total Estimasi T1: 1–1.5 jam**
+
+---
+
+### T2 — Composable `useSkeletonLoader.js`
+
+**Deskripsi:**
+Membuat composable ringan yang mengelola state loading skeleton. Composable ini akan digunakan oleh `SkeletonTable.vue` (T3) dan dapat juga digunakan secara mandiri oleh view baru yang ingin menampilkan skeleton loader.
+
+**Kompleksitas:** 🟢 Rendah
+**Risiko:** 🟢 Sangat rendah — file baru, tidak ada dependency ke file yang sudah ada
+
+**⚠️ Catatan Penting:**
+- File ini bersifat additive — tidak mengubah composable yang sudah ada (`useApi.js`, `useDebounce.js`)
+- Tidak perlu install package apapun
+
+---
+
+**Sub-task T2.1: Buat `src/composables/useSkeletonLoader.js`**
+
+**Estimasi:** 30–45 menit
+
+**Step-by-step:**
+
+1. Cek isi `src/composables/` dengan `list_dir` untuk memverifikasi file yang sudah ada
+2. Buat file `src/composables/useSkeletonLoader.js`:
+
+```javascript
+// src/composables/useSkeletonLoader.js
+/**
+ * Composable untuk mengelola state skeleton loading.
+ *
+ * CARA PENGGUNAAN (opsional, di view baru atau komponen baru):
+ *
+ * import { useSkeletonLoader } from '@/composables/useSkeletonLoader';
+ *
+ * // Di dalam setup() atau <script setup>:
+ * const { isLoading, skeletonCount, startLoading, stopLoading } = useSkeletonLoader(5);
+ *
+ * // Saat fetch data dimulai:
+ * startLoading();
+ *
+ * // Saat fetch selesai:
+ * stopLoading();
+ */
+import { ref } from 'vue';
+
+export function useSkeletonLoader(count = 5) {
+  const isLoading = ref(false);
+  const skeletonCount = ref(count);
+
+  // Array dummy untuk di-iterate oleh v-for skeleton
+  const skeletonItems = Array.from({ length: count }, (_, i) => ({ id: i }));
+
+  const startLoading = () => {
+    isLoading.value = true;
+  };
+
+  const stopLoading = () => {
+    isLoading.value = false;
+  };
+
+  /**
+   * Wrapper untuk async function yang otomatis mengatur state loading.
+   * @param {Function} asyncFn - Async function yang akan dijalankan
+   */
+  const withLoading = async (asyncFn) => {
+    startLoading();
+    try {
+      return await asyncFn();
+    } finally {
+      stopLoading();
+    }
+  };
+
+  return {
+    isLoading,
+    skeletonCount,
+    skeletonItems,
+    startLoading,
+    stopLoading,
+    withLoading,
+  };
+}
+```
+
+3. Verifikasi file berhasil dibuat
+
+**Total Estimasi T2: 30–45 menit**
+
+---
+
+### T3 — Komponen `SkeletonTable.vue`
+
+**Deskripsi:**
+Membuat komponen skeleton yang menampilkan placeholder baris tabel saat data sedang dimuat. Menggunakan `v-skeleton-loader` dari Vuetify 3 (sudah built-in, tidak perlu install). Komponen ini bersifat additive — view lama tidak perlu berubah.
+
+**Kompleksitas:** 🟢 Rendah
+**Risiko:** 🟢 Rendah — file baru, menggunakan komponen Vuetify yang sudah tersedia
+
+**⚠️ Catatan Penting:**
+- `v-skeleton-loader` sudah tersedia di Vuetify 3 — tidak perlu install package tambahan
+- Komponen ini tidak diregistrasi secara global di `main.js` — cukup diimport secara lokal oleh view yang ingin menggunakannya
+- Biarkan view yang sudah ada tetap menggunakan `v-progress-circular` yang lama — jangan paksa berubah
+
+---
+
+**Sub-task T3.1: Buat `src/components/SkeletonTable.vue`**
+
+**Estimasi:** 1.5–2 jam
+
+**Step-by-step:**
+
+1. Buat file `src/components/SkeletonTable.vue`:
+
+```vue
+<!-- src/components/SkeletonTable.vue -->
+<!--
+  CARA PENGGUNAAN DI VIEW (opsional, tidak wajib):
+  
+  import SkeletonTable from '@/components/SkeletonTable.vue';
+  components: { SkeletonTable },
+  
+  Di template:
+  <skeleton-table v-if="isLoading" :rows="8" :columns="4" />
+  
+  <v-data-table
+    v-else
+    :items="items"
+    ...
+  />
+  
+  Dengan header columns kustom:
+  <skeleton-table
+    v-if="isLoading"
+    :rows="5"
+    :columns="['Name', 'Email', 'Status', 'Action']"
+  />
+-->
+<template>
+  <v-table>
+    <!-- Header Skeleton -->
+    <thead>
+      <tr>
+        <th
+          v-for="(col, index) in normalizedColumns"
+          :key="index"
+          class="text-left py-3"
+        >
+          <v-skeleton-loader
+            type="text"
+            width="80"
+            height="16"
+          />
+        </th>
+      </tr>
+    </thead>
+
+    <!-- Body Skeleton Rows -->
+    <tbody>
+      <tr v-for="row in rows" :key="row">
+        <td
+          v-for="(col, colIndex) in normalizedColumns"
+          :key="colIndex"
+          class="py-3"
+        >
+          <!-- Kolom pertama kadang berisi gambar thumbnail -->
+          <div v-if="colIndex === 0 && showThumbnail" class="d-flex align-center gap-3">
+            <v-skeleton-loader
+              type="avatar"
+              width="40"
+              height="40"
+              class="rounded"
+            />
+            <v-skeleton-loader
+              type="text"
+              :width="getRandomWidth(80, 140)"
+              height="14"
+            />
+          </div>
+          <!-- Kolom biasa -->
+          <v-skeleton-loader
+            v-else
+            type="text"
+            :width="getRandomWidth(60, 160)"
+            height="14"
+          />
+        </td>
+      </tr>
+    </tbody>
+  </v-table>
+</template>
+
+<script setup>
+import { computed } from 'vue';
+
+const props = defineProps({
+  /**
+   * Jumlah baris skeleton yang ditampilkan
+   */
+  rows: {
+    type: Number,
+    default: 5,
+  },
+  /**
+   * Jumlah kolom (Number) atau array nama kolom (String[])
+   */
+  columns: {
+    type: [Number, Array],
+    default: 4,
+  },
+  /**
+   * Tampilkan thumbnail avatar di kolom pertama
+   */
+  showThumbnail: {
+    type: Boolean,
+    default: false,
+  },
+});
+
+/**
+ * Normalisasi prop columns menjadi array
+ */
+const normalizedColumns = computed(() => {
+  if (Array.isArray(props.columns)) {
+    return props.columns;
+  }
+  return Array.from({ length: props.columns }, (_, i) => `col-${i}`);
+});
+
+/**
+ * Lebar acak untuk membuat skeleton terlihat lebih natural
+ */
+const getRandomWidth = (min, max) => {
+  return Math.floor(Math.random() * (max - min + 1)) + min;
+};
+</script>
+
+<style scoped>
+/* Pastikan skeleton tidak menyebabkan layout shift */
+.v-table {
+  table-layout: fixed;
+}
+</style>
+```
+
+2. Jalankan `npm run build` untuk memastikan tidak ada error
+
+**Total Estimasi T3: 1.5–2 jam**
+
+---
+
+### T4 — Composable `useImageLazy.js`
+
+**Deskripsi:**
+Membuat composable helper yang menyediakan utilitas untuk lazy loading gambar. Membantu view baru dalam mengimplementasikan gambar yang hanya dimuat saat berada di viewport, mengurangi konsumsi bandwidth awal.
+
+**Kompleksitas:** 🟢 Rendah
+**Risiko:** 🟢 Sangat rendah — file baru murni, tidak mengubah apapun yang sudah ada
+
+**⚠️ Catatan Penting:**
+- Composable ini **tidak mengubah** view yang sudah ada
+- Lazy loading juga bisa dilakukan cukup dengan menambahkan atribut `loading="lazy"` pada `<v-img>` secara langsung — composable ini hanya menyediakan placeholder/blur URL yang siap pakai
+- Gunakan `IntersectionObserver` natif — tidak perlu library tambahan
+
+---
+
+**Sub-task T4.1: Buat `src/composables/useImageLazy.js`**
+
+**Estimasi:** 30–45 menit
+
+**Step-by-step:**
+
+1. Buat file `src/composables/useImageLazy.js`:
+
+```javascript
+// src/composables/useImageLazy.js
+/**
+ * Composable helper untuk lazy loading gambar.
+ *
+ * CARA PENGGUNAAN (opsional, untuk view baru):
+ *
+ * import { useImageLazy } from '@/composables/useImageLazy';
+ *
+ * const { getImageProps, placeholderSrc } = useImageLazy();
+ *
+ * // Di template:
+ * <v-img
+ *   v-bind="getImageProps(fileURL + item.image)"
+ * />
+ *
+ * // Atau manual:
+ * <v-img
+ *   :src="fileURL + item.image"
+ *   :lazy-src="placeholderSrc"
+ *   loading="lazy"
+ * >
+ *   <template v-slot:placeholder>
+ *     <v-skeleton-loader type="image" />
+ *   </template>
+ * </v-img>
+ */
+import { computed } from 'vue';
+
+export function useImageLazy(options = {}) {
+  const {
+    // Ukuran gambar untuk thumbnail di tabel
+    thumbnailHeight = '50px',
+    thumbnailWidth = '50px',
+    // Placeholder SVG blur sederhana
+    useSvgPlaceholder = true,
+  } = options;
+
+  /**
+   * SVG placeholder berukuran 1x1 piksel sebagai lazy-src default.
+   * Browser menampilkan ini saat gambar asli belum dimuat.
+   */
+  const placeholderSrc = computed(() => {
+    if (useSvgPlaceholder) {
+      return (
+        'data:image/svg+xml,%3Csvg xmlns%3D%22http%3A//www.w3.org/2000/svg%22 width%3D%221%22 height%3D%221%22%3E%3C/svg%3E'
+      );
+    }
+    return '';
+  });
+
+  /**
+   * Mengembalikan props siap pakai untuk komponen v-img Vuetify
+   * dengan lazy loading yang sudah dikonfigurasi.
+   *
+   * @param {string} src - URL gambar asli
+   * @param {Object} extraProps - Props tambahan untuk v-img
+   */
+  const getImageProps = (src, extraProps = {}) => ({
+    src: src || placeholderSrc.value,
+    'lazy-src': placeholderSrc.value,
+    loading: 'lazy',
+    height: thumbnailHeight,
+    width: thumbnailWidth,
+    cover: true,
+    ...extraProps,
+  });
+
+  /**
+   * Cek apakah IntersectionObserver tersedia di browser
+   */
+  const isLazyLoadingSupported = typeof IntersectionObserver !== 'undefined';
+
+  return {
+    placeholderSrc,
+    getImageProps,
+    isLazyLoadingSupported,
+  };
+}
+```
+
+2. Verifikasi file berhasil dibuat
+
+**Total Estimasi T4: 30–45 menit**
+
+---
+
+### T5 — Integrasi & Verifikasi Akhir
+
+**Deskripsi:**
+Memverifikasi semua task T1–T4 sudah diimplementasi dengan benar, tidak ada error build, dan mendokumentasikan hasilnya.
+
+**Kompleksitas:** 🟢 Rendah
+**Risiko:** 🟢 Rendah
+
+---
+
+**Sub-task T5.1: Build Production Test**
+
+**Estimasi:** 15–30 menit
+
+**Step-by-step:**
+
+1. Jalankan `npm run build`
+2. Pastikan output menunjukkan `DONE Build complete` dengan 0 errors
+3. Periksa apakah muncul file `chunk-vuetify.[hash].js` di `dist/js/` — ini bukti chunk splitting bekerja
+4. Catat perbandingan ukuran `chunk-vendors.js` sebelum vs sesudah jika memungkinkan
+
+---
+
+**Sub-task T5.2: Verifikasi Struktur File**
+
+**Estimasi:** 10 menit
+
+Pastikan semua file berikut ada:
+
+```
+src/
+├── components/
+│   ├── ConfirmDialog.vue       ← dari Fase 4
+│   ├── EmptyState.vue          ← dari Fase 4
+│   ├── GlobalNotification.vue  ← dari Fase 4
+│   └── SkeletonTable.vue       ← T3 (BARU)
+├── composables/
+│   ├── useApi.js               ← dari Fase 3
+│   ├── useApiWithCache.js      ← dari Fase 4
+│   ├── useDebounce.js          ← dari Fase 3
+│   ├── useImageLazy.js         ← T4 (BARU)
+│   ├── usePagination.js        ← dari Fase 4
+│   └── useSkeletonLoader.js    ← T2 (BARU)
+└── stores/
+    ├── navigation.js           ← dari Fase 2
+    └── notification.js         ← dari Fase 4
+```
+
+---
+
+**Sub-task T5.3: Update Checklist di IMPLEMENTATION.md**
+
+**Estimasi:** 10 menit
+
+Tandai semua item checklist di bagian `✅ Progress Checklist` sebagai `[x]` setelah semua task selesai.
+
+**Total Estimasi T5: 30–45 menit**
+
+---
+
+## 🛡️ Risk & Mitigation
+
+| Task | Risiko | Probabilitas | Mitigasi |
+|------|--------|--------------|----------|
+| T1 (Chunk Splitting) | Conflict antara `chainWebpack` dan `configureWebpack` | 🟡 Sedang | Keduanya bisa koeksistensi dalam `defineConfig`. Baca `vue.config.js` dulu, pastikan tidak menimpa konfigurasi yang ada. |
+| T1 (Chunk Splitting) | Chunk baru menyebabkan 404 jika path tidak sesuai di cPanel | 🟡 Sedang | Vue CLI otomatis mengelola `publicPath` di bundle. Tidak perlu konfigurasi khusus cPanel. |
+| T3 (SkeletonTable) | `v-skeleton-loader` belum tersedia di versi Vuetify yang digunakan | 🟡 Sedang | Cek versi Vuetify: `node -e "console.log(require('./node_modules/vuetify/package.json').version)"`. Jika Vuetify < 3.0, ganti dengan `v-progress-linear` saja. |
+| T3 (SkeletonTable) | `getRandomWidth()` dipanggil saat server-side rendering atau hydration | 🟢 Rendah | Proyek ini adalah pure SPA tanpa SSR — tidak ada risiko. |
+| T4 (useImageLazy) | Browser lama tidak mendukung `loading="lazy"` | 🟢 Rendah | Fallback otomatis ke loading normal — tidak ada visual error. |
+| Semua | Breaking change di view | 🟢 Rendah | Semua komponen/composable baru bersifat additive — tidak ada yang memaksa view berubah. |
+
+---
+
+## 📋 Catatan Implementasi
+
+```
+[2026-09-01] Fase 5 Completed:
+- T1: Added configureWebpack splitChunks in vue.config.js (chunk-vuetify and chunk-vendors)
+- T2: Created src/composables/useSkeletonLoader.js (reusable skeleton state composable)
+- T3: Created src/components/SkeletonTable.vue (reusable table skeleton with CSS shimmer animation)
+- T4: Created src/composables/useImageLazy.js (image lazy loading and placeholder helper composable)
+- T5: Verification build (npm run build) completed successfully with 0 errors, generated separate chunk-vuetify and chunk-vendors bundles
+```
+
+---
+
+*File ini diperbarui pada 2026-09-01. Fase 1, Fase 2, Fase 3, Fase 4, dan Fase 5 sudah selesai.*
+
+
 
 

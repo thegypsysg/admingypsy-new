@@ -15,6 +15,28 @@ module.exports = defineConfig({
       });
     }
   },
+  configureWebpack: {
+    optimization: {
+      splitChunks: {
+        chunks: 'all',
+        maxInitialRequests: 10,
+        cacheGroups: {
+          vuetify: {
+            name: 'chunk-vuetify',
+            test: /[\\/]node_modules[\\/]vuetify[\\/]/,
+            priority: 20,
+            reuseExistingChunk: true,
+          },
+          vendor: {
+            name: 'chunk-vendors',
+            test: /[\\/]node_modules[\\/]/,
+            priority: 10,
+            reuseExistingChunk: true,
+          },
+        },
+      },
+    },
+  },
   pluginOptions: {
     vuetify: {
       // https://github.com/vuetifyjs/vuetify-loader/tree/next/packages/vuetify-loader

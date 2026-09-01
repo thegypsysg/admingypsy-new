@@ -1,7 +1,7 @@
 # 📖 AdminGypsy — Agent Reference Guide (docs/README.md)
 
 > **Untuk:** Model AI (Gemini / Claude) yang akan bekerja di proyek ini.
-> **Update terakhir:** 2026-09-01 (Fase 4 ditambahkan)
+> **Update terakhir:** 2026-09-01 (Fase 5 ditambahkan)
 
 ---
 
@@ -13,8 +13,10 @@
 | Fase 2 | Architecture Upgrade | ✅ SELESAI |
 | Fase 3 | Code Quality & Performance | ✅ SELESAI |
 | Fase 4 | UX & Security Polish | ✅ SELESAI |
+| Fase 5 | Performance Optimization | ✅ SELESAI |
 
-Semua fase perbaikan (Fase 1, 2, 3, dan 4) telah berhasil diimplementasikan dan diverifikasi via production build (0 error).
+Semua fase perbaikan (Fase 1, 2, 3, 4, dan 5) telah berhasil diimplementasikan dan diverifikasi via production build (0 error).
+
 
 
 ---
@@ -54,23 +56,29 @@ admingypsy-new/
 │   └── .htaccess           ← ✅ SPA routing + security headers (Fase 1)
 ├── src/
 │   ├── components/
-│   │   ├── AdminDashboard.vue    ← Layout utama (sudah pakai Pinia)
-│   │   ├── SidebarDashboard.vue  ← Sidebar navigasi (sudah pakai Pinia + mitt)
-│   │   ├── HeaderDashboard.vue   ← Header (sudah pakai mitt)
+│   │   ├── AdminDashboard.vue    ← Layout utama
+│   │   ├── SidebarDashboard.vue  ← Sidebar navigasi (Pinia + mitt + script setup)
+│   │   ├── HeaderDashboard.vue   ← Header (script setup)
 │   │   ├── Dropdown.vue
-│   │   ├── ImageUpload.vue       ← Komponen upload gambar (single)
+│   │   ├── ImageUpload.vue       ← Komponen upload gambar (single, script setup)
 │   │   ├── ImageMultiUpload.vue  ← Komponen upload multi gambar
-│   │   └── VideoUpload.vue       ← Komponen upload video
-│   ├── composables/        ← ✅ Sudah ada (dibuat di Fase 3)
-│   │   ├── useDebounce.js  ← ✅ Reusable debounce utility
-│   │   ├── useApi.js       ← ✅ Reactive API wrapper
-│   │   ├── usePagination.js       ← [AKAN DIBUAT] Fase 4 T7
-│   │   └── useApiWithCache.js     ← [AKAN DIBUAT] Fase 4 T8
+│   │   ├── VideoUpload.vue       ← Komponen upload video
+│   │   ├── GlobalNotification.vue ← ✅ Toast global (Fase 4)
+│   │   ├── ConfirmDialog.vue     ← ✅ Dialog konfirmasi reusable (Fase 4)
+│   │   ├── EmptyState.vue        ← ✅ Empty state reusable (Fase 4)
+│   │   └── SkeletonTable.vue     ← ✅ Table skeleton loader (Fase 5)
+│   ├── composables/        ← ✅ Reusable composables (Fase 3, 4, 5)
+│   │   ├── useDebounce.js        ← ✅ Reusable debounce utility
+│   │   ├── useApi.js             ← ✅ Reactive API wrapper
+│   │   ├── usePagination.js      ← ✅ Server pagination composable
+│   │   ├── useApiWithCache.js    ← ✅ In-memory API cache composable
+│   │   ├── useSkeletonLoader.js  ← ✅ Skeleton loading state composable
+│   │   └── useImageLazy.js       ← ✅ Image lazy loading helper composable
 │   ├── router/
 │   │   └── index.js        ← ~750 baris. Global beforeEach guard sudah ada (Fase 1)
-│   ├── stores/             ← ✅ Pinia stores (dibuat Fase 2)
-│   │   ├── navigation.js   ← ✅ Navigation store
-│   │   └── notification.js ← [AKAN DIBUAT] Fase 4 T3
+│   ├── stores/             ← ✅ Pinia stores
+│   │   ├── navigation.js   ← ✅ Navigation store (Fase 2)
+│   │   └── notification.js ← ✅ Toast notification store (Fase 4)
 │   ├── util/
 │   │   ├── apiClient.js    ← ✅ Satu Axios instance terpusat (Fase 1)
 │   │   ├── axios.js        ← ✅ Backward compat wrapper → apiClient (Fase 1)
@@ -84,7 +92,7 @@ admingypsy-new/
 │   └── main.js             ← ✅ Centralized setup [$api, $fileURL, Pinia] (Fase 1 & 2)
 ├── docs/
 │   ├── README.md           ← File ini
-│   ├── IMPLEMENTATION.md   ← Rencana implementasi detail per fase (Fase 1–4)
+│   ├── IMPLEMENTATION.md   ← Rencana implementasi detail per fase (Fase 1–5)
 │   └── IMPROVEMENT.md      ← ✅ Daftar semua improvement yang bisa diterapkan
 ├── ANALYSIS.md             ← Analisis lengkap proyek (referensi sumber kebenaran)
 ├── .env.local              ← ✅ Environment variables (TIDAK di-commit)
