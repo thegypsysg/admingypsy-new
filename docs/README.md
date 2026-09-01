@@ -1,29 +1,29 @@
 # 📖 AdminGypsy — Agent Reference Guide (docs/README.md)
 
 > **Untuk:** Model AI (Gemini / Claude) yang akan bekerja di proyek ini.
-> **Update terakhir:** 2026-09-01 (Fase 5 ditambahkan)
+> **Update terakhir:** 2026-09-01 (Fase 6 ditambahkan)
 
 ---
 
 ## 🗺️ Status Proyek Saat Ini
 
-| Fase | Nama | Status |
-|------|------|--------|
-| Fase 1 | Security Hardening | ✅ SELESAI (commit `39ce7f1d`) |
-| Fase 2 | Architecture Upgrade | ✅ SELESAI |
-| Fase 3 | Code Quality & Performance | ✅ SELESAI |
-| Fase 4 | UX & Security Polish | ✅ SELESAI |
-| Fase 5 | Performance Optimization | ✅ SELESAI |
+| Fase   | Nama                       | Status                         |
+| ------ | -------------------------- | ------------------------------ |
+| Fase 1 | Security Hardening         | ✅ SELESAI (commit `39ce7f1d`) |
+| Fase 2 | Architecture Upgrade       | ✅ SELESAI                     |
+| Fase 3 | Code Quality & Performance | ✅ SELESAI                     |
+| Fase 4 | UX & Security Polish       | ✅ SELESAI                     |
+| Fase 5 | Performance Optimization   | ✅ SELESAI                     |
+| Fase 6 | Developer Experience       | ✅ SELESAI                     |
 
-Semua fase perbaikan (Fase 1, 2, 3, 4, dan 5) telah berhasil diimplementasikan dan diverifikasi via production build (0 error).
-
-
+Semua fase perbaikan (Fase 1, 2, 3, 4, 5, dan 6) telah berhasil diimplementasikan dan diverifikasi via production build (0 error).
 
 ---
 
 ## ⚡ Quick Start — Baca Ini Sebelum Melakukan Apapun
 
 **Proyek ini adalah Admin Dashboard berbasis:**
+
 - **Framework:** Vue 3 (via Vue CLI / Webpack) — **BUKAN Vite**
 - **UI Library:** Vuetify 3
 - **State Management:** Pinia (migrasi dari Vuex selesai di Fase 2)
@@ -105,68 +105,72 @@ admingypsy-new/
 
 ### Fase 1 — Security Hardening
 
-| File | Perubahan |
-|------|-----------|
-| `src/util/apiClient.js` | **[BARU]** Satu Axios instance dengan request/response interceptors |
-| `src/util/tokenStorage.js` | **[BARU]** Abstraksi sessionStorage untuk token auth |
-| `src/main.js` | Hapus `axiosAbsensi`, tambah `$api` global property, global error handler |
-| `src/App.vue` | Token expiry check + redirect ke login |
-| `src/router/index.js` | Hapus ~90 `beforeEnter` duplikat, tambah global `router.beforeEach` |
-| `src/components/SidebarDashboard.vue` | Migrasi dari `localStorage` ke `tokenStorage`, script setup |
-| `src/views/login/LoginComponent.vue` | Migrasi dari `localStorage` ke `tokenStorage` |
-| `src/util/axios.js` | Diubah menjadi re-export wrapper ke `apiClient` |
-| `public/.htaccess` | **[BARU]** SPA routing, CSP, cache control, Gzip |
+| File                                  | Perubahan                                                                 |
+| ------------------------------------- | ------------------------------------------------------------------------- |
+| `src/util/apiClient.js`               | **[BARU]** Satu Axios instance dengan request/response interceptors       |
+| `src/util/tokenStorage.js`            | **[BARU]** Abstraksi sessionStorage untuk token auth                      |
+| `src/main.js`                         | Hapus `axiosAbsensi`, tambah `$api` global property, global error handler |
+| `src/App.vue`                         | Token expiry check + redirect ke login                                    |
+| `src/router/index.js`                 | Hapus ~90 `beforeEnter` duplikat, tambah global `router.beforeEach`       |
+| `src/components/SidebarDashboard.vue` | Migrasi dari `localStorage` ke `tokenStorage`, script setup               |
+| `src/views/login/LoginComponent.vue`  | Migrasi dari `localStorage` ke `tokenStorage`                             |
+| `src/util/axios.js`                   | Diubah menjadi re-export wrapper ke `apiClient`                           |
+| `public/.htaccess`                    | **[BARU]** SPA routing, CSP, cache control, Gzip                          |
 
 ### Fase 2 — Architecture Upgrade
 
-| Perubahan | Detail |
-|-----------|--------|
-| Vuex → Pinia | `src/stores/navigation.js` dibuat. Vuex diuninstall. |
-| eventBus → mitt | `src/util/eventBus.js` diperbarui ke `mitt`. |
+| Perubahan         | Detail                                                                                       |
+| ----------------- | -------------------------------------------------------------------------------------------- |
+| Vuex → Pinia      | `src/stores/navigation.js` dibuat. Vuex diuninstall.                                         |
+| eventBus → mitt   | `src/util/eventBus.js` diperbarui ke `mitt`.                                                 |
 | Komponen diupdate | `SidebarDashboard.vue`, `AdminDashboard.vue`, `HeaderDashboard.vue` sudah pakai Pinia & mitt |
 
 ### Fase 3 — Code Quality & Performance
 
-| Perubahan | Detail |
-|-----------|--------|
-| Dead code cleanup | `ImageUpload.vue`, `ImageMultiUpload.vue`, `VideoUpload.vue`, `AdminDashboard.vue` |
-| Dependency cleanup | Uninstall: `flag-icon-css`, `handy-uploader`, `buffer-es6`, `roboto-fontface` |
-| Route names verified | 112 route, 0 duplikat |
-| Global error handler | `app.config.errorHandler` + `unhandledrejection` di `main.js` |
-| Composables baru | `src/composables/useDebounce.js`, `src/composables/useApi.js` |
-| ImageUpload.vue | Template disimplifikasi + migrasi ke `<script setup>` + bug preview fix |
-| HeaderDashboard.vue | Migrasi ke `<script setup>` Composition API |
-| SidebarDashboard.vue | Migrasi ke `<script setup>` Composition API |
-| ESLint | `vue/setup-compiler-macros: true` ditambahkan |
+| Perubahan            | Detail                                                                             |
+| -------------------- | ---------------------------------------------------------------------------------- |
+| Dead code cleanup    | `ImageUpload.vue`, `ImageMultiUpload.vue`, `VideoUpload.vue`, `AdminDashboard.vue` |
+| Dependency cleanup   | Uninstall: `flag-icon-css`, `handy-uploader`, `buffer-es6`, `roboto-fontface`      |
+| Route names verified | 112 route, 0 duplikat                                                              |
+| Global error handler | `app.config.errorHandler` + `unhandledrejection` di `main.js`                      |
+| Composables baru     | `src/composables/useDebounce.js`, `src/composables/useApi.js`                      |
+| ImageUpload.vue      | Template disimplifikasi + migrasi ke `<script setup>` + bug preview fix            |
+| HeaderDashboard.vue  | Migrasi ke `<script setup>` Composition API                                        |
+| SidebarDashboard.vue | Migrasi ke `<script setup>` Composition API                                        |
+| ESLint               | `vue/setup-compiler-macros: true` ditambahkan                                      |
 
 ---
 
 ## ⚠️ Hal Kritis yang Harus Diketahui
 
 ### 1. Token Storage — Gunakan `tokenStorage`, Bukan `localStorage`
+
 ```javascript
 import { tokenStorage } from '@/util/tokenStorage';
-tokenStorage.getToken()       // ambil token (dari sessionStorage)
-tokenStorage.setToken(value)  // simpan token
-tokenStorage.clearAll()       // hapus semua data auth
+tokenStorage.getToken(); // ambil token (dari sessionStorage)
+tokenStorage.setToken(value); // simpan token
+tokenStorage.clearAll(); // hapus semua data auth
 ```
 
 ### 2. HTTP Request — Gunakan `axios` dari `@/util/axios`, Bukan Raw Axios
+
 ```javascript
 import axios from '@/util/axios'; // ← ini adalah wrapper ke apiClient
 // JANGAN: import axios from 'axios' — ini raw axios tanpa base URL / auth header
 ```
 
 ### 3. Event Bus — Gunakan API `mitt`
+
 ```javascript
 import eventBus from '@/util/eventBus';
-eventBus.emit('event-name', payload)   // kirim event
-eventBus.on('event-name', handler)     // subscribe event
-eventBus.off('event-name', handler)    // unsubscribe event
+eventBus.emit('event-name', payload); // kirim event
+eventBus.on('event-name', handler); // subscribe event
+eventBus.off('event-name', handler); // unsubscribe event
 // JANGAN pakai: eventBus.$emit / eventBus.$on — itu API Vue 2
 ```
 
 ### 4. Navigation Store — Gunakan Pinia
+
 ```javascript
 import { useNavigationStore } from '@/stores/navigation';
 // Di dalam Options API (created/mounted):
@@ -175,26 +179,29 @@ const nav = this.navStore.navigation;
 ```
 
 ### 5. Global Properties
+
 Tersedia di semua komponen:
+
 - `this.$api` → Axios instance (`apiClient.js`)
 - `this.$fileURL` → URL base untuk gambar (`https://admin1.the-gypsy.sg/img/app/`)
 
 ### 6. Direktori Views Mengandung Spasi
+
 Banyak folder di `src/views/` mengandung spasi (contoh: `walls master`, `menu management`). Ini adalah technical debt yang **belum** diselesaikan. Jangan ubah nama direktori ini — bisa menyebabkan breaking import di 90+ route.
 
 ---
 
 ## 🔎 Cara Mencari Sesuatu di Proyek
 
-| Butuh | Command |
-|-------|---------|
-| Cari semua `localStorage` yang tersisa | `grep_search "localStorage" SearchPath: src/ MatchPerLine: true` |
-| Cari komponen yang masih pakai Vuex | `grep_search "$store" SearchPath: src/ MatchPerLine: true` |
-| Cari semua import raw axios | `grep_search "import http from 'axios'" SearchPath: src/ MatchPerLine: true` |
-| Cari semua eventBus usage | `grep_search "eventBus" SearchPath: src/ MatchPerLine: true` |
-| Hitung baris sebuah file | `(Get-Content "src/path/file.vue").Count` |
-| Cek apakah package terinstall | `node -e "require('mitt'); console.log('ok')"` |
-| Lihat perubahan git yang belum di-commit | `git diff` atau `git status` |
+| Butuh                                    | Command                                                                      |
+| ---------------------------------------- | ---------------------------------------------------------------------------- |
+| Cari semua `localStorage` yang tersisa   | `grep_search "localStorage" SearchPath: src/ MatchPerLine: true`             |
+| Cari komponen yang masih pakai Vuex      | `grep_search "$store" SearchPath: src/ MatchPerLine: true`                   |
+| Cari semua import raw axios              | `grep_search "import http from 'axios'" SearchPath: src/ MatchPerLine: true` |
+| Cari semua eventBus usage                | `grep_search "eventBus" SearchPath: src/ MatchPerLine: true`                 |
+| Hitung baris sebuah file                 | `(Get-Content "src/path/file.vue").Count`                                    |
+| Cek apakah package terinstall            | `node -e "require('mitt'); console.log('ok')"`                               |
+| Lihat perubahan git yang belum di-commit | `git diff` atau `git status`                                                 |
 
 ---
 
@@ -222,6 +229,7 @@ git checkout src/components/SidebarDashboard.vue
 ## ⚙️ Konfigurasi Environment
 
 File `.env.local` (tidak di-commit) berisi:
+
 ```
 VUE_APP_API_BASE_URL=https://adminsymphinite.symphinite.tech/api/
 VUE_APP_FILE_URL=https://admin1.the-gypsy.sg/img/app/
@@ -243,24 +251,23 @@ Semua variabel Vue CLI **wajib diawali** `VUE_APP_` agar bisa dibaca via `proces
 
 ## 🚦 Decision Log (Keputusan Arsitektur)
 
-| Keputusan | Alasan |
-|-----------|--------|
-| Gunakan `sessionStorage` bukan `localStorage` untuk token | Lebih aman dari XSS — data hilang saat browser/tab ditutup |
-| Pertahankan `src/util/axios.js` sebagai wrapper | Backward compatibility — ratusan file masih import dari sini |
-| Tidak rename direktori dengan spasi di Fase 2, 3, & 4 | Risiko breaking change pada 90+ import path — defer ke masa mendatang |
-| Jalankan Pinia & Vuex paralel sebelum uninstall | Mencegah error komponen saat migrasi bertahap |
-| Tidak migrasi semua views ke Composition API | Terlalu berisiko — cukup komponen shared di Fase 3 |
-| Gunakan `mitt` bukan custom Vue app untuk eventBus | mitt lebih ringan, API lebih standar, tidak ada anti-pattern |
-| Fase 4 komponen baru bersifat additive | Tidak memaksa view lama berubah — risiko breaking change nol |
+| Keputusan                                                            | Alasan                                                                            |
+| -------------------------------------------------------------------- | --------------------------------------------------------------------------------- |
+| Gunakan `sessionStorage` bukan `localStorage` untuk token            | Lebih aman dari XSS — data hilang saat browser/tab ditutup                        |
+| Pertahankan `src/util/axios.js` sebagai wrapper                      | Backward compatibility — ratusan file masih import dari sini                      |
+| Tidak rename direktori dengan spasi di Fase 2, 3, & 4                | Risiko breaking change pada 90+ import path — defer ke masa mendatang             |
+| Jalankan Pinia & Vuex paralel sebelum uninstall                      | Mencegah error komponen saat migrasi bertahap                                     |
+| Tidak migrasi semua views ke Composition API                         | Terlalu berisiko — cukup komponen shared di Fase 3                                |
+| Gunakan `mitt` bukan custom Vue app untuk eventBus                   | mitt lebih ringan, API lebih standar, tidak ada anti-pattern                      |
+| Fase 4 komponen baru bersifat additive                               | Tidak memaksa view lama berubah — risiko breaking change nol                      |
 | Pertahankan `font-awesome` meski ada `@fortawesome/fontawesome-free` | 170+ `Container.vue` di views masih import `~font-awesome/scss/font-awesome.scss` |
 
 ---
 
 ## 📚 Referensi Dokumen
 
-| Dokumen | Tujuan |
-|---------|--------|
-| [`ANALYSIS.md`](../ANALYSIS.md) | Audit lengkap codebase — sumber kebenaran untuk semua keputusan |
-| [`docs/IMPLEMENTATION.md`](./IMPLEMENTATION.md) | Rencana implementasi per fase dengan step-by-step execution |
-| [`docs/IMPROVEMENT.md`](./IMPROVEMENT.md) | Daftar semua improvement yang bisa diterapkan (roadmap jangka panjang) |
-
+| Dokumen                                         | Tujuan                                                                 |
+| ----------------------------------------------- | ---------------------------------------------------------------------- |
+| [`ANALYSIS.md`](../ANALYSIS.md)                 | Audit lengkap codebase — sumber kebenaran untuk semua keputusan        |
+| [`docs/IMPLEMENTATION.md`](./IMPLEMENTATION.md) | Rencana implementasi per fase dengan step-by-step execution            |
+| [`docs/IMPROVEMENT.md`](./IMPROVEMENT.md)       | Daftar semua improvement yang bisa diterapkan (roadmap jangka panjang) |

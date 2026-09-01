@@ -4,6 +4,7 @@
 > **Tanggal selesai:** 2026-08-05
 
 **Yang sudah selesai di Fase 1:**
+
 - ✅ `.env.local` dan `.env.production` dengan API URL
 - ✅ `src/util/tokenStorage.js` (abstraksi sessionStorage)
 - ✅ `src/util/apiClient.js` (satu Axios instance terpusat)
@@ -46,15 +47,16 @@
 
 Fase 2 bertujuan melakukan upgrade arsitektur internal tanpa mengubah tampilan atau fungsionalitas aplikasi dari sudut pandang user.
 
-| # | Perubahan | Dampak |
-|---|-----------|--------|
-| 1 | Install Pinia (berjalan paralel dengan Vuex) | State management lebih modern dan ringan |
-| 2 | Buat `stores/navigation.js` di Pinia | Terpusat, reaktif, tanpa boilerplate Vuex |
-| 3 | Migrasi `SidebarDashboard.vue` & `AdminDashboard.vue` ke Pinia | Hapus `$store.getters.navigation` |
-| 4 | Uninstall Vuex (HANYA setelah T3 selesai dan terverifikasi) | Kurangi bundle size |
-| 5 | Ganti `eventBus.js` dengan `mitt` | Hapus anti-pattern double Vue instance |
+| #   | Perubahan                                                      | Dampak                                    |
+| --- | -------------------------------------------------------------- | ----------------------------------------- |
+| 1   | Install Pinia (berjalan paralel dengan Vuex)                   | State management lebih modern dan ringan  |
+| 2   | Buat `stores/navigation.js` di Pinia                           | Terpusat, reaktif, tanpa boilerplate Vuex |
+| 3   | Migrasi `SidebarDashboard.vue` & `AdminDashboard.vue` ke Pinia | Hapus `$store.getters.navigation`         |
+| 4   | Uninstall Vuex (HANYA setelah T3 selesai dan terverifikasi)    | Kurangi bundle size                       |
+| 5   | Ganti `eventBus.js` dengan `mitt`                              | Hapus anti-pattern double Vue instance    |
 
 **Yang TIDAK dilakukan di Fase 2:**
+
 - Tidak rename direktori views (dipindah ke Fase 3)
 - Tidak mengubah komponen views individual
 - Tidak migrasi ke Composition API (Fase 3)
@@ -64,17 +66,17 @@ Fase 2 bertujuan melakukan upgrade arsitektur internal tanpa mengubah tampilan a
 
 ## 🕐 Timeline & Estimasi
 
-| Task | Nama | Estimasi | Urutan |
-|------|------|----------|--------|
-| T1 | Install Pinia + register di main.js | 15 menit | 1 |
-| T2 | Buat `src/stores/navigation.js` | 20 menit | 2 (setelah T1) |
-| T3 | Migrate `SidebarDashboard.vue` ke Pinia | 30 menit | 3 (setelah T2) |
-| T4 | Migrate `AdminDashboard.vue` ke Pinia | 20 menit | 4 (setelah T3 terverifikasi) |
-| T5 | Uninstall Vuex + cleanup | 20 menit | 5 (HANYA setelah T4) |
-| T6 | Install `mitt` + update `eventBus.js` | 20 menit | 6 (independen) |
-| T7 | Update `SidebarDashboard.vue` eventBus calls | 20 menit | 7 (setelah T6) |
-| T8 | Update `UserMaster.vue` eventBus calls | 20 menit | 8 (setelah T6) |
-| | **TOTAL** | **~2.5–3 jam** | |
+| Task | Nama                                         | Estimasi       | Urutan                       |
+| ---- | -------------------------------------------- | -------------- | ---------------------------- |
+| T1   | Install Pinia + register di main.js          | 15 menit       | 1                            |
+| T2   | Buat `src/stores/navigation.js`              | 20 menit       | 2 (setelah T1)               |
+| T3   | Migrate `SidebarDashboard.vue` ke Pinia      | 30 menit       | 3 (setelah T2)               |
+| T4   | Migrate `AdminDashboard.vue` ke Pinia        | 20 menit       | 4 (setelah T3 terverifikasi) |
+| T5   | Uninstall Vuex + cleanup                     | 20 menit       | 5 (HANYA setelah T4)         |
+| T6   | Install `mitt` + update `eventBus.js`        | 20 menit       | 6 (independen)               |
+| T7   | Update `SidebarDashboard.vue` eventBus calls | 20 menit       | 7 (setelah T6)               |
+| T8   | Update `UserMaster.vue` eventBus calls       | 20 menit       | 8 (setelah T6)               |
+|      | **TOTAL**                                    | **~2.5–3 jam** |                              |
 
 ### Dependency Chart
 
@@ -90,13 +92,13 @@ T6 bisa dikerjakan paralel dengan T1-T4, TAPI T7 harus setelah T6 selesai.
 
 ## 📊 Estimasi Resource
 
-| Resource | Detail |
-|----------|--------|
-| **Model** | Gemini 2.5 Flash (High Thinking) |
-| **File yang diubah** | `main.js`, `SidebarDashboard.vue`, `AdminDashboard.vue`, `eventBus.js`, `UserMaster.vue`, `HeaderDashboard.vue` |
-| **File yang TIDAK boleh diubah** | Semua file di `src/views/` KECUALI `UserMaster.vue` |
-| **Tools yang dibutuhkan** | `run_command`, `view_file`, `replace_file_content`, `write_to_file`, `grep_search` |
-| **Risiko utama** | Menghapus Vuex terlalu cepat sebelum migrasi selesai |
+| Resource                         | Detail                                                                                                          |
+| -------------------------------- | --------------------------------------------------------------------------------------------------------------- |
+| **Model**                        | Gemini 2.5 Flash (High Thinking)                                                                                |
+| **File yang diubah**             | `main.js`, `SidebarDashboard.vue`, `AdminDashboard.vue`, `eventBus.js`, `UserMaster.vue`, `HeaderDashboard.vue` |
+| **File yang TIDAK boleh diubah** | Semua file di `src/views/` KECUALI `UserMaster.vue`                                                             |
+| **Tools yang dibutuhkan**        | `run_command`, `view_file`, `replace_file_content`, `write_to_file`, `grep_search`                              |
+| **Risiko utama**                 | Menghapus Vuex terlalu cepat sebelum migrasi selesai                                                            |
 
 ---
 
@@ -132,6 +134,7 @@ Menghapus Vuex sebelum semua komponen dimigrasi akan langsung menyebabkan error 
 **Step-by-Step Execution:**
 
 **Langkah 1:** Install Pinia
+
 ```
 Tool: run_command
 Command: npm install pinia
@@ -140,12 +143,14 @@ WaitMsBeforeAsync: 30000
 ```
 
 **Langkah 2:** Verifikasi Pinia terinstall
+
 ```
 Tool: run_command
 Command: node -e "require('pinia'); console.log('pinia ok')"
 ```
 
 **Langkah 3:** Baca `main.js` untuk memahami struktur saat ini
+
 ```
 Tool: view_file
 File: src/main.js
@@ -154,17 +159,20 @@ File: src/main.js
 **Langkah 4:** Update `main.js` — tambahkan Pinia, TETAP pertahankan Vuex
 
 Cari baris import store:
+
 ```javascript
 import store from './store';
 ```
 
 Tambahkan Pinia di bawahnya:
+
 ```javascript
 import store from './store';
 import { createPinia } from 'pinia'; // ← tambahkan ini
 ```
 
 Lalu pada bagian `app.use(...)`, tambahkan Pinia:
+
 ```javascript
 // Sebelum:
 app.use(router).use(store).use(vuetify).mount('#app');
@@ -175,13 +183,16 @@ app.use(router).use(store).use(pinia).use(vuetify).mount('#app');
 ```
 
 **Langkah 5:** Verifikasi dev server masih berjalan tanpa error
+
 ```
 Tool: run_command
 Command: (tunggu output dari npm run serve yang sudah berjalan)
 ```
+
 Buka http://localhost:8080 di browser, pastikan tidak ada error di console.
 
 **Verifikasi Keberhasilan:**
+
 - [ ] `node_modules/pinia` ada di project
 - [ ] `main.js` mengimport dan menggunakan `createPinia()`
 - [ ] Vuex (`store`) masih ada dan terdaftar
@@ -203,12 +214,14 @@ Buat Pinia store untuk navigation yang akan menggantikan data navigasi di Vuex. 
 **Step-by-Step Execution:**
 
 **Langkah 1:** Baca seluruh `src/store/index.js` untuk mendapatkan data navigasi yang lengkap
+
 ```
 Tool: view_file
 File: src/store/index.js
 ```
 
 **Langkah 2:** Buat folder `src/stores/` jika belum ada
+
 ```
 Tool: run_command
 Command: New-Item -ItemType Directory -Path "src\stores" -Force
@@ -216,12 +229,14 @@ Cwd: d:\Projects\freelance\admingypsy-new
 ```
 
 **Langkah 3:** Buat file `src/stores/navigation.js`
+
 ```
 Tool: write_to_file
 Path: src/stores/navigation.js
 ```
 
 Isi file:
+
 ```javascript
 /**
  * navigation.js — Pinia Store
@@ -299,12 +314,14 @@ export const useNavigationStore = defineStore('navigation', {
 > ⚠️ **Langkah 3b — VERIFIKASI DATA:** Setelah membuat file, bandingkan isi `navigation` array dengan `src/store/index.js`. Pastikan semua item menu sama persis. Jika ada perbedaan, ikuti data dari `src/store/index.js` sebagai sumber kebenaran.
 
 **Langkah 4:** Verifikasi file berhasil dibuat
+
 ```
 Tool: view_file
 File: src/stores/navigation.js
 ```
 
 **Verifikasi Keberhasilan:**
+
 - [ ] File `src/stores/navigation.js` ada
 - [ ] Data `navigation` array sama persis dengan `src/store/index.js`
 - [ ] Dev server tidak error setelah file dibuat
@@ -325,11 +342,14 @@ Update `SidebarDashboard.vue` untuk menggunakan Pinia store (`useNavigationStore
 **Step-by-Step Execution:**
 
 **Langkah 1:** Baca seluruh script section `SidebarDashboard.vue` secara lengkap
+
 ```
 Tool: view_file
 File: src/components/SidebarDashboard.vue
 ```
+
 Catat:
+
 - Baris import saat ini
 - Cara `navigation` computed property digunakan
 - Struktur `export default {}` secara lengkap
@@ -337,6 +357,7 @@ Catat:
 **Langkah 2:** Identifikasi baris yang perlu diubah
 
 Cari baris:
+
 ```javascript
 // Di bagian import (biasanya tidak ada import store karena pakai this.$store)
 
@@ -349,11 +370,13 @@ navigation() {
 **Langkah 3:** Edit `SidebarDashboard.vue`
 
 **3a. Tambahkan import Pinia store** di bagian atas `<script>`:
+
 ```javascript
 import { useNavigationStore } from '@/stores/navigation';
 ```
 
 **3b. Tambahkan `data()` property baru** untuk menyimpan navigation store:
+
 ```javascript
 data() {
   return {
@@ -366,6 +389,7 @@ data() {
 **3c. Inisialisasi `navStore` di `created()` atau `mounted()`**:
 
 Tambahkan di awal `created()` (atau `mounted()` jika `created()` tidak ada):
+
 ```javascript
 created() {
   this.navStore = useNavigationStore();
@@ -374,6 +398,7 @@ created() {
 ```
 
 **3d. Update computed `navigation`**:
+
 ```javascript
 // Sebelum:
 navigation() {
@@ -387,18 +412,22 @@ navigation() {
 ```
 
 **Langkah 4:** Verifikasi perubahan tidak merusak file
+
 ```
 Tool: view_file
 File: src/components/SidebarDashboard.vue
 ```
+
 Pastikan tidak ada syntax error (kurung kurawal tidak seimbang, koma hilang, dll).
 
 **Langkah 5:** Buka browser http://localhost:8080
+
 - Login ke aplikasi
 - Pastikan **sidebar masih tampil** dengan semua menu yang benar
 - Pastikan tidak ada error di browser console
 
 **Verifikasi Keberhasilan:**
+
 - [ ] `SidebarDashboard.vue` mengimport `useNavigationStore`
 - [ ] Computed `navigation` menggunakan `this.navStore.navigation`
 - [ ] Sidebar tampil normal di browser
@@ -421,15 +450,18 @@ Sama seperti T3, update `AdminDashboard.vue` untuk menggunakan Pinia.
 **Step-by-Step Execution:**
 
 **Langkah 1:** Baca seluruh `AdminDashboard.vue`
+
 ```
 Tool: view_file
 File: src/components/AdminDashboard.vue
 ```
+
 Catat struktur lengkap script section.
 
 **Langkah 2:** Lakukan perubahan yang sama seperti T3
 
 **2a. Tambahkan import:**
+
 ```javascript
 import { useNavigationStore } from '@/stores/navigation';
 ```
@@ -437,11 +469,13 @@ import { useNavigationStore } from '@/stores/navigation';
 **2b. Tambahkan `navStore: null` di `data()`**
 
 **2c. Inisialisasi `navStore` di `created()` atau `mounted()`:**
+
 ```javascript
 this.navStore = useNavigationStore();
 ```
 
 **2d. Update computed `navigation`:**
+
 ```javascript
 navigation() {
   return this.navStore ? this.navStore.navigation : [];
@@ -451,6 +485,7 @@ navigation() {
 **Langkah 3:** Verifikasi browser masih berfungsi normal
 
 **Verifikasi Keberhasilan:**
+
 - [ ] `AdminDashboard.vue` mengimport `useNavigationStore`
 - [ ] Computed `navigation` menggunakan `this.navStore.navigation`
 - [ ] Layout utama dashboard masih tampil normal
@@ -472,6 +507,7 @@ Ini adalah task yang paling berisiko. **HANYA lakukan ini jika T3 dan T4 sudah s
 **Step-by-Step Execution:**
 
 **Langkah 1 — WAJIB:** Cari semua sisa `$store` di seluruh proyek
+
 ```
 Tool: grep_search
 Query: $store
@@ -479,6 +515,7 @@ SearchPath: src/
 ```
 
 **Jika ada hasil yang ditemukan:**
+
 - STOP. Jangan lanjutkan ke langkah berikutnya.
 - Update file yang masih menggunakan `$store` terlebih dahulu.
 - Ulangi langkah 1 sampai hasilnya 0 (nol).
@@ -486,6 +523,7 @@ SearchPath: src/
 **Jika hasil pencarian kosong (0 matches):** Lanjut ke langkah 2.
 
 **Langkah 2 — WAJIB:** Cari semua sisa `from 'vuex'` di seluruh proyek
+
 ```
 Tool: grep_search
 Query: from 'vuex'
@@ -495,6 +533,7 @@ SearchPath: src/
 Jika masih ada hasil: update file tersebut dulu.
 
 **Langkah 3:** Uninstall Vuex
+
 ```
 Tool: run_command
 Command: npm uninstall vuex @vue/cli-plugin-vuex
@@ -502,17 +541,20 @@ WaitMsBeforeAsync: 30000
 ```
 
 **Langkah 4:** Hapus import Vuex dari `main.js`
+
 ```
 Tool: view_file
 File: src/main.js
 ```
 
 Hapus baris:
+
 ```javascript
 import store from './store'; // ← HAPUS baris ini
 ```
 
 Dan hapus `store` dari `app.use(...)`:
+
 ```javascript
 // Sebelum:
 app.use(router).use(store).use(pinia).use(vuetify).mount('#app');
@@ -522,6 +564,7 @@ app.use(router).use(pinia).use(vuetify).mount('#app');
 ```
 
 **Langkah 5:** Hapus folder `src/store/`
+
 ```
 Tool: run_command
 Command: Remove-Item -Path "src\store" -Recurse -Force
@@ -531,17 +574,20 @@ Cwd: d:\Projects\freelance\admingypsy-new
 **Langkah 6:** Verifikasi dev server compiled tanpa error
 
 Jika ada error:
+
 - Baca error message dengan teliti
 - Kemungkinan ada file yang masih mengimport dari `@/store` atau `vuex`
 - Gunakan grep untuk mencari: `grep_search "from 'vuex'"` dan `grep_search "@/store"`
 - Update file yang ditemukan
 
 **Langkah 7:** Verifikasi browser berfungsi normal
+
 - Login
 - Pastikan sidebar tampil
 - Navigasi ke beberapa halaman
 
 **Verifikasi Keberhasilan:**
+
 - [ ] `grep_search "$store"` di `src/` → 0 hasil
 - [ ] `grep_search "from 'vuex'"` di `src/` → 0 hasil
 - [ ] `vuex` tidak ada di `package.json` dependencies
@@ -565,6 +611,7 @@ Ganti implementasi event bus yang saat ini menggunakan `createApp({})` kedua (an
 **Step-by-Step Execution:**
 
 **Langkah 1:** Install `mitt`
+
 ```
 Tool: run_command
 Command: npm install mitt
@@ -572,12 +619,14 @@ WaitMsBeforeAsync: 30000
 ```
 
 **Langkah 2:** Verifikasi `mitt` terinstall
+
 ```
 Tool: run_command
 Command: node -e "require('mitt'); console.log('mitt ok')"
 ```
 
 **Langkah 3:** Pahami penggunaan eventBus saat ini
+
 ```
 Tool: grep_search
 Query: $eventBus
@@ -588,11 +637,14 @@ MatchPerLine: true
 Catat semua file yang menggunakan `$eventBus.$on`, `$eventBus.$off`, `$eventBus.$emit`, dan caranya.
 
 **Langkah 4:** Baca `SidebarDashboard.vue` bagian eventBus
+
 ```
 Tool: view_file
 File: src/components/SidebarDashboard.vue
 ```
+
 Cari baris:
+
 ```javascript
 app.config.globalProperties.$eventBus.$on('update-image', this.updateImage);
 app.config.globalProperties.$eventBus.$off('update-image', this.updateImage);
@@ -606,6 +658,7 @@ Path: src/util/eventBus.js
 ```
 
 Isi baru:
+
 ```javascript
 /**
  * eventBus.js
@@ -630,6 +683,7 @@ export default eventBus;
 ```
 
 **Langkah 6:** Verifikasi file tersimpan
+
 ```
 Tool: view_file
 File: src/util/eventBus.js
@@ -638,6 +692,7 @@ File: src/util/eventBus.js
 > ⚠️ **PERHATIAN:** Setelah T6, komponen yang masih menggunakan `app.config.globalProperties.$eventBus.$on(...)` akan **error**. Segera lanjut ke T7 dan T8.
 
 **Verifikasi Keberhasilan:**
+
 - [ ] `mitt` terinstall
 - [ ] `src/util/eventBus.js` menggunakan `mitt`
 - [ ] File tidak lagi menggunakan `createApp({})`
@@ -656,6 +711,7 @@ Update `SidebarDashboard.vue` untuk menggunakan API `mitt` yang baru (`eventBus.
 **Step-by-Step Execution:**
 
 **Langkah 1:** Baca bagian `created`, `beforeUnmount`, dan import di `SidebarDashboard.vue`
+
 ```
 Tool: view_file
 File: src/components/SidebarDashboard.vue
@@ -664,11 +720,13 @@ File: src/components/SidebarDashboard.vue
 **Langkah 2:** Update import eventBus
 
 Cari baris:
+
 ```javascript
 import app from '@/util/eventBus';
 ```
 
 Ganti dengan:
+
 ```javascript
 import eventBus from '@/util/eventBus';
 ```
@@ -676,6 +734,7 @@ import eventBus from '@/util/eventBus';
 **Langkah 3:** Update `created()` lifecycle hook
 
 Cari:
+
 ```javascript
 created() {
   app.config.globalProperties.$eventBus.$on('update-image', this.updateImage);
@@ -683,6 +742,7 @@ created() {
 ```
 
 Ganti dengan:
+
 ```javascript
 created() {
   eventBus.on('update-image', this.updateImage);
@@ -692,6 +752,7 @@ created() {
 **Langkah 4:** Update `beforeUnmount()` lifecycle hook
 
 Cari:
+
 ```javascript
 beforeUnmount() {
   app.config.globalProperties.$eventBus.$off(
@@ -702,6 +763,7 @@ beforeUnmount() {
 ```
 
 Ganti dengan:
+
 ```javascript
 beforeUnmount() {
   eventBus.off('update-image', this.updateImage);
@@ -709,16 +771,19 @@ beforeUnmount() {
 ```
 
 **Langkah 5:** Verifikasi tidak ada lagi referensi ke `app.config.globalProperties.$eventBus` di file ini
+
 ```
 Tool: grep_search
 Query: $eventBus
 SearchPath: src/components/SidebarDashboard.vue
 ```
+
 Hasil harus 0.
 
 **Langkah 6:** Buka browser, pastikan sidebar masih berfungsi normal.
 
 **Verifikasi Keberhasilan:**
+
 - [ ] `SidebarDashboard.vue` mengimport `eventBus from '@/util/eventBus'`
 - [ ] `created()` menggunakan `eventBus.on(...)`
 - [ ] `beforeUnmount()` menggunakan `eventBus.off(...)`
@@ -739,6 +804,7 @@ Hasil harus 0.
 **Step-by-Step Execution:**
 
 **Langkah 1:** Baca bagian script `UserMaster.vue` — khususnya import dan baris yang menggunakan `$eventBus.$emit`
+
 ```
 Tool: view_file
 File: src/views/users/UserMaster.vue
@@ -755,11 +821,13 @@ MatchPerLine: true
 **Langkah 2:** Update import
 
 Cari:
+
 ```javascript
 import app from '@/util/eventBus';
 ```
 
 Ganti dengan:
+
 ```javascript
 import eventBus from '@/util/eventBus';
 ```
@@ -767,26 +835,31 @@ import eventBus from '@/util/eventBus';
 **Langkah 3:** Update `$emit` calls
 
 Cari:
+
 ```javascript
 app.config.globalProperties.$eventBus.$emit('update-image', ...);
 ```
 
 Ganti dengan:
+
 ```javascript
 eventBus.emit('update-image', ...);
 ```
 
 **Langkah 4:** Verifikasi tidak ada lagi referensi ke `app.config.globalProperties.$eventBus`
+
 ```
 Tool: grep_search
 Query: $eventBus
 SearchPath: src/views/users/UserMaster.vue
 ```
+
 Hasil harus 0 (atau hanya baris yang sudah dikomentari).
 
 **Langkah 5:** Verifikasi dev server compiled tanpa error.
 
 **Verifikasi Keberhasilan:**
+
 - [ ] `UserMaster.vue` mengimport `eventBus from '@/util/eventBus'`
 - [ ] Semua `$eventBus.$emit` → `eventBus.emit`
 - [ ] Tidak ada error di dev server
@@ -796,14 +869,14 @@ Hasil harus 0 (atau hanya baris yang sudah dikomentari).
 
 ## ⚠️ Risk Register & Mitigasi
 
-| # | Risk | Kemungkinan | Dampak | Mitigasi |
-|---|------|-------------|--------|----------|
-| R1 | Uninstall Vuex saat masih ada `$store` yang dipakai | Sedang | Sangat Tinggi | Wajib grep `$store` dan `from 'vuex'` sebelum uninstall |
-| R2 | Data navigasi tidak lengkap di Pinia store | Rendah | Tinggi | Bandingkan baris per baris dengan `src/store/index.js` |
-| R3 | Sidebar blank karena Pinia store tidak terinisialisasi | Sedang | Tinggi | Gunakan pola `navStore: null` di data + inisialisasi di created |
-| R4 | eventBus.$on tidak berfungsi setelah migrasi mitt | Rendah | Sedang | Pastikan pakai `eventBus.on()` bukan `eventBus.$on()` |
-| R5 | `useNavigationStore()` dipanggil di luar setup() | Rendah | Sedang | Panggil di `created()` dan simpan ke `data()`, jangan di `computed()` langsung |
-| R6 | Dev server tidak reload setelah perubahan | Rendah | Rendah | Restart server jika perlu: `npm run serve` |
+| #   | Risk                                                   | Kemungkinan | Dampak        | Mitigasi                                                                       |
+| --- | ------------------------------------------------------ | ----------- | ------------- | ------------------------------------------------------------------------------ |
+| R1  | Uninstall Vuex saat masih ada `$store` yang dipakai    | Sedang      | Sangat Tinggi | Wajib grep `$store` dan `from 'vuex'` sebelum uninstall                        |
+| R2  | Data navigasi tidak lengkap di Pinia store             | Rendah      | Tinggi        | Bandingkan baris per baris dengan `src/store/index.js`                         |
+| R3  | Sidebar blank karena Pinia store tidak terinisialisasi | Sedang      | Tinggi        | Gunakan pola `navStore: null` di data + inisialisasi di created                |
+| R4  | eventBus.$on tidak berfungsi setelah migrasi mitt      | Rendah      | Sedang        | Pastikan pakai `eventBus.on()` bukan `eventBus.$on()`                          |
+| R5  | `useNavigationStore()` dipanggil di luar setup()       | Rendah      | Sedang        | Panggil di `created()` dan simpan ke `data()`, jangan di `computed()` langsung |
+| R6  | Dev server tidak reload setelah perubahan              | Rendah      | Rendah        | Restart server jika perlu: `npm run serve`                                     |
 
 ---
 
@@ -812,21 +885,25 @@ Hasil harus 0 (atau hanya baris yang sudah dikomentari).
 Lakukan semua test berikut sebelum dianggap selesai:
 
 1. **Test Sidebar:**
+
    - [x] Sidebar tampil dengan semua menu
    - [x] Menu accordion bisa dibuka/ditutup
    - [x] Klik menu navigasi berpindah halaman
 
 2. **Test Layout:**
+
    - [x] Halaman dashboard tampil normal
    - [x] Header dan sidebar tidak berubah tampilan
 
 3. **Test Upload User Image:**
+
    - [x] Buka halaman Users
    - [x] Klik tombol upload gambar pada satu user
    - [x] Upload gambar berhasil
    - [x] Gambar di sidebar terupdate (test eventBus)
 
 4. **Test Auth:**
+
    - [x] Login masih berfungsi
    - [x] Logout masih berfungsi
    - [x] Token expiry masih terdeteksi
@@ -850,7 +927,7 @@ Lakukan semua test berikut sebelum dianggap selesai:
 
 ---
 
-*File ini diperbarui pada 2026-08-05. Fase 1 dan Fase 2 sudah selesai.*
+_File ini diperbarui pada 2026-08-05. Fase 1 dan Fase 2 sudah selesai._
 
 ---
 
@@ -886,17 +963,18 @@ Lakukan semua test berikut sebelum dianggap selesai:
 
 Fase 3 bertujuan meningkatkan kualitas kode dan performa aplikasi tanpa mengubah fungsionalitas atau tampilan dari sudut pandang user. Semua perubahan bersifat **internal dan non-breaking**.
 
-| # | Task | Dampak | Risiko |
-|---|------|--------|--------|
-| T1 | Hapus dead code (kode dikomentari) di komponen shared | Ukuran file lebih kecil | 🟢 Rendah |
-| T2 | Bersihkan dependency duplikat di `package.json` | Bundle lebih kecil | 🟢 Rendah |
-| T3 | Perbaiki route name duplikat di `router/index.js` | Navigasi programatik lebih reliable | 🟢 Rendah |
-| T4 | Tambahkan global error handler di `main.js` | UX lebih baik saat error runtime | 🟢 Rendah |
-| T5 | Buat composable `useDebounce` dan `useApi` | Kode lebih DRY dan reusable | 🟡 Sedang |
-| T6 | Simplifikasi template `ImageUpload.vue` | Kode lebih bersih, bug-resistant | 🟡 Sedang |
-| T7 | Migrasi komponen shared ke `<script setup>` | Kode lebih modern, lebih sedikit boilerplate | 🔴 Tinggi |
+| #   | Task                                                  | Dampak                                       | Risiko    |
+| --- | ----------------------------------------------------- | -------------------------------------------- | --------- |
+| T1  | Hapus dead code (kode dikomentari) di komponen shared | Ukuran file lebih kecil                      | 🟢 Rendah |
+| T2  | Bersihkan dependency duplikat di `package.json`       | Bundle lebih kecil                           | 🟢 Rendah |
+| T3  | Perbaiki route name duplikat di `router/index.js`     | Navigasi programatik lebih reliable          | 🟢 Rendah |
+| T4  | Tambahkan global error handler di `main.js`           | UX lebih baik saat error runtime             | 🟢 Rendah |
+| T5  | Buat composable `useDebounce` dan `useApi`            | Kode lebih DRY dan reusable                  | 🟡 Sedang |
+| T6  | Simplifikasi template `ImageUpload.vue`               | Kode lebih bersih, bug-resistant             | 🟡 Sedang |
+| T7  | Migrasi komponen shared ke `<script setup>`           | Kode lebih modern, lebih sedikit boilerplate | 🔴 Tinggi |
 
 **Yang TIDAK dilakukan di Fase 3:**
+
 - Tidak rename direktori views (risiko breaking change)
 - Tidak mengubah file di `src/views/` (kecuali disebutkan eksplisit per task)
 - Tidak migrasi ke Vite (opsional, lihat T-optional di bawah)
@@ -905,16 +983,16 @@ Fase 3 bertujuan meningkatkan kualitas kode dan performa aplikasi tanpa mengubah
 
 ## 🕐 Timeline & Estimasi
 
-| Task | Nama | Estimasi | Urutan | Dependency |
-|------|------|----------|--------|------------|
-| T1 | Hapus dead code di komponen shared | 1–2 jam | 1 | Independen |
-| T2 | Hapus dependency duplikat | 30–60 menit | 2 | Independen |
-| T3 | Perbaiki route name duplikat | 30–60 menit | 3 | Independen |
-| T4 | Global error handler | 30 menit | 4 | Independen |
-| T5 | Buat composable `useDebounce` & `useApi` | 2–3 jam | 5 | T1 selesai |
-| T6 | Simplifikasi template `ImageUpload.vue` | 2–3 jam | 6 | T1 selesai |
-| T7 | Migrasi komponen shared ke `<script setup>` | 8–12 jam | 7 | T1, T5, T6 selesai |
-| | **TOTAL** | **14–22 jam aktif** | | |
+| Task | Nama                                        | Estimasi            | Urutan | Dependency         |
+| ---- | ------------------------------------------- | ------------------- | ------ | ------------------ |
+| T1   | Hapus dead code di komponen shared          | 1–2 jam             | 1      | Independen         |
+| T2   | Hapus dependency duplikat                   | 30–60 menit         | 2      | Independen         |
+| T3   | Perbaiki route name duplikat                | 30–60 menit         | 3      | Independen         |
+| T4   | Global error handler                        | 30 menit            | 4      | Independen         |
+| T5   | Buat composable `useDebounce` & `useApi`    | 2–3 jam             | 5      | T1 selesai         |
+| T6   | Simplifikasi template `ImageUpload.vue`     | 2–3 jam             | 6      | T1 selesai         |
+| T7   | Migrasi komponen shared ke `<script setup>` | 8–12 jam            | 7      | T1, T5, T6 selesai |
+|      | **TOTAL**                                   | **14–22 jam aktif** |        |                    |
 
 ### Dependency Chart
 
@@ -932,13 +1010,13 @@ T4 (error handler)      → independen, bisa dikerjakan kapan saja
 
 ## 📊 Estimasi Resource
 
-| Resource | Detail |
-|----------|--------|
-| **Model** | Gemini 3.7 Flash (High) |
-| **File yang boleh diubah** | `src/components/*.vue`, `src/util/*.js`, `src/composables/*.js` (baru), `src/router/index.js`, `src/main.js`, `package.json` |
-| **File yang TIDAK BOLEH diubah** | Semua file di `src/views/` — **tanpa pengecualian** |
-| **Tools yang dibutuhkan** | `run_command`, `view_file`, `replace_file_content`, `write_to_file`, `grep_search`, `multi_replace_file_content` |
-| **Risiko utama** | Migrasi ke Composition API di T7 bisa menyebabkan error jika tidak hati-hati |
+| Resource                         | Detail                                                                                                                       |
+| -------------------------------- | ---------------------------------------------------------------------------------------------------------------------------- |
+| **Model**                        | Gemini 3.7 Flash (High)                                                                                                      |
+| **File yang boleh diubah**       | `src/components/*.vue`, `src/util/*.js`, `src/composables/*.js` (baru), `src/router/index.js`, `src/main.js`, `package.json` |
+| **File yang TIDAK BOLEH diubah** | Semua file di `src/views/` — **tanpa pengecualian**                                                                          |
+| **Tools yang dibutuhkan**        | `run_command`, `view_file`, `replace_file_content`, `write_to_file`, `grep_search`, `multi_replace_file_content`             |
+| **Risiko utama**                 | Migrasi ke Composition API di T7 bisa menyebabkan error jika tidak hati-hati                                                 |
 
 ---
 
@@ -964,6 +1042,7 @@ T4 (error handler)      → independen, bisa dikerjakan kapan saja
 Hapus semua kode yang dikomentari (`// ...` dan `/* ... */`) di file komponen shared. Git history sudah menyimpan kode lama — tidak perlu takut kehilangan kode penting.
 
 **Target File (hanya komponen shared, BUKAN views):**
+
 - `src/components/ImageUpload.vue` (~200 baris dikomentari)
 - `src/components/ImageMultiUpload.vue`
 - `src/components/VideoUpload.vue`
@@ -977,6 +1056,7 @@ Hapus semua kode yang dikomentari (`// ...` dan `/* ... */`) di file komponen sh
 **Step-by-Step Execution:**
 
 **Langkah 1:** Identifikasi seberapa banyak dead code yang ada
+
 ```
 Tool: run_command
 Command: (Get-Content "src/components/ImageUpload.vue") | Select-String "^\s*//" | Measure-Object | Select-Object Count
@@ -985,10 +1065,12 @@ WaitMsBeforeAsync: 2000
 ```
 
 **Langkah 2:** Baca `ImageUpload.vue` secara lengkap
+
 ```
 Tool: view_file
 File: src/components/ImageUpload.vue
 ```
+
 Identifikasi semua blok kode yang dikomentari (`// kode...` dan `/* ... */`). Catat nomor baris.
 
 **Langkah 3:** Hapus blok kode yang dikomentari dari `ImageUpload.vue`
@@ -998,6 +1080,7 @@ Identifikasi semua blok kode yang dikomentari (`// kode...` dan `/* ... */`). Ca
 Gunakan `multi_replace_file_content` untuk menghapus beberapa blok sekaligus dengan presisi.
 
 **Contoh pola yang harus dihapus:**
+
 ```javascript
 // Hapus blok seperti ini:
 // onImageInput(e) {
@@ -1013,44 +1096,54 @@ Gunakan `multi_replace_file_content` untuk menghapus beberapa blok sekaligus den
 ```
 
 **Langkah 4:** Verifikasi file masih valid setelah edit
+
 ```
 Tool: view_file
 File: src/components/ImageUpload.vue
 ```
+
 Pastikan:
+
 - Semua kurung kurawal `{}` masih seimbang
 - Tidak ada koma berlebih atau kurang di akhir method/property
 - Logika fungsional masih utuh
 
 **Langkah 5:** Ulangi untuk `ImageMultiUpload.vue` dan `VideoUpload.vue`
+
 ```
 Tool: view_file
 File: src/components/ImageMultiUpload.vue
 ```
 
 **Langkah 6:** Bersihkan dead code di `src/main.js`
+
 ```
 Tool: view_file
 File: src/main.js
 ```
+
 Hapus baris import yang sudah dikomentari dan kode yang tidak aktif.
 
 **Langkah 7:** Bersihkan dead code di `src/App.vue`
+
 ```
 Tool: view_file
 File: src/App.vue
 ```
 
 **Langkah 8:** Verifikasi dev server masih berjalan tanpa error
+
 ```
 Tool: run_command
 Command: npm run serve
 Cwd: d:\Projects\freelance\admingypsy-new
 WaitMsBeforeAsync: 10000
 ```
+
 Tunggu hingga output menunjukkan "Compiled successfully".
 
 **Verifikasi Keberhasilan:**
+
 - [ ] `ImageUpload.vue` tidak mengandung blok kode yang dikomentari
 - [ ] `ImageMultiUpload.vue` tidak mengandung blok kode yang dikomentari
 - [ ] `VideoUpload.vue` tidak mengandung blok kode yang dikomentari
@@ -1067,6 +1160,7 @@ Tunggu hingga output menunjukkan "Compiled successfully".
 Beberapa package di `package.json` sudah tidak digunakan atau sudah digantikan oleh package lain. Menghapusnya akan memperkecil ukuran `node_modules` dan mempercepat `npm install`.
 
 **Package yang harus dihapus:**
+
 - `font-awesome` → sudah digantikan `@fortawesome/fontawesome-free`
 - `flag-icon-css` → sudah digantikan `flag-icons`
 - `roboto-fontface` → sudah di-load via webfontloader
@@ -1082,6 +1176,7 @@ Beberapa package di `package.json` sudah tidak digunakan atau sudah digantikan o
 **Langkah 1:** Verifikasi setiap package benar-benar tidak digunakan
 
 Untuk setiap package di bawah, jalankan grep:
+
 ```
 Tool: grep_search
 Query: font-awesome
@@ -1131,12 +1226,14 @@ WaitMsBeforeAsync: 30000
 > Catatan: Jalankan satu per satu, atau gabungkan hanya package yang sudah terkonfirmasi tidak dipakai.
 
 **Langkah 3:** Cek `package.json` untuk memastikan perubahan tersimpan
+
 ```
 Tool: view_file
 File: package.json
 ```
 
 **Langkah 4:** Verifikasi dev server masih berjalan tanpa error
+
 ```
 Tool: run_command
 Command: npm run serve
@@ -1147,6 +1244,7 @@ WaitMsBeforeAsync: 15000
 **Langkah 5:** Buka browser, pastikan tampilan aplikasi tidak berubah (terutama ikon dan font).
 
 **Verifikasi Keberhasilan:**
+
 - [ ] Package duplikat tidak ada lagi di `package.json`
 - [ ] `npm run serve` compiled tanpa error
 - [ ] Tampilan browser tidak ada yang berubah (icon, font, layout normal)
@@ -1159,6 +1257,7 @@ WaitMsBeforeAsync: 15000
 Ada beberapa route yang memiliki nama (`name`) yang sama di `router/index.js`. Hal ini menyebabkan Vue Router mengeluarkan warning dan navigasi programatik dengan `this.$router.push({ name: '...' })` bisa mengarah ke route yang salah.
 
 **Route yang bermasalah (dari ANALYSIS.md):**
+
 ```javascript
 // Duplikat nama:
 { name: 'primary skills regurable association', path: '/primary-skills/regu-assoc/:id' }
@@ -1176,12 +1275,14 @@ Ada beberapa route yang memiliki nama (`name`) yang sama di `router/index.js`. H
 **Step-by-Step Execution:**
 
 **Langkah 1:** Cari semua route name duplikat
+
 ```
 Tool: run_command
 Command: node -e "const r=require('./src/router/index.js'); const names=r.default.options?.routes?.map(x=>x.name)||[]; const dupes=names.filter((n,i)=>names.indexOf(n)!==i); console.log('Duplikat:', dupes)"
 ```
 
 > Catatan: Jika command di atas tidak berhasil karena module system, gunakan grep manual:
+
 ```
 Tool: grep_search
 Query: name: 'primary skills regurable association'
@@ -1190,15 +1291,18 @@ MatchPerLine: true
 ```
 
 **Langkah 2:** Baca semua route yang bermasalah
+
 ```
 Tool: view_file
 File: src/router/index.js
 ```
+
 Cari dan catat semua baris dengan nama yang duplikat.
 
 **Langkah 3:** Ganti nama route duplikat dengan nama unik menggunakan konvensi `[modul].[nama]`
 
 Contoh perubahan:
+
 ```javascript
 // Sebelum:
 { name: 'primary skills regurable association', path: '/primary-skills/regu-assoc/:id' }
@@ -1220,6 +1324,7 @@ Contoh perubahan:
 ```
 
 **Langkah 4:** Cek apakah nama lama digunakan di komponen lain (navigasi programatik)
+
 ```
 Tool: grep_search
 Query: primary skills regurable association
@@ -1239,6 +1344,7 @@ MatchPerLine: true
 **Langkah 5:** Verifikasi dev server tidak menampilkan warning tentang duplicate route names.
 
 **Verifikasi Keberhasilan:**
+
 - [ ] Tidak ada route name yang sama di `router/index.js`
 - [ ] Dev server tidak menampilkan warning `[Vue Router warn]: No match found for location`
 - [ ] Navigasi ke halaman-halaman yang bersangkutan masih berfungsi normal
@@ -1257,6 +1363,7 @@ Saat ini tidak ada penanganan error runtime yang terpusat. Jika terjadi error Ja
 **Step-by-Step Execution:**
 
 **Langkah 1:** Baca `src/main.js` untuk memahami struktur saat ini
+
 ```
 Tool: view_file
 File: src/main.js
@@ -1287,6 +1394,7 @@ window.addEventListener('unhandledrejection', (event) => {
 ```
 
 **Langkah 3:** Baca `src/App.vue` untuk melihat apakah ada snackbar yang bisa digunakan
+
 ```
 Tool: view_file
 File: src/App.vue
@@ -1295,6 +1403,7 @@ File: src/App.vue
 **Langkah 4:** (Opsional) Tambahkan `onErrorCaptured` di `App.vue` sebagai error boundary
 
 Jika `App.vue` menggunakan Options API:
+
 ```javascript
 export default {
   // ... options yang sudah ada ...
@@ -1309,6 +1418,7 @@ export default {
 **Langkah 5:** Verifikasi dev server masih berjalan dan tidak ada error baru.
 
 **Verifikasi Keberhasilan:**
+
 - [ ] `main.js` memiliki `app.config.errorHandler`
 - [ ] `window.addEventListener('unhandledrejection', ...)` terpasang
 - [ ] Dev server compiled tanpa error
@@ -1320,6 +1430,7 @@ export default {
 
 **Deskripsi:**
 Saat ini setiap view mengimplementasi debounce search secara manual dan berulang (copy-paste pattern yang sama). Buat dua composable reusable:
+
 1. `useDebounce` — untuk debounce function calls
 2. `useApi` — wrapper standar untuk Axios request dengan loading/error state
 
@@ -1332,6 +1443,7 @@ Saat ini setiap view mengimplementasi debounce search secara manual dan berulang
 **Step-by-Step Execution:**
 
 **Langkah 1:** Buat direktori `src/composables/`
+
 ```
 Tool: run_command
 Command: New-Item -ItemType Directory -Path "src\composables" -Force
@@ -1340,12 +1452,14 @@ WaitMsBeforeAsync: 2000
 ```
 
 **Langkah 2:** Buat file `src/composables/useDebounce.js`
+
 ```
 Tool: write_to_file
 Path: src/composables/useDebounce.js
 ```
 
 Isi file:
+
 ```javascript
 /**
  * useDebounce.js
@@ -1383,12 +1497,14 @@ export function useDebounce(fn, delay = 400) {
 ```
 
 **Langkah 3:** Buat file `src/composables/useApi.js`
+
 ```
 Tool: write_to_file
 Path: src/composables/useApi.js
 ```
 
 Isi file:
+
 ```javascript
 /**
  * useApi.js
@@ -1436,10 +1552,7 @@ export function useApi() {
       data.value = transform ? transform(response.data) : response.data;
       return data.value;
     } catch (err) {
-      const message =
-        err.response?.data?.message ||
-        err.message ||
-        'An unexpected error occurred.';
+      const message = err.response?.data?.message || err.message || 'An unexpected error occurred.';
       error.value = message;
       console.error('[useApi Error]', err);
       return null;
@@ -1459,23 +1572,28 @@ export function useApi() {
 ```
 
 **Langkah 4:** Verifikasi kedua file berhasil dibuat
+
 ```
 Tool: view_file
 File: src/composables/useDebounce.js
 ```
+
 ```
 Tool: view_file
 File: src/composables/useApi.js
 ```
 
 **Langkah 5:** Verifikasi dev server masih berjalan normal
+
 ```
 Tool: run_command
 Command: (tunggu output terminal npm run serve)
 ```
+
 File composable yang tidak diimport di mana pun tidak akan menyebabkan error.
 
 **Verifikasi Keberhasilan:**
+
 - [ ] `src/composables/useDebounce.js` ada dan berisi implementasi yang benar
 - [ ] `src/composables/useApi.js` ada dan berisi implementasi yang benar
 - [ ] Dev server masih berjalan tanpa error
@@ -1494,11 +1612,14 @@ File composable yang tidak diimport di mana pun tidak akan menyebabkan error.
 **Step-by-Step Execution:**
 
 **Langkah 1:** Baca seluruh `ImageUpload.vue`
+
 ```
 Tool: view_file
 File: src/components/ImageUpload.vue
 ```
+
 Catat:
+
 - Bagian template yang menggunakan banyak `v-if` untuk ikon file
 - Computed properties yang sudah ada
 - Methods yang ada
@@ -1506,17 +1627,23 @@ Catat:
 **Langkah 2:** Identifikasi pola berulang di template
 
 Cari bagian template yang terlihat seperti:
+
 ```html
-<v-icon v-if="attachment.file.name.split('.').pop().toLowerCase() === 'pdf'"
-  color="red darken-1">mdi-file-pdf-outline</v-icon>
-<v-icon v-else-if="attachment.file.name.split('.').pop().toLowerCase() === 'doc' || ..."
-  color="blue darken-1">mdi-file-word-outline</v-icon>
+<v-icon v-if="attachment.file.name.split('.').pop().toLowerCase() === 'pdf'" color="red darken-1"
+  >mdi-file-pdf-outline</v-icon
+>
+<v-icon
+  v-else-if="attachment.file.name.split('.').pop().toLowerCase() === 'doc' || ..."
+  color="blue darken-1"
+  >mdi-file-word-outline</v-icon
+>
 <!-- ... 6-8 kondisi lagi ... -->
 ```
 
 **Langkah 3:** Tambahkan computed property `fileTypeMap` dan method `getFileIcon`
 
 Tambahkan di bagian `computed:` (atau buat jika belum ada):
+
 ```javascript
 computed: {
   // ... computed yang sudah ada ...
@@ -1579,6 +1706,7 @@ methods: {
 **Langkah 4:** Sederhanakan template
 
 Ganti bagian template yang berisi banyak `v-if/v-else-if` dengan:
+
 ```html
 <td>
   <!-- Tampilkan thumbnail jika file adalah gambar -->
@@ -1592,28 +1720,29 @@ Ganti bagian template yang berisi banyak `v-if/v-else-if` dengan:
   </template>
   <!-- Tampilkan ikon jika bukan gambar -->
   <template v-else>
-    <v-icon
-      style="margin-left: 10px"
-      size="50"
-      :color="getFileColor(attachment.file.name)"
-    >{{ getFileIcon(attachment.file.name) }}</v-icon>
+    <v-icon style="margin-left: 10px" size="50" :color="getFileColor(attachment.file.name)"
+      >{{ getFileIcon(attachment.file.name) }}</v-icon
+    >
   </template>
 </td>
 ```
 
 **Langkah 5:** Verifikasi perubahan tidak merusak struktur template
+
 ```
 Tool: view_file
 File: src/components/ImageUpload.vue
 ```
 
 **Langkah 6:** Test di browser
+
 - Buka halaman yang menggunakan `ImageUpload` (misalnya halaman yang memiliki upload gambar)
 - Upload gambar (JPG/PNG) — pastikan thumbnail tampil
 - Upload file PDF — pastikan ikon PDF tampil
 - Upload file Word (DOC) — pastikan ikon Word tampil
 
 **Verifikasi Keberhasilan:**
+
 - [ ] Template `ImageUpload.vue` tidak lagi memiliki rantai `v-if/v-else-if` yang panjang untuk ikon
 - [ ] Computed `fileTypeConfig` dan methods `getFileIcon`, `getFileColor`, `isImageFile` sudah ada
 - [ ] Upload gambar: thumbnail tampil
@@ -1629,16 +1758,19 @@ File: src/components/ImageUpload.vue
 Migrasi komponen shared dari Options API ke Composition API dengan `<script setup>`. Ini adalah task yang paling kompleks dan berisiko tinggi. Lakukan satu komponen per waktu, verifikasi browser setelah setiap komponen.
 
 > ⚠️ **PERHATIAN KRITIS:**
+>
 > - Task ini **HANYA** untuk file di `src/components/`
 > - **JANGAN** sentuh file di `src/views/`
 > - Jika ada komponen yang terlalu kompleks atau ada ketergantungan yang tidak jelas, **SKIP** dan catat di Progress Checklist
 
 **Target Komponen (urutan dari paling mudah ke paling sulit):**
+
 1. `HeaderDashboard.vue` — paling sederhana, migrasi duluan
 2. `SidebarDashboard.vue` — sudah pakai Pinia dan mitt, refactor ke script setup
 3. `ImageUpload.vue` — setelah T6 selesai
 
 **File yang TIDAK perlu dimigrasi (terlalu kompleks atau memiliki dependency yang rumit):**
+
 - `AdminDashboard.vue` — layout utama, risiko tinggi
 - `Dropdown.vue` — periksa terlebih dahulu sebelum memutuskan
 
@@ -1649,11 +1781,14 @@ Migrasi komponen shared dari Options API ke Composition API dengan `<script setu
 **Step-by-Step Execution — `HeaderDashboard.vue`:**
 
 **Langkah 1:** Baca seluruh `HeaderDashboard.vue`
+
 ```
 Tool: view_file
 File: src/components/HeaderDashboard.vue
 ```
+
 Catat:
+
 - Semua imports
 - Semua `data()` properties
 - Semua `computed` properties
@@ -1690,6 +1825,7 @@ Gunakan `replace_file_content` untuk mengganti **hanya** bagian `<script>` sampa
 **Langkah 5:** Verifikasi di browser setelah setiap komponen dimigrasi
 
 Jika ada error di browser console:
+
 - Baca error message dengan teliti
 - Error umum: `Cannot read property 'xxx' of undefined` — biasanya karena `this` masih dipakai atau variable belum di-`ref()`
 - Rollback dengan `git checkout src/components/HeaderDashboard.vue` jika error tidak bisa diselesaikan cepat
@@ -1697,6 +1833,7 @@ Jika ada error di browser console:
 **Step-by-Step Execution — `SidebarDashboard.vue`:**
 
 Ikuti langkah yang sama (1–5). Perhatian khusus:
+
 - `navStore = useNavigationStore()` — di `<script setup>` bisa langsung: `const navStore = useNavigationStore()`
 - `eventBus.on('update-image', handler)` — pindahkan ke `onMounted`
 - `eventBus.off('update-image', handler)` — pindahkan ke `onBeforeUnmount`
@@ -1704,10 +1841,12 @@ Ikuti langkah yang sama (1–5). Perhatian khusus:
 **Step-by-Step Execution — `ImageUpload.vue`:**
 
 Ikuti langkah yang sama. Perhatian khusus:
+
 - Komponen ini memiliki `props` dan `emits` — pastikan `defineProps` dan `defineEmits` digunakan
 - Ada banyak `data()` properties — konversi semua ke `ref()` atau `reactive()`
 
 **Verifikasi Keberhasilan:**
+
 - [ ] `HeaderDashboard.vue` menggunakan `<script setup>` dan tidak mengandung `export default`
 - [ ] `SidebarDashboard.vue` menggunakan `<script setup>`
 - [ ] `ImageUpload.vue` menggunakan `<script setup>`
@@ -1721,15 +1860,15 @@ Ikuti langkah yang sama. Perhatian khusus:
 
 ## ⚠️ Risk Register & Mitigasi
 
-| # | Risk | Kemungkinan | Dampak | Mitigasi |
-|---|------|-------------|--------|----------|
-| R1 | Menghapus kode yang ternyata masih dipakai di views | Sedang | Tinggi | Selalu grep sebelum hapus, hapus satu blok per waktu |
-| R2 | `npm uninstall` menghapus package yang masih digunakan | Rendah | Tinggi | Grep setiap package sebelum uninstall |
-| R3 | Migrasi `<script setup>` menyebabkan error karena `this` masih digunakan | Tinggi | Tinggi | Baca seluruh komponen sebelum migrasi, test di browser setelah setiap file |
-| R4 | Template simplifikasi di `ImageUpload.vue` menyebabkan ikon tidak tampil | Sedang | Sedang | Test dengan berbagai tipe file setelah perubahan |
-| R5 | Route name yang diubah di T3 menyebabkan navigasi gagal | Rendah | Sedang | Grep nama lama di seluruh src/ sebelum ubah |
-| R6 | Dev server tidak auto-reload setelah perubahan besar | Rendah | Rendah | Restart `npm run serve` jika diperlukan |
-| R7 | Composable `useApi` digunakan secara tidak benar | Rendah | Sedang | Ikuti contoh di dokumentasi composable, test di komponen kecil dulu |
+| #   | Risk                                                                     | Kemungkinan | Dampak | Mitigasi                                                                   |
+| --- | ------------------------------------------------------------------------ | ----------- | ------ | -------------------------------------------------------------------------- |
+| R1  | Menghapus kode yang ternyata masih dipakai di views                      | Sedang      | Tinggi | Selalu grep sebelum hapus, hapus satu blok per waktu                       |
+| R2  | `npm uninstall` menghapus package yang masih digunakan                   | Rendah      | Tinggi | Grep setiap package sebelum uninstall                                      |
+| R3  | Migrasi `<script setup>` menyebabkan error karena `this` masih digunakan | Tinggi      | Tinggi | Baca seluruh komponen sebelum migrasi, test di browser setelah setiap file |
+| R4  | Template simplifikasi di `ImageUpload.vue` menyebabkan ikon tidak tampil | Sedang      | Sedang | Test dengan berbagai tipe file setelah perubahan                           |
+| R5  | Route name yang diubah di T3 menyebabkan navigasi gagal                  | Rendah      | Sedang | Grep nama lama di seluruh src/ sebelum ubah                                |
+| R6  | Dev server tidak auto-reload setelah perubahan besar                     | Rendah      | Rendah | Restart `npm run serve` jika diperlukan                                    |
+| R7  | Composable `useApi` digunakan secara tidak benar                         | Rendah      | Sedang | Ikuti contoh di dokumentasi composable, test di komponen kecil dulu        |
 
 ---
 
@@ -1738,19 +1877,23 @@ Ikuti langkah yang sama. Perhatian khusus:
 Lakukan semua test berikut sebelum dianggap selesai:
 
 1. **Test Core Components:**
+
    - [ ] Header tampil normal, tombol toggle sidebar berfungsi
    - [ ] Sidebar tampil dengan semua menu, accordion bisa dibuka
    - [ ] Upload gambar di komponen `ImageUpload` berfungsi untuk berbagai tipe file
 
 2. **Test Navigasi:**
+
    - [ ] Klik setiap menu di sidebar, pastikan mengarah ke halaman yang benar
    - [ ] Tidak ada Vue Router warning di console tentang route yang tidak ditemukan
 
 3. **Test Dependency:**
+
    - [ ] `npm install` berjalan tanpa error setelah cleanup
    - [ ] `npm run build` menghasilkan `dist/` tanpa error
 
 4. **Test Browser Console:**
+
    - [ ] Tidak ada error merah
    - [ ] Tidak ada Vue warning tentang deprecated API
 
@@ -1761,6 +1904,7 @@ Lakukan semua test berikut sebelum dianggap selesai:
 ---
 
 ## 📝 Catatan Implementasi
+
 ```
 [2026-09-01] Fase 3 Completed:
 - T1: Dead code & unused properties cleaned from ImageUpload.vue, ImageMultiUpload.vue, VideoUpload.vue, AdminDashboard.vue
@@ -1776,7 +1920,7 @@ Lakukan semua test berikut sebelum dianggap selesai:
 
 ---
 
-*File ini diperbarui pada 2026-09-01. Fase 1, Fase 2, dan Fase 3 sudah selesai. Fase 4 siap dieksekusi.*
+_File ini diperbarui pada 2026-09-01. Fase 1, Fase 2, dan Fase 3 sudah selesai. Fase 4 siap dieksekusi._
 
 ---
 
@@ -1811,25 +1955,27 @@ Lakukan semua test berikut sebelum dianggap selesai:
 ## 📋 Ringkasan Eksekutif
 
 Fase 4 berfokus pada tiga pilar utama:
+
 1. **Security** — Memperkuat header HTTP dan mematikan `console.log` di production build
 2. **UX Reusable Components** — Membuat komponen shared yang mengurangi duplikasi ratusan baris kode di seluruh view
 3. **App.vue Enhancement** — Token expiry monitoring yang lebih robust
 
 Semua perubahan bersifat **additive** (menambahkan hal baru) bukan **destructive** (mengubah yang sudah ada), sehingga risiko breaking change sangat rendah.
 
-| # | Task ID | Nama Task | Dampak | Risiko | Estimasi |
-|---|---------|-----------|--------|--------|----------|
-| 1 | T1 | Security headers & console.log cleanup | Tinggi | 🟢 Rendah | 1–1.5 jam |
-| 2 | T2 | Token expiry monitoring robust di `App.vue` | Sedang | 🟢 Rendah | 1–2 jam |
-| 3 | T3 | Pinia store `useNotificationStore` | Sedang | 🟢 Rendah | 1 jam |
-| 4 | T4 | Komponen `GlobalNotification.vue` | Tinggi | 🟢 Rendah | 1–2 jam |
-| 5 | T5 | Komponen `ConfirmDialog.vue` reusable | Sedang | 🟢 Rendah | 1–2 jam |
-| 6 | T6 | Komponen `EmptyState.vue` | Sedang | 🟢 Rendah | 1 jam |
-| 7 | T7 | Composable `usePagination.js` | Sedang | 🟡 Sedang | 2–3 jam |
-| 8 | T8 | Composable `useApiWithCache.js` | Sedang | 🟡 Sedang | 2–3 jam |
-| 9 | T9 | Integrasi dan verifikasi akhir | - | 🟢 Rendah | 1–2 jam |
+| #   | Task ID | Nama Task                                   | Dampak | Risiko    | Estimasi  |
+| --- | ------- | ------------------------------------------- | ------ | --------- | --------- |
+| 1   | T1      | Security headers & console.log cleanup      | Tinggi | 🟢 Rendah | 1–1.5 jam |
+| 2   | T2      | Token expiry monitoring robust di `App.vue` | Sedang | 🟢 Rendah | 1–2 jam   |
+| 3   | T3      | Pinia store `useNotificationStore`          | Sedang | 🟢 Rendah | 1 jam     |
+| 4   | T4      | Komponen `GlobalNotification.vue`           | Tinggi | 🟢 Rendah | 1–2 jam   |
+| 5   | T5      | Komponen `ConfirmDialog.vue` reusable       | Sedang | 🟢 Rendah | 1–2 jam   |
+| 6   | T6      | Komponen `EmptyState.vue`                   | Sedang | 🟢 Rendah | 1 jam     |
+| 7   | T7      | Composable `usePagination.js`               | Sedang | 🟡 Sedang | 2–3 jam   |
+| 8   | T8      | Composable `useApiWithCache.js`             | Sedang | 🟡 Sedang | 2–3 jam   |
+| 9   | T9      | Integrasi dan verifikasi akhir              | -      | 🟢 Rendah | 1–2 jam   |
 
 **Yang TIDAK dilakukan di Fase 4:**
+
 - Tidak mengubah view yang sudah ada untuk menggunakan komponen baru
 - Tidak migrasi ke Vite
 - Tidak rename direktori views
@@ -1839,18 +1985,18 @@ Semua perubahan bersifat **additive** (menambahkan hal baru) bukan **destructive
 
 ## 🕐 Timeline & Estimasi
 
-| Task | Nama | Estimasi | Urutan | Dependency |
-|------|------|----------|--------|------------|
-| T1 | Security headers + console.log cleanup | 1–1.5 jam | 1 | Independen |
-| T2 | Token expiry monitoring | 1–2 jam | 2 | Independen |
-| T3 | `useNotificationStore` Pinia store | 1 jam | 3 | Independen |
-| T4 | `GlobalNotification.vue` | 1–2 jam | 4 | T3 selesai |
-| T5 | `ConfirmDialog.vue` | 1–2 jam | 5 | Independen |
-| T6 | `EmptyState.vue` | 1 jam | 6 | Independen |
-| T7 | `usePagination.js` composable | 2–3 jam | 7 | Independen |
-| T8 | `useApiWithCache.js` composable | 2–3 jam | 8 | Independen |
-| T9 | Integrasi & verifikasi akhir | 1–2 jam | 9 | T1–T8 selesai |
-| | **TOTAL** | **11–17.5 jam** | | |
+| Task | Nama                                   | Estimasi        | Urutan | Dependency    |
+| ---- | -------------------------------------- | --------------- | ------ | ------------- |
+| T1   | Security headers + console.log cleanup | 1–1.5 jam       | 1      | Independen    |
+| T2   | Token expiry monitoring                | 1–2 jam         | 2      | Independen    |
+| T3   | `useNotificationStore` Pinia store     | 1 jam           | 3      | Independen    |
+| T4   | `GlobalNotification.vue`               | 1–2 jam         | 4      | T3 selesai    |
+| T5   | `ConfirmDialog.vue`                    | 1–2 jam         | 5      | Independen    |
+| T6   | `EmptyState.vue`                       | 1 jam           | 6      | Independen    |
+| T7   | `usePagination.js` composable          | 2–3 jam         | 7      | Independen    |
+| T8   | `useApiWithCache.js` composable        | 2–3 jam         | 8      | Independen    |
+| T9   | Integrasi & verifikasi akhir           | 1–2 jam         | 9      | T1–T8 selesai |
+|      | **TOTAL**                              | **11–17.5 jam** |        |               |
 
 ### Dependency Chart
 
@@ -1868,13 +2014,13 @@ T8 (useApiWithCache) ───────────────────�
 
 ## 📊 Estimasi Resource
 
-| Resource | Detail |
-|----------|--------|
-| **Model** | Gemini Flash (High) atau Claude Sonnet |
-| **File yang boleh dibuat/diubah** | `public/.htaccess`, `vue.config.js`, `src/App.vue`, `src/main.js`, `src/stores/*.js` (baru), `src/components/*.vue` (baru), `src/composables/*.js` (baru) |
-| **File yang TIDAK BOLEH diubah** | Semua file di `src/views/` — **tanpa pengecualian** |
-| **File yang SUDAH ADA — baca dulu sebelum edit** | `src/App.vue`, `src/main.js`, `public/.htaccess`, `vue.config.js` |
-| **Tools yang dibutuhkan** | `run_command`, `view_file`, `replace_file_content`, `write_to_file`, `grep_search`, `multi_replace_file_content` |
+| Resource                                         | Detail                                                                                                                                                    |
+| ------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Model**                                        | Gemini Flash (High) atau Claude Sonnet                                                                                                                    |
+| **File yang boleh dibuat/diubah**                | `public/.htaccess`, `vue.config.js`, `src/App.vue`, `src/main.js`, `src/stores/*.js` (baru), `src/components/*.vue` (baru), `src/composables/*.js` (baru) |
+| **File yang TIDAK BOLEH diubah**                 | Semua file di `src/views/` — **tanpa pengecualian**                                                                                                       |
+| **File yang SUDAH ADA — baca dulu sebelum edit** | `src/App.vue`, `src/main.js`, `public/.htaccess`, `vue.config.js`                                                                                         |
+| **Tools yang dibutuhkan**                        | `run_command`, `view_file`, `replace_file_content`, `write_to_file`, `grep_search`, `multi_replace_file_content`                                          |
 
 ---
 
@@ -1905,6 +2051,7 @@ Memperkuat security HTTP headers di `.htaccess` cPanel dan mematikan `console.lo
 **Risiko:** 🟢 Sangat rendah — file `.htaccess` dan `vue.config.js` sudah ada, hanya ditambahkan konfigurasi
 
 **⚠️ Catatan Penting:**
+
 - Baca isi `public/.htaccess` dan `vue.config.js` terlebih dahulu sebelum mengedit
 - Jangan hapus konfigurasi SPA routing yang sudah ada di `.htaccess`
 - `vue.config.js` mungkin sudah memiliki konfigurasi lain — jangan timpa, hanya tambahkan
@@ -1993,6 +2140,7 @@ Menambahkan `setInterval` 5 menit di `App.vue` untuk memeriksa apakah token JWT 
 **Risiko:** 🟢 Rendah — `App.vue` sudah ada logika token check, ini hanya menambahkan interval
 
 **⚠️ Catatan Penting:**
+
 - Baca isi `src/App.vue` terlebih dahulu — file ini sudah punya kode token expiry
 - Jangan menghapus logika yang sudah ada
 - Pastikan interval di-clear di lifecycle `beforeUnmount` untuk mencegah memory leak
@@ -2020,6 +2168,7 @@ Menambahkan `setInterval` 5 menit di `App.vue` untuk memeriksa apakah token JWT 
 Setelah membaca `App.vue`, tambahkan/perbarui logika berikut sesuai pattern yang sudah ada di file (bisa Options API atau Composition API):
 
 **Jika `App.vue` menggunakan Options API:**
+
 ```javascript
 // Tambahkan property tokenCheckInterval
 data() {
@@ -2068,6 +2217,7 @@ methods: {
 ```
 
 **Jika `App.vue` sudah menggunakan Composition API / `<script setup>`:**
+
 ```javascript
 import { onMounted, onBeforeUnmount } from 'vue';
 import { useRouter } from 'vue-router';
@@ -2189,6 +2339,7 @@ Membuat komponen `GlobalNotification.vue` yang didaftarkan di `App.vue` satu kal
 **Risiko:** 🟢 Rendah — hanya menambahkan komponen baru di `App.vue`, tidak mengubah template view
 
 **⚠️ Catatan Penting:**
+
 - Daftarkan di `App.vue` dengan `<global-notification />` di template
 - Baca `App.vue` dulu sebelum mengedit — pastikan tidak duplikat dengan komponen yang mungkin sudah ada
 
@@ -2220,12 +2371,7 @@ Membuat komponen `GlobalNotification.vue` yang didaftarkan di `App.vue` satu kal
     </div>
 
     <template v-slot:actions>
-      <v-btn
-        icon
-        variant="text"
-        size="small"
-        @click="notification.hide()"
-      >
+      <v-btn icon variant="text" size="small" @click="notification.hide()">
         <v-icon size="18">mdi-close</v-icon>
       </v-btn>
     </template>
@@ -2330,11 +2476,7 @@ Membuat komponen dialog konfirmasi yang dapat digunakan oleh view mana saja. Dia
 
       <v-card-actions class="px-6 pb-4">
         <v-spacer />
-        <v-btn
-          variant="text"
-          style="text-transform: none"
-          @click="onCancel"
-        >
+        <v-btn variant="text" style="text-transform: none" @click="onCancel">
           {{ cancelText }}
         </v-btn>
         <v-btn
@@ -2426,11 +2568,7 @@ Membuat komponen visual yang ditampilkan ketika tabel tidak memiliki data. Saat 
 -->
 <template>
   <div class="empty-state d-flex flex-column align-center justify-center py-12 px-4">
-    <v-icon
-      :size="iconSize"
-      :color="iconColor"
-      class="mb-4 empty-state__icon"
-    >
+    <v-icon :size="iconSize" :color="iconColor" class="mb-4 empty-state__icon">
       {{ icon }}
     </v-icon>
 
@@ -2507,33 +2645,29 @@ Membuat composable reusable untuk pagination yang dapat digunakan oleh view mana
 // src/composables/usePagination.js
 /**
  * Composable reusable untuk pagination.
- * 
+ *
  * CARA PENGGUNAAN (opsional, di view baru):
- * 
+ *
  * import { usePagination } from '@/composables/usePagination';
  * import axios from '@/util/axios';
- * 
+ *
  * const fetchUsers = async ({ page, pageSize, search }) => {
  *   const res = await axios.get('/users', { params: { page, page_size: pageSize, search } });
  *   return { data: res.data.data, total: res.data.total };
  * };
- * 
+ *
  * const {
  *   items, page, pageSize, total, totalPages,
  *   isLoading, error, fetch, goToPage, setSearch
  * } = usePagination(fetchUsers, { initialPageSize: 10 });
- * 
+ *
  * // Panggil fetch() saat mounted
  * onMounted(() => fetch());
  */
 import { ref, computed } from 'vue';
 
 export function usePagination(fetchFn, options = {}) {
-  const {
-    initialPageSize = 10,
-    initialPage = 1,
-    immediate = false,
-  } = options;
+  const { initialPageSize = 10, initialPage = 1, immediate = false } = options;
 
   const page = ref(initialPage);
   const pageSize = ref(initialPageSize);
@@ -2665,19 +2799,19 @@ Membuat composable untuk meng-cache response API yang jarang berubah (misalnya: 
 /**
  * Composable untuk API calls dengan in-memory caching.
  * Cache di-reset otomatis saat page di-refresh.
- * 
+ *
  * CARA PENGGUNAAN (opsional, di view baru atau composable lain):
- * 
+ *
  * import { useApiWithCache } from '@/composables/useApiWithCache';
- * 
+ *
  * // Cache selama 5 menit (default)
  * const { data, isLoading, error, fetch, invalidate } = useApiWithCache('/app/active');
- * 
+ *
  * onMounted(() => fetch());
- * 
+ *
  * // Force refresh (bypass cache)
  * const refresh = () => fetch(true);
- * 
+ *
  * // Invalidate cache (hapus dari cache, next fetch akan hit server)
  * const clearCache = () => invalidate();
  */
@@ -2699,9 +2833,7 @@ export function useApiWithCache(url, options = {}) {
   const error = ref(null);
 
   const _getCacheKey = () => {
-    const paramStr = Object.keys(params).length
-      ? '?' + new URLSearchParams(params).toString()
-      : '';
+    const paramStr = Object.keys(params).length ? '?' + new URLSearchParams(params).toString() : '';
     return url + paramStr;
   };
 
@@ -2827,15 +2959,15 @@ Tandai semua item checklist di bagian `✅ Progress Checklist` sebagai `[x]` set
 
 ## 🛡️ Risk & Mitigation
 
-| Task | Risiko | Probabilitas | Mitigasi |
-|------|--------|--------------|----------|
-| T1 (Security Headers) | CSP memblokir resource yang legitimate | 🟡 Sedang | Test di browser developer tools, perhatikan console CSP errors. Gunakan `'unsafe-inline'` sementara. |
-| T1 (Terser config) | `chainWebpack` conflict dengan konfigurasi yang sudah ada | 🟡 Sedang | Baca `vue.config.js` dulu, gunakan `tap()` bukan replace. |
-| T2 (Token Expiry) | Conflict dengan logika token check yang sudah ada di `App.vue` | 🟡 Sedang | Baca `App.vue` dulu, jangan duplikasi, hanya tambahkan `setInterval`. |
-| T4 (GlobalNotification) | Conflict posisi `v-snackbar` dengan yang sudah ada di view | 🟢 Rendah | Komponen ini di `App.vue`, tidak menghapus yang ada di view — keduanya bisa berjalan bersamaan. |
-| T7 (usePagination) | API backend tidak support pagination | 🟡 Sedang | Composable sudah dirancang agar bebas dari format response tertentu — user bisa menyesuaikan `fetchFn`. |
-| T8 (useApiWithCache) | Cache stale data menyebabkan UI tidak update | 🟡 Sedang | Gunakan `forceRefresh = true` atau `invalidate()` setelah mutation. Dokumentasikan di JSDoc. |
-| Semua | Breaking change di view | 🟢 Rendah | Semua komponen/composable baru bersifat additive — tidak ada yang memaksa view berubah. |
+| Task                    | Risiko                                                         | Probabilitas | Mitigasi                                                                                                |
+| ----------------------- | -------------------------------------------------------------- | ------------ | ------------------------------------------------------------------------------------------------------- |
+| T1 (Security Headers)   | CSP memblokir resource yang legitimate                         | 🟡 Sedang    | Test di browser developer tools, perhatikan console CSP errors. Gunakan `'unsafe-inline'` sementara.    |
+| T1 (Terser config)      | `chainWebpack` conflict dengan konfigurasi yang sudah ada      | 🟡 Sedang    | Baca `vue.config.js` dulu, gunakan `tap()` bukan replace.                                               |
+| T2 (Token Expiry)       | Conflict dengan logika token check yang sudah ada di `App.vue` | 🟡 Sedang    | Baca `App.vue` dulu, jangan duplikasi, hanya tambahkan `setInterval`.                                   |
+| T4 (GlobalNotification) | Conflict posisi `v-snackbar` dengan yang sudah ada di view     | 🟢 Rendah    | Komponen ini di `App.vue`, tidak menghapus yang ada di view — keduanya bisa berjalan bersamaan.         |
+| T7 (usePagination)      | API backend tidak support pagination                           | 🟡 Sedang    | Composable sudah dirancang agar bebas dari format response tertentu — user bisa menyesuaikan `fetchFn`. |
+| T8 (useApiWithCache)    | Cache stale data menyebabkan UI tidak update                   | 🟡 Sedang    | Gunakan `forceRefresh = true` atau `invalidate()` setelah mutation. Dokumentasikan di JSDoc.            |
+| Semua                   | Breaking change di view                                        | 🟢 Rendah    | Semua komponen/composable baru bersifat additive — tidak ada yang memaksa view berubah.                 |
 
 ---
 
@@ -2856,7 +2988,7 @@ Tandai semua item checklist di bagian `✅ Progress Checklist` sebagai `[x]` set
 
 ---
 
-*File ini diperbarui pada 2026-09-01. Fase 1, Fase 2, Fase 3, dan Fase 4 sudah selesai. Fase 5 siap dieksekusi.*
+_File ini diperbarui pada 2026-09-01. Fase 1, Fase 2, Fase 3, dan Fase 4 sudah selesai. Fase 5 siap dieksekusi._
 
 ---
 
@@ -2867,8 +2999,7 @@ Tandai semua item checklist di bagian `✅ Progress Checklist` sebagai `[x]` set
 > **Target Audiens:** Model AI (Gemini Flash High / Claude) yang akan mengeksekusi task ini
 > **Prasyarat WAJIB:** Baca [`docs/README.md`](./README.md) dan [`docs/IMPROVEMENT.md`](./IMPROVEMENT.md) terlebih dahulu
 > **Fase:** 5 dari N
-> **Fokus:** Meningkatkan performa load halaman dan interaktivitas UI — tanpa menyentuh file di `src/views/`
-> **Estimasi Total:** 10–14 jam
+> **Fokus:** Meningkatkan performa load halaman dan interaktivitas UI — tanpa menyentuh file di `src/views/` > **Estimasi Total:** 10–14 jam
 
 ---
 
@@ -2897,15 +3028,16 @@ Fase 5 berfokus pada tiga pilar peningkatan performa:
 
 Semua perubahan bersifat **additive** dan **tidak memaksa view yang sudah ada untuk berubah**. Komponen dan composable baru dapat digunakan secara opsional oleh view yang ingin memanfaatkannya.
 
-| # | Task ID | Nama Task | Dampak | Risiko | Estimasi |
-|---|---------|-----------|--------|--------|----------|
-| 1 | T1 | Webpack chunk splitting optimization | Tinggi | 🟢 Rendah | 1–1.5 jam |
-| 2 | T2 | Composable `useSkeletonLoader.js` | Tinggi | 🟢 Rendah | 1 jam |
-| 3 | T3 | Komponen `SkeletonTable.vue` reusable | Tinggi | 🟢 Rendah | 2–3 jam |
-| 4 | T4 | Composable `useImageLazy.js` (image lazy loading helper) | Sedang | 🟢 Rendah | 1 jam |
-| 5 | T5 | Integrasi dan verifikasi akhir | - | 🟢 Rendah | 1–2 jam |
+| #   | Task ID | Nama Task                                                | Dampak | Risiko    | Estimasi  |
+| --- | ------- | -------------------------------------------------------- | ------ | --------- | --------- |
+| 1   | T1      | Webpack chunk splitting optimization                     | Tinggi | 🟢 Rendah | 1–1.5 jam |
+| 2   | T2      | Composable `useSkeletonLoader.js`                        | Tinggi | 🟢 Rendah | 1 jam     |
+| 3   | T3      | Komponen `SkeletonTable.vue` reusable                    | Tinggi | 🟢 Rendah | 2–3 jam   |
+| 4   | T4      | Composable `useImageLazy.js` (image lazy loading helper) | Sedang | 🟢 Rendah | 1 jam     |
+| 5   | T5      | Integrasi dan verifikasi akhir                           | -      | 🟢 Rendah | 1–2 jam   |
 
 **Yang TIDAK dilakukan di Fase 5:**
+
 - Tidak mengubah file di `src/views/` — semua komponen baru bersifat opsional
 - Tidak migrasi ke Vite
 - Tidak rename direktori views
@@ -2915,14 +3047,14 @@ Semua perubahan bersifat **additive** dan **tidak memaksa view yang sudah ada un
 
 ## 🕐 Timeline & Estimasi
 
-| Task | Nama | Estimasi | Urutan | Dependency |
-|------|------|----------|--------|------------|
-| T1 | Webpack chunk splitting | 1–1.5 jam | 1 | Independen |
-| T2 | `useSkeletonLoader.js` composable | 1 jam | 2 | Independen |
-| T3 | `SkeletonTable.vue` component | 2–3 jam | 3 | T2 selesai |
-| T4 | `useImageLazy.js` composable | 1 jam | 4 | Independen |
-| T5 | Verifikasi akhir | 1–2 jam | 5 | T1–T4 selesai |
-| | **TOTAL** | **6–9.5 jam** | | |
+| Task | Nama                              | Estimasi      | Urutan | Dependency    |
+| ---- | --------------------------------- | ------------- | ------ | ------------- |
+| T1   | Webpack chunk splitting           | 1–1.5 jam     | 1      | Independen    |
+| T2   | `useSkeletonLoader.js` composable | 1 jam         | 2      | Independen    |
+| T3   | `SkeletonTable.vue` component     | 2–3 jam       | 3      | T2 selesai    |
+| T4   | `useImageLazy.js` composable      | 1 jam         | 4      | Independen    |
+| T5   | Verifikasi akhir                  | 1–2 jam       | 5      | T1–T4 selesai |
+|      | **TOTAL**                         | **6–9.5 jam** |        |               |
 
 ### Dependency Chart
 
@@ -2936,14 +3068,14 @@ T4 (useImageLazy) ────────────────────�
 
 ## 📊 Estimasi Resource
 
-| Resource | Detail |
-|----------|--------|
-| **Model** | Gemini Flash (High) atau Claude Sonnet |
-| **File yang boleh dibuat/diubah** | `vue.config.js`, `src/composables/*.js` (baru), `src/components/SkeletonTable.vue` (baru) |
-| **File yang TIDAK BOLEH diubah** | Semua file di `src/views/` — **tanpa pengecualian** |
-| **File yang SUDAH ADA — baca dulu sebelum edit** | `vue.config.js` |
-| **Dependency baru** | Tidak ada — `v-skeleton-loader` sudah tersedia via Vuetify 3 |
-| **Tools yang dibutuhkan** | `run_command`, `view_file`, `replace_file_content`, `write_to_file`, `grep_search` |
+| Resource                                         | Detail                                                                                    |
+| ------------------------------------------------ | ----------------------------------------------------------------------------------------- |
+| **Model**                                        | Gemini Flash (High) atau Claude Sonnet                                                    |
+| **File yang boleh dibuat/diubah**                | `vue.config.js`, `src/composables/*.js` (baru), `src/components/SkeletonTable.vue` (baru) |
+| **File yang TIDAK BOLEH diubah**                 | Semua file di `src/views/` — **tanpa pengecualian**                                       |
+| **File yang SUDAH ADA — baca dulu sebelum edit** | `vue.config.js`                                                                           |
+| **Dependency baru**                              | Tidak ada — `v-skeleton-loader` sudah tersedia via Vuetify 3                              |
+| **Tools yang dibutuhkan**                        | `run_command`, `view_file`, `replace_file_content`, `write_to_file`, `grep_search`        |
 
 ---
 
@@ -2970,6 +3102,7 @@ Mengoptimasi konfigurasi `splitChunks` Webpack di `vue.config.js` agar Vuetify d
 **Risiko:** 🟢 Rendah — hanya modifikasi config Webpack, tidak menyentuh kode Vue
 
 **⚠️ Catatan Penting:**
+
 - Baca isi `vue.config.js` terlebih dahulu dengan `view_file` sebelum mengedit
 - `chainWebpack` untuk terser (`drop_console`) sudah ada dari Fase 4 — jangan hapus, cukup tambahkan `configureWebpack`
 - Kedua key (`chainWebpack` dan `configureWebpack`) bisa koeksistensi dalam `defineConfig({...})`
@@ -2981,6 +3114,7 @@ Mengoptimasi konfigurasi `splitChunks` Webpack di `vue.config.js` agar Vuetify d
 **Estimasi:** 10 menit
 
 **Step-by-step:**
+
 1. Jalankan `view_file` pada `vue.config.js`
 2. Pastikan konfigurasi `chainWebpack` (dari Fase 4) masih ada
 3. Identifikasi posisi untuk menambahkan `configureWebpack`
@@ -3039,6 +3173,7 @@ Membuat composable ringan yang mengelola state loading skeleton. Composable ini 
 **Risiko:** 🟢 Sangat rendah — file baru, tidak ada dependency ke file yang sudah ada
 
 **⚠️ Catatan Penting:**
+
 - File ini bersifat additive — tidak mengubah composable yang sudah ada (`useApi.js`, `useDebounce.js`)
 - Tidak perlu install package apapun
 
@@ -3127,6 +3262,7 @@ Membuat komponen skeleton yang menampilkan placeholder baris tabel saat data sed
 **Risiko:** 🟢 Rendah — file baru, menggunakan komponen Vuetify yang sudah tersedia
 
 **⚠️ Catatan Penting:**
+
 - `v-skeleton-loader` sudah tersedia di Vuetify 3 — tidak perlu install package tambahan
 - Komponen ini tidak diregistrasi secara global di `main.js` — cukup diimport secara lokal oleh view yang ingin menggunakannya
 - Biarkan view yang sudah ada tetap menggunakan `v-progress-circular` yang lama — jangan paksa berubah
@@ -3170,16 +3306,8 @@ Membuat komponen skeleton yang menampilkan placeholder baris tabel saat data sed
     <!-- Header Skeleton -->
     <thead>
       <tr>
-        <th
-          v-for="(col, index) in normalizedColumns"
-          :key="index"
-          class="text-left py-3"
-        >
-          <v-skeleton-loader
-            type="text"
-            width="80"
-            height="16"
-          />
+        <th v-for="(col, index) in normalizedColumns" :key="index" class="text-left py-3">
+          <v-skeleton-loader type="text" width="80" height="16" />
         </th>
       </tr>
     </thead>
@@ -3187,32 +3315,14 @@ Membuat komponen skeleton yang menampilkan placeholder baris tabel saat data sed
     <!-- Body Skeleton Rows -->
     <tbody>
       <tr v-for="row in rows" :key="row">
-        <td
-          v-for="(col, colIndex) in normalizedColumns"
-          :key="colIndex"
-          class="py-3"
-        >
+        <td v-for="(col, colIndex) in normalizedColumns" :key="colIndex" class="py-3">
           <!-- Kolom pertama kadang berisi gambar thumbnail -->
           <div v-if="colIndex === 0 && showThumbnail" class="d-flex align-center gap-3">
-            <v-skeleton-loader
-              type="avatar"
-              width="40"
-              height="40"
-              class="rounded"
-            />
-            <v-skeleton-loader
-              type="text"
-              :width="getRandomWidth(80, 140)"
-              height="14"
-            />
+            <v-skeleton-loader type="avatar" width="40" height="40" class="rounded" />
+            <v-skeleton-loader type="text" :width="getRandomWidth(80, 140)" height="14" />
           </div>
           <!-- Kolom biasa -->
-          <v-skeleton-loader
-            v-else
-            type="text"
-            :width="getRandomWidth(60, 160)"
-            height="14"
-          />
+          <v-skeleton-loader v-else type="text" :width="getRandomWidth(60, 160)" height="14" />
         </td>
       </tr>
     </tbody>
@@ -3287,6 +3397,7 @@ Membuat composable helper yang menyediakan utilitas untuk lazy loading gambar. M
 **Risiko:** 🟢 Sangat rendah — file baru murni, tidak mengubah apapun yang sudah ada
 
 **⚠️ Catatan Penting:**
+
 - Composable ini **tidak mengubah** view yang sudah ada
 - Lazy loading juga bisa dilakukan cukup dengan menambahkan atribut `loading="lazy"` pada `<v-img>` secara langsung — composable ini hanya menyediakan placeholder/blur URL yang siap pakai
 - Gunakan `IntersectionObserver` natif — tidak perlu library tambahan
@@ -3345,9 +3456,7 @@ export function useImageLazy(options = {}) {
    */
   const placeholderSrc = computed(() => {
     if (useSvgPlaceholder) {
-      return (
-        'data:image/svg+xml,%3Csvg xmlns%3D%22http%3A//www.w3.org/2000/svg%22 width%3D%221%22 height%3D%221%22%3E%3C/svg%3E'
-      );
+      return 'data:image/svg+xml,%3Csvg xmlns%3D%22http%3A//www.w3.org/2000/svg%22 width%3D%221%22 height%3D%221%22%3E%3C/svg%3E';
     }
     return '';
   });
@@ -3450,14 +3559,14 @@ Tandai semua item checklist di bagian `✅ Progress Checklist` sebagai `[x]` set
 
 ## 🛡️ Risk & Mitigation
 
-| Task | Risiko | Probabilitas | Mitigasi |
-|------|--------|--------------|----------|
-| T1 (Chunk Splitting) | Conflict antara `chainWebpack` dan `configureWebpack` | 🟡 Sedang | Keduanya bisa koeksistensi dalam `defineConfig`. Baca `vue.config.js` dulu, pastikan tidak menimpa konfigurasi yang ada. |
-| T1 (Chunk Splitting) | Chunk baru menyebabkan 404 jika path tidak sesuai di cPanel | 🟡 Sedang | Vue CLI otomatis mengelola `publicPath` di bundle. Tidak perlu konfigurasi khusus cPanel. |
-| T3 (SkeletonTable) | `v-skeleton-loader` belum tersedia di versi Vuetify yang digunakan | 🟡 Sedang | Cek versi Vuetify: `node -e "console.log(require('./node_modules/vuetify/package.json').version)"`. Jika Vuetify < 3.0, ganti dengan `v-progress-linear` saja. |
-| T3 (SkeletonTable) | `getRandomWidth()` dipanggil saat server-side rendering atau hydration | 🟢 Rendah | Proyek ini adalah pure SPA tanpa SSR — tidak ada risiko. |
-| T4 (useImageLazy) | Browser lama tidak mendukung `loading="lazy"` | 🟢 Rendah | Fallback otomatis ke loading normal — tidak ada visual error. |
-| Semua | Breaking change di view | 🟢 Rendah | Semua komponen/composable baru bersifat additive — tidak ada yang memaksa view berubah. |
+| Task                 | Risiko                                                                 | Probabilitas | Mitigasi                                                                                                                                                       |
+| -------------------- | ---------------------------------------------------------------------- | ------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| T1 (Chunk Splitting) | Conflict antara `chainWebpack` dan `configureWebpack`                  | 🟡 Sedang    | Keduanya bisa koeksistensi dalam `defineConfig`. Baca `vue.config.js` dulu, pastikan tidak menimpa konfigurasi yang ada.                                       |
+| T1 (Chunk Splitting) | Chunk baru menyebabkan 404 jika path tidak sesuai di cPanel            | 🟡 Sedang    | Vue CLI otomatis mengelola `publicPath` di bundle. Tidak perlu konfigurasi khusus cPanel.                                                                      |
+| T3 (SkeletonTable)   | `v-skeleton-loader` belum tersedia di versi Vuetify yang digunakan     | 🟡 Sedang    | Cek versi Vuetify: `node -e "console.log(require('./node_modules/vuetify/package.json').version)"`. Jika Vuetify < 3.0, ganti dengan `v-progress-linear` saja. |
+| T3 (SkeletonTable)   | `getRandomWidth()` dipanggil saat server-side rendering atau hydration | 🟢 Rendah    | Proyek ini adalah pure SPA tanpa SSR — tidak ada risiko.                                                                                                       |
+| T4 (useImageLazy)    | Browser lama tidak mendukung `loading="lazy"`                          | 🟢 Rendah    | Fallback otomatis ke loading normal — tidak ada visual error.                                                                                                  |
+| Semua                | Breaking change di view                                                | 🟢 Rendah    | Semua komponen/composable baru bersifat additive — tidak ada yang memaksa view berubah.                                                                        |
 
 ---
 
@@ -3474,8 +3583,399 @@ Tandai semua item checklist di bagian `✅ Progress Checklist` sebagai `[x]` set
 
 ---
 
-*File ini diperbarui pada 2026-09-01. Fase 1, Fase 2, Fase 3, Fase 4, dan Fase 5 sudah selesai.*
+_File ini diperbarui pada 2026-09-01. Fase 1, Fase 2, Fase 3, Fase 4, dan Fase 5 sudah selesai. Fase 6 siap dieksekusi._
 
+---
 
+# 🛠️ IMPLEMENTATION.md — Fase 6: Developer Experience ✅ SELESAI
 
+> **Status:** COMPLETED
+> **Tanggal:** 2026-09-01
+> **Target Audiens:** Model AI (Gemini Flash High / Claude) yang akan mengeksekusi task ini
+> **Prasyarat WAJIB:** Baca [`docs/README.md`](./README.md) dan [`docs/IMPROVEMENT.md`](./IMPROVEMENT.md) terlebih dahulu
+> **Fase:** 6 dari N
+> **Fokus:** Meningkatkan Developer Experience — code formatting konsisten dan pre-commit enforcement
+> **Estimasi Total:** 3–4 jam
 
+---
+
+## ⚠️ PERINGATAN KRITIS — BACA SEBELUM MEMULAI
+
+> Fase ini melibatkan **perubahan tooling** (`devDependencies`, `.eslintrc.js`, konfigurasi `package.json`) dan **bukan** perubahan pada runtime kode Vue. Risiko breaking production build sangat rendah, tetapi tetap wajib verifikasi dengan `npm run build` setelah selesai.
+
+**Prinsip Aman WAJIB di Fase 6:**
+
+1. **JANGAN ubah file di `src/views/`** — tanpa pengecualian apapun.
+2. **Jangan jalankan `prettier --write` atau `eslint --fix` secara massal** terhadap seluruh `src/views/` — terlalu berisiko menyebabkan perubahan besar yang tidak terduga pada banyak file.
+3. **Prettier hanya dikonfigurasi**, bukan dijalankan secara paksa ke seluruh codebase.
+4. **Husky pre-commit hook hanya mem-fix file yang di-staged**, bukan seluruh repo.
+5. **Verifikasi `npm run build` berhasil (0 errors)** setelah setiap task diselesaikan.
+6. **Baca file yang ada terlebih dahulu** dengan `view_file` sebelum mengedit.
+
+> [!NOTE] > **S4 (strip console.log)** sudah selesai di Fase 4 via `vue.config.js` menggunakan Terser `drop_console: true`. Task ini **TIDAK perlu dikerjakan lagi** di Fase 6.
+
+---
+
+## 📋 Ringkasan Eksekutif
+
+Fase 6 berfokus pada dua pilar Developer Experience:
+
+1. **Prettier Integration** — Menambahkan Prettier sebagai code formatter yang konsisten bersama ESLint, sehingga seluruh kode yang ditulis ke depan akan mengikuti standar format yang seragam secara otomatis.
+2. **Husky + lint-staged** — Git pre-commit hook yang otomatis menjalankan ESLint fix dan Prettier pada file yang di-staged sebelum commit, mencegah kode tidak konsisten masuk ke repository.
+
+> **Catatan Scope:** DX4 (rename direktori views) dikecualikan dari Fase 6 karena risiko breaking change yang terlalu tinggi (90+ import path di router). DX4 masuk ke **Fase Opsional**.
+
+| #   | Task ID | Nama Task                                 | Dampak | Risiko    | Estimasi    |
+| --- | ------- | ----------------------------------------- | ------ | --------- | ----------- |
+| 1   | T1      | Prettier integration + konfigurasi ESLint | Sedang | 🟢 Rendah | 1–1.5 jam   |
+| 2   | T2      | Husky + lint-staged pre-commit hook       | Sedang | 🟢 Rendah | 30–45 menit |
+| 3   | T3      | Verifikasi & testing                      | -      | 🟢 Rendah | 30–45 menit |
+
+**Yang TIDAK dilakukan di Fase 6:**
+
+- Tidak menjalankan Prettier/ESLint --fix secara massal ke seluruh `src/views/`
+- Tidak mengubah logika runtime apapun
+- Tidak rename direktori (DX4 — ada di Fase Opsional)
+- `S4` (strip console.log) sudah selesai di Fase 4
+
+---
+
+## 🕐 Timeline & Estimasi
+
+| Task | Nama                     | Estimasi    | Urutan | Dependency    |
+| ---- | ------------------------ | ----------- | ------ | ------------- |
+| T1   | Prettier + ESLint config | 1–1.5 jam   | 1      | Independen    |
+| T2   | Husky + lint-staged      | 30–45 menit | 2      | T1 selesai    |
+| T3   | Verifikasi & testing     | 30–45 menit | 3      | T1–T2 selesai |
+|      | **TOTAL**                | **2–3 jam** |        |               |
+
+### Dependency Chart
+
+```
+T1 (Prettier + ESLint) ──→ T2 (Husky) ──→ T3 (verifikasi)
+```
+
+---
+
+## 📊 Estimasi Resource
+
+| Resource                                         | Detail                                                                                 |
+| ------------------------------------------------ | -------------------------------------------------------------------------------------- |
+| **Model**                                        | Gemini Flash (High) atau Claude Sonnet                                                 |
+| **File yang boleh dibuat/diubah**                | `.eslintrc.js`, `package.json`, `.prettierrc.json` (baru), `.husky/pre-commit` (baru)  |
+| **File yang TIDAK BOLEH diubah**                 | Semua file di `src/views/` — **tanpa pengecualian**                                    |
+| **File yang SUDAH ADA — baca dulu sebelum edit** | `.eslintrc.js`, `package.json`                                                         |
+| **Dependency baru**                              | `prettier`, `eslint-config-prettier`, `eslint-plugin-prettier`, `husky`, `lint-staged` |
+| **Tools yang dibutuhkan**                        | `run_command`, `view_file`, `replace_file_content`, `write_to_file`                    |
+
+---
+
+## ✅ Progress Checklist
+
+- [x] **T1** — Prettier terinstall + `.prettierrc.json` dibuat + `.eslintrc.js` diperbarui
+- [x] **T2** — Husky terinstall + `lint-staged` dikonfigurasi di `package.json` + pre-commit hook dibuat
+- [x] **T3** — `npm run build` berhasil 0 error, pre-commit hook berjalan saat `git commit`
+
+---
+
+## 📝 Detail Task
+
+---
+
+### T1 — Prettier Integration + Konfigurasi ESLint
+
+**Deskripsi:**
+Menginstall Prettier sebagai formatter, membuat file konfigurasi `.prettierrc.json`, dan mengintegrasikan Prettier ke dalam ESLint melalui `eslint-config-prettier` (menonaktifkan aturan ESLint yang konflik dengan Prettier) dan `eslint-plugin-prettier` (menjalankan Prettier sebagai aturan ESLint).
+
+**Kompleksitas:** 🟢 Rendah
+**Risiko:** 🟢 Rendah — perubahan hanya pada tooling konfigurasi, tidak memengaruhi runtime
+
+**⚠️ Catatan Penting:**
+
+- Baca `.eslintrc.js` yang sudah ada dengan `view_file` sebelum mengedit
+- `'plugin:prettier/recommended'` harus diletakkan **di urutan terakhir** dalam array `extends` untuk override aturan yang konflik
+- `'vue/setup-compiler-macros': true` di `env` **JANGAN dihapus** — ini penting untuk dukungan `<script setup>` di Fase 3
+
+---
+
+**Sub-task T1.1: Install Prettier dan Plugin ESLint**
+
+**Estimasi:** 10–15 menit
+
+**Step-by-step:**
+
+1. Jalankan perintah instalasi:
+
+```bash
+npm install -D prettier eslint-config-prettier eslint-plugin-prettier
+```
+
+2. Verifikasi instalasi berhasil dengan cek `package.json` — pastikan tiga package masuk ke `devDependencies`.
+
+---
+
+**Sub-task T1.2: Buat `.prettierrc.json`**
+
+**Estimasi:** 10 menit
+
+**Step-by-step:**
+
+1. Buat file `.prettierrc.json` di root proyek:
+
+```json
+{
+  "semi": true,
+  "singleQuote": true,
+  "tabWidth": 2,
+  "trailingComma": "es5",
+  "printWidth": 100,
+  "endOfLine": "lf"
+}
+```
+
+2. Buat file `.prettierignore` di root proyek untuk mengecualikan direktori yang tidak perlu di-format:
+
+```
+node_modules/
+dist/
+public/
+*.min.js
+```
+
+---
+
+**Sub-task T1.3: Update `.eslintrc.js` untuk Mengintegrasikan Prettier**
+
+**Estimasi:** 20–30 menit
+
+**Step-by-step:**
+
+1. Baca isi `.eslintrc.js` yang sudah ada dengan `view_file`
+2. Perbarui `.eslintrc.js` — tambahkan `'plugin:prettier/recommended'` di **akhir** array `extends`:
+
+```javascript
+module.exports = {
+  root: true,
+  env: {
+    node: true,
+    'vue/setup-compiler-macros': true, // JANGAN hapus ini — penting untuk <script setup>
+  },
+  extends: [
+    'plugin:vue/vue3-essential',
+    'eslint:recommended',
+    'plugin:prettier/recommended', // Harus terakhir — override aturan yang konflik
+  ],
+  parserOptions: {
+    parser: '@babel/eslint-parser',
+  },
+  rules: {
+    'no-console': process.env.NODE_ENV === 'production' ? 'warn' : 'off',
+    'no-debugger': process.env.NODE_ENV === 'production' ? 'warn' : 'off',
+    'prettier/prettier': [
+      'warn',
+      {
+        semi: true,
+        singleQuote: true,
+        tabWidth: 2,
+        trailingComma: 'es5',
+        printWidth: 100,
+      },
+    ],
+  },
+};
+```
+
+> **Penting:** Gunakan `'warn'` bukan `'error'` untuk `prettier/prettier` agar tidak memblokir build untuk kode lama yang belum diformat. Hanya code baru yang ditulis ke depan yang akan ter-enforce oleh Husky.
+
+3. Jalankan `npm run lint` untuk verifikasi tidak ada error fatal
+4. Jalankan `npm run build` untuk verifikasi build tetap berhasil
+
+**Total Estimasi T1: 1–1.5 jam**
+
+---
+
+### T2 — Husky + lint-staged Pre-Commit Hook
+
+**Deskripsi:**
+Menginstall Husky untuk manajemen Git hooks dan lint-staged untuk menjalankan linting hanya pada file yang di-stage saat commit. Ini mencegah kode yang tidak konsisten masuk ke repository tanpa memerlukan developer untuk menjalankan linting secara manual.
+
+**Kompleksitas:** 🟢 Rendah
+**Risiko:** 🟢 Rendah — hanya memengaruhi git workflow, tidak memengaruhi runtime atau build
+
+**⚠️ Catatan Penting:**
+
+- `lint-staged` hanya akan menjalankan linting terhadap **file yang di-stage**, bukan seluruh repo
+- Jangan menambahkan `src/views/**` secara eksplisit ke scope — biarkan default berlaku (file apa pun yang di-stage)
+- Jika Husky init gagal karena tidak ada `.git` directory, pastikan berada di dalam git repository
+
+---
+
+**Sub-task T2.1: Install Husky dan lint-staged**
+
+**Estimasi:** 15 menit
+
+**Step-by-step:**
+
+1. Install package:
+
+```bash
+npm install -D husky lint-staged
+```
+
+2. Inisialisasi Husky:
+
+```bash
+npx husky init
+```
+
+Perintah ini akan:
+
+- Membuat direktori `.husky/`
+- Membuat file `.husky/pre-commit` dengan isi default
+- Menambahkan `"prepare": "husky"` ke dalam `scripts` di `package.json`
+
+---
+
+**Sub-task T2.2: Konfigurasi lint-staged di `package.json`**
+
+**Estimasi:** 15 menit
+
+**Step-by-step:**
+
+1. Baca isi `package.json` terlebih dahulu dengan `view_file`
+2. Tambahkan konfigurasi `lint-staged` ke `package.json` (di luar `devDependencies`, sebagai top-level key):
+
+```json
+{
+  "lint-staged": {
+    "*.{vue,js}": ["eslint --fix", "prettier --write"],
+    "*.{css,scss,json,md}": ["prettier --write"]
+  }
+}
+```
+
+> **Penting:** Tambahkan ini sebagai top-level key di `package.json`, bukan di dalam `devDependencies` atau `dependencies`.
+
+---
+
+**Sub-task T2.3: Update `.husky/pre-commit`**
+
+**Estimasi:** 5 menit
+
+**Step-by-step:**
+
+1. Setelah `npx husky init`, buka file `.husky/pre-commit` yang dibuat
+2. Pastikan isinya adalah:
+
+```bash
+npx lint-staged
+```
+
+3. Jika isinya berbeda (mis. `npm test`), ganti dengan `npx lint-staged`
+
+**Total Estimasi T2: 30–45 menit**
+
+---
+
+### T3 — Verifikasi & Testing
+
+**Deskripsi:**
+Memverifikasi seluruh tooling berjalan dengan benar: Prettier dapat memformat file, ESLint tidak menghasilkan error fatal, dan Husky pre-commit hook aktif saat melakukan commit.
+
+**Kompleksitas:** 🟢 Rendah
+**Risiko:** 🟢 Rendah
+
+---
+
+**Sub-task T3.1: Verifikasi Prettier Berjalan**
+
+**Estimasi:** 10 menit
+
+**Step-by-step:**
+
+1. Test Prettier pada satu file yang aman (bukan di `src/views/`):
+
+```bash
+npx prettier --check src/composables/useDebounce.js
+```
+
+2. Jika ada formatting yang perlu diperbaiki, jalankan:
+
+```bash
+npx prettier --write src/composables/useDebounce.js
+```
+
+3. Pastikan tidak ada error
+
+---
+
+**Sub-task T3.2: Verifikasi ESLint + Prettier Terintegrasi**
+
+**Estimasi:** 10 menit
+
+**Step-by-step:**
+
+1. Jalankan lint check:
+
+```bash
+npm run lint
+```
+
+2. Pastikan tidak ada **error** (warning dari file lama boleh muncul, tapi tidak boleh ada error yang memblokir)
+3. Jika ada error baru yang muncul dari integrasi Prettier, periksa apakah rule `prettier/prettier` sudah diset ke `'warn'` bukan `'error'`
+
+---
+
+**Sub-task T3.3: Build Production Test**
+
+**Estimasi:** 5 menit (jika menggunakan dist yang sudah ada) atau 90 menit (build penuh)
+
+**Step-by-step:**
+
+1. Jalankan `npm run build`
+2. Pastikan output menunjukkan `DONE Build complete` dengan 0 errors
+3. Jika ada error, periksa apakah ada rule ESLint baru dari Prettier yang memblokir
+
+---
+
+**Sub-task T3.4: Test Pre-Commit Hook**
+
+**Estimasi:** 5 menit
+
+**Step-by-step:**
+
+1. Buat perubahan kecil pada file di `src/composables/` (misal tambah komentar)
+2. Stage file: `git add src/composables/useDebounce.js`
+3. Coba commit: `git commit -m "test: verify husky pre-commit hook"`
+4. Pastikan lint-staged berjalan dan melakukan auto-fix
+5. Jika berhasil, undo commit test: `git reset HEAD~1` dan kembalikan file
+
+**Total Estimasi T3: 30–45 menit**
+
+---
+
+## 🛡️ Risk & Mitigation
+
+| Task                  | Risiko                                                                           | Probabilitas     | Mitigasi                                                                                                                                                                                                     |
+| --------------------- | -------------------------------------------------------------------------------- | ---------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| T1 (Prettier install) | Conflict versi antara `eslint-plugin-prettier` dan `eslint` yang sudah terpasang | 🟡 Sedang        | Cek versi `eslint` di `package.json` (saat ini `^7.32.0`). `eslint-plugin-prettier` v4.x kompatibel dengan ESLint 7. Jika error, gunakan `npm install -D eslint-plugin-prettier@4 eslint-config-prettier@8`. |
+| T1 (ESLint update)    | `plugin:prettier/recommended` menyebabkan ratusan warning di file lama           | 🟡 Sedang        | Warning boleh muncul — ini normal untuk file lama. Set rule `prettier/prettier` ke `'warn'` bukan `'error'` sehingga tidak memblokir build.                                                                  |
+| T2 (Husky init)       | `npx husky init` gagal karena npm version lama                                   | 🟡 Sedang        | Gunakan alternatif: `npm pkg set scripts.prepare="husky install"` lalu `npx husky add .husky/pre-commit "npx lint-staged"`.                                                                                  |
+| T2 (lint-staged)      | lint-staged memperbaiki file di `src/views/` saat staging                        | 🟡 Sedang        | Ini adalah perilaku yang **diharapkan dan aman** — lint-staged hanya mem-fix file yang di-stage, bukan seluruh views.                                                                                        |
+| T3 (build)            | Prettier rule menyebabkan syntax error di kode lama                              | 🟢 Rendah        | Rule sudah diset ke `'warn'`. Jika tetap ada error, jalankan `npm run lint -- --fix` hanya pada file composables baru.                                                                                       |
+| Semua                 | Breaking change ke `src/views/`                                                  | 🟢 Sangat Rendah | Fase ini tidak menyentuh kode runtime apapun — hanya tooling konfigurasi.                                                                                                                                    |
+
+---
+
+## 📋 Catatan Implementasi
+
+```
+[2026-09-01] Fase 6 Completed:
+- T1: Installed prettier@2.8.8, eslint-config-prettier@8.10.2, eslint-plugin-prettier@4.2.5. Created .prettierrc.json & .prettierignore. Updated .eslintrc.js with plugin:prettier/recommended and prettier/prettier: warn.
+- T2: Installed husky & lint-staged. Initialized husky (npm run prepare), created .husky/pre-commit with npx lint-staged, added lint-staged configuration in package.json.
+- T3: Tested prettier check/write and verified build with npm run build (0 errors).
+```
+
+---
+
+_File ini diperbarui pada 2026-09-01. Fase 1, Fase 2, Fase 3, Fase 4, Fase 5, dan Fase 6 sudah selesai._
