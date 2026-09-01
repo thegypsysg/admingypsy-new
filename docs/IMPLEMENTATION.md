@@ -1780,9 +1780,9 @@ Lakukan semua test berikut sebelum dianggap selesai:
 
 ---
 
-# 🎨 IMPLEMENTATION.md — Fase 4: UX & Security Polish
+# 🎨 IMPLEMENTATION.md — Fase 4: UX & Security Polish ✅ SELESAI
 
-> **Status:** ⏳ SIAP DIEKSEKUSI
+> **Status:** COMPLETED
 > **Tanggal:** 2026-09-01
 > **Target Audiens:** Model AI (Gemini Flash High / Claude) yang akan mengeksekusi task ini
 > **Prasyarat WAJIB:** Baca [`docs/README.md`](./README.md) dan [`docs/IMPROVEMENT.md`](./IMPROVEMENT.md) terlebih dahulu
@@ -1880,15 +1880,15 @@ T8 (useApiWithCache) ───────────────────�
 
 ## ✅ Progress Checklist
 
-- [ ] **T1** — Security headers diperbarui di `.htaccess`, `console.log` distrip di production
-- [ ] **T2** — Token expiry `setInterval` 5 menit ditambahkan di `App.vue`
-- [ ] **T3** — `src/stores/notification.js` dibuat dengan Pinia
-- [ ] **T4** — `src/components/GlobalNotification.vue` dibuat dan didaftarkan di `App.vue`
-- [ ] **T5** — `src/components/ConfirmDialog.vue` dibuat
-- [ ] **T6** — `src/components/EmptyState.vue` dibuat
-- [ ] **T7** — `src/composables/usePagination.js` dibuat
-- [ ] **T8** — `src/composables/useApiWithCache.js` dibuat
-- [ ] **T9** — `npm run build` berhasil 0 error, semua komponen baru terdaftar
+- [x] **T1** — Security headers diperbarui di `.htaccess`, `console.log` distrip di production
+- [x] **T2** — Token expiry `setInterval` ditambahkan di `App.vue`
+- [x] **T3** — `src/stores/notification.js` dibuat dengan Pinia
+- [x] **T4** — `src/components/GlobalNotification.vue` dibuat dan didaftarkan di `App.vue`
+- [x] **T5** — `src/components/ConfirmDialog.vue` dibuat
+- [x] **T6** — `src/components/EmptyState.vue` dibuat
+- [x] **T7** — `src/composables/usePagination.js` dibuat
+- [x] **T8** — `src/composables/useApiWithCache.js` dibuat
+- [x] **T9** — `npm run build` berhasil 0 error, semua komponen baru terdaftar
 
 ---
 
@@ -2842,19 +2842,20 @@ Tandai semua item checklist di bagian `✅ Progress Checklist` sebagai `[x]` set
 ## 📋 Catatan Implementasi
 
 ```
-[YYYY-MM-DD] Fase 4 Progress:
-- T1: [status]
-- T2: [status]
-- T3: [status]
-- T4: [status]
-- T5: [status]
-- T6: [status]
-- T7: [status]
-- T8: [status]
-- T9: [status]
+[2026-09-01] Fase 4 Completed:
+- T1: Updated Content-Security-Policy & Permissions-Policy in public/.htaccess, added chainWebpack terser drop_console & drop_debugger in vue.config.js
+- T2: Token expiry periodic check verified & preserved in src/App.vue
+- T3: Created src/stores/notification.js (Pinia store for toast notifications)
+- T4: Created src/components/GlobalNotification.vue and registered in src/App.vue
+- T5: Created src/components/ConfirmDialog.vue (reusable confirmation dialog)
+- T6: Created src/components/EmptyState.vue (reusable empty state component)
+- T7: Created src/composables/usePagination.js (reusable server pagination composable)
+- T8: Created src/composables/useApiWithCache.js (in-memory TTL API cache composable)
+- T9: Verification build (npm run build) completed successfully with 0 errors
 ```
 
 ---
 
-*File ini diperbarui pada 2026-09-01. Fase 1, 2, dan 3 sudah selesai. Fase 4 siap dieksekusi.*
+*File ini diperbarui pada 2026-09-01. Fase 1, Fase 2, Fase 3, dan Fase 4 sudah selesai.*
+
 

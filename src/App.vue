@@ -3,15 +3,21 @@
     <v-main>
       <router-view />
     </v-main>
+    <global-notification />
   </v-app>
 </template>
 
 <script>
 import jwtDecode from 'jwt-decode';
 import { tokenStorage } from '@/util/tokenStorage';
+import GlobalNotification from '@/components/GlobalNotification.vue';
 
 export default {
   name: 'App',
+
+  components: {
+    GlobalNotification,
+  },
 
   data: () => ({
     tokenCheckInterval: null,

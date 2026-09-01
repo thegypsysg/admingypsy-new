@@ -24,7 +24,7 @@
 
   # Content Security Policy (CSP)
   # Batasi sumber resource yang boleh dimuat browser
-  Header set Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-eval'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob: https://cdn.pixabay.com https://admin1.the-gypsy.sg; connect-src 'self' https://adminsymphinite.symphinite.tech https://admin1.the-gypsy.sg; frame-ancestors 'none';"
+  Header set Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob: https://cdn.pixabay.com https://admin1.the-gypsy.sg; connect-src 'self' https://adminsymphinite.symphinite.tech https://admin1.the-gypsy.sg; frame-ancestors 'none';"
 
   # Mencegah browser menebak tipe konten (MIME sniffing attack)
   Header set X-Content-Type-Options "nosniff"
@@ -34,6 +34,9 @@
 
   # Kontrol informasi referrer saat navigasi ke situs lain
   Header set Referrer-Policy "strict-origin-when-cross-origin"
+
+  # Batasi akses API hardware / browser sensitif
+  Header set Permissions-Policy "camera=(), microphone=(), geolocation=(), payment=()"
 
   # Paksa HTTPS untuk 1 tahun (hanya aktifkan jika SSL sudah terpasang!)
   # Header set Strict-Transport-Security "max-age=31536000; includeSubDomains"
