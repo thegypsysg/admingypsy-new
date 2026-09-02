@@ -439,7 +439,7 @@
 import ConfirmDialog from '@/components/ConfirmDialog.vue';
 import { useNotificationStore } from '@/stores/notification';
 import ImageUpload from '@/components/ImageUpload.vue';
-import HeaderWallMaster from './HeaderWallMaster.vue';
+import HeaderWallMaster from '@/components/HeaderWallMaster.vue';
 import axios from '@/util/axios';
 import { setAuthHeader } from '@/util/axios';
 // import app from '@/util/eventBus';
