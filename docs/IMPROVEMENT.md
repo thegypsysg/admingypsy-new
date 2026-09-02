@@ -47,6 +47,7 @@ Ini adalah improvement yang sudah berhasil diimplementasikan:
 | ✅ | Migrasi Vue CLI → Vite (Build tool modern) | Opsional P4 |
 | ✅ | Rename direktori views (hapus spasi → kebab-case) | Opsional DX4 |
 | ✅ | API Response Caching Layer (`useApiWithCache.js` & `apiCache.fetch`) | Opsional P3 |
+| ✅ | TypeScript Migration Gradual Setup (`tsconfig.json`, `src/types/`, `useTypedApi.ts`) | Opsional DX1 |
 
 ---
 
@@ -750,9 +751,9 @@ VITE_FILE_URL=https://admin1.the-gypsy.sg/img/app/
 
 ### DX1. TypeScript Migration (Gradual)
 
-**Status:** ⏳ Opsional — jangka panjang  
+**Status:** ✅ Selesai (2026-09-02)  
 **Dampak:** Tinggi — type safety, auto-complete IDE yang lebih baik  
-**Estimasi:** 20–40 jam (migrasi gradual)
+**Hasil:** `tsconfig.json`, `env.d.ts`, `src/vite-env.d.ts`, domain type definitions di `src/types/`, dan generic composable `useTypedApi.ts` telah dikonfigurasi dan diverifikasi. File lama tetap utuh tanpa breaking changes.
 
 **Pendekatan tanpa breaking change — mulai dari file baru:**
 
@@ -947,7 +948,7 @@ Fokus pada improvement yang langsung terasa oleh user:
 - [x] **P4**: Migrasi Vue CLI → Vite
 - [x] **DX4**: Rename direktori views (hapus spasi)
 - [x] **P3**: API caching layer
-- [ ] **DX1**: TypeScript migration (gradual)
+- [x] **DX1**: TypeScript migration (gradual)
 
 ---
 
@@ -962,4 +963,4 @@ Jika hanya bisa mengerjakan 3 item, pilih:
 ---
 
 *Dokumen ini adalah living document. Update setiap kali improvement baru selesai diimplementasikan.*  
-*Terakhir diperbarui: 2026-09-01*
+*Terakhir diperbarui: 2026-09-02*

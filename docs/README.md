@@ -1,7 +1,7 @@
 # 📖 AdminGypsy — Agent Reference Guide (docs/README.md)
 
 > **Untuk:** Model AI (Gemini / Claude) yang akan bekerja di proyek ini.
-> **Update terakhir:** 2026-09-02 (Fase Opsional DX4 — Views Rename Selesai; Fase Opsional P3 — API Caching didokumentasikan)
+> **Update terakhir:** 2026-09-02 (Fase Opsional P3 — API Caching Selesai; Fase Opsional DX1 — TypeScript Migration didokumentasikan)
 
 ---
 
@@ -18,8 +18,9 @@
 | Fase Opsional P4 | Migrasi Vue CLI → Vite | ✅ SELESAI (branch `vite-migration`) |
 | Fase Opsional DX4 | Rename Direktori Views | ✅ SELESAI |
 | Fase Opsional P3 | API Caching Layer | ✅ SELESAI |
+| Fase Opsional DX1 | TypeScript Migration (Gradual) | ✅ SELESAI |
 
-Semua fase perbaikan (Fase 1–6, Fase Opsional P4, Fase Opsional DX4, dan Fase Opsional P3) telah berhasil diimplementasikan dan diverifikasi via production build (0 error).
+Semua fase perbaikan (Fase 1–6, Fase Opsional P4, DX4, P3, dan DX1) telah berhasil diimplementasikan dan diverifikasi via `npm run type-check` (0 error) dan `npm run build` (0 error).
 
 ---
 
@@ -210,7 +211,25 @@ onMounted(() => fetch());
 // invalidate(); fetch();
 ```
 
----
+### 8. TypeScript — Gunakan Hanya untuk File BARU (`*.ts`), JANGAN Ubah File Lama
+
+Proyek sedang dalam proses **migrasi gradual ke TypeScript** (Fase Opsional DX1). Aturan yang WAJIB diikuti:
+
+- **JANGAN** tambahkan `lang="ts"` ke `<script setup>` di file `*.vue` yang sudah ada.
+- **JANGAN** ubah file `*.js` yang sudah ada menjadi `*.ts` tanpa instruksi eksplisit.
+- File TypeScript baru ditulis di `src/types/` (type definitions) dan `src/composables/useTypedApi.ts`.
+- Import types menggunakan `import type { ... } from '@/types'`.
+
+```typescript
+// Contoh penggunaan type dari src/types/
+import type { ApiResponse, AppItem } from '@/types';
+
+// Contoh composable TypeScript (hanya untuk file baru)
+import { useTypedApi } from '@/composables/useTypedApi';
+const { data, isLoading, execute } = useTypedApi<ApiResponse<AppItem[]>>();
+```
+
+> **Penting:** `tsconfig.json` sudah dikonfigurasi dengan `strict: false` dan `checkJs: false` agar file JS lama tidak error. Jalankan `npm run type-check` untuk verifikasi file TypeScript baru.
 
 ## 🔎 Cara Mencari Sesuatu di Proyek
 

@@ -5056,6 +5056,467 @@ Composable ini hanya boleh dipakai di view yang menggunakan `<script setup>`. Vi
 
 *File ini diperbarui pada 2026-09-02. Fase 1–6, Fase Opsional P4 (Vite), Fase Opsional DX4 (Views Rename), dan Fase Opsional P3 (API Caching) sudah selesai.*
 
+---
+
+# 🟤 IMPLEMENTATION.md — Fase Opsional: Major Refactor (DX1): TypeScript Migration (Gradual) ✅ SELESAI
+
+> **Status:** COMPLETED
+> **Tanggal selesai:** 2026-09-02
+> **Target Audiens:** Model Gemini 3.7 Flash (High) yang mengeksekusi task ini
+> **Fokus:** Migrasi **gradual** dan **non-breaking** dari JavaScript ke TypeScript — hanya pada file baru dan composable, tanpa menyentuh view yang sudah berjalan
+
+---
+
+## ⚠️ PERINGATAN KRITIS — BACA SEBELUM MEMULAI
+
+> [!CAUTION]
+> **Ini adalah fase yang kompleks dan berisiko tinggi jika dilakukan secara agresif.**
+> Strategi yang WAJIB diikuti adalah **incremental / opt-in** — TypeScript hanya ditambahkan secara bertahap, dimulai dari file utilitas baru, kemudian composable, dan terakhir komponen shared jika diperlukan.
+
+**Prinsip Aman WAJIB diikuti:**
+
+1. **JANGAN mengubah file `*.vue` yang sudah ada** — jangan tambahkan `lang="ts"` ke `<script setup>` existing. Risiko breaking change sangat tinggi.
+2. **JANGAN mengubah file di `src/views/`** — semua 74+ view harus tetap utuh.
+3. **Mulai dari `strict: false`** — aktifkan strict mode secara bertahap setelah semua file baru berhasil dicompile.
+4. **Verifikasi `npm run build` setelah SETIAP sub-task** — pastikan exit code 0 sebelum lanjut.
+5. **Jangan hapus file `*.js` yang ada** — cukup tambahkan file `*.ts` baru di samping file lama.
+6. **Jangan modifikasi `vite.config.mjs`** tanpa memahami dampaknya pada seluruh build pipeline.
+
+---
+
+## 📋 Ringkasan Eksekutif
+
+Proyek saat ini menggunakan JavaScript murni tanpa type checking. Ini menyebabkan:
+
+- **Kesalahan runtime yang sulit dideteksi** — `undefined` property access, typo nama fungsi, parameter salah tipe.
+- **Auto-complete IDE terbatas** — editor tidak bisa memberi saran yang akurat karena tidak ada type information.
+- **Refactoring berbahaya** — rename fungsi/variabel tanpa type-checking menyebabkan bug tersembunyi.
+
+**Tujuan Fase DX1:** Mengintegrasikan TypeScript secara **gradual dan opt-in** tanpa mematahkan satu pun file yang sudah ada. Pada akhir fase ini:
+- TypeScript sudah terkonfigurasi dan berjalan di proyek.
+- File utilitas baru (`src/util/`) ditulis dalam TypeScript.
+- Composable baru (`src/composables/`) ditulis dalam TypeScript.
+- Semua komponen lama tetap berjalan tanpa perubahan.
+
+---
+
+## 🕐 Timeline
+
+| Task | Nama | Estimasi | Urutan |
+|---|---|---|---|
+| T1 | Install TypeScript dependencies dan konfigurasi `tsconfig.json` | 30 menit | 1 |
+| T2 | Buat `env.d.ts` dan `vite-env.d.ts` untuk type declaration | 20 menit | 2 (setelah T1) |
+| T3 | Buat `src/types/` — centralized type definitions untuk domain proyek | 45 menit | 3 (setelah T2) |
+| T4 | Migrasi composable baru ke `.ts` (hanya file baru, jangan ubah yang ada) | 1–1.5 jam | 4 (setelah T3) |
+| T5 | Verifikasi `vue-tsc --noEmit` dan `npm run build` berjalan 0 error | 30 menit | 5 (setelah T4) |
+| T6 | Update dokumentasi dan panduan pengembangan | 15 menit | 6 (setelah T5) |
+
+**Total Estimasi: 3.5–4 jam**
+
+---
+
+## 📊 Estimasi Resource
+
+| Resource | Detail |
+|---|---|
+| **Model** | Gemini 3.7 Flash (High) |
+| **File BARU yang akan dibuat** | `tsconfig.json`, `env.d.ts`, `src/types/index.ts`, `src/types/api.ts`, `src/types/auth.ts` |
+| **File yang BOLEH dimodifikasi** | `package.json` (menambahkan devDependencies), composable baru di `src/composables/` |
+| **File yang TIDAK BOLEH diubah** | Semua `*.vue` di `src/views/`, `src/components/`, `src/router/index.js`, `src/main.js`, `vite.config.mjs` |
+| **Tools yang dibutuhkan** | `write_to_file`, `run_command`, `view_file`, `grep_search` |
+| **Batas Waktu Total** | ~4 jam |
+
+---
+
+## 🛠️ Detail Task dan Sub-task
+
+### T1 — Install TypeScript Dependencies dan Konfigurasi `tsconfig.json`
+
+- **Deskripsi:** Install package TypeScript yang diperlukan dan buat file `tsconfig.json` dengan konfigurasi yang aman (non-strict) agar TypeScript bisa hidup berdampingan dengan file JavaScript yang sudah ada.
+- **Step-by-step execution:**
+  1. Jalankan instalasi dev dependencies:
+     ```powershell
+     npm install -D typescript @vue/tsconfig vue-tsc --legacy-peer-deps
+     ```
+  2. Verifikasi instalasi berhasil (tidak ada error):
+     ```powershell
+     npx tsc --version
+     npx vue-tsc --version
+     ```
+  3. Buat file `tsconfig.json` di root proyek dengan isi berikut:
+     ```json
+     {
+       "extends": "@vue/tsconfig/tsconfig.dom.json",
+       "include": ["env.d.ts", "src/**/*.ts", "src/**/*.tsx", "src/**/*.vue"],
+       "exclude": ["node_modules", "dist"],
+       "compilerOptions": {
+         "strict": false,
+         "noEmit": true,
+         "baseUrl": ".",
+         "paths": {
+           "@/*": ["./src/*"]
+         },
+         "types": ["vite/client"],
+         "allowJs": true,
+         "checkJs": false,
+         "skipLibCheck": true
+       }
+     }
+     ```
+     > **PENTING:** `allowJs: true` dan `checkJs: false` memastikan file `*.js` lama tetap lolos tanpa error. `strict: false` memastikan TypeScript tidak langsung ketat.
+  4. Tambahkan script `"type-check"` ke `package.json`:
+     ```json
+     "scripts": {
+       "type-check": "vue-tsc --noEmit"
+     }
+     ```
+  5. Jalankan type-check pertama kali — **diharapkan** ada beberapa error awal dari file `*.vue` lama. Catat dan abaikan untuk saat ini karena `checkJs: false` sudah mereduksinya.
+     ```powershell
+     npm run type-check
+     ```
+  6. Jalankan `npm run build` dan pastikan **tetap exit code 0** (TypeScript tidak memblokir Vite build karena `noEmit: true`).
+
+- **Estimasi waktu per sub-task:** 30 menit
+- **Estimasi total waktu:** 30 menit
+- **Complexity:** Rendah–Sedang.
+- **Risk:** Sedang — package `@vue/tsconfig` mungkin memerlukan versi tertentu. Jika ada konflik, gunakan versi `@vue/tsconfig@0.4.0` yang kompatibel dengan Vue 3.
+
+---
+
+### T2 — Buat `env.d.ts` dan Konfigurasi Ambient Type Declarations
+
+- **Deskripsi:** Buat file type declaration agar TypeScript mengenali modul seperti `*.vue`, `*.scss`, dan environment variables Vite (`import.meta.env`).
+- **Step-by-step execution:**
+  1. Buat file `env.d.ts` di **root proyek** (sejajar dengan `package.json`):
+     ```typescript
+     /// <reference types="vite/client" />
+
+     interface ImportMetaEnv {
+       readonly VITE_API_BASE_URL: string;
+       readonly VITE_FILE_URL: string;
+     }
+
+     interface ImportMeta {
+       readonly env: ImportMetaEnv;
+     }
+     ```
+  2. Buat file `src/vite-env.d.ts` untuk mendeklarasikan modul `*.vue`:
+     ```typescript
+     /// <reference types="vite/client" />
+
+     declare module '*.vue' {
+       import type { DefineComponent } from 'vue';
+       const component: DefineComponent<Record<string, unknown>, Record<string, unknown>, unknown>;
+       export default component;
+     }
+     ```
+  3. Verifikasi TypeScript mengenali `import.meta.env.VITE_API_BASE_URL` tanpa error:
+     ```powershell
+     npm run type-check
+     ```
+  4. Jalankan `npm run build` — pastikan masih exit code 0.
+
+- **Estimasi waktu per sub-task:** 20 menit
+- **Estimasi total waktu:** 20 menit
+- **Complexity:** Rendah.
+- **Risk:** Rendah — file deklarasi hanya menambahkan informasi type, tidak mengubah runtime behavior.
+
+---
+
+### T3 — Buat `src/types/` — Centralized Type Definitions
+
+- **Deskripsi:** Buat direktori `src/types/` berisi type definitions yang merepresentasikan domain data proyek (API response, auth, form payload). File ini menjadi "single source of truth" untuk semua type yang digunakan di file TypeScript baru.
+- **Step-by-step execution:**
+  1. Buat direktori `src/types/` (jika belum ada).
+  2. Buat file `src/types/api.ts` untuk type API response umum:
+     ```typescript
+     // src/types/api.ts
+
+     /** Struktur response standar dari API backend */
+     export interface ApiResponse<T = unknown> {
+       data: T;
+       message?: string;
+       status?: number;
+       current_page?: number;
+       per_page?: number;
+       total?: number;
+       last_page?: number;
+     }
+
+     /** Struktur response paginated */
+     export interface PaginatedResponse<T = unknown> {
+       data: {
+         data: T[];
+         current_page: number;
+         per_page: number;
+         total: number;
+         last_page: number;
+       };
+       message?: string;
+     }
+
+     /** Error response dari API */
+     export interface ApiError {
+       message: string;
+       errors?: Record<string, string[]>;
+       status?: number;
+     }
+     ```
+  3. Buat file `src/types/auth.ts` untuk type data autentikasi:
+     ```typescript
+     // src/types/auth.ts
+
+     /** Data user yang tersimpan di sessionStorage */
+     export interface UserToken {
+       token: string;
+       userId?: string | number;
+       name?: string;
+       role?: string;
+       image?: string | null;
+       loginTime?: string;
+     }
+     ```
+  4. Buat file `src/types/app.ts` untuk type data umum domain proyek:
+     ```typescript
+     // src/types/app.ts
+
+     /** Data aplikasi aktif (dari /app/active) */
+     export interface AppItem {
+       id: number;
+       app_id?: number;
+       app_name: string;
+       app_main_image?: string | null;
+     }
+
+     /** Item aplikasi yang sudah diformat untuk tampilan */
+     export interface AppDisplayItem {
+       id: number;
+       name: string;
+       title?: string;
+       path?: string;
+       image?: string | null;
+     }
+
+     /** Data negara dari /countries */
+     export interface CountryItem {
+       ac_id?: number;
+       country_id: number;
+       country_name: string;
+     }
+     ```
+  5. Buat file `src/types/index.ts` sebagai barrel export:
+     ```typescript
+     // src/types/index.ts
+     export * from './api';
+     export * from './auth';
+     export * from './app';
+     ```
+  6. Jalankan `npm run type-check` dan `npm run build` — pastikan 0 error.
+
+- **Estimasi waktu per sub-task:** 45 menit
+- **Estimasi total waktu:** 45 menit
+- **Complexity:** Rendah.
+- **Risk:** Rendah — file type definitions tidak mempengaruhi runtime. Hanya menambahkan informasi type untuk editor/compiler.
+
+---
+
+### T4 — Buat Composable TypeScript Baru (Opsional, Hanya File Baru)
+
+- **Deskripsi:** Buat contoh composable baru dalam TypeScript untuk memverifikasi bahwa TypeScript bekerja dengan baik bersama Vue 3 Composition API. **JANGAN mengubah composable yang sudah ada** (`useApi.js`, `useApiWithCache.js`, dll). Cukup buat **satu composable baru** sebagai template/proof-of-concept.
+- **Step-by-step execution:**
+  1. Buat file `src/composables/useTypedApi.ts` — composable generik dengan type support penuh:
+     ```typescript
+     // src/composables/useTypedApi.ts
+     // TypeScript version of useApi.js — gunakan untuk kode baru saja
+     import { ref } from 'vue';
+     import type { Ref } from 'vue';
+     import axios from '@/util/axios';
+     import type { ApiError } from '@/types/api';
+
+     export interface UseTypedApiReturn<T> {
+       data: Ref<T | null>;
+       isLoading: Ref<boolean>;
+       error: Ref<string | null>;
+       execute: (requestFn: () => Promise<{ data: T }>, transform?: (data: T) => T) => Promise<T | null>;
+       reset: () => void;
+     }
+
+     /**
+      * TypeScript-typed version of useApi composable.
+      * Gunakan untuk komponen dan file BARU saja.
+      * Kompatibel dengan <script setup lang="ts">.
+      *
+      * @example
+      * const { data, isLoading, execute } = useTypedApi<ApiResponse<AppItem[]>>();
+      * onMounted(() => execute(() => axios.get('/app/active')));
+      */
+     export function useTypedApi<T>(): UseTypedApiReturn<T> {
+       const data = ref<T | null>(null) as Ref<T | null>;
+       const isLoading = ref(false);
+       const error = ref<string | null>(null);
+
+       async function execute(
+         requestFn: () => Promise<{ data: T }>,
+         transform?: (data: T) => T,
+       ): Promise<T | null> {
+         isLoading.value = true;
+         error.value = null;
+         try {
+           const response = await requestFn();
+           data.value = transform ? transform(response.data) : response.data;
+           return data.value;
+         } catch (err) {
+           const apiErr = err as { response?: { data?: ApiError } } & Error;
+           const message =
+             apiErr.response?.data?.message || apiErr.message || 'An unexpected error occurred.';
+           error.value = message;
+           console.error('[useTypedApi Error]', err);
+           return null;
+         } finally {
+           isLoading.value = false;
+         }
+       }
+
+       function reset(): void {
+         data.value = null;
+         isLoading.value = false;
+         error.value = null;
+       }
+
+       return { data, isLoading, error, execute, reset };
+     }
+     ```
+  2. Verifikasi file baru bisa diimport tanpa error dengan menjalankan type-check:
+     ```powershell
+     npm run type-check
+     ```
+  3. Jalankan `npm run build` — pastikan exit code 0.
+  4. **STOP di sini** — jangan lanjutkan ke migrasi file lama. Fase ini selesai ketika TypeScript bekerja untuk file baru. Migrasi file lama adalah scope terpisah di masa mendatang.
+
+- **Estimasi waktu per sub-task:** 1–1.5 jam
+- **Estimasi total waktu:** 1.5 jam
+- **Complexity:** Sedang.
+- **Risk:** Sedang — TypeScript generic dengan Vue refs kadang menghasilkan type error yang kompleks. Jika ada error di `useTypedApi.ts`, perbaiki hanya di file tersebut tanpa menyentuh file lain.
+
+---
+
+### T5 — Verifikasi Menyeluruh
+
+- **Deskripsi:** Pastikan seluruh setup TypeScript tidak memperkenalkan error baru dan tidak memecahkan build maupun runtime aplikasi.
+- **Step-by-step execution:**
+  1. Jalankan type-check:
+     ```powershell
+     npm run type-check
+     ```
+     > Abaikan error yang berasal dari file `*.vue` dan `*.js` yang sudah ada (karena `checkJs: false`). Hanya perbaiki error di file `*.ts` baru.
+  2. Jalankan production build:
+     ```powershell
+     npm run build
+     ```
+     *Pass criteria: exit code 0, 0 build errors.*
+  3. Verifikasi dev server berjalan normal:
+     ```powershell
+     npm run dev
+     ```
+     Buka browser dan navigasi ke beberapa halaman, pastikan tidak ada runtime error baru.
+  4. Verifikasi file type yang dibuat bisa di-import dari modul JS lama (tidak ada circular dependency):
+     ```powershell
+     grep_search "from '@/types'" src/ MatchPerLine: true
+     ```
+
+- **Estimasi waktu per sub-task:** 30 menit
+- **Estimasi total waktu:** 30 menit
+- **Complexity:** Rendah.
+- **Risk:** Rendah — jika ada error, rollback ke kondisi sebelum T4 dengan `git checkout src/composables/useTypedApi.ts`.
+
+---
+
+### T6 — Update Dokumentasi
+
+- **Deskripsi:** Tandai Fase Opsional DX1 sebagai SELESAI di semua file dokumentasi dan tambahkan panduan penggunaan TypeScript untuk developer/AI agent berikutnya.
+- **Step-by-step execution:**
+  1. Di `docs/IMPLEMENTATION.md`: Ubah status header DX1 dari `BELUM DIMULAI` menjadi `COMPLETED` dan tambahkan catatan eksekusi.
+  2. Di `docs/IMPROVEMENT.md`: Ubah status DX1 menjadi `✅ Selesai` dan centang checklist roadmap.
+  3. Di `docs/README.md`:
+     - Tambahkan `Fase Opsional DX1 | TypeScript Migration (Gradual) | ✅ SELESAI` ke tabel status.
+     - Tambahkan Section 8 "Panduan TypeScript" di bagian "Hal Kritis yang Harus Diketahui".
+
+- **Estimasi waktu per sub-task:** 15 menit
+- **Estimasi total waktu:** 15 menit
+- **Complexity:** Rendah.
+- **Risk:** Rendah.
+
+---
+
+## 🛡️ Risk & Mitigation
+
+| Task | Risiko | Probabilitas | Mitigasi |
+|---|---|---|---|
+| T1 (Install) | Konflik versi antara `@vue/tsconfig` dan `vue@3.2.x` | 🟡 Sedang | Gunakan `@vue/tsconfig@0.4.0` yang diketahui kompatibel dengan Vue 3.2; gunakan `--legacy-peer-deps` |
+| T1 (tsconfig) | `vue-tsc` menghasilkan error dari ratusan file `*.vue` lama | 🟡 Sedang | Pastikan `strict: false`, `checkJs: false`, dan `allowJs: true` sudah di-set. Error dari file JS/Vue lama tidak memblokir `vite build` |
+| T2 (env.d.ts) | File `env.d.ts` konflik dengan deklarasi lain | 🟢 Rendah | Buat file di root (bukan di `src/`) dan gunakan `/// <reference types="vite/client" />` di baris pertama |
+| T4 (composable) | TypeScript generic vue `Ref<T>` menghasilkan kompleksitas type yang tidak perlu | 🟡 Sedang | Gunakan `as Ref<T | null>` untuk casting eksplisit; jika masih error, ganti dengan `ref<T | null>(null)` tanpa casting |
+| T4 (composable) | Import `@/util/axios` dari file `.ts` gagal resolve | 🟡 Sedang | Pastikan `tsconfig.json` memiliki `paths: { "@/*": ["./src/*"] }` dan `baseUrl: "."` |
+| T5 (build) | `vue-tsc` memblokir build jika ada error | 🟢 Rendah | Script `type-check` dan `build` adalah dua perintah terpisah. `vite build` tidak menjalankan `vue-tsc` kecuali dikonfigurasi secara eksplisit |
+| Semua | Perubahan TypeScript memecahkan hot-reload Vite | 🟢 Rendah | TypeScript hanya diterapkan pada file baru. File lama tidak terpengaruh |
+
+---
+
+## 📌 Catatan Teknis Penting untuk Executor
+
+### File yang Harus Dibuat (BARU)
+
+| File | Lokasi | Keterangan |
+|---|---|---|
+| `tsconfig.json` | Root proyek | Konfigurasi TypeScript utama |
+| `env.d.ts` | Root proyek | Type declaration untuk `import.meta.env` |
+| `src/vite-env.d.ts` | `src/` | Declaration untuk module `*.vue` |
+| `src/types/api.ts` | `src/types/` | API response type definitions |
+| `src/types/auth.ts` | `src/types/` | Auth & token type definitions |
+| `src/types/app.ts` | `src/types/` | Domain model type definitions |
+| `src/types/index.ts` | `src/types/` | Barrel export untuk semua types |
+| `src/composables/useTypedApi.ts` | `src/composables/` | Proof-of-concept composable TypeScript |
+
+### File yang TIDAK BOLEH Diubah
+
+| File | Alasan |
+|---|---|
+| Semua `*.vue` di `src/views/` | 74+ view, risiko breaking change sangat tinggi |
+| Semua `*.vue` di `src/components/` | Komponen shared yang sudah stabil |
+| `src/composables/*.js` | Composable yang sudah diintegrasikan ke banyak view |
+| `src/router/index.js` | 74 route definition, sangat kompleks |
+| `src/main.js` | Entry point aplikasi |
+| `vite.config.mjs` | Build configuration |
+
+### Strategi Migrasi Jangka Panjang (Di Luar Scope DX1)
+
+Setelah DX1 selesai, migrasi bertahap bisa dilanjutkan dengan urutan berikut:
+1. Composable lama (`useApi.js` → `useApi.ts`, `useApiWithCache.js` → `useApiWithCache.ts`)
+2. Utility files (`src/util/*.js` → `*.ts`)
+3. Pinia stores (`src/stores/*.js` → `*.ts`)
+4. Komponen shared (`src/components/*.vue` — tambahkan `lang="ts"`)
+5. View prioritas (hanya view baru, bukan yang lama)
+
+---
+
+## 📊 Detail Eksekusi DX1
+
+```
+[2026-09-02] Fase Opsional DX1 Completed:
+- T1: Installed typescript (~5.7.3), @vue/tsconfig, vue-tsc, and added "type-check" script to package.json.
+- T2: Created tsconfig.json (standalone Bundler resolution, allowJs: true, checkJs: false, strict: false) and ambient type declarations (env.d.ts, src/vite-env.d.ts).
+- T3: Created centralized type definitions in src/types/ (api.ts, auth.ts, app.ts, index.ts).
+- T4: Created typed composable proof-of-concept src/composables/useTypedApi.ts without touching existing JS files.
+- T5: Ran type checking (npm run type-check) — passed with 0 errors. Ran production build (npm run build) — completed in 14.25s with 0 errors.
+- T6: Updated documentation in docs/IMPLEMENTATION.md, docs/README.md, and docs/IMPROVEMENT.md.
+```
+
+---
+
+*File ini diperbarui pada 2026-09-02. Fase 1–6, Fase Opsional P4 (Vite), Fase Opsional DX4 (Views Rename), Fase Opsional P3 (API Caching), dan Fase Opsional DX1 (TypeScript Migration) sudah selesai.*
+
+
+
 
 
 

@@ -7,7 +7,7 @@
   >
     <div class="img-cont">
       <router-link to="/">
-        <v-img src="@/assets/logo-img.png" class="mx-auto" height="70"></v-img>
+        <v-img :src="logoImg" class="mx-auto" height="70"></v-img>
       </router-link>
     </div>
     <v-list-item
@@ -63,6 +63,7 @@
 import { ref, computed, watch, onMounted, onBeforeUnmount } from 'vue';
 import { useRouter } from 'vue-router';
 import Dropdown from './Dropdown.vue';
+import logoImg from '@/assets/logo-img.png';
 import eventBus from '@/util/eventBus';
 import { tokenStorage } from '@/util/tokenStorage';
 import { useNavigationStore } from '@/stores/navigation';
