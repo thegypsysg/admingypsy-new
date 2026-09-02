@@ -44,6 +44,8 @@ Ini adalah improvement yang sudah berhasil diimplementasikan:
 | ✅ | `HeaderDashboard.vue` + `SidebarDashboard.vue` migrasi ke `<script setup>` | 3 |
 | ✅ | ESLint dikonfigurasi untuk mendukung Vue 3 compiler macros | 3 |
 | ✅ | Bug `ImageUpload.vue` — preview gambar setelah klik Add diperbaiki | 3 |
+| ✅ | Migrasi Vue CLI → Vite (Build tool modern) | Opsional P4 |
+| ✅ | Rename direktori views (hapus spasi → kebab-case) | Opsional DX4 |
 
 ---
 
@@ -862,10 +864,9 @@ npx lint-staged
 
 ### DX4. Rename Direktori Views (Hapus Spasi)
 
-**Status:** ⏳ Belum dikerjakan — RISIKO TINGGI, perlu hati-hati  
+**Status:** ✅ Selesai (2026-09-02)  
 **Dampak:** Sedang — menghilangkan `%20` di import path, lebih kompatibel Linux  
-**Estimasi:** 2–3 jam  
-**Risiko:** Tinggi — 90+ import path di router perlu diupdate
+**Hasil:** 86 direktori di-rename via `git mv`, 74 import path di `src/router/index.js` diperbarui dan diverifikasi 100% resolve.
 
 **Pendekatan aman:**
 
@@ -942,8 +943,8 @@ Fokus pada improvement yang langsung terasa oleh user:
 
 ### Fase Opsional — Major Refactor (20–50 jam)
 
-- [ ] **P4**: Migrasi Vue CLI → Vite
-- [ ] **DX4**: Rename direktori views (hapus spasi)
+- [x] **P4**: Migrasi Vue CLI → Vite
+- [x] **DX4**: Rename direktori views (hapus spasi)
 - [ ] **P3**: API caching layer
 - [ ] **DX1**: TypeScript migration (gradual)
 

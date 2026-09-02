@@ -16,8 +16,9 @@
 | Fase 5 | Performance Optimization   | ✅ SELESAI                     |
 | Fase 6 | Developer Experience       | ✅ SELESAI                     |
 | Fase Opsional P4 | Migrasi Vue CLI → Vite | ✅ SELESAI (branch `vite-migration`) |
+| Fase Opsional DX4 | Rename Direktori Views | ✅ SELESAI |
 
-Semua fase perbaikan (Fase 1–6 dan Fase Opsional P4) telah berhasil diimplementasikan dan diverifikasi via production build (0 error).
+Semua fase perbaikan (Fase 1–6, Fase Opsional P4, dan Fase Opsional DX4) telah berhasil diimplementasikan dan diverifikasi via production build (0 error).
 
 ---
 
@@ -186,9 +187,9 @@ Tersedia di semua komponen:
 - `this.$api` → Axios instance (`apiClient.js`)
 - `this.$fileURL` → URL base untuk gambar (`https://admin1.the-gypsy.sg/img/app/`)
 
-### 6. Direktori Views Mengandung Spasi
+### 6. Direktori Views Menggunakan Format Kebab-Case (Tanpa Spasi)
 
-Banyak folder di `src/views/` mengandung spasi (contoh: `walls master`, `menu management`). Ini adalah technical debt yang **belum** diselesaikan. Jangan ubah nama direktori ini — bisa menyebabkan breaking import di 90+ route.
+Seluruh subfolder di `src/views/` telah di-rename menjadi format kebab-case (`-`) pada **Fase Opsional DX4** (contoh: `walls-master`, `menu-management`, `app-country-city`). Jangan membuat direktori baru dengan spasi untuk menjaga kompatibilitas environment Linux dan Vite resolver.
 
 ---
 
