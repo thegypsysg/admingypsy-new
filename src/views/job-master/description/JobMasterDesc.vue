@@ -44,11 +44,7 @@
     <v-container>
       <v-row class="mt-n6">
         <v-col cols="12" md="10"
-          ><QuillEditor
-            theme="snow"
-            toolbar="full"
-            contentType="html"
-            v-model:content="input.desc"
+          ><QuillEditor theme="snow" toolbar="full" contentType="html" v-model:content="input.desc"
         /></v-col>
         <v-col cols="12" md="2">
           <v-btn
@@ -66,33 +62,11 @@
       </v-row>
     </v-container>
     <!-- </v-form> -->
-    <v-snackbar
-      location="top"
-      color="green"
-      v-model="isSuccess"
-      :timeout="3000"
-    >
-      {{ successMessage }}
-
-      <template v-slot:actions>
-        <v-btn color="white" variant="text" @click="isSuccess = false">
-          <v-icon>mdi-close</v-icon>
-        </v-btn>
-      </template>
-    </v-snackbar>
-    <v-snackbar location="top" color="red" v-model="isError" :timeout="3000">
-      {{ errorMessage }}
-
-      <template v-slot:actions>
-        <v-btn color="white" variant="text" @click="isError = false">
-          <v-icon>mdi-close</v-icon>
-        </v-btn>
-      </template>
-    </v-snackbar>
   </v-container>
 </template>
 
 <script>
+import { useNotificationStore } from '@/stores/notification';
 import axios from '@/util/axios';
 import { setAuthHeader } from '@/util/axios';
 import { QuillEditor } from '@vueup/vue-quill';
@@ -104,16 +78,16 @@ export default {
   components: {
     QuillEditor,
   },
+  setup() {
+    const notification = useNotificationStore();
+    return { notification };
+  },
   data: () => ({
     // fileURL: 'https://admin1.the-gypsy.sg/img/app/',
     valid: false,
     idJob: null,
     isLoading: false,
     isSending: false,
-    isError: false,
-    isSuccess: false,
-    successMessage: '',
-    errorMessage: '',
     input: {
       id: null,
       skillsId: null,
@@ -149,19 +123,15 @@ export default {
         .post(`/jobs/update`, payload)
         .then((response) => {
           const data = response.data;
-          this.successMessage = data.message;
-          this.isSuccess = true;
+          this.notification.success(data.message);
           this.getJobData();
         })
         .catch((error) => {
           // eslint-disable-next-line
           console.log(error);
           const message =
-            error.response.data.message === ''
-              ? 'Something Wrong!!!'
-              : error.response.data.message;
-          this.errorMessage = message;
-          this.isError = true;
+            error.response.data.message === '' ? 'Something Wrong!!!' : error.response.data.message;
+          this.notification.error(message);
         })
         .finally(() => {
           this.isSending = false;
@@ -194,11 +164,8 @@ export default {
           // eslint-disable-next-line
           console.log(error);
           const message =
-            error.response.data.message === ''
-              ? 'Something Wrong!!!'
-              : error.response.data.message;
-          this.errorMessage = message;
-          this.isError = true;
+            error.response.data.message === '' ? 'Something Wrong!!!' : error.response.data.message;
+          this.notification.error(message);
         })
         .finally(() => {
           this.isLoading = false;

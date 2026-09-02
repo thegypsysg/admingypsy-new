@@ -127,11 +127,7 @@
         <v-row class="mt-n6">
           <v-col cols="12" md="2">
             <v-btn
-              :prepend-icon="
-                isEdit
-                  ? 'mdi-account-multiple-check'
-                  : 'mdi-account-multiple-plus'
-              "
+              :prepend-icon="isEdit ? 'mdi-account-multiple-check' : 'mdi-account-multiple-plus'"
               color="indigo-accent-2"
               style="text-transform: none"
               type="submit"
@@ -175,14 +171,10 @@
           <v-table class="country-table">
             <thead>
               <tr>
-                <th class="text-left font-weight-bold text-black">
-                  Location ID
-                </th>
+                <th class="text-left font-weight-bold text-black">Location ID</th>
                 <th class="text-left font-weight-bold text-black">Image</th>
                 <th class="text-left font-weight-bold text-black"></th>
-                <th class="text-left font-weight-bold text-black">
-                  Location Name
-                </th>
+                <th class="text-left font-weight-bold text-black">Location Name</th>
                 <th class="text-left font-weight-bold text-black">Latitude</th>
                 <th class="text-left font-weight-bold text-black">Longitude</th>
                 <th class="text-left font-weight-bold text-black">Address</th>
@@ -236,8 +228,7 @@
                           ? $fileURL + item.image
                           : 'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png'
                       "
-                      ><template #placeholder>
-                        <div class="skeleton" /> </template
+                      ><template #placeholder> <div class="skeleton" /> </template
                     ></v-img>
                   </div>
                   <v-table class="app-column-table">
@@ -335,80 +326,45 @@
                 <td></td>
                 <td>
                   <div class="d-flex">
+                    <v-btn color="green" variant="text" @click="editLocation(item)" icon>
+                      <v-icon>mdi-pencil-outline</v-icon>
+                      <v-tooltip location="top" activator="parent">Edit</v-tooltip>
+                    </v-btn>
                     <v-btn
-                          color="green"
-                          variant="text" @click="editLocation(item)"
-                          icon
-                        >
-  <v-icon>mdi-pencil-outline</v-icon>  <v-tooltip location="top" activator="parent">Edit</v-tooltip>
-</v-btn>
-                    <v-btn
-                          color="red" variant="text"
-                          :disabled="isDeleteLoading"
-                          @click="openDeleteConfirm(item.id)"
-                          icon
-                        >
-  <v-icon>mdi-trash-can-outline</v-icon>  <v-tooltip location="top" activator="parent">Delete</v-tooltip>
-</v-btn>
+                      color="red"
+                      variant="text"
+                      :disabled="isDeleteLoading"
+                      @click="openDeleteConfirm(item.id)"
+                      icon
+                    >
+                      <v-icon>mdi-trash-can-outline</v-icon>
+                      <v-tooltip location="top" activator="parent">Delete</v-tooltip>
+                    </v-btn>
                   </div>
-                </td>
-              </tr>
-              <tr v-if="isLoading">
-                <td :colspan="6" class="text-center">
-                  <v-progress-circular
-                    indeterminate
-                    color="indigo-accent-2"
-                  ></v-progress-circular>
                 </td>
               </tr>
             </tbody>
           </v-table>
+          <skeleton-table v-if="isLoading" :rows="5" :columns="16" />
+          <empty-state
+            v-if="!isLoading && (!filteredItems || filteredItems.length === 0)"
+            title="No Data Found"
+            subtitle="There are no records to display."
+          />
         </v-col>
       </v-row>
     </v-sheet>
-    <v-snackbar
-      location="top"
-      color="green"
-      v-model="isSuccess"
-      :timeout="3000"
-    >
-      {{ successMessage }}
 
-      <template v-slot:actions>
-        <v-btn color="white" variant="text" @click="isSuccess = false">
-          <v-icon>mdi-close</v-icon>
-        </v-btn>
-      </template>
-    </v-snackbar>
-    <v-snackbar location="top" color="red" v-model="isError" :timeout="3000">
-      {{ errorMessage }}
-
-      <template v-slot:actions>
-        <v-btn color="white" variant="text" @click="isError = false">
-          <v-icon>mdi-close</v-icon>
-        </v-btn>
-      </template>
-    </v-snackbar>
-    <v-dialog persistent width="500" v-model="isDelete">
-      <v-card>
-        <v-card-title>Confirmation</v-card-title>
-        <v-card-text>
-          Are you sure want to delete this partner location?
-        </v-card-text>
-        <v-card-actions>
-          <v-spacer></v-spacer>
-          <v-btn color="error" text @click="cancelDelete">No</v-btn>
-          <v-btn color="success" text @click="deleteLocation">{{
-            isDeleteLoading ? 'Deleting...' : 'Yes'
-          }}</v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
+    <confirm-dialog
+      v-model="isDelete"
+      title="Confirmation"
+      message="Are you sure you want to delete this item? This action cannot be undone."
+      :loading="isDeleteLoading"
+      @confirm="deleteLocation"
+    />
     <v-dialog persistent width="auto" v-model="isOpenImage">
       <v-card width="750">
-        <v-card-title class="upload-title px-6 py-4">
-          Upload Image - Partner Location</v-card-title
-        >
+        <v-card-title class="upload-title px-6 py-4"> Upload Image - Partner Location</v-card-title>
         <v-card-text>
           <image-upload
             :image-file="imageFile"
@@ -418,13 +374,7 @@
         </v-card-text>
         <v-card-actions class="mt-16">
           <v-spacer></v-spacer>
-          <v-btn
-            style="text-transform: none"
-            color="error"
-            text
-            @click="closeImage"
-            >Cancel</v-btn
-          >
+          <v-btn style="text-transform: none" color="error" text @click="closeImage">Cancel</v-btn>
           <v-btn
             style="background-color: #9ddcff; text-transform: none"
             color="black"
@@ -438,6 +388,10 @@
 </template>
 
 <script>
+import SkeletonTable from '@/components/SkeletonTable.vue';
+import EmptyState from '@/components/EmptyState.vue';
+import ConfirmDialog from '@/components/ConfirmDialog.vue';
+import { useNotificationStore } from '@/stores/notification';
 import ImageUpload from '@/components/ImageUpload.vue';
 import axios from '@/util/axios';
 import { setAuthHeader } from '@/util/axios';
@@ -445,6 +399,16 @@ import { setAuthHeader } from '@/util/axios';
 
 export default {
   name: 'LocationsVue',
+  components: {
+    ConfirmDialog,
+    EmptyState,
+    SkeletonTable,
+    ImageUpload,
+  },
+  setup() {
+    const notification = useNotificationStore();
+    return { notification };
+  },
   data: () => ({
     // fileURL: 'https://admin1.the-gypsy.sg/img/app/',
     idPartnerLocations: null,
@@ -453,16 +417,12 @@ export default {
     isLoading: false,
     isSending: false,
     isSending2: false,
-    isError: false,
     isEdit: false,
-    isSuccess: false,
     isDelete: false,
     isDeleteLoading: false,
     locationIdToDelete: null,
     tableHeaders: [{ text: 'Gambar', value: 'image' }],
     isOpenImage: false,
-    successMessage: '',
-    errorMessage: '',
     imageFile: [],
     partnerLocationDataToImage: {
       id: 0,
@@ -599,24 +559,18 @@ export default {
     deleteImageFile() {
       this.isSending = true;
       axios
-        .delete(
-          `/partner-locations/${this.partnerLocationDataToImage.id}/location-image`
-        )
+        .delete(`/partner-locations/${this.partnerLocationDataToImage.id}/location-image`)
         .then((response) => {
           const data = response.data;
-          this.successMessage = data.message;
-          this.isSuccess = true;
+          this.notification.success(data.message);
           this.getPartnerLocationsData();
         })
         .catch((error) => {
           // eslint-disable-next-line
           console.log(error);
           const message =
-            error.response.data.message === ''
-              ? 'Something Wrong!!!'
-              : error.response.data.message;
-          this.errorMessage = message;
-          this.isError = true;
+            error.response.data.message === '' ? 'Something Wrong!!!' : error.response.data.message;
+          this.notification.error(message);
         })
         .finally(() => {
           this.isEdit = false;
@@ -688,8 +642,7 @@ export default {
         })
         .then((response) => {
           const data = response.data;
-          this.successMessage = data.message;
-          this.isSuccess = true;
+          this.notification.success(data.message);
           this.getPartnerLocationsData();
           // app.config.globalProperties.$eventBus.$emit('update-image');
         })
@@ -697,11 +650,8 @@ export default {
           // eslint-disable-next-line
           console.log(error);
           const message =
-            error.response.data.message === ''
-              ? 'Something Wrong!!!'
-              : error.response.data.message;
-          this.errorMessage = message;
-          this.isError = true;
+            error.response.data.message === '' ? 'Something Wrong!!!' : error.response.data.message;
+          this.notification.error(message);
         })
         .finally(() => {
           this.isEdit = false;
@@ -772,8 +722,7 @@ export default {
           .post(`/partner-locations/update`, payload)
           .then((response) => {
             const data = response.data;
-            this.successMessage = data.message;
-            this.isSuccess = true;
+            this.notification.success(data.message);
             this.getPartnerLocationsData();
             this.input = {
               id: 0,
@@ -795,8 +744,7 @@ export default {
               error.response.data.message === ''
                 ? 'Something Wrong!!!'
                 : error.response.data.message;
-            this.errorMessage = message;
-            this.isError = true;
+            this.notification.error(message);
           })
           .finally(() => {
             this.isEdit = false;
@@ -823,8 +771,7 @@ export default {
           .post(`/partner-locations`, payload)
           .then((response) => {
             const data = response.data;
-            this.successMessage = data.message;
-            this.isSuccess = true;
+            this.notification.success(data.message);
             this.getPartnerLocationsData();
             this.input = {
               id: 0,
@@ -846,8 +793,7 @@ export default {
               error.response.data.message === ''
                 ? 'Something Wrong!!!'
                 : error.response.data.message;
-            this.errorMessage = message;
-            this.isError = true;
+            this.notification.error(message);
           })
           .finally(() => {
             this.isSending = false;
@@ -872,19 +818,15 @@ export default {
         .delete(`/partner-locations/${this.locationIdToDelete}`)
         .then((response) => {
           const data = response.data;
-          this.successMessage = data.message;
-          this.isSuccess = true;
+          this.notification.success(data.message);
           this.getPartnerLocationsData();
         })
         .catch((error) => {
           // eslint-disable-next-line
           console.log(error);
           const message =
-            error.response.data.message === ''
-              ? 'Something Wrong!!!'
-              : error.response.data.message;
-          this.errorMessage = message;
-          this.isError = true;
+            error.response.data.message === '' ? 'Something Wrong!!!' : error.response.data.message;
+          this.notification.error(message);
         })
         .finally(() => {
           this.isDeleteLoading = false;
@@ -916,14 +858,8 @@ export default {
               zone: item?.zone?.zone_name || '',
               zone_id: item?.zone?.zone_id || null,
               unit_number: item?.unit_number || '',
-              isPrimary:
-                item.primary == 'N' ? false : item.primary == 'Y' ? true : null,
-              isFavorite:
-                item.favorite == 'N'
-                  ? false
-                  : item.favorite == 'Y'
-                  ? true
-                  : null,
+              isPrimary: item.primary == 'N' ? false : item.primary == 'Y' ? true : null,
+              isFavorite: item.favorite == 'N' ? false : item.favorite == 'Y' ? true : null,
             };
           });
         })
@@ -931,11 +867,8 @@ export default {
           // eslint-disable-next-line
           console.log(error);
           const message =
-            error.response.data.message === ''
-              ? 'Something Wrong!!!'
-              : error.response.data.message;
-          this.errorMessage = message;
-          this.isError = true;
+            error.response.data.message === '' ? 'Something Wrong!!!' : error.response.data.message;
+          this.notification.error(message);
         })
         .finally(() => {
           this.isLoading = false;
@@ -955,11 +888,8 @@ export default {
           // eslint-disable-next-line
           console.log(error);
           const message =
-            error.response.data.message === ''
-              ? 'Something Wrong!!!'
-              : error.response.data.message;
-          this.errorMessage = message;
-          this.isError = true;
+            error.response.data.message === '' ? 'Something Wrong!!!' : error.response.data.message;
+          this.notification.error(message);
         });
     },
     getCountry() {
@@ -980,11 +910,8 @@ export default {
           // eslint-disable-next-line
           console.log(error);
           const message =
-            error.response.data.message === ''
-              ? 'Something Wrong!!!'
-              : error.response.data.message;
-          this.errorMessage = message;
-          this.isError = true;
+            error.response.data.message === '' ? 'Something Wrong!!!' : error.response.data.message;
+          this.notification.error(message);
         });
     },
     getCityData() {
@@ -1007,11 +934,8 @@ export default {
           // eslint-disable-next-line
           console.log(error);
           const message =
-            error.response.data.message === ''
-              ? 'Something Wrong!!!'
-              : error.response.data.message;
-          this.errorMessage = message;
-          this.isError = true;
+            error.response.data.message === '' ? 'Something Wrong!!!' : error.response.data.message;
+          this.notification.error(message);
         })
         .finally(() => {
           this.isLoading = false;
@@ -1037,11 +961,8 @@ export default {
           // eslint-disable-next-line
           console.log(error);
           const message =
-            error.response.data.message === ''
-              ? 'Something Wrong!!!'
-              : error.response.data.message;
-          this.errorMessage = message;
-          this.isError = true;
+            error.response.data.message === '' ? 'Something Wrong!!!' : error.response.data.message;
+          this.notification.error(message);
         })
         .finally(() => {
           this.isLoading = false;
@@ -1067,11 +988,8 @@ export default {
           // eslint-disable-next-line
           console.log(error);
           const message =
-            error.response.data.message === ''
-              ? 'Something Wrong!!!'
-              : error.response.data.message;
-          this.errorMessage = message;
-          this.isError = true;
+            error.response.data.message === '' ? 'Something Wrong!!!' : error.response.data.message;
+          this.notification.error(message);
         })
         .finally(() => {
           this.isLoading = false;
@@ -1083,19 +1001,15 @@ export default {
         .get(`/partner-locations/toggle-primary/${id}`)
         .then((response) => {
           const data = response.data;
-          this.successMessage = data.message;
-          this.isSuccess = true;
+          this.notification.success(data.message);
           this.getPartnerLocationsData();
         })
         .catch((error) => {
           // eslint-disable-next-line
           console.log(error);
           const message =
-            error.response.data.message === ''
-              ? 'Something Wrong!!!'
-              : error.response.data.message;
-          this.errorMessage = message;
-          this.isError = true;
+            error.response.data.message === '' ? 'Something Wrong!!!' : error.response.data.message;
+          this.notification.error(message);
         })
         .finally(() => {
           this.isSending2 = false;
@@ -1107,26 +1021,21 @@ export default {
         .get(`/partner-locations/toggle-favorite/${id}`)
         .then((response) => {
           const data = response.data;
-          this.successMessage = data.message;
-          this.isSuccess = true;
+          this.notification.success(data.message);
           this.getPartnerLocationsData();
         })
         .catch((error) => {
           // eslint-disable-next-line
           console.log(error);
           const message =
-            error.response.data.message === ''
-              ? 'Something Wrong!!!'
-              : error.response.data.message;
-          this.errorMessage = message;
-          this.isError = true;
+            error.response.data.message === '' ? 'Something Wrong!!!' : error.response.data.message;
+          this.notification.error(message);
         })
         .finally(() => {
           this.isSending2 = false;
         });
     },
   },
-  components: { ImageUpload },
 };
 </script>
 

@@ -35,9 +35,7 @@
         cols="2"
         class="text-center"
         style="cursor: pointer"
-        :class="
-          selectedOrderFulfillment == 'all' ? ' text-blue-darken-1' : undefined
-        "
+        :class="selectedOrderFulfillment == 'all' ? ' text-blue-darken-1' : undefined"
       >
         <h2 class="font-weight-black">All</h2>
       </v-col>
@@ -59,9 +57,7 @@
         <h3 class="text-grey-darken-1 font-weight-medium mt-2">
           {{ checkIfToday(item?.delivery_day) ? 'Today' : item?.delivery_day }}
         </h3>
-        <p class="text-blue-darken-2 text-body-2 mt-3">
-          ({{ item?.total_orders }} Orders)
-        </p>
+        <p class="text-blue-darken-2 text-body-2 mt-3">({{ item?.total_orders }} Orders)</p>
       </v-col>
     </v-row>
     <v-sheet class="py-6 px-4 mt-10" border rounded width="100%">
@@ -70,9 +66,7 @@
           <div class="d-flex">
             <span
               @click="selectBy('product')"
-              :class="
-                selectedBy == 'product' ? 'text-blue-darken-1' : undefined
-              "
+              :class="selectedBy == 'product' ? 'text-blue-darken-1' : undefined"
               class="font-weight-black"
               style="cursor: pointer"
               >By Product</span
@@ -113,38 +107,26 @@
             <!-- Slot custom daftar dropdown -->
             <template #item="{ props, item }">
               <div v-bind="props" class="d-flex align-center py-2 px-3">
-                <span class="text-red font-weight-bold">{{
-                  item.raw.cart_id
-                }}</span>
+                <span class="text-red font-weight-bold">{{ item.raw.cart_id }}</span>
                 <span class="text-blue"> - {{ item.raw.cart_date }}</span>
-                <span class="text-red font-weight-bold">
-                  - {{ item.raw.total_items }} Items</span
-                >
+                <span class="text-red font-weight-bold"> - {{ item.raw.total_items }} Items</span>
                 <span class="text-blue">
                   - S$ {{ parseFloat(item.raw.final_amount).toFixed(2) }}</span
                 >
-                <span class="text-red font-weight-bold">
-                  | {{ item.raw.delivery_date }}</span
-                >
+                <span class="text-red font-weight-bold"> | {{ item.raw.delivery_date }}</span>
               </div>
             </template>
 
             <!-- Slot custom tampilan input (selected) -->
             <template #selection="{ props, item }">
               <div v-bind="props">
-                <span class="text-red font-weight-bold">{{
-                  item.raw.cart_id
-                }}</span>
+                <span class="text-red font-weight-bold">{{ item.raw.cart_id }}</span>
                 <span class="text-blue"> - {{ item.raw.cart_date }}</span>
-                <span class="text-red font-weight-bold">
-                  - {{ item.raw.total_items }} Items</span
-                >
+                <span class="text-red font-weight-bold"> - {{ item.raw.total_items }} Items</span>
                 <span class="text-blue">
                   - S$ {{ parseFloat(item.raw.final_amount).toFixed(2) }}</span
                 >
-                <span class="text-red font-weight-bold">
-                  | {{ item.raw.delivery_date }}</span
-                >
+                <span class="text-red font-weight-bold"> | {{ item.raw.delivery_date }}</span>
               </div>
             </template>
           </v-autocomplete>
@@ -173,15 +155,11 @@
                       <tbody>
                         <tr class="font-weight-bold">
                           <td class="">
-                            <span
-                              class="text-red-darken-4 mr-8 font-weight-bold"
-                            >
+                            <span class="text-red-darken-4 mr-8 font-weight-bold">
                               {{ item?.product_name }}
                               ({{ item?.quantity_name }})
                             </span>
-                            <span
-                              class="text-blue-darken-3 text-h6 font-weight-black"
-                            >
+                            <span class="text-blue-darken-3 text-h6 font-weight-black">
                               {{ item?.total_items }} items
                             </span>
                           </td>
@@ -191,6 +169,12 @@
                         </tr>
                       </tbody>
                     </v-table>
+                    <skeleton-table v-if="isLoading" :rows="5" :columns="5" />
+                    <empty-state
+                      v-if="!isLoading && (!orderFulfillment || orderFulfillment.length === 0)"
+                      title="No Data Found"
+                      subtitle="There are no records to display."
+                    />
                   </td>
                 </tr>
 
@@ -220,20 +204,14 @@
                       {{ item?.product_name }}
                       ({{ item?.quantity_name }})
                     </td>
-                    <td
-                      style="border-bottom: none !important"
-                      class="pt-4 text-no-wrap"
-                    >
+                    <td style="border-bottom: none !important" class="pt-4 text-no-wrap">
                       <span v-if="item?.cart_detail?.rate">S$</span>
                       {{ item?.cart_detail?.rate }}
                     </td>
                     <td style="border-bottom: none !important" class="pt-4">
                       {{ item?.cart_detail?.qty }}
                     </td>
-                    <td
-                      style="border-bottom: none !important"
-                      class="pt-4 text-no-wrap"
-                    >
+                    <td style="border-bottom: none !important" class="pt-4 text-no-wrap">
                       <span v-if="item?.cart_detail?.amount">S$</span>
                       {{ item?.cart_detail?.amount }}
                     </td>
@@ -254,10 +232,7 @@
                 </template>
 
                 <template v-if="item?.groups_by_delivery_date?.length > 0">
-                  <template
-                    v-for="(d, index) in item?.groups_by_delivery_date"
-                    :key="index"
-                  >
+                  <template v-for="(d, index) in item?.groups_by_delivery_date" :key="index">
                     <tr v-if="selectedBy != 'cart'">
                       <!-- <td></td> -->
                       <td style="border: none !important" colspan="9">
@@ -272,40 +247,22 @@
                       <td colspan="8" class="pa-0">
                         <v-table>
                           <tbody>
-                            <tr
-                              v-for="del in d?.cart_details"
-                              :key="del?.cd_id"
-                            >
-                              <td
-                                style="border-bottom: none !important"
-                                class="pt-4"
-                              >
+                            <tr v-for="del in d?.cart_details" :key="del?.cd_id">
+                              <td style="border-bottom: none !important" class="pt-4">
                                 {{ del?.cd_id }}
                               </td>
-                              <td
-                                style="border-bottom: none !important"
-                                class="pt-4"
-                              >
+                              <td style="border-bottom: none !important" class="pt-4">
                                 {{ item?.product_name }}
                                 ({{ item?.quantity_name }})
                               </td>
-                              <td
-                                style="border-bottom: none !important"
-                                class="pt-4 text-no-wrap"
-                              >
+                              <td style="border-bottom: none !important" class="pt-4 text-no-wrap">
                                 <span v-if="del?.rate">S$</span>
                                 {{ del?.rate }}
                               </td>
-                              <td
-                                style="border-bottom: none !important"
-                                class="pt-4"
-                              >
+                              <td style="border-bottom: none !important" class="pt-4">
                                 {{ del?.qty }}
                               </td>
-                              <td
-                                style="border-bottom: none !important"
-                                class="pt-4 text-no-wrap"
-                              >
+                              <td style="border-bottom: none !important" class="pt-4 text-no-wrap">
                                 <span v-if="del?.amount">S$</span>
                                 {{ del?.amount }}
                               </td>
@@ -322,13 +279,7 @@
                                   disabled
                                 ></v-autocomplete>
                               </td>
-                              <td
-                                v-else
-                                style="
-                                  width: 300px;
-                                  border-bottom: none !important;
-                                "
-                              ></td>
+                              <td v-else style="width: 300px; border-bottom: none !important"></td>
                             </tr>
                           </tbody>
                         </v-table>
@@ -337,42 +288,12 @@
                   </template>
                 </template>
               </template>
-              <tr v-if="isLoading">
-                <td :colspan="9" class="text-center">
-                  <v-progress-circular
-                    indeterminate
-                    color="indigo-accent-2"
-                  ></v-progress-circular>
-                </td>
-              </tr>
             </tbody>
           </v-table>
         </v-col>
       </v-row>
     </v-sheet>
-    <v-snackbar
-      location="top"
-      color="green"
-      v-model="isSuccess"
-      :timeout="3000"
-    >
-      {{ successMessage }}
 
-      <template v-slot:actions>
-        <v-btn color="white" variant="text" @click="isSuccess = false">
-          <v-icon>mdi-close</v-icon>
-        </v-btn>
-      </template>
-    </v-snackbar>
-    <v-snackbar location="top" color="red" v-model="isError" :timeout="3000">
-      {{ errorMessage }}
-
-      <template v-slot:actions>
-        <v-btn color="white" variant="text" @click="isError = false">
-          <v-icon>mdi-close</v-icon>
-        </v-btn>
-      </template>
-    </v-snackbar>
     <v-dialog persistent width="500" v-model="addVendor">
       <v-card>
         <v-card-text> Do you wish to select this Vendor . ? </v-card-text>
@@ -397,6 +318,9 @@
 </template>
 
 <script>
+import SkeletonTable from '@/components/SkeletonTable.vue';
+import EmptyState from '@/components/EmptyState.vue';
+import { useNotificationStore } from '@/stores/notification';
 import axios from '@/util/axios';
 import moment from 'moment';
 import { setAuthHeader } from '@/util/axios';
@@ -404,14 +328,20 @@ import { setAuthHeader } from '@/util/axios';
 
 export default {
   name: 'SourcingBasket',
+  components: {
+    EmptyState,
+    SkeletonTable,
+  },
+  setup() {
+    const notification = useNotificationStore();
+    return { notification };
+  },
   data: () => ({
     // fileURL: 'https://admin1.the-gypsy.sg/img/app/',
     valid: false,
     isLoading: false,
     isSending: false,
     isSending2: false,
-    isSuccess: false,
-    isError: false,
     addVendor: false,
     cancelVendor: false,
     addVendorData: null,
@@ -420,8 +350,6 @@ export default {
     perPage: 5,
     totalPages: 1,
     totalItems: 0,
-    successMessage: '',
-    errorMessage: '',
     search: '',
     selectedVendor: null,
     selectedOrderCart: null,
@@ -488,11 +416,8 @@ export default {
           // eslint-disable-next-line
           console.log(error);
           const message =
-            error.response.data.message === ''
-              ? 'Something Wrong!!!'
-              : error.response.data.message;
-          this.errorMessage = message;
-          this.isError = true;
+            error.response.data.message === '' ? 'Something Wrong!!!' : error.response.data.message;
+          this.notification.error(message);
         })
         .finally(() => {
           this.isLoading = false;
@@ -509,11 +434,9 @@ export default {
               ...item,
               id: item?.partner_id,
               name:
-                item?.partner?.partner_name &&
-                item?.partner_location?.town?.town_name
+                item?.partner?.partner_name && item?.partner_location?.town?.town_name
                   ? `${item.partner.partner_name} | ${item.partner_location.town.town_name}`
-                  : item?.partner?.partner_name &&
-                    item?.partner_location?.city?.city_name
+                  : item?.partner?.partner_name && item?.partner_location?.city?.city_name
                   ? `${item.partner.partner_name} | ${item.partner_location.city.city_name}`
                   : item?.partner?.partner_name
                   ? item.partner.partner_name
@@ -526,8 +449,7 @@ export default {
         .catch((error) => {
           console.log(error);
           const message = error.response?.data?.message || 'Something Wrong!!!';
-          this.errorMessage = message;
-          this.isError = true;
+          this.notification.error(message);
         });
     },
     getOrderCarts() {
@@ -544,8 +466,7 @@ export default {
         .catch((error) => {
           console.log(error);
           const message = error.response?.data?.message || 'Something Wrong!!!';
-          this.errorMessage = message;
-          this.isError = true;
+          this.notification.error(message);
         });
     },
     getItemsDataProduct() {
@@ -564,11 +485,8 @@ export default {
           // eslint-disable-next-line
           console.log(error);
           const message =
-            error.response.data.message === ''
-              ? 'Something Wrong!!!'
-              : error.response.data.message;
-          this.errorMessage = message;
-          this.isError = true;
+            error.response.data.message === '' ? 'Something Wrong!!!' : error.response.data.message;
+          this.notification.error(message);
         })
         .finally(() => {
           this.isLoading = false;
@@ -619,8 +537,7 @@ export default {
       } catch (error) {
         console.log(error);
         const message = error.response?.data?.message || 'Something Wrong!!!';
-        this.errorMessage = message;
-        this.isError = true;
+        this.notification.error(message);
       }
     },
     async getItemsDataVendor(vendor) {
@@ -628,17 +545,14 @@ export default {
       this.isLoading = true;
       try {
         const response = await axios.get(
-          `/order-fullfilment/get-cart-details-by-vendor/${
-            vendor || this.selectedVendor
-          }`
+          `/order-fullfilment/get-cart-details-by-vendor/${vendor || this.selectedVendor}`
         );
         const data = response.data.data;
         this.items = data;
       } catch (error) {
         console.log(error);
         const message = error.response?.data?.message || 'Something Wrong!!!';
-        this.errorMessage = message;
-        this.isError = true;
+        this.notification.error(message);
 
         this.items = [];
       } finally {
@@ -649,9 +563,7 @@ export default {
       this.items = [];
       this.isLoading = true;
       axios
-        .get(
-          `/order-fullfilment/get-cart-details-by-cart-id/${this.selectedOrderCart}`
-        )
+        .get(`/order-fullfilment/get-cart-details-by-cart-id/${this.selectedOrderCart}`)
         .then((response) => {
           const data = response.data;
           this.items = data.data;
@@ -660,11 +572,8 @@ export default {
           // eslint-disable-next-line
           console.log(error);
           const message =
-            error.response.data.message === ''
-              ? 'Something Wrong!!!'
-              : error.response.data.message;
-          this.errorMessage = message;
-          this.isError = true;
+            error.response.data.message === '' ? 'Something Wrong!!!' : error.response.data.message;
+          this.notification.error(message);
         })
         .finally(() => {
           this.isLoading = false;

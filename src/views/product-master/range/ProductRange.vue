@@ -13,18 +13,12 @@
     </div>
     <div class="d-flex align-start w-100" style="gap: 40px">
       <div class="d-flex" style="width: 45%">
-        <h2 class="ml-4 mb-6 text-blue" style="min-width: 45px">
-          {{ itemData?.id || '' }} -
-        </h2>
+        <h2 class="ml-4 mb-6 text-blue" style="min-width: 45px">{{ itemData?.id || '' }} -</h2>
         <h2 class="mb-6 text-blue">
           {{ itemData?.product || '' }}
         </h2>
       </div>
-      <div
-        v-if="itemData"
-        class="d-flex font-weight-bold pt-1"
-        style="width: 55%"
-      >
+      <div v-if="itemData" class="d-flex font-weight-bold pt-1" style="width: 55%">
         App:
         <span class="text-red mr-4 ml-2">{{ itemData?.app || '' }}</span>
         Brand:
@@ -62,11 +56,7 @@
         <v-row class="mt-n4">
           <v-col cols="12" md="2">
             <v-btn
-              :prepend-icon="
-                isEdit
-                  ? 'mdi-account-multiple-check'
-                  : 'mdi-account-multiple-plus'
-              "
+              :prepend-icon="isEdit ? 'mdi-account-multiple-check' : 'mdi-account-multiple-plus'"
               color="indigo-accent-2"
               style="text-transform: none"
               type="submit"
@@ -113,9 +103,7 @@
                 <th class="text-left">Image</th>
                 <th class="text-left">Product Name</th>
                 <th class="text-left">Size</th>
-                <th v-if="itemData?.app_id == '3'" class="text-left">
-                  Percentage
-                </th>
+                <th v-if="itemData?.app_id == '3'" class="text-left">Percentage</th>
                 <th class="text-left">User</th>
                 <th class="text-left">Dated</th>
                 <th class="text-left">Actions</th>
@@ -137,8 +125,7 @@
                             ? $fileURL + item.image
                             : 'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png'
                         "
-                        ><template #placeholder>
-                          <div class="skeleton" /> </template
+                        ><template #placeholder> <div class="skeleton" /> </template
                       ></v-img>
                     </div>
                   </td>
@@ -166,32 +153,26 @@
 
                   <td>
                     <div class="d-flex">
+                      <v-btn color="green" variant="text" @click="editProduct(item)" icon>
+                        <v-icon>mdi-pencil-outline</v-icon>
+                        <v-tooltip location="top" activator="parent">Edit</v-tooltip>
+                      </v-btn>
                       <v-btn
-                            color="green"
-                            variant="text" @click="editProduct(item)"
-                            icon
-                          >
-  <v-icon>mdi-pencil-outline</v-icon>  <v-tooltip location="top" activator="parent">Edit</v-tooltip>
-</v-btn>
-                      <v-btn
-                            color="red" variant="text"
-                            :disabled="isDeleteLoading"
-                            @click="openDeleteConfirm(item.id)"
-                            icon
-                          >
-  <v-icon>mdi-trash-can-outline</v-icon>  <v-tooltip location="top" activator="parent">Delete</v-tooltip>
-</v-btn>
+                        color="red"
+                        variant="text"
+                        :disabled="isDeleteLoading"
+                        @click="openDeleteConfirm(item.id)"
+                        icon
+                      >
+                        <v-icon>mdi-trash-can-outline</v-icon>
+                        <v-tooltip location="top" activator="parent">Delete</v-tooltip>
+                      </v-btn>
                     </div>
                   </td>
                 </tr>
 
                 <tr>
-                  <td
-                    style="
-                      border-bottom: 1px solid rgb(188, 188, 188) !important;
-                    "
-                    colspan="8"
-                  >
+                  <td style="border-bottom: 1px solid rgb(188, 188, 188) !important" colspan="8">
                     <div class="d-flex justify-start" style="gap: 20px">
                       <v-table class="text-left font-weight-bold">
                         <tr>
@@ -205,61 +186,28 @@
                   </td>
                 </tr>
               </template>
-              <tr v-if="isLoading">
-                <td :colspan="6" class="text-center">
-                  <v-progress-circular
-                    indeterminate
-                    color="indigo-accent-2"
-                  ></v-progress-circular>
-                </td>
-              </tr>
             </tbody>
           </v-table>
+          <skeleton-table v-if="isLoading" :rows="5" :columns="8" />
+          <empty-state
+            v-if="!isLoading && (!filteredItems || filteredItems.length === 0)"
+            title="No Data Found"
+            subtitle="There are no records to display."
+          />
         </v-col>
       </v-row>
     </v-sheet>
-    <v-snackbar
-      location="top"
-      color="green"
-      v-model="isSuccess"
-      :timeout="3000"
-    >
-      {{ successMessage }}
 
-      <template v-slot:actions>
-        <v-btn color="white" variant="text" @click="isSuccess = false">
-          <v-icon>mdi-close</v-icon>
-        </v-btn>
-      </template>
-    </v-snackbar>
-
-    <v-snackbar location="top" color="red" v-model="isError" :timeout="3000">
-      {{ errorMessage }}
-
-      <template v-slot:actions>
-        <v-btn color="white" variant="text" @click="isError = false">
-          <v-icon>mdi-close</v-icon>
-        </v-btn>
-      </template>
-    </v-snackbar>
-    <v-dialog persistent width="500" v-model="isDelete">
-      <v-card>
-        <v-card-title>Confirmation</v-card-title>
-        <v-card-text>
-          Are you sure want to delete this product range?
-        </v-card-text>
-        <v-card-actions>
-          <v-spacer></v-spacer>
-          <v-btn color="error" text @click="cancelDelete">No</v-btn>
-          <v-btn color="success" text @click="deleteProduct">Yes</v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
+    <confirm-dialog
+      v-model="isDelete"
+      title="Confirmation"
+      message="Are you sure you want to delete this item? This action cannot be undone."
+      :loading="isDeleteLoading"
+      @confirm="deleteProduct"
+    />
     <v-dialog persistent width="auto" v-model="isOpenImage">
       <v-card width="750">
-        <v-card-title class="upload-title px-6 py-4">
-          Upload Image - Product</v-card-title
-        >
+        <v-card-title class="upload-title px-6 py-4"> Upload Image - Product</v-card-title>
         <v-card-text>
           <image-multi-upload
             :image-file="imageFile"
@@ -283,9 +231,7 @@
           >
           </handy-uploader> -->
         </v-card-text>
-        <v-card-title class="upload-title px-6 py-4">
-          Upload Video - Product</v-card-title
-        >
+        <v-card-title class="upload-title px-6 py-4"> Upload Video - Product</v-card-title>
         <v-card-text>
           <video-upload
             :video-file="videoFile"
@@ -295,13 +241,7 @@
         </v-card-text>
         <v-card-actions class="mt-16">
           <v-spacer></v-spacer>
-          <v-btn
-            style="text-transform: none"
-            color="error"
-            text
-            @click="closeImage"
-            >Cancel</v-btn
-          >
+          <v-btn style="text-transform: none" color="error" text @click="closeImage">Cancel</v-btn>
           <v-btn
             style="background-color: #9ddcff; text-transform: none"
             color="black"
@@ -315,6 +255,10 @@
 </template>
 
 <script>
+import SkeletonTable from '@/components/SkeletonTable.vue';
+import EmptyState from '@/components/EmptyState.vue';
+import ConfirmDialog from '@/components/ConfirmDialog.vue';
+import { useNotificationStore } from '@/stores/notification';
 import VideoUpload from '@/components/VideoUpload.vue';
 import ImageMultiUpload from '@/components/ImageMultiUpload.vue';
 //import handyUploader from 'handy-uploader/src/components/handyUploader';
@@ -324,15 +268,23 @@ import { setAuthHeader } from '@/util/axios';
 
 export default {
   name: 'ProductMaster',
-  components: { VideoUpload, ImageMultiUpload },
+  components: {
+    VideoUpload,
+    ImageMultiUpload,
+    ConfirmDialog,
+    EmptyState,
+    SkeletonTable,
+  },
+  setup() {
+    const notification = useNotificationStore();
+    return { notification };
+  },
   data: () => ({
     // fileURL: 'https://admin1.the-gypsy.sg/img/app/',
     valid: false,
     isLoading: false,
     isSending: false,
     isEdit: false,
-    isSuccess: false,
-    isError: false,
     isDelete: false,
     isDeleteLoading: false,
     customLang: {
@@ -381,8 +333,6 @@ export default {
     },
     isOpenImage: false,
     isOpenLogo: false,
-    successMessage: '',
-    errorMessage: '',
     input: {
       id: 0,
       quantity: null,
@@ -457,24 +407,18 @@ export default {
       }
       this.isSending = true;
       axios
-        .delete(
-          `/product-ranges/${this.productDataToImage.id}/${indexDelete}/image`
-        )
+        .delete(`/product-ranges/${this.productDataToImage.id}/${indexDelete}/image`)
         .then((response) => {
           const data = response.data;
-          this.successMessage = data.message;
-          this.isSuccess = true;
+          this.notification.success(data.message);
           this.getProductRange();
         })
         .catch((error) => {
           // eslint-disable-next-line
           console.log(error);
           const message =
-            error.response.data.message === ''
-              ? 'Something Wrong!!!'
-              : error.response.data.message;
-          this.errorMessage = message;
-          this.isError = true;
+            error.response.data.message === '' ? 'Something Wrong!!!' : error.response.data.message;
+          this.notification.error(message);
         })
         .finally(() => {
           this.isEdit = false;
@@ -488,19 +432,15 @@ export default {
         .delete(`/product-ranges/${this.productDataToImage.id}/video`)
         .then((response) => {
           const data = response.data;
-          this.successMessage = data.message;
-          this.isSuccess = true;
+          this.notification.success(data.message);
           this.getProductRange();
         })
         .catch((error) => {
           // eslint-disable-next-line
           console.log(error);
           const message =
-            error.response.data.message === ''
-              ? 'Something Wrong!!!'
-              : error.response.data.message;
-          this.errorMessage = message;
-          this.isError = true;
+            error.response.data.message === '' ? 'Something Wrong!!!' : error.response.data.message;
+          this.notification.error(message);
         })
         .finally(() => {
           this.isEdit = false;
@@ -614,19 +554,15 @@ export default {
         })
         .then((response) => {
           const data = response.data;
-          this.successMessage = data.message;
-          this.isSuccess = true;
+          this.notification.success(data.message);
           this.getProductRange();
         })
         .catch((error) => {
           // eslint-disable-next-line
           console.log(error);
           const message =
-            error.response.data.message === ''
-              ? 'Something Wrong!!!'
-              : error.response.data.message;
-          this.errorMessage = message;
-          this.isError = true;
+            error.response.data.message === '' ? 'Something Wrong!!!' : error.response.data.message;
+          this.notification.error(message);
         })
         .finally(() => {
           this.isEdit = false;
@@ -660,19 +596,15 @@ export default {
         })
         .then((response) => {
           const data = response.data;
-          this.successMessage = data.message;
-          this.isSuccess = true;
+          this.notification.success(data.message);
           this.getProductData();
         })
         .catch((error) => {
           // eslint-disable-next-line
           console.log(error);
           const message =
-            error.response.data.message === ''
-              ? 'Something Wrong!!!'
-              : error.response.data.message;
-          this.errorMessage = message;
-          this.isError = true;
+            error.response.data.message === '' ? 'Something Wrong!!!' : error.response.data.message;
+          this.notification.error(message);
         })
         .finally(() => {
           this.isEdit = false;
@@ -715,8 +647,7 @@ export default {
           .post(`/product-ranges/update`, payload)
           .then((response) => {
             const data = response.data;
-            this.successMessage = data.message;
-            this.isSuccess = true;
+            this.notification.success(data.message);
             this.getProductRange();
             this.input = { id: 0, quantity: null, desc: null };
           })
@@ -724,11 +655,8 @@ export default {
             // eslint-disable-next-line
             console.log(error);
             const message =
-              error.response.data.error === ''
-                ? 'Something Wrong!!!'
-                : error.response.data.error;
-            this.errorMessage = message;
-            this.isError = true;
+              error.response.data.error === '' ? 'Something Wrong!!!' : error.response.data.error;
+            this.notification.error(message);
             this.input = { id: 0, quantity: null, desc: null };
           })
           .finally(() => {
@@ -749,8 +677,7 @@ export default {
           .post(`/product-ranges`, payload)
           .then((response) => {
             const data = response.data;
-            this.successMessage = data.message;
-            this.isSuccess = true;
+            this.notification.success(data.message);
             this.getProductRange();
             this.input = { id: 0, quantity: null, desc: null };
           })
@@ -758,11 +685,8 @@ export default {
             // eslint-disable-next-line
             console.log(error);
             const message =
-              error.response.data.error === ''
-                ? 'Something Wrong!!!'
-                : error.response.data.error;
-            this.errorMessage = message;
-            this.isError = true;
+              error.response.data.error === '' ? 'Something Wrong!!!' : error.response.data.error;
+            this.notification.error(message);
           })
           .finally(() => {
             this.isSending = false;
@@ -787,19 +711,15 @@ export default {
         .delete(`/product-ranges/${this.productIdToDelete}`)
         .then((response) => {
           const data = response.data;
-          this.successMessage = data.message;
-          this.isSuccess = true;
+          this.notification.success(data.message);
           this.getProductRange();
         })
         .catch((error) => {
           // eslint-disable-next-line
           console.log(error);
           const message =
-            error.response.data.message === ''
-              ? 'Something Wrong!!!'
-              : error.response.data.message;
-          this.errorMessage = message;
-          this.isError = true;
+            error.response.data.message === '' ? 'Something Wrong!!!' : error.response.data.message;
+          this.notification.error(message);
         })
         .finally(() => {
           this.isDeleteLoading = false;
@@ -831,11 +751,8 @@ export default {
           // eslint-disable-next-line
           console.log(error);
           const message =
-            error.response.data.message === ''
-              ? 'Something Wrong!!!'
-              : error.response.data.message;
-          this.errorMessage = message;
-          this.isError = true;
+            error.response.data.message === '' ? 'Something Wrong!!!' : error.response.data.message;
+          this.notification.error(message);
         })
         .finally(() => {
           this.isLoading = false;
@@ -862,9 +779,7 @@ export default {
               desc: item.description || '',
               size: item.quantity_name || '',
               percentage: item.alcohol_percentage || '',
-              percentageNum: item.alcohol_percentage
-                ? item.alcohol_percentage.split('%')[0]
-                : '',
+              percentageNum: item.alcohol_percentage ? item.alcohol_percentage.split('%')[0] : '',
               user: item.name || '',
               dated: item.dated || '',
             };
@@ -874,11 +789,8 @@ export default {
           // eslint-disable-next-line
           console.log(error);
           const message =
-            error.response.data.message === ''
-              ? 'Something Wrong!!!'
-              : error.response.data.message;
-          this.errorMessage = message;
-          this.isError = true;
+            error.response.data.message === '' ? 'Something Wrong!!!' : error.response.data.message;
+          this.notification.error(message);
         })
         .finally(() => {
           this.isLoading = false;
@@ -902,11 +814,8 @@ export default {
           // eslint-disable-next-line
           console.log(error);
           const message =
-            error.response.data.message === ''
-              ? 'Something Wrong!!!'
-              : error.response.data.message;
-          this.errorMessage = message;
-          this.isError = true;
+            error.response.data.message === '' ? 'Something Wrong!!!' : error.response.data.message;
+          this.notification.error(message);
         })
         .finally(() => {
           this.isLoading = false;

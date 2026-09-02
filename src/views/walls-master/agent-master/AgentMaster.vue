@@ -2,7 +2,6 @@
 <!-- eslint-disable vue/no-deprecated-v-bind-sync -->
 <template>
   <v-container>
-    
     <HeaderWallMaster />
     <v-form v-model="valid" @submit.prevent>
       <v-container>
@@ -57,11 +56,7 @@
           </v-col>
           <v-col cols="12" md="2">
             <v-btn
-              :prepend-icon="
-                isEdit
-                  ? 'mdi-account-multiple-check'
-                  : 'mdi-account-multiple-plus'
-              "
+              :prepend-icon="isEdit ? 'mdi-account-multiple-check' : 'mdi-account-multiple-plus'"
               color="indigo-accent-2"
               style="text-transform: none"
               type="submit"
@@ -144,12 +139,11 @@
                             : 'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png'
                         "
                       >
-                        <template #placeholder>
-                          <div class="skeleton" /> </template
+                        <template #placeholder> <div class="skeleton" /> </template
                       ></v-img>
                     </div>
                   </td>
-                    <td>{{ item.agent_name }}</td>
+                  <td>{{ item.agent_name }}</td>
                   <td>
                     {{ item.registration_number }}
                   </td>
@@ -167,21 +161,20 @@
                   </td>
                   <td>
                     <div class="d-flex">
+                      <v-btn color="green" variant="text" @click="editAgentMaster(item)" icon>
+                        <v-icon>mdi-pencil-outline</v-icon>
+                        <v-tooltip location="top" activator="parent">Edit</v-tooltip>
+                      </v-btn>
                       <v-btn
-                            color="green"
-                            variant="text" @click="editAgentMaster(item)"
-                            icon
-                          >
-  <v-icon>mdi-pencil-outline</v-icon>  <v-tooltip location="top" activator="parent">Edit</v-tooltip>
-</v-btn>
-                      <v-btn
-                            color="red" variant="text"
-                            :disabled="isDeleteLoading"
-                            @click="openDeleteConfirm(item.pa_id)"
-                            icon
-                          >
-  <v-icon>mdi-trash-can-outline</v-icon>  <v-tooltip location="top" activator="parent">Delete</v-tooltip>
-</v-btn>
+                        color="red"
+                        variant="text"
+                        :disabled="isDeleteLoading"
+                        @click="openDeleteConfirm(item.pa_id)"
+                        icon
+                      >
+                        <v-icon>mdi-trash-can-outline</v-icon>
+                        <v-tooltip location="top" activator="parent">Delete</v-tooltip>
+                      </v-btn>
                     </div>
                   </td>
                 </tr>
@@ -190,7 +183,7 @@
                   <td></td>
                   <td>
                     <div class="d-flex align-center">
-                      Active 
+                      Active
                       <v-btn-toggle
                         style="
                           font-size: 10px !important;
@@ -212,7 +205,7 @@
                   </td>
                   <td>
                     <div class="d-flex align-center">
-                      Featured 
+                      Featured
                       <v-btn-toggle
                         style="
                           font-size: 10px !important;
@@ -234,60 +227,28 @@
                   </td>
                 </tr>
               </template>
-              <tr v-if="isLoading">
-                <td :colspan="6" class="text-center">
-                  <v-progress-circular
-                    indeterminate
-                    color="indigo-accent-2"
-                  ></v-progress-circular>
-                </td>
-              </tr>
             </tbody>
           </v-table>
+          <skeleton-table v-if="isLoading" :rows="5" :columns="9" />
+          <empty-state
+            v-if="!isLoading && (!filteredItems || filteredItems.length === 0)"
+            title="No Data Found"
+            subtitle="There are no records to display."
+          />
         </v-col>
       </v-row>
     </v-sheet>
-    <v-snackbar
-      location="top"
-      color="green"
-      v-model="isSuccess"
-      :timeout="3000"
-    >
-      {{ successMessage }}
 
-      <template v-slot:actions>
-        <v-btn color="white" variant="text" @click="isSuccess = false">
-          <v-icon>mdi-close</v-icon>
-        </v-btn>
-      </template>
-    </v-snackbar>
-    <v-snackbar location="top" color="red" v-model="isError" :timeout="3000">
-      {{ errorMessage }}
-
-      <template v-slot:actions>
-        <v-btn color="white" variant="text" @click="isError = false">
-          <v-icon>mdi-close</v-icon>
-        </v-btn>
-      </template>
-    </v-snackbar>
-    <v-dialog persistent width="500" v-model="isDelete">
-      <v-card>
-        <v-card-title>Confirmation</v-card-title>
-        <v-card-text> Are you sure want to delete this agent master? </v-card-text>
-        <v-card-actions>
-          <v-spacer></v-spacer>
-          <v-btn color="error" text @click="cancelDelete">No</v-btn>
-          <v-btn color="success" text @click="deleteAgentMaster">{{
-            isDeleteLoading ? 'Deleting...' : 'Yes'
-          }}</v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
+    <confirm-dialog
+      v-model="isDelete"
+      title="Confirmation"
+      message="Are you sure you want to delete this item? This action cannot be undone."
+      :loading="isDeleteLoading"
+      @confirm="deleteAgentMaster"
+    />
     <v-dialog persistent width="auto" v-model="isOpenMainImage">
       <v-card width="750">
-        <v-card-title class="upload-title px-6 py-4">
-          Upload Image - Agent Master</v-card-title
-        >
+        <v-card-title class="upload-title px-6 py-4"> Upload Image - Agent Master</v-card-title>
         <v-card-text>
           <image-upload
             :image-file="mainImageFile"
@@ -297,13 +258,7 @@
         </v-card-text>
         <v-card-actions class="mt-16">
           <v-spacer></v-spacer>
-          <v-btn
-            style="text-transform: none"
-            color="error"
-            text
-            @click="closeImage"
-            >Cancel</v-btn
-          >
+          <v-btn style="text-transform: none" color="error" text @click="closeImage">Cancel</v-btn>
           <v-btn
             style="background-color: #9ddcff; text-transform: none"
             color="black"
@@ -317,6 +272,10 @@
 </template>
 
 <script>
+import SkeletonTable from '@/components/SkeletonTable.vue';
+import EmptyState from '@/components/EmptyState.vue';
+import ConfirmDialog from '@/components/ConfirmDialog.vue';
+import { useNotificationStore } from '@/stores/notification';
 import ImageUpload from '@/components/ImageUpload.vue';
 import axios from '@/util/axios';
 import { setAuthHeader } from '@/util/axios';
@@ -325,6 +284,17 @@ import HeaderWallMaster from '@/components/HeaderWallMaster.vue';
 
 export default {
   name: 'AgentMaster',
+  components: {
+    ConfirmDialog,
+    EmptyState,
+    SkeletonTable,
+    ImageUpload,
+    HeaderWallMaster,
+  },
+  setup() {
+    const notification = useNotificationStore();
+    return { notification };
+  },
   data: () => ({
     // fileURL: 'https://admin1.the-gypsy.sg/img/app/',
     idAgentMaster: null,
@@ -332,16 +302,12 @@ export default {
     isLoading: false,
     isSending: false,
     isSending2: false,
-    isError: false,
     isEdit: false,
-    isSuccess: false,
     isDelete: false,
     isDeleteLoading: false,
     locationIdToDelete: null,
     tableHeaders: [{ text: 'Gambar', value: 'main_image' }],
     isOpenMainImage: false,
-    successMessage: '',
-    errorMessage: '',
     mainImageFile: [],
     partner: [],
     country: [],
@@ -390,10 +356,7 @@ export default {
         return this.items;
       }
       const searchTextLower = this.search.toLowerCase();
-      return this.items.filter(
-        (item) =>
-          item.agent_name.toLowerCase().includes(searchTextLower) 
-      );
+      return this.items.filter((item) => item.agent_name.toLowerCase().includes(searchTextLower));
     },
   },
   methods: {
@@ -431,8 +394,7 @@ export default {
           .post(`/4walls-agent-masters/update`, payload)
           .then((response) => {
             const data = response.data;
-            this.successMessage = data.message;
-            this.isSuccess = true;
+            this.notification.success(data.message);
             this.getAgentMasterData();
             this.input = {
               pa_id: 0,
@@ -447,13 +409,12 @@ export default {
             const message = error.response.data.agent_name
               ? 'Please fill the agent name field'
               : error.response.data.message;
-            this.errorMessage = message;
-            this.isError = true;
+            this.notification.error(message);
           })
           .finally(() => {
             this.isSending = false;
           });
-      } 
+      }
     },
     saveData() {
       if (this.valid) {
@@ -468,8 +429,7 @@ export default {
           .post(`/4walls-agent-masters`, payload)
           .then((response) => {
             const data = response.data;
-            this.successMessage = data.message;
-            this.isSuccess = true;
+            this.notification.success(data.message);
             this.getAgentMasterData();
             this.input = {
               pa_id: 0,
@@ -485,8 +445,7 @@ export default {
             const message = error.response.data.agent_name
               ? error.response.data.agent_name[0]
               : 'Something Wrong!!!';
-            this.errorMessage = message;
-            this.isError = true;
+            this.notification.error(message);
           })
           .finally(() => {
             this.isSending = false;
@@ -511,19 +470,15 @@ export default {
         .delete(`/4walls-agent-masters/${this.idAgentMaster}`)
         .then((response) => {
           const data = response.data;
-          this.successMessage = data.message;
-          this.isSuccess = true;
+          this.notification.success(data.message);
           this.getAgentMasterData();
         })
         .catch((error) => {
           // eslint-disable-next-line
           console.log(error);
           const message =
-            error.response.data.message === ''
-              ? 'Something Wrong!!!'
-              : error.response.data.message;
-          this.errorMessage = message;
-          this.isError = true;
+            error.response.data.message === '' ? 'Something Wrong!!!' : error.response.data.message;
+          this.notification.error(message);
         })
         .finally(() => {
           this.isDeleteLoading = false;
@@ -540,11 +495,8 @@ export default {
           this.items = response.data.data.map((item) => {
             return {
               ...item,
-              isActive:
-                item.active == 'N' ? false : item.active == 'Y' ? true : null,
-              isFeatured:
-                item.featured == 'N' ? false : item.featured == 'Y' ? true : null,
-
+              isActive: item.active == 'N' ? false : item.active == 'Y' ? true : null,
+              isFeatured: item.featured == 'N' ? false : item.featured == 'Y' ? true : null,
             };
           });
         })
@@ -552,11 +504,8 @@ export default {
           // eslint-disable-next-line
           console.log(error);
           const message =
-            error.response.data.message === ''
-              ? 'Something Wrong!!!'
-              : error.response.data.message;
-          this.errorMessage = message;
-          this.isError = true;
+            error.response.data.message === '' ? 'Something Wrong!!!' : error.response.data.message;
+          this.notification.error(message);
         })
         .finally(() => {
           this.isLoading = false;
@@ -639,19 +588,15 @@ export default {
         })
         .then((response) => {
           const data = response.data;
-          this.successMessage = data.message;
-          this.isSuccess = true;
+          this.notification.success(data.message);
           this.getAgentMasterData();
         })
         .catch((error) => {
           // eslint-disable-next-line
           console.log(error);
           const message =
-            error.response.data.message === ''
-              ? 'Something Wrong!!!'
-              : error.response.data.message;
-          this.errorMessage = message;
-          this.isError = true;
+            error.response.data.message === '' ? 'Something Wrong!!!' : error.response.data.message;
+          this.notification.error(message);
         })
         .finally(() => {
           this.isEdit = false;
@@ -674,24 +619,18 @@ export default {
     deleteMainImageFile() {
       this.isSending = true;
       axios
-        .delete(
-          `/4walls-agent-masters/${this.propertyDataToMainImage.pa_id}/main_image`
-        )
+        .delete(`/4walls-agent-masters/${this.propertyDataToMainImage.pa_id}/main_image`)
         .then((response) => {
           const data = response.data;
-          this.successMessage = data.message;
-          this.isSuccess = true;
+          this.notification.success(data.message);
           this.getAgentMasterData();
         })
         .catch((error) => {
           // eslint-disable-next-line
           console.log(error);
           const message =
-            error.response.data.message === ''
-              ? 'Something Wrong!!!'
-              : error.response.data.message;
-          this.errorMessage = message;
-          this.isError = true;
+            error.response.data.message === '' ? 'Something Wrong!!!' : error.response.data.message;
+          this.notification.error(message);
         })
         .finally(() => {
           this.isEdit = false;
@@ -713,8 +652,7 @@ export default {
         .get(`/4walls-agent-masters/toggle-active/${id}`)
         .then((response) => {
           const data = response.data;
-          this.successMessage = data.message;
-          this.isSuccess = true;
+          this.notification.success(data.message);
           this.getAgentMasterData();
         })
         .catch((error) => {
@@ -724,15 +662,14 @@ export default {
         .finally(() => {
           this.isSending2 = false;
         });
-    },  
+    },
     featuredAgentMaster(id) {
       this.isSending2 = true;
       axios
         .get(`/4walls-agent-masters/toggle-featured/${id}`)
         .then((response) => {
           const data = response.data;
-          this.successMessage = data.message;
-          this.isSuccess = true;
+          this.notification.success(data.message);
           this.getPropertyMasterData();
         })
         .catch((error) => {
@@ -744,7 +681,6 @@ export default {
         });
     },
   },
-  components: { ImageUpload, HeaderWallMaster },
 };
 </script>
 

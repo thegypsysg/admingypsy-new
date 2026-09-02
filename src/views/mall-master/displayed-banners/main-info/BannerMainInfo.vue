@@ -106,35 +106,10 @@
         </v-row>
       </v-container>
     </v-form>
-    <v-snackbar
-      location="top"
-      color="green"
-      v-model="isSuccess"
-      :timeout="3000"
-    >
-      {{ successMessage }}
 
-      <template v-slot:actions>
-        <v-btn color="white" variant="text" @click="isSuccess = false">
-          <v-icon>mdi-close</v-icon>
-        </v-btn>
-      </template>
-    </v-snackbar>
-
-    <v-snackbar location="top" color="red" v-model="isError" :timeout="3000">
-      {{ errorMessage }}
-
-      <template v-slot:actions>
-        <v-btn color="white" variant="text" @click="isError = false">
-          <v-icon>mdi-close</v-icon>
-        </v-btn>
-      </template>
-    </v-snackbar>
     <v-dialog persistent width="auto" v-model="isOpenImage">
       <v-card width="750">
-        <v-card-title class="upload-title px-6 py-4">
-          Upload Image - Partner Location</v-card-title
-        >
+        <v-card-title class="upload-title px-6 py-4"> Upload Image - Partner Location</v-card-title>
         <v-card-text>
           <image-upload
             :image-file="imageFile"
@@ -145,13 +120,7 @@
         </v-card-text>
         <v-card-actions class="mt-16">
           <v-spacer></v-spacer>
-          <v-btn
-            style="text-transform: none"
-            color="error"
-            text
-            @click="closeImage"
-            >Cancel</v-btn
-          >
+          <v-btn style="text-transform: none" color="error" text @click="closeImage">Cancel</v-btn>
           <v-btn
             style="background-color: #9ddcff; text-transform: none"
             color="black"
@@ -165,6 +134,7 @@
 </template>
 
 <script>
+import { useNotificationStore } from '@/stores/notification';
 import axios from '@/util/axios';
 import moment from 'moment';
 import ImageUpload from '@/components/ImageUpload.vue';
@@ -173,8 +143,13 @@ import { setAuthHeader } from '@/util/axios';
 
 export default {
   name: 'MainInfo',
-
-  components: { ImageUpload },
+  components: {
+    ImageUpload,
+  },
+  setup() {
+    const notification = useNotificationStore();
+    return { notification };
+  },
   data: () => ({
     // fileURL: 'https://admin1.the-gypsy.sg/img/app/',
     idBanner: null,
@@ -183,9 +158,7 @@ export default {
     valid: false,
     isLoading: false,
     isSending: false,
-    isError: false,
     isEdit: false,
-    isSuccess: false,
     isDelete: false,
     isDeleteLoading: false,
     userIdToDelete: null,
@@ -195,8 +168,6 @@ export default {
       id: 0,
     },
     isOpenImage: false,
-    successMessage: '',
-    errorMessage: '',
     input: {
       id: 0,
       name: '',
@@ -327,19 +298,15 @@ export default {
         .delete(`/mall-displays/${this.promotionDataToImage.id}/image`)
         .then((response) => {
           const data = response.data;
-          this.successMessage = data.message;
-          this.isSuccess = true;
+          this.notification.success(data.message);
           this.getPartnerData();
         })
         .catch((error) => {
           // eslint-disable-next-line
           console.log(error);
           const message =
-            error.response.data.message === ''
-              ? 'Something Wrong!!!'
-              : error.response.data.message;
-          this.errorMessage = message;
-          this.isError = true;
+            error.response.data.message === '' ? 'Something Wrong!!!' : error.response.data.message;
+          this.notification.error(message);
         })
         .finally(() => {
           this.isEdit = false;
@@ -374,19 +341,15 @@ export default {
         })
         .then((response) => {
           const data = response.data;
-          this.successMessage = data.message;
-          this.isSuccess = true;
+          this.notification.success(data.message);
           this.getPartnerData();
         })
         .catch((error) => {
           // eslint-disable-next-line
           console.log(error);
           const message =
-            error.response.data.message === ''
-              ? 'Something Wrong!!!'
-              : error.response.data.message;
-          this.errorMessage = message;
-          this.isError = true;
+            error.response.data.message === '' ? 'Something Wrong!!!' : error.response.data.message;
+          this.notification.error(message);
         })
         .finally(() => {
           this.isEdit = false;
@@ -434,11 +397,8 @@ export default {
           // eslint-disable-next-line
           console.log(error);
           const message =
-            error.response.data.message === ''
-              ? 'Something Wrong!!!'
-              : error.response.data.message;
-          this.errorMessage = message;
-          this.isError = true;
+            error.response.data.message === '' ? 'Something Wrong!!!' : error.response.data.message;
+          this.notification.error(message);
         })
         .finally(() => {
           this.isLoading = false;
@@ -457,16 +417,13 @@ export default {
           start_date: this.input.start
             ? moment(this.input.start).format('DD/MM/YYYY')
             : this.input.start,
-          end_date: this.input.end
-            ? moment(this.input.end).format('DD/MM/YYYY')
-            : this.input.end,
+          end_date: this.input.end ? moment(this.input.end).format('DD/MM/YYYY') : this.input.end,
         };
         axios
           .post(`/mall-displays/update`, payload)
           .then((response) => {
             const data = response.data;
-            this.successMessage = data.message;
-            this.isSuccess = true;
+            this.notification.success(data.message);
           })
           .catch((error) => {
             // eslint-disable-next-line
@@ -480,8 +437,7 @@ export default {
               : error.response.data.message === ''
               ? 'Something Wrong!!!'
               : error.response.data.message;
-            this.errorMessage = message;
-            this.isError = true;
+            this.notification.error(message);
           })
           .finally(() => {
             this.isSending = false;

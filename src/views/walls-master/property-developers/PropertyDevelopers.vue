@@ -21,11 +21,7 @@
           </v-col>
           <v-col cols="12" md="2">
             <v-btn
-              :prepend-icon="
-                isEdit
-                  ? 'mdi-account-multiple-check'
-                  : 'mdi-account-multiple-plus'
-              "
+              :prepend-icon="isEdit ? 'mdi-account-multiple-check' : 'mdi-account-multiple-plus'"
               color="indigo-accent-2"
               style="text-transform: none"
               type="submit"
@@ -80,9 +76,7 @@
           <v-table class="country-table">
             <thead>
               <tr>
-                <th class="text-left font-weight-bold text-black">
-                  Property Developer Name
-                </th>
+                <th class="text-left font-weight-bold text-black">Property Developer Name</th>
                 <th class="text-left font-weight-bold text-black">Country</th>
                 <th class="text-left font-weight-bold text-black">Active</th>
                 <th class="text-left font-weight-bold text-black">Featured</th>
@@ -95,7 +89,7 @@
               <template v-for="(item, index) in filteredItems" :key="item.id">
                 <tr class="country-table-body">
                   <td>{{ item.partner_name }}</td>
-                  <td>{{ item.country_name }} </td>
+                  <td>{{ item.country_name }}</td>
                   <td>
                     <v-btn-toggle
                       style="
@@ -150,13 +144,15 @@
   <v-icon>mdi-pencil-outline</v-icon>  <v-tooltip location="top" activator="parent">Edit</v-tooltip>
 </v-btn> -->
                       <v-btn
-                            color="red" variant="text"
-                            :disabled="isDeleteLoading"
-                            @click="openDeleteConfirm(item.developer_id)"
-                            icon
-                          >
-  <v-icon>mdi-trash-can-outline</v-icon>  <v-tooltip location="top" activator="parent">Delete</v-tooltip>
-</v-btn>
+                        color="red"
+                        variant="text"
+                        :disabled="isDeleteLoading"
+                        @click="openDeleteConfirm(item.developer_id)"
+                        icon
+                      >
+                        <v-icon>mdi-trash-can-outline</v-icon>
+                        <v-tooltip location="top" activator="parent">Delete</v-tooltip>
+                      </v-btn>
                     </div>
                   </td>
                 </tr>
@@ -206,60 +202,28 @@
                   </td>
                 </tr>
               </template>
-              <tr v-if="isLoading">
-                <td :colspan="6" class="text-center">
-                  <v-progress-circular
-                    indeterminate
-                    color="indigo-accent-2"
-                  ></v-progress-circular>
-                </td>
-              </tr>
             </tbody>
           </v-table>
+          <skeleton-table v-if="isLoading" :rows="5" :columns="7" />
+          <empty-state
+            v-if="!isLoading && (!filteredItems || filteredItems.length === 0)"
+            title="No Data Found"
+            subtitle="There are no records to display."
+          />
         </v-col>
       </v-row>
     </v-sheet>
-    <v-snackbar
-      location="top"
-      color="green"
-      v-model="isSuccess"
-      :timeout="3000"
-    >
-      {{ successMessage }}
 
-      <template v-slot:actions>
-        <v-btn color="white" variant="text" @click="isSuccess = false">
-          <v-icon>mdi-close</v-icon>
-        </v-btn>
-      </template>
-    </v-snackbar>
-    <v-snackbar location="top" color="red" v-model="isError" :timeout="3000">
-      {{ errorMessage }}
-
-      <template v-slot:actions>
-        <v-btn color="white" variant="text" @click="isError = false">
-          <v-icon>mdi-close</v-icon>
-        </v-btn>
-      </template>
-    </v-snackbar>
-    <v-dialog persistent width="500" v-model="isDelete">
-      <v-card>
-        <v-card-title>Confirmation</v-card-title>
-        <v-card-text> Are you sure want to delete this property developer? </v-card-text>
-        <v-card-actions>
-          <v-spacer></v-spacer>
-          <v-btn color="error" text @click="cancelDelete">No</v-btn>
-          <v-btn color="success" text @click="deleteLocation">{{
-            isDeleteLoading ? 'Deleting...' : 'Yes'
-          }}</v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
+    <confirm-dialog
+      v-model="isDelete"
+      title="Confirmation"
+      message="Are you sure you want to delete this item? This action cannot be undone."
+      :loading="isDeleteLoading"
+      @confirm="deleteLocation"
+    />
     <v-dialog persistent width="auto" v-model="isOpenImage">
       <v-card width="750">
-        <v-card-title class="upload-title px-6 py-4">
-          Upload Image - Partner Location</v-card-title
-        >
+        <v-card-title class="upload-title px-6 py-4"> Upload Image - Partner Location</v-card-title>
         <v-card-text>
           <image-upload
             :image-file="imageFile"
@@ -269,13 +233,7 @@
         </v-card-text>
         <v-card-actions class="mt-16">
           <v-spacer></v-spacer>
-          <v-btn
-            style="text-transform: none"
-            color="error"
-            text
-            @click="closeImage"
-            >Cancel</v-btn
-          >
+          <v-btn style="text-transform: none" color="error" text @click="closeImage">Cancel</v-btn>
           <v-btn
             style="background-color: #9ddcff; text-transform: none"
             color="black"
@@ -289,6 +247,10 @@
 </template>
 
 <script>
+import SkeletonTable from '@/components/SkeletonTable.vue';
+import EmptyState from '@/components/EmptyState.vue';
+import ConfirmDialog from '@/components/ConfirmDialog.vue';
+import { useNotificationStore } from '@/stores/notification';
 import ImageUpload from '@/components/ImageUpload.vue';
 import axios from '@/util/axios';
 import { setAuthHeader } from '@/util/axios';
@@ -297,6 +259,17 @@ import HeaderWallMaster from '@/components/HeaderWallMaster.vue';
 
 export default {
   name: 'LocationsVue',
+  components: {
+    ConfirmDialog,
+    EmptyState,
+    SkeletonTable,
+    ImageUpload,
+    HeaderWallMaster,
+  },
+  setup() {
+    const notification = useNotificationStore();
+    return { notification };
+  },
   data: () => ({
     // fileURL: 'https://admin1.the-gypsy.sg/img/app/',
     idPartnerLocations: null,
@@ -305,27 +278,23 @@ export default {
     isLoading: false,
     isSending: false,
     isSending2: false,
-    isError: false,
     isEdit: false,
-    isSuccess: false,
     isDelete: false,
     isDeleteLoading: false,
     developerIdToDelete: null,
     tableHeaders: [{ text: 'Gambar', value: 'image' }],
     isOpenImage: false,
-    successMessage: '',
-    errorMessage: '',
     imageFile: [],
 
     input: {
-      developer_id:0,
-      partner_name:'',
-      partner_id:null,
-      country_id:0,
-      active:'',
-      featured:'',
-      user_id:0,
-      dated:''
+      developer_id: 0,
+      partner_name: '',
+      partner_id: null,
+      country_id: 0,
+      active: '',
+      featured: '',
+      user_id: 0,
+      dated: '',
     },
     rules: {
       countryRules: [
@@ -417,7 +386,6 @@ export default {
     await this.getCityData();
     await this.getTownData();
     await this.getPropertyDevelopersData();
-
   },
   computed: {
     filteredItems() {
@@ -450,22 +418,22 @@ export default {
     cancelEdit() {
       this.isEdit = false;
       this.input = {
-        developer_id:0,
-        partner_id:null,
-        country_id:0,
-        active:'',
-        featured:'',
-        user_id:0,
-        dated:''
+        developer_id: 0,
+        partner_id: null,
+        country_id: 0,
+        active: '',
+        featured: '',
+        user_id: 0,
+        dated: '',
       };
     },
     saveEdit() {
       if (this.valid) {
         this.isSending = true;
         const payload = {
-          developer_id:this.input.developer_id,
-          partner_id:this.input.partner_id,
-          country_id:this.input.country_id,
+          developer_id: this.input.developer_id,
+          partner_id: this.input.partner_id,
+          country_id: this.input.country_id,
           active: this.input.active,
           featured: this.input.featured,
           user_id: this.input.user_id,
@@ -475,17 +443,16 @@ export default {
           .post(`/4walls-property-developers/update`, payload)
           .then((response) => {
             const data = response.data;
-            this.successMessage = data.message;
-            this.isSuccess = true;
+            this.notification.success(data.message);
             this.getPropertyDevelopersData();
             this.input = {
-              developer_id:0,
-              partner_id:null,
-              country_id:0,
-              active:'',
-              featured:'',
-              user_id:0,
-              dated:''
+              developer_id: 0,
+              partner_id: null,
+              country_id: 0,
+              active: '',
+              featured: '',
+              user_id: 0,
+              dated: '',
             };
           })
           .catch((error) => {
@@ -500,16 +467,15 @@ export default {
               : error.response.data.message
               ? error.response.data.message
               : 'Something Wrong!!!';
-            this.errorMessage = message;
-            this.isError = true;
+            this.notification.error(message);
             this.input = {
-              developer_id:0,
-              partner_id:null,
-              country_id:0,
-              active:'',
-              featured:'',
-              user_id:0,
-              dated:''
+              developer_id: 0,
+              partner_id: null,
+              country_id: 0,
+              active: '',
+              featured: '',
+              user_id: 0,
+              dated: '',
             };
           })
           .finally(() => {
@@ -522,23 +488,22 @@ export default {
       if (this.valid) {
         this.isSending = true;
         const payload = {
-          partner_id:this.input.partner_id,
+          partner_id: this.input.partner_id,
         };
         axios
           .post(`/4walls-property-developers`, payload)
           .then((response) => {
             const data = response.data;
-            this.successMessage = data.message;
-            this.isSuccess = true;
+            this.notification.success(data.message);
             this.getPropertyDevelopersData();
             this.input = {
-              developer_id:0,
-              partner_id:null,
-              country_id:0,
-              active:'',
-              featured:'',
-              user_id:0,
-              dated:''
+              developer_id: 0,
+              partner_id: null,
+              country_id: 0,
+              active: '',
+              featured: '',
+              user_id: 0,
+              dated: '',
             };
           })
           .catch((error) => {
@@ -547,8 +512,7 @@ export default {
             const message = error.response.data.partner_id
               ? error.response.data.partner_id[0]
               : 'Something Wrong!!!';
-            this.errorMessage = message;
-            this.isError = true;
+            this.notification.error(message);
           })
           .finally(() => {
             this.isSending = false;
@@ -573,19 +537,15 @@ export default {
         .delete(`/4walls-property-developers/${this.developerIdToDelete}`)
         .then((response) => {
           const data = response.data;
-          this.successMessage = data.message;
-          this.isSuccess = true;
+          this.notification.success(data.message);
           this.getPropertyDevelopersData();
         })
         .catch((error) => {
           // eslint-disable-next-line
           console.log(error);
           const message =
-            error.response.data.message === ''
-              ? 'Something Wrong!!!'
-              : error.response.data.message;
-          this.errorMessage = message;
-          this.isError = true;
+            error.response.data.message === '' ? 'Something Wrong!!!' : error.response.data.message;
+          this.notification.error(message);
         })
         .finally(() => {
           this.isDeleteLoading = false;
@@ -607,17 +567,14 @@ export default {
             country_id: item.country_id || 1,
             country_name: item.country_name || '',
             user_name: item.user.name || '',
-            isActive:
-              item.active == 'N' ? false : item.active == 'Y' ? true : null,
-            isFeatured:
-              item.featured == 'N'
-                ? false
-                : item.featured == 'Y'
-                ? true
-                : null,
+            isActive: item.active == 'N' ? false : item.active == 'Y' ? true : null,
+            isFeatured: item.featured == 'N' ? false : item.featured == 'Y' ? true : null,
             dated: item.dated || '',
             city_id: item.city_id || null,
-            town_id: this.resource.towns.filter(town => town.city_id === item.city_id).filter(town => town.town_id === item.town_id)[0]?.town_id || null,
+            town_id:
+              this.resource.towns
+                .filter((town) => town.city_id === item.city_id)
+                .filter((town) => town.town_id === item.town_id)[0]?.town_id || null,
             latitude: item.latitude || null,
             longitude: item.longitude || null,
           };
@@ -626,11 +583,8 @@ export default {
         // eslint-disable-next-line
         console.log(error);
         const message =
-          error.response.data.message === ''
-            ? 'Something Wrong!!!'
-            : error.response.data.message;
-        this.errorMessage = message;
-        this.isError = true;
+          error.response.data.message === '' ? 'Something Wrong!!!' : error.response.data.message;
+        this.notification.error(message);
       } finally {
         this.isLoading = false;
       }
@@ -650,11 +604,8 @@ export default {
         // eslint-disable-next-line
         console.log(error);
         const message =
-          error.response.data.message === ''
-            ? 'Something Wrong!!!'
-            : error.response.data.message;
-        this.errorMessage = message;
-        this.isError = true;
+          error.response.data.message === '' ? 'Something Wrong!!!' : error.response.data.message;
+        this.notification.error(message);
       }
     },
     async getCityData() {
@@ -672,11 +623,8 @@ export default {
         // eslint-disable-next-line
         console.log(error);
         const message =
-          error.response.data.message === ''
-            ? 'Something Wrong!!!'
-            : error.response.data.message;
-        this.errorMessage = message;
-        this.isError = true;
+          error.response.data.message === '' ? 'Something Wrong!!!' : error.response.data.message;
+        this.notification.error(message);
       }
     },
     async getTownData() {
@@ -694,22 +642,15 @@ export default {
         // eslint-disable-next-line
         console.log(error);
         const message =
-          error.response.data.message === ''
-            ? 'Something Wrong!!!'
-            : error.response.data.message;
-        this.errorMessage = message;
-        this.isError = true;
+          error.response.data.message === '' ? 'Something Wrong!!!' : error.response.data.message;
+        this.notification.error(message);
       }
     },
     filterCity(country_id) {
-      return this.resource.cities.filter(
-        (item) => item.country_id === country_id
-      );
+      return this.resource.cities.filter((item) => item.country_id === country_id);
     },
     filterTown(city_id) {
-      return this.resource.towns.filter(
-        (item) => item.city_id === city_id
-      );
+      return this.resource.towns.filter((item) => item.city_id === city_id);
     },
     saveCity(city_id, index) {
       let payload = {
@@ -720,19 +661,15 @@ export default {
         .post(`/4walls-property-developers/update`, payload)
         .then((response) => {
           const data = response.data;
-          this.successMessage = data.message;
-          this.isSuccess = true;
+          this.notification.success(data.message);
           this.getPropertyDevelopersData();
         })
         .catch((error) => {
           // eslint-disable-next-line
           console.log(error);
           const message =
-            error.response.data.message === ''
-              ? 'Something Wrong!!!'
-              : error.response.data.message;
-          this.errorMessage = message;
-          this.isError = true;
+            error.response.data.message === '' ? 'Something Wrong!!!' : error.response.data.message;
+          this.notification.error(message);
         });
     },
     saveTown(town_id, index) {
@@ -744,19 +681,15 @@ export default {
         .post(`/4walls-property-developers/update`, payload)
         .then((response) => {
           const data = response.data;
-          this.successMessage = data.message;
-          this.isSuccess = true;
+          this.notification.success(data.message);
           this.getPropertyDevelopersData();
         })
         .catch((error) => {
           // eslint-disable-next-line
           console.log(error);
           const message =
-            error.response.data.message === ''
-              ? 'Something Wrong!!!'
-              : error.response.data.message;
-          this.errorMessage = message;
-          this.isError = true;
+            error.response.data.message === '' ? 'Something Wrong!!!' : error.response.data.message;
+          this.notification.error(message);
         });
     },
     saveLatitude(latitude, index) {
@@ -768,19 +701,15 @@ export default {
         .post(`/4walls-property-developers/update`, payload)
         .then((response) => {
           const data = response.data;
-          this.successMessage = data.message;
-          this.isSuccess = true;
+          this.notification.success(data.message);
           this.getPropertyDevelopersData();
         })
         .catch((error) => {
           // eslint-disable-next-line
           console.log(error);
           const message =
-            error.response.data.message === ''
-              ? 'Something Wrong!!!'
-              : error.response.data.message;
-          this.errorMessage = message;
-          this.isError = true;
+            error.response.data.message === '' ? 'Something Wrong!!!' : error.response.data.message;
+          this.notification.error(message);
         });
     },
     saveLongitude(longitude, index) {
@@ -792,19 +721,15 @@ export default {
         .post(`/4walls-property-developers/update`, payload)
         .then((response) => {
           const data = response.data;
-          this.successMessage = data.message;
-          this.isSuccess = true;
+          this.notification.success(data.message);
           this.getPropertyDevelopersData();
         })
         .catch((error) => {
           // eslint-disable-next-line
           console.log(error);
           const message =
-            error.response.data.message === ''
-              ? 'Something Wrong!!!'
-              : error.response.data.message;
-          this.errorMessage = message;
-          this.isError = true;
+            error.response.data.message === '' ? 'Something Wrong!!!' : error.response.data.message;
+          this.notification.error(message);
         });
     },
     featuredPropertyDeveloper(id) {
@@ -813,19 +738,15 @@ export default {
         .get(`/4walls-property-developers/toggle-featured/${id}`)
         .then((response) => {
           const data = response.data;
-          this.successMessage = data.message;
-          this.isSuccess = true;
+          this.notification.success(data.message);
           this.getPropertyDevelopersData();
         })
         .catch((error) => {
           // eslint-disable-next-line
           console.log(error);
           const message =
-            error.response.data.message === ''
-              ? 'Something Wrong!!!'
-              : error.response.data.message;
-          this.errorMessage = message;
-          this.isError = true;
+            error.response.data.message === '' ? 'Something Wrong!!!' : error.response.data.message;
+          this.notification.error(message);
         })
         .finally(() => {
           this.isSending2 = false;
@@ -837,26 +758,21 @@ export default {
         .get(`/4walls-property-developers/toggle-active/${developer_id}`)
         .then((response) => {
           const data = response.data;
-          this.successMessage = data.message;
-          this.isSuccess = true;
+          this.notification.success(data.message);
           this.getPropertyDevelopersData();
         })
         .catch((error) => {
           // eslint-disable-next-line
           console.log(error);
           const message =
-            error.response.data.message === ''
-              ? 'Something Wrong!!!'
-              : error.response.data.message;
-          this.errorMessage = message;
-          this.isError = true;
+            error.response.data.message === '' ? 'Something Wrong!!!' : error.response.data.message;
+          this.notification.error(message);
         })
         .finally(() => {
           this.isSending2 = false;
         });
     },
   },
-  components: { ImageUpload, HeaderWallMaster },
 };
 </script>
 

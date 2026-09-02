@@ -65,11 +65,7 @@
           </v-col>
           <v-col cols="12" md="2">
             <v-btn
-              :prepend-icon="
-                isEdit
-                  ? 'mdi-account-multiple-check'
-                  : 'mdi-account-multiple-plus'
-              "
+              :prepend-icon="isEdit ? 'mdi-account-multiple-check' : 'mdi-account-multiple-plus'"
               color="indigo-accent-2"
               style="text-transform: none"
               type="submit"
@@ -184,8 +180,7 @@
                           : 'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png'
                       "
                     >
-                      <template #placeholder>
-                        <div class="skeleton" /> </template
+                      <template #placeholder> <div class="skeleton" /> </template
                     ></v-img>
                   </div>
                   <v-table class="app-column-table"></v-table>
@@ -198,9 +193,7 @@
                     <tr>
                       <td>
                         <span class="text-black font-weight-black">App: </span
-                        ><span class="text-red font-weight-bold">{{
-                          item.app
-                        }}</span>
+                        ><span class="text-red font-weight-bold">{{ item.app }}</span>
                       </td>
                     </tr>
                   </v-table>
@@ -269,77 +262,46 @@
                 </td>
                 <td>
                   <div class="d-flex app-column">
+                    <v-btn color="green" variant="text" @click="editBrands(item)" icon>
+                      <v-icon>mdi-pencil-outline</v-icon>
+                      <v-tooltip location="top" activator="parent">Edit</v-tooltip>
+                    </v-btn>
                     <v-btn
-                          color="green"
-                          variant="text" @click="editBrands(item)"
-                          icon
-                        >
-  <v-icon>mdi-pencil-outline</v-icon>  <v-tooltip location="top" activator="parent">Edit</v-tooltip>
-</v-btn>
-                    <v-btn
-                          color="red" variant="text"
-                          :disabled="isDeleteLoading"
-                          @click="openDeleteConfirm(item.id)"
-                          icon
-                        >
-  <v-icon>mdi-trash-can-outline</v-icon>  <v-tooltip location="top" activator="parent">Delete</v-tooltip>
-</v-btn>
+                      color="red"
+                      variant="text"
+                      :disabled="isDeleteLoading"
+                      @click="openDeleteConfirm(item.id)"
+                      icon
+                    >
+                      <v-icon>mdi-trash-can-outline</v-icon>
+                      <v-tooltip location="top" activator="parent">Delete</v-tooltip>
+                    </v-btn>
                   </div>
                   <v-table class="app-column-table"></v-table>
                 </td>
               </tr>
-              <tr v-if="isLoading">
-                <td :colspan="6" class="text-center">
-                  <v-progress-circular
-                    indeterminate
-                    color="indigo-accent-2"
-                  ></v-progress-circular>
-                </td>
-              </tr>
             </tbody>
           </v-table>
+          <skeleton-table v-if="isLoading" :rows="5" :columns="9" />
+          <empty-state
+            v-if="!isLoading && (!filteredItems || filteredItems.length === 0)"
+            title="No Data Found"
+            subtitle="There are no records to display."
+          />
         </v-col>
       </v-row>
     </v-sheet>
-    <v-snackbar
-      location="top"
-      color="green"
-      v-model="isSuccess"
-      :timeout="3000"
-    >
-      {{ successMessage }}
 
-      <template v-slot:actions>
-        <v-btn color="white" variant="text" @click="isSuccess = false">
-          <v-icon>mdi-close</v-icon>
-        </v-btn>
-      </template>
-    </v-snackbar>
-    <v-snackbar location="top" color="red" v-model="isError" :timeout="3000">
-      {{ errorMessage }}
-
-      <template v-slot:actions>
-        <v-btn color="white" variant="text" @click="isError = false">
-          <v-icon>mdi-close</v-icon>
-        </v-btn>
-      </template>
-    </v-snackbar>
-    <v-dialog persistent width="500" v-model="isDelete">
-      <v-card>
-        <v-card-title>Confirmation</v-card-title>
-        <v-card-text> Are you sure want to delete this brand? </v-card-text>
-        <v-card-actions>
-          <v-spacer></v-spacer>
-          <v-btn color="error" text @click="cancelDelete">No</v-btn>
-          <v-btn color="success" text @click="deleteBrands">Yes</v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
+    <confirm-dialog
+      v-model="isDelete"
+      title="Confirmation"
+      message="Are you sure you want to delete this item? This action cannot be undone."
+      :loading="isDeleteLoading"
+      @confirm="deleteBrands"
+    />
     <v-dialog persistent width="auto" v-model="isOpenImage">
       <v-card width="750">
-        <v-card-title class="upload-title px-6 py-4">
-          Upload Image - Brands</v-card-title
-        >
+        <v-card-title class="upload-title px-6 py-4"> Upload Image - Brands</v-card-title>
         <v-card-text>
           <image-upload
             :image-file="imageFile"
@@ -349,13 +311,7 @@
         </v-card-text>
         <v-card-actions class="mt-16">
           <v-spacer></v-spacer>
-          <v-btn
-            style="text-transform: none"
-            color="error"
-            text
-            @click="closeImage"
-            >Cancel</v-btn
-          >
+          <v-btn style="text-transform: none" color="error" text @click="closeImage">Cancel</v-btn>
           <v-btn
             style="background-color: #9ddcff; text-transform: none"
             color="black"
@@ -369,6 +325,10 @@
 </template>
 
 <script>
+import SkeletonTable from '@/components/SkeletonTable.vue';
+import EmptyState from '@/components/EmptyState.vue';
+import ConfirmDialog from '@/components/ConfirmDialog.vue';
+import { useNotificationStore } from '@/stores/notification';
 import ImageUpload from '@/components/ImageUpload.vue';
 import axios from '@/util/axios';
 import { setAuthHeader } from '@/util/axios';
@@ -376,6 +336,16 @@ import { setAuthHeader } from '@/util/axios';
 
 export default {
   name: 'BoozardsBrands',
+  components: {
+    ConfirmDialog,
+    EmptyState,
+    SkeletonTable,
+    ImageUpload,
+  },
+  setup() {
+    const notification = useNotificationStore();
+    return { notification };
+  },
   data: () => ({
     // fileURL: 'https://admin1.the-gypsy.sg/img/app/',
     valid: false,
@@ -383,8 +353,6 @@ export default {
     isSending: false,
     isSending2: false,
     isEdit: false,
-    isSuccess: false,
-    isError: false,
     isDelete: false,
     isDeleteLoading: false,
     brandsIdToDelete: null,
@@ -399,8 +367,6 @@ export default {
       app: null,
     },
     isOpenImage: false,
-    successMessage: '',
-    errorMessage: '',
     input: {
       id: 0,
       image: null,
@@ -485,8 +451,7 @@ export default {
         .delete(`/brands/${this.brandDataToImage.id}/image`)
         .then((response) => {
           const data = response.data;
-          this.successMessage = data.message;
-          this.isSuccess = true;
+          this.notification.success(data.message);
           this.getBrands();
           // app.config.globalProperties.$eventBus.$emit('update-image');
         })
@@ -494,11 +459,8 @@ export default {
           // eslint-disable-next-line
           console.log(error);
           const message =
-            error.response.data.message === ''
-              ? 'Something Wrong!!!'
-              : error.response.data.message;
-          this.errorMessage = message;
-          this.isError = true;
+            error.response.data.message === '' ? 'Something Wrong!!!' : error.response.data.message;
+          this.notification.error(message);
         })
         .finally(() => {
           this.isEdit = false;
@@ -560,8 +522,7 @@ export default {
         })
         .then((response) => {
           const data = response.data;
-          this.successMessage = data.message;
-          this.isSuccess = true;
+          this.notification.success(data.message);
           this.getBrands();
           // app.config.globalProperties.$eventBus.$emit('update-image');
         })
@@ -569,11 +530,8 @@ export default {
           // eslint-disable-next-line
           console.log(error);
           const message =
-            error.response.data.message === ''
-              ? 'Something Wrong!!!'
-              : error.response.data.message;
-          this.errorMessage = message;
-          this.isError = true;
+            error.response.data.message === '' ? 'Something Wrong!!!' : error.response.data.message;
+          this.notification.error(message);
         })
         .finally(() => {
           this.isEdit = false;
@@ -630,8 +588,7 @@ export default {
           .post(`/brands/update`, payload)
           .then((response) => {
             const data = response.data;
-            this.successMessage = data.message;
-            this.isSuccess = true;
+            this.notification.success(data.message);
             this.getBrands();
             this.input = {
               id: 0,
@@ -650,8 +607,7 @@ export default {
               error.response.data.message === ''
                 ? 'Something Wrong!!!'
                 : error.response.data.message;
-            this.errorMessage = message;
-            this.isError = true;
+            this.notification.error(message);
           })
           .finally(() => {
             this.isEdit = false;
@@ -675,8 +631,7 @@ export default {
           .post(`/brands`, payload)
           .then((response) => {
             const data = response.data;
-            this.successMessage = data.message;
-            this.isSuccess = true;
+            this.notification.success(data.message);
             this.getBrands();
             this.input = {
               id: 0,
@@ -695,8 +650,7 @@ export default {
               error.response.data.message === ''
                 ? 'Something Wrong!!!'
                 : error.response.data.message;
-            this.errorMessage = message;
-            this.isError = true;
+            this.notification.error(message);
           })
           .finally(() => {
             this.isSending = false;
@@ -721,19 +675,15 @@ export default {
         .delete(`/brands/${this.brandsIdToDelete}`)
         .then((response) => {
           const data = response.data;
-          this.successMessage = data.message;
-          this.isSuccess = true;
+          this.notification.success(data.message);
           this.getBrands();
         })
         .catch((error) => {
           // eslint-disable-next-line
           console.log(error);
           const message =
-            error.response.data.message === ''
-              ? 'Something Wrong!!!'
-              : error.response.data.message;
-          this.errorMessage = message;
-          this.isError = true;
+            error.response.data.message === '' ? 'Something Wrong!!!' : error.response.data.message;
+          this.notification.error(message);
         })
         .finally(() => {
           this.isDeleteLoading = false;
@@ -756,21 +706,14 @@ export default {
                 image: item.image || null,
                 brand_name: item.brand_name || '',
                 country_id: item.country_id || 1,
-                country_name:
-                  item.country != null ? item.country.country_name : '',
+                country_name: item.country != null ? item.country.country_name : '',
                 category_id: item.category_id || 1,
                 category_name: item.category.category_name || '',
                 description: item.description || '',
                 app: item.category.app.app_name || '',
                 app_id: item.category.app_id || 0,
-                isActive:
-                  item.active == 'N' ? false : item.active == 'Y' ? true : null,
-                isWebsite:
-                  item.website == 'N'
-                    ? false
-                    : item.website == 'Y'
-                    ? true
-                    : null,
+                isActive: item.active == 'N' ? false : item.active == 'Y' ? true : null,
+                isWebsite: item.website == 'N' ? false : item.website == 'Y' ? true : null,
               };
             });
         })
@@ -778,11 +721,8 @@ export default {
           // eslint-disable-next-line
           console.log(error);
           const message =
-            error.response.data.message === ''
-              ? 'Something Wrong!!!'
-              : error.response.data.message;
-          this.errorMessage = message;
-          this.isError = true;
+            error.response.data.message === '' ? 'Something Wrong!!!' : error.response.data.message;
+          this.notification.error(message);
         })
         .finally(() => {
           this.isLoading = false;
@@ -808,11 +748,8 @@ export default {
           // eslint-disable-next-line
           console.log(error);
           const message =
-            error.response.data.message === ''
-              ? 'Something Wrong!!!'
-              : error.response.data.message;
-          this.errorMessage = message;
-          this.isError = true;
+            error.response.data.message === '' ? 'Something Wrong!!!' : error.response.data.message;
+          this.notification.error(message);
         })
         .finally(() => {
           this.isLoading = false;
@@ -834,11 +771,8 @@ export default {
           // eslint-disable-next-line
           console.log(error);
           const message =
-            error.response.data.message === ''
-              ? 'Something Wrong!!!'
-              : error.response.data.message;
-          this.errorMessage = message;
-          this.isError = true;
+            error.response.data.message === '' ? 'Something Wrong!!!' : error.response.data.message;
+          this.notification.error(message);
         });
     },
     getAppActive() {
@@ -861,11 +795,8 @@ export default {
           // eslint-disable-next-line
           console.log(error);
           const message =
-            error.response.data.message === ''
-              ? 'Something Wrong!!!'
-              : error.response.data.message;
-          this.errorMessage = message;
-          this.isError = true;
+            error.response.data.message === '' ? 'Something Wrong!!!' : error.response.data.message;
+          this.notification.error(message);
         });
     },
 
@@ -875,19 +806,15 @@ export default {
         .get(`/brands/toggle-active/${id}`)
         .then((response) => {
           const data = response.data;
-          this.successMessage = data.message;
-          this.isSuccess = true;
+          this.notification.success(data.message);
           this.getBrands();
         })
         .catch((error) => {
           // eslint-disable-next-line
           console.log(error);
           const message =
-            error.response.data.message === ''
-              ? 'Something Wrong!!!'
-              : error.response.data.message;
-          this.errorMessage = message;
-          this.isError = true;
+            error.response.data.message === '' ? 'Something Wrong!!!' : error.response.data.message;
+          this.notification.error(message);
         })
         .finally(() => {
           this.isSending2 = false;
@@ -899,26 +826,21 @@ export default {
         .get(`/brands/toggle-show-in-website/${id}`)
         .then((response) => {
           const data = response.data;
-          this.successMessage = data.message;
-          this.isSuccess = true;
+          this.notification.success(data.message);
           this.getBrands();
         })
         .catch((error) => {
           // eslint-disable-next-line
           console.log(error);
           const message =
-            error.response.data.message === ''
-              ? 'Something Wrong!!!'
-              : error.response.data.message;
-          this.errorMessage = message;
-          this.isError = true;
+            error.response.data.message === '' ? 'Something Wrong!!!' : error.response.data.message;
+          this.notification.error(message);
         })
         .finally(() => {
           this.isSending2 = false;
         });
     },
   },
-  components: { ImageUpload },
 };
 </script>
 

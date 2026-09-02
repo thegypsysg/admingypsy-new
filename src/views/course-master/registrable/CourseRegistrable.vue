@@ -11,9 +11,7 @@
       </router-link>
     </div>
     <div class="mb-4">
-      <span class="ml-4 mb-6" style="color: #000; font-weight: 400">
-        {{ itemData?.id || '' }}</span
-      >
+      <span class="ml-4 mb-6" style="color: #000; font-weight: 400"> {{ itemData?.id || '' }}</span>
       <span class="ml-4 mb-6" style="color: #000; font-weight: 400">{{
         itemData?.university || ''
       }}</span>
@@ -41,11 +39,7 @@
           </v-col>
           <v-col cols="12" md="2">
             <v-btn
-              :prepend-icon="
-                isEdit
-                  ? 'mdi-account-multiple-check'
-                  : 'mdi-account-multiple-plus'
-              "
+              :prepend-icon="isEdit ? 'mdi-account-multiple-check' : 'mdi-account-multiple-plus'"
               color="indigo-accent-2"
               style="text-transform: none"
               type="submit"
@@ -96,11 +90,7 @@
               </tr>
             </thead>
             <tbody>
-              <tr
-                class="country-table-body"
-                v-for="item in filteredItems"
-                :key="item.id"
-              >
+              <tr class="country-table-body" v-for="item in filteredItems" :key="item.id">
                 <td style="font-weight: 500 !important">
                   {{ item.id }}
                 </td>
@@ -116,85 +106,65 @@
 
                 <td>
                   <div class="d-flex">
+                    <v-btn color="green" variant="text" @click="editCourseRegistrable(item)" icon>
+                      <v-icon>mdi-pencil-outline</v-icon>
+                      <v-tooltip location="top" activator="parent">Edit</v-tooltip>
+                    </v-btn>
                     <v-btn
-                          color="green"
-                          variant="text" @click="editCourseRegistrable(item)"
-                          icon
-                        >
-  <v-icon>mdi-pencil-outline</v-icon>  <v-tooltip location="top" activator="parent">Edit</v-tooltip>
-</v-btn>
-                    <v-btn
-                          color="red"
-                          variant="text" :disabled="isDeleteLoading"
-                          @click="openDeleteConfirm(item.id)"
-                          icon
-                        >
-  <v-icon>mdi-trash-can-outline</v-icon>  <v-tooltip location="top" activator="parent">Delete</v-tooltip>
-</v-btn>
+                      color="red"
+                      variant="text"
+                      :disabled="isDeleteLoading"
+                      @click="openDeleteConfirm(item.id)"
+                      icon
+                    >
+                      <v-icon>mdi-trash-can-outline</v-icon>
+                      <v-tooltip location="top" activator="parent">Delete</v-tooltip>
+                    </v-btn>
                   </div>
-                </td>
-              </tr>
-              <tr v-if="isLoading">
-                <td :colspan="6" class="text-center">
-                  <v-progress-circular
-                    indeterminate
-                    color="indigo-accent-2"
-                  ></v-progress-circular>
                 </td>
               </tr>
             </tbody>
           </v-table>
+          <skeleton-table v-if="isLoading" :rows="5" :columns="5" />
+          <empty-state
+            v-if="!isLoading && (!filteredItems || filteredItems.length === 0)"
+            title="No Data Found"
+            subtitle="There are no records to display."
+          />
         </v-col>
       </v-row>
     </v-sheet>
-    <v-snackbar
-      location="top"
-      color="green"
-      v-model="isSuccess"
-      :timeout="3000"
-    >
-      {{ successMessage }}
 
-      <template v-slot:actions>
-        <v-btn color="white" variant="text" @click="isSuccess = false">
-          <v-icon>mdi-close</v-icon>
-        </v-btn>
-      </template>
-    </v-snackbar>
-    <v-snackbar location="top" color="red" v-model="isError" :timeout="3000">
-      {{ errorMessage }}
-
-      <template v-slot:actions>
-        <v-btn color="white" variant="text" @click="isError = false">
-          <v-icon>mdi-close</v-icon>
-        </v-btn>
-      </template>
-    </v-snackbar>
-    <v-dialog persistent width="500" v-model="isDelete">
-      <v-card>
-        <v-card-title>Confirmation</v-card-title>
-        <v-card-text>
-          Are you sure want to delete this course registrable?
-        </v-card-text>
-        <v-card-actions>
-          <v-spacer></v-spacer>
-          <v-btn color="error" text @click="cancelDelete">No</v-btn>
-          <v-btn color="success" text @click="deleteCourseRegistrable"
-            >Yes</v-btn
-          >
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
+    <confirm-dialog
+      v-model="isDelete"
+      title="Confirmation"
+      message="Are you sure you want to delete this item? This action cannot be undone."
+      :loading="isDeleteLoading"
+      @confirm="deleteCourseRegistrable"
+    />
   </v-container>
 </template>
 
 <script>
+import SkeletonTable from '@/components/SkeletonTable.vue';
+import EmptyState from '@/components/EmptyState.vue';
+import ConfirmDialog from '@/components/ConfirmDialog.vue';
+import { useNotificationStore } from '@/stores/notification';
 import axios from '@/util/axios';
 import { setAuthHeader } from '@/util/axios';
 // import app from '@/util/eventBus';
 
 export default {
   name: 'CourseRegistrable',
+  components: {
+    ConfirmDialog,
+    EmptyState,
+    SkeletonTable,
+  },
+  setup() {
+    const notification = useNotificationStore();
+    return { notification };
+  },
   data: () => ({
     // fileURL: 'https://admin1.the-gypsy.sg/img/app/',
     valid: false,
@@ -207,17 +177,13 @@ export default {
     },
     isLoading: false,
     isSending: false,
-    isError: false,
     isEdit: false,
-    isSuccess: false,
     isDelete: false,
     isDeleteLoading: false,
     cRegistrableIdToDelete: null,
     tableHeaders: [{ text: 'Gambar', value: 'image' }],
     imageFile: [],
     isOpenImage: false,
-    successMessage: '',
-    errorMessage: '',
     input: {
       id: 0,
       course_id: null,
@@ -290,8 +256,7 @@ export default {
           .post(`/course-registrable/update`, payload)
           .then((response) => {
             const data = response.data;
-            this.successMessage = data.message;
-            this.isSuccess = true;
+            this.notification.success(data.message);
             this.getCourseRegistrable();
             this.input = {
               id: 0,
@@ -303,11 +268,8 @@ export default {
             // eslint-disable-next-line
             console.log(error);
             const message =
-              error.response.data.error === ''
-                ? 'Something Wrong!!!'
-                : error.response.data.error;
-            this.errorMessage = message;
-            this.isError = true;
+              error.response.data.error === '' ? 'Something Wrong!!!' : error.response.data.error;
+            this.notification.error(message);
           })
           .finally(() => {
             this.isEdit = false;
@@ -326,8 +288,7 @@ export default {
           .post(`/course-registrable`, payload)
           .then((response) => {
             const data = response.data;
-            this.successMessage = data.message;
-            this.isSuccess = true;
+            this.notification.success(data.message);
             this.getCourseRegistrable();
             this.input = {
               id: 0,
@@ -339,11 +300,8 @@ export default {
             // eslint-disable-next-line
             console.log(error);
             const message =
-              error.response.data.error === ''
-                ? 'Something Wrong!!!'
-                : error.response.data.error;
-            this.errorMessage = message;
-            this.isError = true;
+              error.response.data.error === '' ? 'Something Wrong!!!' : error.response.data.error;
+            this.notification.error(message);
           })
           .finally(() => {
             this.isSending = false;
@@ -368,19 +326,15 @@ export default {
         .delete(`/course-registrable/${this.cRegistrableIdToDelete}`)
         .then((response) => {
           const data = response.data;
-          this.successMessage = data.message;
-          this.isSuccess = true;
+          this.notification.success(data.message);
           this.getCourseRegistrable();
         })
         .catch((error) => {
           // eslint-disable-next-line
           console.log(error);
           const message =
-            error.response.data.message === ''
-              ? 'Something Wrong!!!'
-              : error.response.data.message;
-          this.errorMessage = message;
-          this.isError = true;
+            error.response.data.message === '' ? 'Something Wrong!!!' : error.response.data.message;
+          this.notification.error(message);
         })
         .finally(() => {
           this.isDeleteLoading = false;
@@ -411,11 +365,8 @@ export default {
           // eslint-disable-next-line
           console.log(error);
           const message =
-            error.response.data.message === ''
-              ? 'Something Wrong!!!'
-              : error.response.data.message;
-          this.errorMessage = message;
-          this.isError = true;
+            error.response.data.message === '' ? 'Something Wrong!!!' : error.response.data.message;
+          this.notification.error(message);
         })
         .finally(() => {
           this.isLoading = false;
@@ -445,11 +396,8 @@ export default {
           // eslint-disable-next-line
           console.log(error);
           const message =
-            error.response.data.message === ''
-              ? 'Something Wrong!!!'
-              : error.response.data.message;
-          this.errorMessage = message;
-          this.isError = true;
+            error.response.data.message === '' ? 'Something Wrong!!!' : error.response.data.message;
+          this.notification.error(message);
         })
         .finally(() => {
           this.isLoading = false;
@@ -471,11 +419,8 @@ export default {
           // eslint-disable-next-line
           console.log(error);
           const message =
-            error.response.data.message === ''
-              ? 'Something Wrong!!!'
-              : error.response.data.message;
-          this.errorMessage = message;
-          this.isError = true;
+            error.response.data.message === '' ? 'Something Wrong!!!' : error.response.data.message;
+          this.notification.error(message);
         });
     },
   },

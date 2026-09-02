@@ -48,11 +48,7 @@
             ></v-autocomplete>
             <div class="d-flex justify-space-between mt-3">
               <v-btn
-                :prepend-icon="
-                  isEdit
-                    ? 'mdi-account-multiple-check'
-                    : 'mdi-account-multiple-plus'
-                "
+                :prepend-icon="isEdit ? 'mdi-account-multiple-check' : 'mdi-account-multiple-plus'"
                 color="indigo-accent-2"
                 style="text-transform: none"
                 type="submit"
@@ -108,9 +104,7 @@
                 <th style="width: 10%" class="text-left">App Logo</th>
                 <th style="width: 10%" class="text-left">Main Image</th>
                 <th style="width: 10%" class="text-left">App Name</th>
-                <th style="width: 25%" class="text-left">
-                  App Description (Short)
-                </th>
+                <th style="width: 25%" class="text-left">App Description (Short)</th>
                 <th style="width: 35%" class="text-left">App Details</th>
                 <th style="width: 5%" class="text-left"></th>
               </tr>
@@ -134,8 +128,7 @@
                           ? $fileURL + item.logo
                           : 'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png'
                       "
-                      ><template #placeholder>
-                        <div class="skeleton" /> </template
+                      ><template #placeholder> <div class="skeleton" /> </template
                     ></v-img>
                   </div>
                   <v-table class="app-column-table">
@@ -177,8 +170,7 @@
                           ? $fileURL + item.image
                           : 'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png'
                       "
-                      ><template #placeholder>
-                        <div class="skeleton" /> </template
+                      ><template #placeholder> <div class="skeleton" /> </template
                     ></v-img>
                   </div>
                   <v-table class="app-column-table">
@@ -291,13 +283,9 @@
                 </td>
                 <td>
                   <div class="d-flex app-column">
-                    <v-btn
-                      color="green"
-                      variant="text"
-                      @click="editUser(item)"
-                      icon
+                    <v-btn color="green" variant="text" @click="editUser(item)" icon>
+                      <v-icon>mdi-pencil-outline</v-icon></v-btn
                     >
-  <v-icon>mdi-pencil-outline</v-icon></v-btn>
                     <v-btn
                       color="red"
                       variant="text"
@@ -305,56 +293,34 @@
                       @click="openDeleteConfirm(item.id)"
                       icon
                     >
-  <v-icon>mdi-trash-can-outline</v-icon></v-btn>
+                      <v-icon>mdi-trash-can-outline</v-icon></v-btn
+                    >
                   </div>
                   <v-table class="app-column-table"></v-table>
                 </td>
               </tr>
-              <tr v-if="isLoading">
-                <td :colspan="6" class="text-center">
-                  <v-progress-circular
-                    indeterminate
-                    color="indigo-accent-2"
-                  ></v-progress-circular>
-                </td>
-              </tr>
             </tbody>
           </v-table>
+          <skeleton-table v-if="isLoading" :rows="5" :columns="16" />
+          <empty-state
+            v-if="!isLoading && (!filteredItems || filteredItems.length === 0)"
+            title="No Data Found"
+            subtitle="There are no records to display."
+          />
         </v-col>
       </v-row>
     </v-sheet>
-    <v-snackbar
-      location="top"
-      color="green"
-      v-model="isSuccess"
-      :timeout="3000"
-    >
-      {{ successMessage }}
 
-      <template v-slot:actions>
-        <v-btn color="white" variant="text" @click="isSuccess = false">
-          <v-icon>mdi-close</v-icon>
-        </v-btn>
-      </template>
-    </v-snackbar>
-    <v-dialog persistent width="500" v-model="isDelete">
-      <v-card>
-        <v-card-title>Confirmation</v-card-title>
-        <v-card-text> Are you sure want to delete this app? </v-card-text>
-        <v-card-actions>
-          <v-spacer></v-spacer>
-          <v-btn color="error" text @click="cancelDelete">No</v-btn>
-          <v-btn color="success" text @click="deleteApp">{{
-            isDeleteLoading ? 'Deleting...' : 'Yes'
-          }}</v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
+    <confirm-dialog
+      v-model="isDelete"
+      title="Confirmation"
+      message="Are you sure you want to delete this item? This action cannot be undone."
+      :loading="isDeleteLoading"
+      @confirm="deleteApp"
+    />
     <v-dialog persistent width="auto" v-model="isOpenLogo">
       <v-card width="750">
-        <v-card-title class="upload-title px-6 py-4">
-          Upload Logo - User</v-card-title
-        >
+        <v-card-title class="upload-title px-6 py-4"> Upload Logo - User</v-card-title>
         <v-card-text>
           <image-upload
             :image-file="logoFile"
@@ -364,13 +330,7 @@
         </v-card-text>
         <v-card-actions class="mt-16">
           <v-spacer></v-spacer>
-          <v-btn
-            style="text-transform: none"
-            color="error"
-            text
-            @click="closeLogo"
-            >Cancel</v-btn
-          >
+          <v-btn style="text-transform: none" color="error" text @click="closeLogo">Cancel</v-btn>
           <v-btn
             style="background-color: #9ddcff; text-transform: none"
             color="black"
@@ -382,9 +342,7 @@
     </v-dialog>
     <v-dialog persistent width="auto" v-model="isOpenImage">
       <v-card width="750">
-        <v-card-title class="upload-title px-6 py-4">
-          Upload Image - User</v-card-title
-        >
+        <v-card-title class="upload-title px-6 py-4"> Upload Image - User</v-card-title>
         <v-card-text>
           <image-upload
             :image-file="imageFile"
@@ -394,13 +352,7 @@
         </v-card-text>
         <v-card-actions class="mt-16">
           <v-spacer></v-spacer>
-          <v-btn
-            style="text-transform: none"
-            color="error"
-            text
-            @click="closeImage"
-            >Cancel</v-btn
-          >
+          <v-btn style="text-transform: none" color="error" text @click="closeImage">Cancel</v-btn>
           <v-btn
             style="background-color: #9ddcff; text-transform: none"
             color="black"
@@ -414,6 +366,10 @@
 </template>
 
 <script>
+import SkeletonTable from '@/components/SkeletonTable.vue';
+import EmptyState from '@/components/EmptyState.vue';
+import ConfirmDialog from '@/components/ConfirmDialog.vue';
+import { useNotificationStore } from '@/stores/notification';
 import ImageUpload from '@/components/ImageUpload.vue';
 import axios from '@/util/axios';
 import { setAuthHeader } from '@/util/axios';
@@ -421,6 +377,16 @@ import { setAuthHeader } from '@/util/axios';
 
 export default {
   name: 'AppNew',
+  components: {
+    ConfirmDialog,
+    EmptyState,
+    SkeletonTable,
+    ImageUpload,
+  },
+  setup() {
+    const notification = useNotificationStore();
+    return { notification };
+  },
   data: () => ({
     // fileURL: 'https://admin1.the-gypsy.sg/img/app/',
     valid: false,
@@ -428,7 +394,6 @@ export default {
     isSending: false,
     isSending2: false,
     isEdit: false,
-    isSuccess: false,
     isDelete: false,
     isDeleteLoading: false,
     userIdToDelete: null,
@@ -451,7 +416,6 @@ export default {
     },
     isOpenLogo: false,
     isOpenImage: false,
-    successMessage: '',
     input: {
       id: 1,
       name: '',
@@ -575,8 +539,7 @@ export default {
         .post(`/app/deleteLogo`, payload, {})
         .then((response) => {
           const data = response.data;
-          this.successMessage = data.message;
-          this.isSuccess = true;
+          this.notification.success(data.message);
           this.getAppData();
         })
         .catch((error) => {
@@ -605,8 +568,7 @@ export default {
         .post(`/app/deleteImage`, payload, {})
         .then((response) => {
           const data = response.data;
-          this.successMessage = data.message;
-          this.isSuccess = true;
+          this.notification.success(data.message);
           this.getAppData();
         })
         .catch((error) => {
@@ -713,8 +675,7 @@ export default {
         })
         .then((response) => {
           const data = response.data;
-          this.successMessage = data.message;
-          this.isSuccess = true;
+          this.notification.success(data.message);
           this.getAppData();
         })
         .catch((error) => {
@@ -754,8 +715,7 @@ export default {
         })
         .then((response) => {
           const data = response.data;
-          this.successMessage = data.message;
-          this.isSuccess = true;
+          this.notification.success(data.message);
           this.getAppData();
         })
         .catch((error) => {
@@ -817,8 +777,7 @@ export default {
           .post(`/app/edit`, payload)
           .then((response) => {
             const data = response.data;
-            this.successMessage = data.message;
-            this.isSuccess = true;
+            this.notification.success(data.message);
             this.getAppData();
             this.input = {
               id: 1,
@@ -859,8 +818,7 @@ export default {
           .post(`/app/add`, payload)
           .then((response) => {
             const data = response.data;
-            this.successMessage = data.message;
-            this.isSuccess = true;
+            this.notification.success(data.message);
             this.getAppData();
             this.input = {
               id: 1,
@@ -901,8 +859,7 @@ export default {
         })
         .then((response) => {
           const data = response.data;
-          this.successMessage = data.message;
-          this.isSuccess = true;
+          this.notification.success(data.message);
           this.getAppData();
         })
         .catch((error) => {
@@ -931,14 +888,8 @@ export default {
               name: item.app_name || '',
               description: item.app_description || '',
               details: item.app_detail || '',
-              isActive:
-                item.active == 'N' ? false : item.active == 'Y' ? true : null,
-              isFav:
-                item.favorite == 'N'
-                  ? false
-                  : item.favorite == 'Y'
-                  ? true
-                  : null,
+              isActive: item.active == 'N' ? false : item.active == 'Y' ? true : null,
+              isFav: item.favorite == 'N' ? false : item.favorite == 'Y' ? true : null,
               isLive: item.live == 'N' ? false : item.live == 'Y' ? true : null,
               group: item.app_group_name || '',
               user: item.user_id || 1,
@@ -1004,8 +955,7 @@ export default {
         .get(`/app/active/${id}`)
         .then((response) => {
           const data = response.data;
-          this.successMessage = data.message;
-          this.isSuccess = true;
+          this.notification.success(data.message);
           this.getAppData();
         })
         .catch((error) => {
@@ -1022,8 +972,7 @@ export default {
         .get(`/app/favorite/${id}`)
         .then((response) => {
           const data = response.data;
-          this.successMessage = data.message;
-          this.isSuccess = true;
+          this.notification.success(data.message);
           this.getAppData();
         })
         .catch((error) => {
@@ -1040,8 +989,7 @@ export default {
         .get(`/app/toggle-live/${id}`)
         .then((response) => {
           const data = response.data;
-          this.successMessage = data.message;
-          this.isSuccess = true;
+          this.notification.success(data.message);
           this.getAppData();
         })
         .catch((error) => {
@@ -1053,7 +1001,6 @@ export default {
         });
     },
   },
-  components: { ImageUpload },
 };
 </script>
 

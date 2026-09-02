@@ -46,11 +46,7 @@
           <v-col cols="12" md="2">
             <div>
               <v-btn
-                :prepend-icon="
-                  isEdit
-                    ? 'mdi-account-multiple-check'
-                    : 'mdi-account-multiple-plus'
-                "
+                :prepend-icon="isEdit ? 'mdi-account-multiple-check' : 'mdi-account-multiple-plus'"
                 color="indigo-accent-2"
                 style="text-transform: none"
                 type="submit"
@@ -93,13 +89,9 @@
           <v-table class="country-table">
             <thead>
               <tr>
-                <th class="text-left font-weight-bold text-black">
-                  Service Id
-                </th>
+                <th class="text-left font-weight-bold text-black">Service Id</th>
                 <!-- <th class="text-left font-weight-bold text-black"></th> -->
-                <th class="text-left font-weight-bold text-black">
-                  Service Name
-                </th>
+                <th class="text-left font-weight-bold text-black">Service Name</th>
                 <th class="text-left font-weight-bold text-black">User</th>
                 <th class="text-left font-weight-bold text-black">Dated</th>
                 <th class="text-left font-weight-bold text-black">Actions</th>
@@ -121,8 +113,7 @@
                             ? $fileURL + item.image
                             : 'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png'
                         "
-                        ><template #placeholder>
-                          <div class="skeleton" /> </template
+                        ><template #placeholder> <div class="skeleton" /> </template
                       ></v-img>
                     </div>
                     <p class="w-66">{{ item.name }}</p>
@@ -137,71 +128,41 @@
                   <td>
                     <div class="d-flex align-center">
                       <v-btn
-                            color="red" variant="text"
-                            :disabled="isDeleteLoading"
-                            @click="openDeleteConfirm(item.id)"
-                            icon
-                          >
-  <v-icon>mdi-trash-can-outline</v-icon>  <v-tooltip location="top" activator="parent">Delete</v-tooltip>
-</v-btn>
+                        color="red"
+                        variant="text"
+                        :disabled="isDeleteLoading"
+                        @click="openDeleteConfirm(item.id)"
+                        icon
+                      >
+                        <v-icon>mdi-trash-can-outline</v-icon>
+                        <v-tooltip location="top" activator="parent">Delete</v-tooltip>
+                      </v-btn>
                     </div>
                   </td>
                 </tr>
               </template>
-              <tr v-if="isLoading">
-                <td :colspan="6" class="text-center">
-                  <v-progress-circular
-                    indeterminate
-                    color="indigo-accent-2"
-                  ></v-progress-circular>
-                </td>
-              </tr>
             </tbody>
           </v-table>
+          <skeleton-table v-if="isLoading" :rows="5" :columns="6" />
+          <empty-state
+            v-if="!isLoading && (!filteredItems || filteredItems.length === 0)"
+            title="No Data Found"
+            subtitle="There are no records to display."
+          />
         </v-col>
       </v-row>
     </v-sheet>
-    <v-snackbar
-      location="top"
-      color="green"
-      v-model="isSuccess"
-      :timeout="3000"
-    >
-      {{ successMessage }}
 
-      <template v-slot:actions>
-        <v-btn color="white" variant="text" @click="isSuccess = false">
-          <v-icon>mdi-close</v-icon>
-        </v-btn>
-      </template>
-    </v-snackbar>
-    <v-snackbar location="top" color="red" v-model="isError" :timeout="3000">
-      {{ errorMessage }}
-
-      <template v-slot:actions>
-        <v-btn color="white" variant="text" @click="isError = false">
-          <v-icon>mdi-close</v-icon>
-        </v-btn>
-      </template>
-    </v-snackbar>
-    <v-dialog persistent width="500" v-model="isDelete">
-      <v-card>
-        <v-card-title>Confirmation</v-card-title>
-        <v-card-text> Are you sure want to delete this service? </v-card-text>
-        <v-card-actions>
-          <v-spacer></v-spacer>
-          <v-btn color="error" text @click="cancelDelete">No</v-btn>
-          <v-btn color="success" text @click="deleteLocation">{{
-            isDeleteLoading ? 'Deleting...' : 'Yes'
-          }}</v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
+    <confirm-dialog
+      v-model="isDelete"
+      title="Confirmation"
+      message="Are you sure you want to delete this item? This action cannot be undone."
+      :loading="isDeleteLoading"
+      @confirm="deleteLocation"
+    />
     <v-dialog persistent width="auto" v-model="isOpenImage">
       <v-card width="750">
-        <v-card-title class="upload-title px-6 py-4">
-          Upload Image - Partner Location</v-card-title
-        >
+        <v-card-title class="upload-title px-6 py-4"> Upload Image - Partner Location</v-card-title>
         <v-card-text>
           <image-upload
             :image-file="imageFile"
@@ -211,13 +172,7 @@
         </v-card-text>
         <v-card-actions class="mt-16">
           <v-spacer></v-spacer>
-          <v-btn
-            style="text-transform: none"
-            color="error"
-            text
-            @click="closeImage"
-            >Cancel</v-btn
-          >
+          <v-btn style="text-transform: none" color="error" text @click="closeImage">Cancel</v-btn>
           <v-btn
             style="background-color: #9ddcff; text-transform: none"
             color="black"
@@ -231,6 +186,10 @@
 </template>
 
 <script>
+import SkeletonTable from '@/components/SkeletonTable.vue';
+import EmptyState from '@/components/EmptyState.vue';
+import ConfirmDialog from '@/components/ConfirmDialog.vue';
+import { useNotificationStore } from '@/stores/notification';
 import ImageUpload from '@/components/ImageUpload.vue';
 import axios from '@/util/axios';
 import { setAuthHeader } from '@/util/axios';
@@ -238,6 +197,16 @@ import { setAuthHeader } from '@/util/axios';
 
 export default {
   name: 'ManageServices',
+  components: {
+    ConfirmDialog,
+    EmptyState,
+    SkeletonTable,
+    ImageUpload,
+  },
+  setup() {
+    const notification = useNotificationStore();
+    return { notification };
+  },
   data: () => ({
     // fileURL: 'https://admin1.the-gypsy.sg/img/app/',
     mallName: null,
@@ -245,16 +214,12 @@ export default {
     valid: false,
     isLoading: false,
     isSending: false,
-    isError: false,
     isEdit: false,
-    isSuccess: false,
     isDelete: false,
     isDeleteLoading: false,
     locationIdToDelete: null,
     tableHeaders: [{ text: 'Gambar', value: 'image' }],
     isOpenImage: false,
-    successMessage: '',
-    errorMessage: '',
     imageFile: [],
     resource: {
       services: [],
@@ -308,9 +273,7 @@ export default {
         return this.items;
       }
       const searchTextLower = this.search.toLowerCase();
-      return this.items.filter((item) =>
-        item.name.toLowerCase().includes(searchTextLower)
-      );
+      return this.items.filter((item) => item.name.toLowerCase().includes(searchTextLower));
     },
   },
   methods: {
@@ -332,26 +295,10 @@ export default {
                 town: item.town_name || '',
                 city: item.city_name || '',
                 country: item.country_name || '',
-                isPrivileged:
-                  item.privileged == 'N'
-                    ? false
-                    : item.privileged == 'Y'
-                    ? true
-                    : null,
-                isPlatinum:
-                  item.platinum == 'N'
-                    ? false
-                    : item.platinum == 'Y'
-                    ? true
-                    : null,
-                isActive:
-                  item.active == 'N' ? false : item.active == 'Y' ? true : null,
-                isFeatured:
-                  item.featured == 'N'
-                    ? false
-                    : item.featured == 'Y'
-                    ? true
-                    : null,
+                isPrivileged: item.privileged == 'N' ? false : item.privileged == 'Y' ? true : null,
+                isPlatinum: item.platinum == 'N' ? false : item.platinum == 'Y' ? true : null,
+                isActive: item.active == 'N' ? false : item.active == 'Y' ? true : null,
+                isFeatured: item.featured == 'N' ? false : item.featured == 'Y' ? true : null,
                 user: item.name || '',
                 dated: item.dated || '',
                 latitude: item.latitude || '',
@@ -374,11 +321,8 @@ export default {
           // eslint-disable-next-line
           console.log(error);
           const message =
-            error.response.data.message === ''
-              ? 'Something Wrong!!!'
-              : error.response.data.message;
-          this.errorMessage = message;
-          this.isError = true;
+            error.response.data.message === '' ? 'Something Wrong!!!' : error.response.data.message;
+          this.notification.error(message);
         })
         .finally(() => {
           this.isLoading = false;
@@ -396,8 +340,7 @@ export default {
           .post(`/mall-services`, payload)
           .then((response) => {
             const data = response.data;
-            this.successMessage = data.message;
-            this.isSuccess = true;
+            this.notification.success(data.message);
             this.getMallServicesData();
             this.input = {
               id: 0,
@@ -412,8 +355,7 @@ export default {
               : error.response.data.message === ''
               ? 'Something Wrong!!!'
               : error.response.data.error;
-            this.errorMessage = message;
-            this.isError = true;
+            this.notification.error(message);
           })
           .finally(() => {
             this.isSending = false;
@@ -438,19 +380,15 @@ export default {
         .delete(`/mall-services/${this.locationIdToDelete}`)
         .then((response) => {
           const data = response.data;
-          this.successMessage = data.message;
-          this.isSuccess = true;
+          this.notification.success(data.message);
           this.getMallServicesData();
         })
         .catch((error) => {
           // eslint-disable-next-line
           console.log(error);
           const message =
-            error.response.data.message === ''
-              ? 'Something Wrong!!!'
-              : error.response.data.message;
-          this.errorMessage = message;
-          this.isError = true;
+            error.response.data.message === '' ? 'Something Wrong!!!' : error.response.data.message;
+          this.notification.error(message);
         })
         .finally(() => {
           this.isDeleteLoading = false;
@@ -480,11 +418,8 @@ export default {
           // eslint-disable-next-line
           console.log(error);
           const message =
-            error.response.data.message === ''
-              ? 'Something Wrong!!!'
-              : error.response.data.message;
-          this.errorMessage = message;
-          this.isError = true;
+            error.response.data.message === '' ? 'Something Wrong!!!' : error.response.data.message;
+          this.notification.error(message);
         })
         .finally(() => {
           this.isLoading = false;
@@ -507,18 +442,14 @@ export default {
           // eslint-disable-next-line
           console.log(error);
           const message =
-            error.response.data.message === ''
-              ? 'Something Wrong!!!'
-              : error.response.data.message;
-          this.errorMessage = message;
-          this.isError = true;
+            error.response.data.message === '' ? 'Something Wrong!!!' : error.response.data.message;
+          this.notification.error(message);
         })
         .finally(() => {
           this.isLoading = false;
         });
     },
   },
-  components: { ImageUpload },
 };
 </script>
 

@@ -72,8 +72,7 @@
                             ? $fileURL + item.image
                             : 'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png'
                         "
-                        ><template #placeholder>
-                          <div class="skeleton" /> </template
+                        ><template #placeholder> <div class="skeleton" /> </template
                       ></v-img>
                     </div>
                   </td>
@@ -202,59 +201,28 @@
                   </td>
                 </tr>
               </template>
-              <tr v-if="isLoading">
-                <td :colspan="5" class="text-center">
-                  <v-progress-circular
-                    indeterminate
-                    color="indigo-accent-2"
-                  ></v-progress-circular>
-                </td>
-              </tr>
             </tbody>
           </v-table>
+          <skeleton-table v-if="isLoading" :rows="5" :columns="15" />
+          <empty-state
+            v-if="!isLoading && (!filteredItems || filteredItems.length === 0)"
+            title="No Data Found"
+            subtitle="There are no records to display."
+          />
         </v-col>
       </v-row>
     </v-sheet>
-    <v-snackbar
-      location="top"
-      color="green"
-      v-model="isSuccess"
-      :timeout="3000"
-    >
-      {{ successMessage }}
 
-      <template v-slot:actions>
-        <v-btn color="white" variant="text" @click="isSuccess = false">
-          <v-icon>mdi-close</v-icon>
-        </v-btn>
-      </template>
-    </v-snackbar>
-
-    <v-snackbar location="top" color="red" v-model="isError" :timeout="3000">
-      {{ errorMessage }}
-
-      <template v-slot:actions>
-        <v-btn color="white" variant="text" @click="isError = false">
-          <v-icon>mdi-close</v-icon>
-        </v-btn>
-      </template>
-    </v-snackbar>
-    <v-dialog persistent width="500" v-model="isDelete">
-      <v-card>
-        <v-card-title>Confirmation</v-card-title>
-        <v-card-text> Are you sure want to delete this users? </v-card-text>
-        <v-card-actions>
-          <v-spacer></v-spacer>
-          <v-btn color="error" text @click="cancelDelete">No</v-btn>
-          <v-btn color="success" text @click="deleteUser">Yes</v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
+    <confirm-dialog
+      v-model="isDelete"
+      title="Confirmation"
+      message="Are you sure you want to delete this item? This action cannot be undone."
+      :loading="isDeleteLoading"
+      @confirm="deleteUser"
+    />
     <v-dialog persistent width="auto" v-model="isOpenImage">
       <v-card width="750">
-        <v-card-title class="upload-title px-6 py-4">
-          Upload Image - Registered User</v-card-title
-        >
+        <v-card-title class="upload-title px-6 py-4"> Upload Image - Registered User</v-card-title>
         <v-card-text>
           <image-upload
             :image-file="imageFile"
@@ -264,13 +232,7 @@
         </v-card-text>
         <v-card-actions class="mt-16">
           <v-spacer></v-spacer>
-          <v-btn
-            style="text-transform: none"
-            color="error"
-            text
-            @click="closeImage"
-            >Cancel</v-btn
-          >
+          <v-btn style="text-transform: none" color="error" text @click="closeImage">Cancel</v-btn>
           <v-btn
             style="background-color: #9ddcff; text-transform: none"
             color="black"
@@ -284,6 +246,10 @@
 </template>
 
 <script>
+import SkeletonTable from '@/components/SkeletonTable.vue';
+import EmptyState from '@/components/EmptyState.vue';
+import ConfirmDialog from '@/components/ConfirmDialog.vue';
+import { useNotificationStore } from '@/stores/notification';
 import ImageUpload from '@/components/ImageUpload.vue';
 import axios from '@/util/axios';
 import { setAuthHeader } from '@/util/axios';
@@ -291,14 +257,22 @@ import { setAuthHeader } from '@/util/axios';
 
 export default {
   name: 'ApplicantMaster',
+  components: {
+    ConfirmDialog,
+    EmptyState,
+    SkeletonTable,
+    ImageUpload,
+  },
+  setup() {
+    const notification = useNotificationStore();
+    return { notification };
+  },
   data: () => ({
     // fileURL: 'https://admin1.the-gypsy.sg/img/app/',
     valid: false,
     isLoading: false,
     isSending: false,
     isEdit: false,
-    isSuccess: false,
-    isError: false,
     isDelete: false,
     isDeleteLoading: false,
     userIdToDelete: null,
@@ -310,8 +284,6 @@ export default {
     },
     isOpenImage: false,
     isOpenLogo: false,
-    successMessage: '',
-    errorMessage: '',
     input: {
       id: 0,
       name: null,
@@ -414,16 +386,12 @@ export default {
         );
       } else if (!this.search && this.app === null && this.skills !== null) {
         const filteredData = this.items.filter((item) => {
-          return this.skills
-            ? item.skills.toLowerCase() === this.skills.toLowerCase()
-            : true;
+          return this.skills ? item.skills.toLowerCase() === this.skills.toLowerCase() : true;
         });
         return filteredData;
       } else if (!this.search && this.app !== null && this.skills === null) {
         const filteredData = this.items.filter((item) => {
-          return this.app
-            ? item.appName.toLowerCase() === this.app.toLowerCase()
-            : true;
+          return this.app ? item.appName.toLowerCase() === this.app.toLowerCase() : true;
         });
         return filteredData;
       } else if (this.search && this.app !== null && this.skills === null) {
@@ -434,9 +402,7 @@ export default {
               item.email.toLowerCase().includes(searchTextLower) ||
               item.mobile.toLowerCase().includes(searchTextLower) ||
               item.whatsapp.toLowerCase().includes(searchTextLower)) &&
-            (this.app
-              ? item.appName.toLowerCase() === this.app.toLowerCase()
-              : true)
+            (this.app ? item.appName.toLowerCase() === this.app.toLowerCase() : true)
           );
         });
         return filteredData;
@@ -448,9 +414,7 @@ export default {
               item.email.toLowerCase().includes(searchTextLower) ||
               item.mobile.toLowerCase().includes(searchTextLower) ||
               item.whatsapp.toLowerCase().includes(searchTextLower)) &&
-            (this.skills
-              ? item.skills.toLowerCase() === this.skills.toLowerCase()
-              : true)
+            (this.skills ? item.skills.toLowerCase() === this.skills.toLowerCase() : true)
           );
         });
         return filteredData;
@@ -462,12 +426,8 @@ export default {
               item.email.toLowerCase().includes(searchTextLower) ||
               item.mobile.toLowerCase().includes(searchTextLower) ||
               item.whatsapp.toLowerCase().includes(searchTextLower)) &&
-            (this.skills
-              ? item.skills.toLowerCase() === this.skills.toLowerCase()
-              : true) &&
-            (this.app
-              ? item.appName.toLowerCase() === this.app.toLowerCase()
-              : true)
+            (this.skills ? item.skills.toLowerCase() === this.skills.toLowerCase() : true) &&
+            (this.app ? item.appName.toLowerCase() === this.app.toLowerCase() : true)
           );
         });
         return filteredData;
@@ -516,10 +476,7 @@ export default {
       let age = today.getFullYear() - birthDate.getFullYear();
       const monthDiff = today.getMonth() - birthDate.getMonth();
 
-      if (
-        monthDiff < 0 ||
-        (monthDiff === 0 && today.getDate() < birthDate.getDate())
-      ) {
+      if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
         age--;
       }
 
@@ -534,19 +491,15 @@ export default {
         .delete(`/gypsy-registration/${this.userDataToImage.id}/image`)
         .then((response) => {
           const data = response.data;
-          this.successMessage = data.message;
-          this.isSuccess = true;
+          this.notification.success(data.message);
           this.getUserData();
         })
         .catch((error) => {
           // eslint-disable-next-line
           console.log(error);
           const message =
-            error.response.data.message === ''
-              ? 'Something Wrong!!!'
-              : error.response.data.message;
-          this.errorMessage = message;
-          this.isError = true;
+            error.response.data.message === '' ? 'Something Wrong!!!' : error.response.data.message;
+          this.notification.error(message);
         })
         .finally(() => {
           this.isEdit = false;
@@ -602,19 +555,15 @@ export default {
         })
         .then((response) => {
           const data = response.data;
-          this.successMessage = data.message;
-          this.isSuccess = true;
+          this.notification.success(data.message);
           this.getUserData();
         })
         .catch((error) => {
           // eslint-disable-next-line
           console.log(error);
           const message =
-            error.response.data.message === ''
-              ? 'Something Wrong!!!'
-              : error.response.data.message;
-          this.errorMessage = message;
-          this.isError = true;
+            error.response.data.message === '' ? 'Something Wrong!!!' : error.response.data.message;
+          this.notification.error(message);
         })
         .finally(() => {
           this.isEdit = false;
@@ -644,19 +593,15 @@ export default {
         .delete(`/gypsy-registration/${this.userIdToDelete}`)
         .then((response) => {
           const data = response.data;
-          this.successMessage = data.message;
-          this.isSuccess = true;
+          this.notification.success(data.message);
           this.getUserData();
         })
         .catch((error) => {
           // eslint-disable-next-line
           console.log(error);
           const message =
-            error.response.data.message === ''
-              ? 'Something Wrong!!!'
-              : error.response.data.message;
-          this.errorMessage = message;
-          this.isError = true;
+            error.response.data.message === '' ? 'Something Wrong!!!' : error.response.data.message;
+          this.notification.error(message);
         })
         .finally(() => {
           this.isDeleteLoading = false;
@@ -680,39 +625,22 @@ export default {
               applicant_id: item.applicant_ref_no || '',
               name: item.name || '',
               email: item.email_id || '',
-              verifiedEmail:
-                item.email_verified == 'Y' ? 'verified' : 'Not verified',
+              verifiedEmail: item.email_verified == 'Y' ? 'verified' : 'Not verified',
               country_id: item.country_current || null,
               country: item.country?.country_name || '',
               city: item.city_name || '',
               town: item.town_name || '',
               nationality: item.country?.nationality || '',
               mobile: item.mobile_number || '',
-              verifiedMobile:
-                item.mobile_verified == 'Y' ? 'verified' : 'Not verified',
+              verifiedMobile: item.mobile_verified == 'Y' ? 'verified' : 'Not verified',
               whatsapp: item.whats_app || '',
-              verifiedWhatsApp:
-                item.whatsapp_verified == 'Y' ? 'verified' : 'Not verified',
-              gender:
-                item.gender == 'M'
-                  ? 'Male'
-                  : item.gender == 'F'
-                  ? 'Female'
-                  : '',
+              verifiedWhatsApp: item.whatsapp_verified == 'Y' ? 'verified' : 'Not verified',
+              gender: item.gender == 'M' ? 'Male' : item.gender == 'F' ? 'Female' : '',
               genderCode: item.gender || '',
               registered: item.dated || '',
-              isEligible:
-                item.eligible == 'N'
-                  ? false
-                  : item.eligible == 'Y'
-                  ? true
-                  : null,
+              isEligible: item.eligible == 'N' ? false : item.eligible == 'Y' ? true : null,
               isRegistrable:
-                item.registrable == 'N'
-                  ? false
-                  : item.registrable == 'Y'
-                  ? true
-                  : null,
+                item.registrable == 'N' ? false : item.registrable == 'Y' ? true : null,
               lastLogin: item.last_login || '',
               registeredBy:
                 item.social_type == 'G'
@@ -729,11 +657,7 @@ export default {
                   ? 'Email'
                   : '',
               registeredType:
-                item.registered_type == 'M'
-                  ? 'Mobile'
-                  : item.registered_type == 'W'
-                  ? 'Web'
-                  : '',
+                item.registered_type == 'M' ? 'Mobile' : item.registered_type == 'W' ? 'Web' : '',
               maritalStatus:
                 item.marital_status == 'M'
                   ? 'Married'
@@ -755,11 +679,8 @@ export default {
           // eslint-disable-next-line
           console.log(error);
           const message =
-            error.response.data.message === ''
-              ? 'Something Wrong!!!'
-              : error.response.data.message;
-          this.errorMessage = message;
-          this.isError = true;
+            error.response.data.message === '' ? 'Something Wrong!!!' : error.response.data.message;
+          this.notification.error(message);
         })
         .finally(() => {
           this.isLoading = false;
@@ -773,7 +694,7 @@ export default {
       //  .then((response) => {
       //    const data = response.data;
       //    this.successMessage = data.message;
-      //    this.isSuccess = true;
+      //
       //    this.getUserData();
       //  })
       //  .catch((error) => {
@@ -784,7 +705,7 @@ export default {
       //        ? 'Something Wrong!!!'
       //        : error.response.data.message;
       //    this.errorMessage = message;
-      //    this.isError = true;
+      //
       //  })
       //  .finally(() => {
       //    this.isSending = false;
@@ -796,19 +717,15 @@ export default {
         .get(`/gypsy-registration/toggle-employed/${id}`)
         .then((response) => {
           const data = response.data;
-          this.successMessage = data.message;
-          this.isSuccess = true;
+          this.notification.success(data.message);
           this.getUserData();
         })
         .catch((error) => {
           // eslint-disable-next-line
           console.log(error);
           const message =
-            error.response.data.message === ''
-              ? 'Something Wrong!!!'
-              : error.response.data.message;
-          this.errorMessage = message;
-          this.isError = true;
+            error.response.data.message === '' ? 'Something Wrong!!!' : error.response.data.message;
+          this.notification.error(message);
         })
         .finally(() => {
           this.isSending = false;
@@ -820,19 +737,15 @@ export default {
         .get(`/gypsy-registration/toggle-block/${id}`)
         .then((response) => {
           const data = response.data;
-          this.successMessage = data.message;
-          this.isSuccess = true;
+          this.notification.success(data.message);
           this.getUserData();
         })
         .catch((error) => {
           // eslint-disable-next-line
           console.log(error);
           const message =
-            error.response.data.message === ''
-              ? 'Something Wrong!!!'
-              : error.response.data.message;
-          this.errorMessage = message;
-          this.isError = true;
+            error.response.data.message === '' ? 'Something Wrong!!!' : error.response.data.message;
+          this.notification.error(message);
         })
         .finally(() => {
           this.isSending = false;
@@ -844,20 +757,15 @@ export default {
         .then((response) => {
           const data = response.data.data;
           // console.log(data);
-          this.resource.app = data
-            .sort((a, b) => a.app_id < b.app_id)
-            .map((app) => app.app_name);
+          this.resource.app = data.sort((a, b) => a.app_id < b.app_id).map((app) => app.app_name);
           // console.log(this.items);
         })
         .catch((error) => {
           // eslint-disable-next-line
           console.log(error);
           const message =
-            error.response.data.message === ''
-              ? 'Something Wrong!!!'
-              : error.response.data.message;
-          this.errorMessage = message;
-          this.isError = true;
+            error.response.data.message === '' ? 'Something Wrong!!!' : error.response.data.message;
+          this.notification.error(message);
         });
     },
     getPrimarySkillData() {
@@ -881,18 +789,14 @@ export default {
           // eslint-disable-next-line
           console.log(error);
           const message =
-            error.response.data.message === ''
-              ? 'Something Wrong!!!'
-              : error.response.data.message;
-          this.errorMessage = message;
-          this.isError = true;
+            error.response.data.message === '' ? 'Something Wrong!!!' : error.response.data.message;
+          this.notification.error(message);
         })
         .finally(() => {
           this.isLoading = false;
         });
     },
   },
-  components: { ImageUpload },
 };
 </script>
 

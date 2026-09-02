@@ -78,40 +78,21 @@
         </v-row>
       </v-container>
     </v-form>
-    <v-snackbar
-      location="top"
-      color="green"
-      v-model="isSuccess"
-      :timeout="3000"
-    >
-      {{ successMessage }}
-
-      <template v-slot:actions>
-        <v-btn color="white" variant="text" @click="isSuccess = false">
-          <v-icon>mdi-close</v-icon>
-        </v-btn>
-      </template>
-    </v-snackbar>
-
-    <v-snackbar location="top" color="red" v-model="isError" :timeout="3000">
-      {{ errorMessage }}
-
-      <template v-slot:actions>
-        <v-btn color="white" variant="text" @click="isError = false">
-          <v-icon>mdi-close</v-icon>
-        </v-btn>
-      </template>
-    </v-snackbar>
   </v-container>
 </template>
 
 <script>
+import { useNotificationStore } from '@/stores/notification';
 import axios from '@/util/axios';
 import { setAuthHeader } from '@/util/axios';
 // import app from '@/util/eventBus';
 
 export default {
   name: 'MallJobsMainInfo',
+  setup() {
+    const notification = useNotificationStore();
+    return { notification };
+  },
   data: () => ({
     // fileURL: 'https://admin1.the-gypsy.sg/img/app/',
     idJob: null,
@@ -119,9 +100,7 @@ export default {
     valid: false,
     isLoading: false,
     isSending: false,
-    isError: false,
     isEdit: false,
-    isSuccess: false,
     isDelete: false,
     isDeleteLoading: false,
     userIdToDelete: null,
@@ -129,8 +108,6 @@ export default {
     imageFile: [],
     userIdToImage: null,
     isOpenImage: false,
-    successMessage: '',
-    errorMessage: '',
     input: {
       id: 0,
       desc: '',
@@ -274,11 +251,8 @@ export default {
           // eslint-disable-next-line
           console.log(error);
           const message =
-            error.response.data.message === ''
-              ? 'Something Wrong!!!'
-              : error.response.data.message;
-          this.errorMessage = message;
-          this.isError = true;
+            error.response.data.message === '' ? 'Something Wrong!!!' : error.response.data.message;
+          this.notification.error(message);
         })
         .finally(() => {
           this.isLoading = false;
@@ -296,8 +270,7 @@ export default {
           .post(`/mall-jobs/update`, payload)
           .then((response) => {
             const data = response.data;
-            this.successMessage = data.message;
-            this.isSuccess = true;
+            this.notification.success(data.message);
           })
           .catch((error) => {
             // eslint-disable-next-line
@@ -309,8 +282,7 @@ export default {
               : error.response.data.message === ''
               ? 'Something Wrong!!!'
               : error.response.data.message;
-            this.errorMessage = message;
-            this.isError = true;
+            this.notification.error(message);
           })
           .finally(() => {
             this.isSending = false;

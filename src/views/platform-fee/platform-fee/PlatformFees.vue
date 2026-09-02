@@ -53,11 +53,7 @@
         <v-row>
           <v-col cols="2">
             <v-btn
-              :prepend-icon="
-                isEdit
-                  ? 'mdi-account-multiple-check'
-                  : 'mdi-account-multiple-plus'
-              "
+              :prepend-icon="isEdit ? 'mdi-account-multiple-check' : 'mdi-account-multiple-plus'"
               color="indigo-accent-2"
               style="text-transform: none"
               variant="flat"
@@ -124,9 +120,7 @@
       </v-row>
       <v-row align="center" justify="space-between">
         <v-col cols="8">
-          <span>
-            Showing {{ startItem }} - {{ endItem }} from {{ totalItems }} item
-          </span>
+          <span> Showing {{ startItem }} - {{ endItem }} from {{ totalItems }} item </span>
         </v-col>
         <v-col cols="4" class="text-right">
           <v-select
@@ -146,9 +140,7 @@
             <thead>
               <tr>
                 <th class="text-left font-weight-bold text-black">ID</th>
-                <th class="text-left font-weight-bold text-black">
-                  Platform Fee
-                </th>
+                <th class="text-left font-weight-bold text-black">Platform Fee</th>
                 <th class="text-left font-weight-bold text-black">App</th>
                 <th class="text-left font-weight-bold text-black">Country</th>
                 <th class="text-left font-weight-bold text-black">User</th>
@@ -172,35 +164,32 @@
                   </td>
                   <td>
                     <div class="d-flex">
+                      <v-btn color="green" variant="text" @click="editPlatformFee(item)" icon>
+                        <v-icon>mdi-pencil-outline</v-icon>
+                        <v-tooltip location="top" activator="parent">Edit</v-tooltip>
+                      </v-btn>
                       <v-btn
-                            color="green"
-                            variant="text" @click="editPlatformFee(item)"
-                            icon
-                          >
-  <v-icon>mdi-pencil-outline</v-icon>  <v-tooltip location="top" activator="parent">Edit</v-tooltip>
-</v-btn>
-                      <v-btn
-                            color="red" variant="text"
-                            :disabled="isDeleteLoading"
-                            @click="openDeleteConfirm(item.pf_id)"
-                            icon
-                          >
-  <v-icon>mdi-trash-can-outline</v-icon>  <v-tooltip location="top" activator="parent">Delete</v-tooltip>
-</v-btn>
+                        color="red"
+                        variant="text"
+                        :disabled="isDeleteLoading"
+                        @click="openDeleteConfirm(item.pf_id)"
+                        icon
+                      >
+                        <v-icon>mdi-trash-can-outline</v-icon>
+                        <v-tooltip location="top" activator="parent">Delete</v-tooltip>
+                      </v-btn>
                     </div>
                   </td>
                 </tr>
               </template>
-              <tr v-if="isLoading">
-                <td :colspan="6" class="text-center">
-                  <v-progress-circular
-                    indeterminate
-                    color="indigo-accent-2"
-                  ></v-progress-circular>
-                </td>
-              </tr>
             </tbody>
           </v-table>
+          <skeleton-table v-if="isLoading" :rows="5" :columns="7" />
+          <empty-state
+            v-if="!isLoading && (!platformFee || platformFee.length === 0)"
+            title="No Data Found"
+            subtitle="There are no records to display."
+          />
           <v-pagination
             v-model="currentPage"
             :length="totalPages"
@@ -210,46 +199,13 @@
       </v-row>
     </v-sheet>
 
-    <v-snackbar
-      location="top"
-      color="green"
-      v-model="isSuccess"
-      :timeout="3000"
-    >
-      {{ successMessage }}
-
-      <template v-slot:actions>
-        <v-btn color="white" variant="text" @click="isSuccess = false">
-          <v-icon>mdi-close</v-icon>
-        </v-btn>
-      </template>
-    </v-snackbar>
-
-    <v-snackbar location="top" color="red" v-model="isError" :timeout="3000">
-      {{ errorMessage }}
-
-      <template v-slot:actions>
-        <v-btn color="white" variant="text" @click="isError = false">
-          <v-icon>mdi-close</v-icon>
-        </v-btn>
-      </template>
-    </v-snackbar>
-
-    <v-dialog persistent width="500" v-model="isDelete">
-      <v-card>
-        <v-card-title>Confirmation</v-card-title>
-        <v-card-text>
-          Are you sure want to delete this Platform Fee?
-        </v-card-text>
-        <v-card-actions>
-          <v-spacer></v-spacer>
-          <v-btn color="error" text @click="cancelDelete">No</v-btn>
-          <v-btn color="success" text @click="deletePlatformFee">{{
-            isDeleteLoading ? 'Deleting...' : 'Yes'
-          }}</v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
+    <confirm-dialog
+      v-model="isDelete"
+      title="Confirmation"
+      message="Are you sure you want to delete this item? This action cannot be undone."
+      :loading="isDeleteLoading"
+      @confirm="deletePlatformFee"
+    />
 
     <v-dialog persistent width="auto" v-model="isOpenImage">
       <v-card width="750">
@@ -265,13 +221,7 @@
         </v-card-text>
         <v-card-actions class="mt-16">
           <v-spacer></v-spacer>
-          <v-btn
-            style="text-transform: none"
-            color="error"
-            text
-            @click="closeImage"
-            >Cancel</v-btn
-          >
+          <v-btn style="text-transform: none" color="error" text @click="closeImage">Cancel</v-btn>
           <v-btn
             style="background-color: #9ddcff; text-transform: none"
             color="black"
@@ -445,9 +395,7 @@ const getPlatformFeeData = () => {
       // eslint-disable-next-line
       console.log(error);
       const message =
-        error.response.data.message === ''
-          ? 'Something Wrong!!!'
-          : error.response.data.message;
+        error.response.data.message === '' ? 'Something Wrong!!!' : error.response.data.message;
       errorMessage.value = message;
       isError.value = true;
     })
@@ -552,11 +500,6 @@ const saveData = async () => {
   }
 };
 
-const cancelDelete = () => {
-  idPlatformFee.value = null;
-  isDelete.value = false;
-};
-
 const openDeleteConfirm = (itemId) => {
   idPlatformFee.value = itemId;
   isDelete.value = true;
@@ -576,9 +519,7 @@ const deletePlatformFee = () => {
       // eslint-disable-next-line
       console.log(error);
       const message =
-        error.response.data.message === ''
-          ? 'Something Wrong!!!'
-          : error.response.data.message;
+        error.response.data.message === '' ? 'Something Wrong!!!' : error.response.data.message;
       errorMessage.value = message;
       isError.value = true;
     })

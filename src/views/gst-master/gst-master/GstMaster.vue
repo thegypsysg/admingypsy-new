@@ -53,11 +53,7 @@
         <v-row>
           <v-col cols="2">
             <v-btn
-              :prepend-icon="
-                isEdit
-                  ? 'mdi-account-multiple-check'
-                  : 'mdi-account-multiple-plus'
-              "
+              :prepend-icon="isEdit ? 'mdi-account-multiple-check' : 'mdi-account-multiple-plus'"
               color="indigo-accent-2"
               style="text-transform: none"
               variant="flat"
@@ -125,9 +121,7 @@
       </v-row>
       <v-row align="center" justify="space-between">
         <v-col cols="8">
-          <span>
-            Showing {{ startItem }} - {{ endItem }} from {{ totalItems }} item
-          </span>
+          <span> Showing {{ startItem }} - {{ endItem }} from {{ totalItems }} item </span>
         </v-col>
         <v-col cols="4" class="text-right">
           <v-select
@@ -150,9 +144,7 @@
                 <th class="text-left font-weight-bold text-black">App Name</th>
                 <th class="text-left font-weight-bold text-black">Country</th>
                 <th class="text-left font-weight-bold text-black">GST</th>
-                <th class="text-left font-weight-bold text-black">
-                  Applicable
-                </th>
+                <th class="text-left font-weight-bold text-black">Applicable</th>
                 <th class="text-left font-weight-bold text-black">User</th>
                 <th class="text-left font-weight-bold text-black">Dated</th>
                 <th class="text-left font-weight-bold text-black">Actions</th>
@@ -168,9 +160,7 @@
                   <td>
                     <span class="border rounded py-1 pl-3 pr-7 text-left">
                       <strong class="mr-2">%</strong>
-                      <span class="text-red-darken-4 font-weight-bold">{{
-                        item.tax_rate
-                      }}</span>
+                      <span class="text-red-darken-4 font-weight-bold">{{ item.tax_rate }}</span>
                     </span>
                   </td>
                   <td>
@@ -196,35 +186,32 @@
                   <td>{{ item?.dated || 'N/A' }}</td>
                   <td>
                     <div class="d-flex">
+                      <v-btn color="green" variant="text" @click="editGst(item)" icon>
+                        <v-icon>mdi-pencil-outline</v-icon>
+                        <v-tooltip location="top" activator="parent">Edit</v-tooltip>
+                      </v-btn>
                       <v-btn
-                            color="green"
-                            variant="text" @click="editGst(item)"
-                            icon
-                          >
-  <v-icon>mdi-pencil-outline</v-icon>  <v-tooltip location="top" activator="parent">Edit</v-tooltip>
-</v-btn>
-                      <v-btn
-                            color="red" variant="text"
-                            :disabled="isDeleteLoading"
-                            @click="openDeleteConfirm(item.gst_id)"
-                            icon
-                          >
-  <v-icon>mdi-trash-can-outline</v-icon>  <v-tooltip location="top" activator="parent">Delete</v-tooltip>
-</v-btn>
+                        color="red"
+                        variant="text"
+                        :disabled="isDeleteLoading"
+                        @click="openDeleteConfirm(item.gst_id)"
+                        icon
+                      >
+                        <v-icon>mdi-trash-can-outline</v-icon>
+                        <v-tooltip location="top" activator="parent">Delete</v-tooltip>
+                      </v-btn>
                     </div>
                   </td>
                 </tr>
               </template>
-              <tr v-if="isLoading">
-                <td :colspan="6" class="text-center">
-                  <v-progress-circular
-                    indeterminate
-                    color="indigo-accent-2"
-                  ></v-progress-circular>
-                </td>
-              </tr>
             </tbody>
           </v-table>
+          <skeleton-table v-if="isLoading" :rows="5" :columns="8" />
+          <empty-state
+            v-if="!isLoading && (!gstData || gstData.length === 0)"
+            title="No Data Found"
+            subtitle="There are no records to display."
+          />
           <v-pagination
             v-model="currentPage"
             :length="totalPages"
@@ -234,44 +221,13 @@
       </v-row>
     </v-sheet>
 
-    <v-snackbar
-      location="top"
-      color="green"
-      v-model="isSuccess"
-      :timeout="3000"
-    >
-      {{ successMessage }}
-
-      <template v-slot:actions>
-        <v-btn color="white" variant="text" @click="isSuccess = false">
-          <v-icon>mdi-close</v-icon>
-        </v-btn>
-      </template>
-    </v-snackbar>
-
-    <v-snackbar location="top" color="red" v-model="isError" :timeout="3000">
-      {{ errorMessage }}
-
-      <template v-slot:actions>
-        <v-btn color="white" variant="text" @click="isError = false">
-          <v-icon>mdi-close</v-icon>
-        </v-btn>
-      </template>
-    </v-snackbar>
-
-    <v-dialog persistent width="500" v-model="isDelete">
-      <v-card>
-        <v-card-title>Confirmation</v-card-title>
-        <v-card-text> Are you sure want to delete this GST? </v-card-text>
-        <v-card-actions>
-          <v-spacer></v-spacer>
-          <v-btn color="error" text @click="cancelDelete">No</v-btn>
-          <v-btn color="success" text @click="deleteGst">{{
-            isDeleteLoading ? 'Deleting...' : 'Yes'
-          }}</v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
+    <confirm-dialog
+      v-model="isDelete"
+      title="Confirmation"
+      message="Are you sure you want to delete this item? This action cannot be undone."
+      :loading="isDeleteLoading"
+      @confirm="deleteGst"
+    />
   </v-container>
 </template>
 
@@ -421,12 +377,7 @@ const getGstMasterData = () => {
         return {
           ...item,
           gst_id: item.gst_id || null,
-          is_active:
-            item.applicable == 'N'
-              ? false
-              : item.applicable == 'Y'
-              ? true
-              : null,
+          is_active: item.applicable == 'N' ? false : item.applicable == 'Y' ? true : null,
           app_id: item.app.app_id || null,
           country_id: item.country.country_id || null,
           tax_rate: item.tax_rate || null,
@@ -442,9 +393,7 @@ const getGstMasterData = () => {
       // eslint-disable-next-line
       console.log(error);
       const message =
-        error.response.data.message === ''
-          ? 'Something Wrong!!!'
-          : error.response.data.message;
+        error.response.data.message === '' ? 'Something Wrong!!!' : error.response.data.message;
       errorMessage.value = message;
       isError.value = true;
     })
@@ -568,11 +517,6 @@ const activeGst = (id) => {
     });
 };
 
-const cancelDelete = () => {
-  idGst.value = null;
-  isDelete.value = false;
-};
-
 const openDeleteConfirm = (itemId) => {
   idGst.value = itemId;
   isDelete.value = true;
@@ -592,9 +536,7 @@ const deleteGst = () => {
       // eslint-disable-next-line
       console.log(error);
       const message =
-        error.response.data.message === ''
-          ? 'Something Wrong!!!'
-          : error.response.data.message;
+        error.response.data.message === '' ? 'Something Wrong!!!' : error.response.data.message;
       errorMessage.value = message;
       isError.value = true;
     })

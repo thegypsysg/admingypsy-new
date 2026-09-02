@@ -15,9 +15,7 @@
       </v-row>
       <v-row align="center" justify="space-between">
         <v-col cols="8">
-          <span>
-            Showing {{ startItem }} - {{ endItem }} from {{ totalItems }} item
-          </span>
+          <span> Showing {{ startItem }} - {{ endItem }} from {{ totalItems }} item </span>
         </v-col>
         <v-col cols="4" class="text-right">
           <v-select
@@ -71,16 +69,9 @@
                   </td>
                   <td style="border-bottom: none !important">
                     <div class="d-flex justify-center">
-                      <v-btn
-                        color="green"
-                        variant="text"
-                        @click="editInquiry(item)"
-                        icon
-                      >
+                      <v-btn color="green" variant="text" @click="editInquiry(item)" icon>
                         <v-icon>mdi-pencil-outline</v-icon>
-                        <v-tooltip location="top" activator="parent"
-                          >Edit</v-tooltip
-                        >
+                        <v-tooltip location="top" activator="parent">Edit</v-tooltip>
                       </v-btn>
                       <v-btn
                         color="red"
@@ -90,29 +81,23 @@
                         icon
                       >
                         <v-icon>mdi-trash-can-outline</v-icon>
-                        <v-tooltip location="top" activator="parent"
-                          >Delete</v-tooltip
-                        >
+                        <v-tooltip location="top" activator="parent">Delete</v-tooltip>
                       </v-btn>
                     </div>
                   </td>
                 </tr>
               </template>
               <tr v-if="items.length === 0 && !isLoading">
-                <td colspan="8" class="text-center py-4 text-grey">
-                  No inquiry data found
-                </td>
-              </tr>
-              <tr v-if="isLoading">
-                <td colspan="8" class="text-center py-4">
-                  <v-progress-circular
-                    indeterminate
-                    color="indigo-accent-2"
-                  ></v-progress-circular>
-                </td>
+                <td colspan="8" class="text-center py-4 text-grey">No inquiry data found</td>
               </tr>
             </tbody>
           </v-table>
+          <skeleton-table v-if="isLoading" :rows="5" :columns="8" />
+          <empty-state
+            v-if="!isLoading && (!items || items.length === 0)"
+            title="No Data Found"
+            subtitle="There are no records to display."
+          />
           <v-pagination
             v-model="currentPage"
             :length="totalPages"
@@ -122,58 +107,19 @@
       </v-row>
     </v-sheet>
 
-    <v-snackbar
-      location="top"
-      color="green"
-      v-model="isSuccess"
-      :timeout="3000"
-    >
-      {{ successMessage }}
-
-      <template v-slot:actions>
-        <v-btn color="white" variant="text" @click="isSuccess = false">
-          <v-icon>mdi-close</v-icon>
-        </v-btn>
-      </template>
-    </v-snackbar>
-
-    <v-snackbar location="top" color="red" v-model="isError" :timeout="3000">
-      {{ errorMessage }}
-
-      <template v-slot:actions>
-        <v-btn color="white" variant="text" @click="isError = false">
-          <v-icon>mdi-close</v-icon>
-        </v-btn>
-      </template>
-    </v-snackbar>
-
     <!-- Delete Confirmation Dialog -->
-    <v-dialog persistent width="500" v-model="isDelete">
-      <v-card>
-        <v-card-title>Confirmation</v-card-title>
-        <v-card-text>
-          Are you sure want to delete this inquiry?
-        </v-card-text>
-        <v-card-actions>
-          <v-spacer></v-spacer>
-          <v-btn color="error" variant="text" @click="cancelDelete">No</v-btn>
-          <v-btn
-            color="success"
-            variant="text"
-            :loading="isDeleteLoading"
-            @click="deleteInquiry"
-            >Yes</v-btn
-          >
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
+    <confirm-dialog
+      v-model="isDelete"
+      title="Confirmation"
+      message="Are you sure you want to delete this item? This action cannot be undone."
+      :loading="isDeleteLoading"
+      @confirm="deleteInquiry"
+    />
 
     <!-- Edit Dialog -->
     <v-dialog persistent width="600" v-model="isEdit">
       <v-card>
-        <v-card-title class="bg-primary text-white px-4 py-3">
-          Edit Inquiry
-        </v-card-title>
+        <v-card-title class="bg-primary text-white px-4 py-3"> Edit Inquiry </v-card-title>
         <v-card-text class="pt-4">
           <v-form ref="editForm" v-model="valid">
             <v-text-field
@@ -222,13 +168,7 @@
         <v-card-actions class="px-4 pb-4">
           <v-spacer></v-spacer>
           <v-btn color="error" variant="text" @click="cancelEdit">Cancel</v-btn>
-          <v-btn
-            color="primary"
-            variant="flat"
-            :loading="isSending"
-            @click="saveEdit"
-            >Save</v-btn
-          >
+          <v-btn color="primary" variant="flat" :loading="isSending" @click="saveEdit">Save</v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
@@ -236,22 +176,31 @@
 </template>
 
 <script>
+import SkeletonTable from '@/components/SkeletonTable.vue';
+import EmptyState from '@/components/EmptyState.vue';
+import ConfirmDialog from '@/components/ConfirmDialog.vue';
+import { useNotificationStore } from '@/stores/notification';
 import apiClient from '@/util/apiClient';
 
 export default {
   name: 'InquiryMaster',
+  components: {
+    ConfirmDialog,
+    EmptyState,
+    SkeletonTable,
+  },
+  setup() {
+    const notification = useNotificationStore();
+    return { notification };
+  },
   data: () => ({
     valid: false,
     isLoading: false,
     isSending: false,
     isEdit: false,
-    isSuccess: false,
-    isError: false,
     isDelete: false,
     isDeleteLoading: false,
     inquiryIdToDelete: null,
-    successMessage: '',
-    errorMessage: '',
     search: '',
     searchTimeout: null,
     input: {
@@ -311,9 +260,7 @@ export default {
         }
         this.getInquiriesData();
       } catch (error) {
-        this.errorMessage =
-          error?.response?.data?.message || 'Failed to fetch inquiry data';
-        this.isError = true;
+        this.notification.error(error?.response?.data?.message || 'Failed to fetch inquiry data');
       } finally {
         this.isLoading = false;
       }
@@ -324,20 +271,13 @@ export default {
         const q = this.search.toLowerCase();
         filtered = filtered.filter(
           (item) =>
-            (item.company_name &&
-              String(item.company_name).toLowerCase().includes(q)) ||
-            (item.contact_person &&
-              String(item.contact_person).toLowerCase().includes(q)) ||
-            (item.contact_number &&
-              String(item.contact_number).toLowerCase().includes(q)) ||
-            (item.email_id &&
-              String(item.email_id).toLowerCase().includes(q)) ||
-            (item.city &&
-              String(item.city).toLowerCase().includes(q)) ||
-            (item.inquiry_date &&
-              String(item.inquiry_date).toLowerCase().includes(q)) ||
-            (item.inquiry_id &&
-              String(item.inquiry_id).toLowerCase().includes(q)),
+            (item.company_name && String(item.company_name).toLowerCase().includes(q)) ||
+            (item.contact_person && String(item.contact_person).toLowerCase().includes(q)) ||
+            (item.contact_number && String(item.contact_number).toLowerCase().includes(q)) ||
+            (item.email_id && String(item.email_id).toLowerCase().includes(q)) ||
+            (item.city && String(item.city).toLowerCase().includes(q)) ||
+            (item.inquiry_date && String(item.inquiry_date).toLowerCase().includes(q)) ||
+            (item.inquiry_id && String(item.inquiry_id).toLowerCase().includes(q))
         );
       }
       this.totalItems = filtered.length;
@@ -367,14 +307,11 @@ export default {
     saveEdit() {
       this.isSending = true;
       setTimeout(() => {
-        const index = this.allInquiries.findIndex(
-          (i) => i.inquiry_id === this.input.inquiry_id,
-        );
+        const index = this.allInquiries.findIndex((i) => i.inquiry_id === this.input.inquiry_id);
         if (index !== -1) {
           this.allInquiries[index] = { ...this.input };
         }
-        this.successMessage = 'Inquiry updated successfully';
-        this.isSuccess = true;
+        this.notification.success('Inquiry updated successfully');
         this.isEdit = false;
         this.isSending = false;
         this.getInquiriesData();
@@ -392,10 +329,9 @@ export default {
       this.isDeleteLoading = true;
       setTimeout(() => {
         this.allInquiries = this.allInquiries.filter(
-          (i) => i.inquiry_id !== this.inquiryIdToDelete,
+          (i) => i.inquiry_id !== this.inquiryIdToDelete
         );
-        this.successMessage = 'Inquiry deleted successfully';
-        this.isSuccess = true;
+        this.notification.success('Inquiry deleted successfully');
         this.isDeleteLoading = false;
         this.inquiryIdToDelete = null;
         this.isDelete = false;

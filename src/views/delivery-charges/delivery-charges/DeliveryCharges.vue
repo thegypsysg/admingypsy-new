@@ -1,6 +1,6 @@
 <template>
   <v-container>
-		<div class="d-flex align-center ml-4 mb-4" style="gap: 30px">
+    <div class="d-flex align-center ml-4 mb-4" style="gap: 30px">
       <router-link class="text-decoration-none text-black" to="/delivery-charges">
         <h1>Delivery Charges</h1>
       </router-link>
@@ -9,7 +9,7 @@
       <v-container>
         <v-row>
           <v-col cols="4">
-						<v-autocomplete
+            <v-autocomplete
               density="compact"
               label="---Select App---"
               placeholder="Type App"
@@ -18,7 +18,7 @@
               item-value="id"
               v-model="deliveryChargesForm.app_id"
               :rules="rules.appRules"
-							@update:modelValue="onSelect"
+              @update:modelValue="onSelect"
               variant="outlined"
             ></v-autocomplete>
           </v-col>
@@ -50,10 +50,7 @@
         <v-row>
           <v-col cols="2">
             <v-btn
-              :prepend-icon="
-                isEdit
-                  ? 'mdi-account-multiple-check'
-                  : 'mdi-account-multiple-plus'"
+              :prepend-icon="isEdit ? 'mdi-account-multiple-check' : 'mdi-account-multiple-plus'"
               color="indigo-accent-2"
               style="text-transform: none"
               variant="flat"
@@ -121,9 +118,7 @@
       </v-row>
       <v-row align="center" justify="space-between">
         <v-col cols="8">
-          <span>
-            Showing {{ startItem }} - {{ endItem }} from {{ totalItems }} item
-          </span>
+          <span> Showing {{ startItem }} - {{ endItem }} from {{ totalItems }} item </span>
         </v-col>
         <v-col cols="4" class="text-right">
           <v-select
@@ -154,7 +149,7 @@
             </thead>
             <tbody>
               <template v-for="(item, index) in deliveryData" :key="index">
-								{{ item.last_page }}
+                {{ item.last_page }}
                 <tr class="delivery-charges-table-body">
                   <td>{{ item.dc_id }}</td>
                   <td>{{ item.app.app_name }}</td>
@@ -165,35 +160,32 @@
                   <td>{{ item?.dated || 'N/A' }}</td>
                   <td>
                     <div class="d-flex">
+                      <v-btn color="green" variant="text" @click="editDeliveryCharges(item)" icon>
+                        <v-icon>mdi-pencil-outline</v-icon>
+                        <v-tooltip location="top" activator="parent">Edit</v-tooltip>
+                      </v-btn>
                       <v-btn
-                            color="green"
-                            variant="text" @click="editDeliveryCharges(item)"
-                            icon
-                          >
-  <v-icon>mdi-pencil-outline</v-icon>  <v-tooltip location="top" activator="parent">Edit</v-tooltip>
-</v-btn>
-                      <v-btn
-                            color="red" variant="text"
-                            :disabled="isDeleteLoading"
-                            @click="openDeleteConfirm(item.dc_id)"
-                            icon
-                          >
-  <v-icon>mdi-trash-can-outline</v-icon>  <v-tooltip location="top" activator="parent">Delete</v-tooltip>
-</v-btn>
+                        color="red"
+                        variant="text"
+                        :disabled="isDeleteLoading"
+                        @click="openDeleteConfirm(item.dc_id)"
+                        icon
+                      >
+                        <v-icon>mdi-trash-can-outline</v-icon>
+                        <v-tooltip location="top" activator="parent">Delete</v-tooltip>
+                      </v-btn>
                     </div>
                   </td>
                 </tr>
               </template>
-              <tr v-if="isLoading">
-                <td :colspan="6" class="text-center">
-                  <v-progress-circular
-                    indeterminate
-                    color="indigo-accent-2"
-                  ></v-progress-circular>
-                </td>
-              </tr>
             </tbody>
           </v-table>
+          <skeleton-table v-if="isLoading" :rows="5" :columns="8" />
+          <empty-state
+            v-if="!isLoading && (!deliveryData || deliveryData.length === 0)"
+            title="No Data Found"
+            subtitle="There are no records to display."
+          />
           <v-pagination
             v-model="currentPage"
             :length="totalPages"
@@ -202,287 +194,255 @@
         </v-col>
       </v-row>
     </v-sheet>
-    
-		<v-snackbar
-      location="top"
-      color="green"
-      v-model="isSuccess"
-      :timeout="3000"
-    >
-      {{ successMessage }}
 
-      <template v-slot:actions>
-        <v-btn color="white" variant="text" @click="isSuccess = false">
-          <v-icon>mdi-close</v-icon>
-        </v-btn>
-      </template>
-    </v-snackbar>
-    
-		<v-snackbar location="top" color="red" v-model="isError" :timeout="3000">
-      {{ errorMessage }}
-
-      <template v-slot:actions>
-        <v-btn color="white" variant="text" @click="isError = false">
-          <v-icon>mdi-close</v-icon>
-        </v-btn>
-      </template>
-    </v-snackbar>
-    
-		<v-dialog persistent width="500" v-model="isDelete">
-      <v-card>
-        <v-card-title>Confirmation</v-card-title>
-        <v-card-text>
-          Are you sure want to delete these Delivery Charges?
-        </v-card-text>
-        <v-card-actions>
-          <v-spacer></v-spacer>
-          <v-btn color="error" text @click="cancelDelete">No</v-btn>
-          <v-btn color="success" text @click="deleteDeliveryCharges">{{
-            isDeleteLoading ? 'Deleting...' : 'Yes'
-          }}</v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
-    
+    <confirm-dialog
+      v-model="isDelete"
+      title="Confirmation"
+      message="Are you sure you want to delete this item? This action cannot be undone."
+      :loading="isDeleteLoading"
+      @confirm="deleteDeliveryCharges"
+    />
   </v-container>
 </template>
 
 <script setup>
-	import {
-		ref,
-		watch,
-		onMounted,
-		computed
-	} from "vue";
-	import axios from '@/util/axios';
-	import { setAuthHeader } from '@/util/axios';
-	import { apiCache } from '@/composables/useApiWithCache';
-	const token = JSON.parse(localStorage.getItem('token'));
-	setAuthHeader(token);
+import { ref, watch, onMounted, computed } from 'vue';
+import axios from '@/util/axios';
+import { setAuthHeader } from '@/util/axios';
+import { apiCache } from '@/composables/useApiWithCache';
+const token = JSON.parse(localStorage.getItem('token'));
+setAuthHeader(token);
 
-	const search = ref('')
-	// const items = ref([])
-	const deliveryData = ref([])
-	const currentPage = ref(1)
-	const perPage = ref(5)
-	const totalPages = ref(1)
-	const totalItems = ref(0)
-	const isLoading = ref(false)
-	const isEdit = ref(false)
-	const isSuccess = ref(false)
-	const successMessage = ref("")
-	const isError = ref(false)
-	const errorMessage = ref("")
-	const idDeliveryCharges = ref(null)
-	const isDelete = ref(false)
-	const isDeleteLoading = ref(false)
-	const valid = ref(false)
-	const isSending = ref(false)
-	const appId = ref(null)
-  const formRef = ref(null);
+const search = ref('');
+// const items = ref([])
+const deliveryData = ref([]);
+const currentPage = ref(1);
+const perPage = ref(5);
+const totalPages = ref(1);
+const totalItems = ref(0);
+const isLoading = ref(false);
+const isEdit = ref(false);
+const isSuccess = ref(false);
+const successMessage = ref('');
+const isError = ref(false);
+const errorMessage = ref('');
+const idDeliveryCharges = ref(null);
+const isDelete = ref(false);
+const isDeleteLoading = ref(false);
+const valid = ref(false);
+const isSending = ref(false);
+const appId = ref(null);
+const formRef = ref(null);
 
-	const deliveryChargesForm = ref({
-		dc_id: 0,
-		app_id: "",
-		country_id: "",
-		description: ""
-	})
+const deliveryChargesForm = ref({
+  dc_id: 0,
+  app_id: '',
+  country_id: '',
+  description: '',
+});
 
-	const resource = ref({
-		countriesData: [],
-		appsData: [],
-	})
+const resource = ref({
+  countriesData: [],
+  appsData: [],
+});
 
-	const rules = ref({
-		deliveryDescriptionRules: [
-			(value) => {
-				if (value) return true;
-				return 'Delivery Description is required.';
-			},
-		],
-		appRules: [
-			(value) => {
-				if (value) return true;
-				return 'App is required.';
-			},
-		],
-		countryRules: [
-			(value) => {
-				if (value) return true;
-				return 'Country is required.';
-			},
-		],
-	})
+const rules = ref({
+  deliveryDescriptionRules: [
+    (value) => {
+      if (value) return true;
+      return 'Delivery Description is required.';
+    },
+  ],
+  appRules: [
+    (value) => {
+      if (value) return true;
+      return 'App is required.';
+    },
+  ],
+  countryRules: [
+    (value) => {
+      if (value) return true;
+      return 'Country is required.';
+    },
+  ],
+});
 
-	const startItem = computed(() => {
-		return (currentPage.value - 1) * perPage.value + 1;
-	})
+const startItem = computed(() => {
+  return (currentPage.value - 1) * perPage.value + 1;
+});
 
-	const endItem = computed(() => {
-		return Math.min(currentPage.value * perPage.value, totalItems.value);
-	})
+const endItem = computed(() => {
+  return Math.min(currentPage.value * perPage.value, totalItems.value);
+});
 
-	const onSelect = (value) => {
-		appId.value = value
-		getCountries()
-	}
+const onSelect = (value) => {
+  appId.value = value;
+  getCountries();
+};
 
-	const getAppActive = () => {
-      apiCache.fetch(`/app/active`).then((response) => {
-          const data = response.data.data;
-          resource.value.appsData = data
-            .sort((a, b) => a.app_id < b.app_id)
-            .map((app) => {
-							appId.value = app.id
-              return {
-                id: app.app_id || 0,
-                name: app.app_name || '',
-              };
-            });
-        })
-        .catch((error) => {
-          // eslint-disable-next-line
-          console.log(error);
-          const message =
-            error.response?.data?.message === ''
-              ? 'Something Wrong!!!'
-              : error.response?.data?.message || 'Error loading apps';
-          errorMessage.value = message;
-          isError.value = true;
+const getAppActive = () => {
+  apiCache
+    .fetch(`/app/active`)
+    .then((response) => {
+      const data = response.data.data;
+      resource.value.appsData = data
+        .sort((a, b) => a.app_id < b.app_id)
+        .map((app) => {
+          appId.value = app.id;
+          return {
+            id: app.app_id || 0,
+            name: app.app_name || '',
+          };
         });
-	}
+    })
+    .catch((error) => {
+      // eslint-disable-next-line
+      console.log(error);
+      const message =
+        error.response?.data?.message === ''
+          ? 'Something Wrong!!!'
+          : error.response?.data?.message || 'Error loading apps';
+      errorMessage.value = message;
+      isError.value = true;
+    });
+};
 
-	const getCountries = () => {
-      apiCache.fetch(`/app-countries`).then((response) => {
-			const data = response.data.data;
-			resource.value.countriesData = data
-				.sort((a, b) => a.country_name.localeCompare(b.country_name))
-				.map((country) => {
-					return {
-						id: country.dc_id || 1,
-						description: country.description || '',
-						country_id: country.country_id || 1,
-						name: country.country_name || '',
-					};
-				});
-		})
-		.catch((error) => {
-			// eslint-disable-next-line
-			console.log(error);
-			const message =
-				error.response?.data?.message === ''
-					? 'Something Wrong!!!'
-					: error.response?.data?.message || 'Error loading countries';
-			errorMessage.value = message;
-			isError.value = true;
-		});
-	}
+const getCountries = () => {
+  apiCache
+    .fetch(`/app-countries`)
+    .then((response) => {
+      const data = response.data.data;
+      resource.value.countriesData = data
+        .sort((a, b) => a.country_name.localeCompare(b.country_name))
+        .map((country) => {
+          return {
+            id: country.dc_id || 1,
+            description: country.description || '',
+            country_id: country.country_id || 1,
+            name: country.country_name || '',
+          };
+        });
+    })
+    .catch((error) => {
+      // eslint-disable-next-line
+      console.log(error);
+      const message =
+        error.response?.data?.message === ''
+          ? 'Something Wrong!!!'
+          : error.response?.data?.message || 'Error loading countries';
+      errorMessage.value = message;
+      isError.value = true;
+    });
+};
 
-	const getDeliveryChargesData = () => {
-		isLoading.value = true;
-		axios.get(`/delivery-charges/search`, {
-				params: {
-					query: search.value,
-					page: currentPage.value,
-					perPage: perPage.value,
-				},
-			})
-			.then((response) => {
-				const data = response.data;
-				deliveryData.value = data?.data?.data.map((item) => {
-						return {
-							...item,
-							dc_id: item.dc_id || null,
-							app_id: item.app.app_id || null,
-							description: item.description || null,
-							country_id: item.country.country_id || null,
-						};
-					});
-				// Perbarui pagination
-				currentPage.value = data?.current_page;
-				perPage.value = data?.per_page;
-				totalItems.value = data?.total;
-				totalPages.value = data?.last_page;
-			})
-			.catch((error) => {
-				// eslint-disable-next-line
-				console.log(error);
-				const message =
-					error.response.data.message === ''
-						? 'Something Wrong!!!'
-						: error.response.data.message;
-				errorMessage.value = message;
-				isError.value = true;
-			})
-			.finally(() => {
-				isLoading.value = false;
-			});
-	}
+const getDeliveryChargesData = () => {
+  isLoading.value = true;
+  axios
+    .get(`/delivery-charges/search`, {
+      params: {
+        query: search.value,
+        page: currentPage.value,
+        perPage: perPage.value,
+      },
+    })
+    .then((response) => {
+      const data = response.data;
+      deliveryData.value = data?.data?.data.map((item) => {
+        return {
+          ...item,
+          dc_id: item.dc_id || null,
+          app_id: item.app.app_id || null,
+          description: item.description || null,
+          country_id: item.country.country_id || null,
+        };
+      });
+      // Perbarui pagination
+      currentPage.value = data?.current_page;
+      perPage.value = data?.per_page;
+      totalItems.value = data?.total;
+      totalPages.value = data?.last_page;
+    })
+    .catch((error) => {
+      // eslint-disable-next-line
+      console.log(error);
+      const message =
+        error.response.data.message === '' ? 'Something Wrong!!!' : error.response.data.message;
+      errorMessage.value = message;
+      isError.value = true;
+    })
+    .finally(() => {
+      isLoading.value = false;
+    });
+};
 
-	const editDeliveryCharges = (item) => {
-		appId.value = item.app_id
-		getCountries();
-		isEdit.value = true;
-		deliveryChargesForm.value = {
-			dc_id: item.dc_id,
-			app_id: item.app_id,
-			country_id: item.country_id,
-			description: item.description,
-		};
-	}
-	
-	const cancelEdit = () => {
-		isEdit.value = false;
-		deliveryChargesForm.value = {
-			dc_id: null,
-			app_id: null,
-			country_id: null,
-			description: null,
-		};
-	}
+const editDeliveryCharges = (item) => {
+  appId.value = item.app_id;
+  getCountries();
+  isEdit.value = true;
+  deliveryChargesForm.value = {
+    dc_id: item.dc_id,
+    app_id: item.app_id,
+    country_id: item.country_id,
+    description: item.description,
+  };
+};
 
-	const saveEdit = () => {
-		if (valid.value) {
-			isSending.value = true;
-			const payload = {
-				app_id: deliveryChargesForm.value.app_id,
-				country_id: deliveryChargesForm.value.country_id,
-				description: deliveryChargesForm.value.description
-			};
-			axios.put(`/delivery-charges/update/${deliveryChargesForm.value.dc_id}`, payload).then((response) => {
-				const data = response.data;
-				successMessage.value = data.message;
-				isSuccess.value = true;
-				getDeliveryChargesData();
-				deliveryChargesForm.value = {
-					dc_id: null,
-					app_id: null,
-					country_id: null,
-					description: null,
-				};
-				isEdit.value = false;
-			})
-			.catch((error) => {
-				console.log(error);
-				const message = error.response.data.description
-					? 'Please fill the Delivery Charges field'
-					: error.response.data.message;
-				errorMessage.value = message;
-				isError.value = true;
-			})
-			.finally(() => {
-				isEdit.value = false;
-				isSending.value = false;
-			});
-		}
-	}
+const cancelEdit = () => {
+  isEdit.value = false;
+  deliveryChargesForm.value = {
+    dc_id: null,
+    app_id: null,
+    country_id: null,
+    description: null,
+  };
+};
 
-	const saveData = async () => {
-    if (formRef.value) {
-      const { valid: isValid } = await formRef.value.validate();
-      if (isValid) {
-        isSending.value = true;
-        axios.post(`/delivery-charges/save`, deliveryChargesForm.value).then((response) => {
+const saveEdit = () => {
+  if (valid.value) {
+    isSending.value = true;
+    const payload = {
+      app_id: deliveryChargesForm.value.app_id,
+      country_id: deliveryChargesForm.value.country_id,
+      description: deliveryChargesForm.value.description,
+    };
+    axios
+      .put(`/delivery-charges/update/${deliveryChargesForm.value.dc_id}`, payload)
+      .then((response) => {
+        const data = response.data;
+        successMessage.value = data.message;
+        isSuccess.value = true;
+        getDeliveryChargesData();
+        deliveryChargesForm.value = {
+          dc_id: null,
+          app_id: null,
+          country_id: null,
+          description: null,
+        };
+        isEdit.value = false;
+      })
+      .catch((error) => {
+        console.log(error);
+        const message = error.response.data.description
+          ? 'Please fill the Delivery Charges field'
+          : error.response.data.message;
+        errorMessage.value = message;
+        isError.value = true;
+      })
+      .finally(() => {
+        isEdit.value = false;
+        isSending.value = false;
+      });
+  }
+};
+
+const saveData = async () => {
+  if (formRef.value) {
+    const { valid: isValid } = await formRef.value.validate();
+    if (isValid) {
+      isSending.value = true;
+      axios
+        .post(`/delivery-charges/save`, deliveryChargesForm.value)
+        .then((response) => {
           const data = response?.data;
           successMessage.value = data?.message;
           isSuccess.value = true;
@@ -507,56 +467,50 @@
           isEdit.value = false;
           isSending.value = false;
         });
-      }
-		}
-	}
+    }
+  }
+};
 
-	const cancelDelete = () => {
-		idDeliveryCharges.value = null;
-		isDelete.value = false;
-	}
-	
-	const openDeleteConfirm = (itemId) => {
-		idDeliveryCharges.value = itemId;
-		isDelete.value = true;
-	}
-	
-	const deleteDeliveryCharges = () => {
-		isDeleteLoading.value = true;
-		axios.delete(`/delivery-charges/${idDeliveryCharges.value}`).then((response) => {
-			const data = response.data;
-			successMessage.value = data.message;
-			isSuccess.value = true;
-			getDeliveryChargesData();
-		})
-		.catch((error) => {
-			// eslint-disable-next-line
-			console.log(error);
-			const message =
-				error.response.data.message === ''
-					? 'Something Wrong!!!'
-					: error.response.data.message;
-			errorMessage.value = message;
-			isError.value = true;
-		})
-		.finally(() => {
-			isDeleteLoading.value = false;
-			idDeliveryCharges.value = null;
-			isDelete.value = false;
-		});
-	}
+const openDeleteConfirm = (itemId) => {
+  idDeliveryCharges.value = itemId;
+  isDelete.value = true;
+};
 
-	onMounted(() => {
-		getDeliveryChargesData();
-		getAppActive();
-	})
+const deleteDeliveryCharges = () => {
+  isDeleteLoading.value = true;
+  axios
+    .delete(`/delivery-charges/${idDeliveryCharges.value}`)
+    .then((response) => {
+      const data = response.data;
+      successMessage.value = data.message;
+      isSuccess.value = true;
+      getDeliveryChargesData();
+    })
+    .catch((error) => {
+      // eslint-disable-next-line
+      console.log(error);
+      const message =
+        error.response.data.message === '' ? 'Something Wrong!!!' : error.response.data.message;
+      errorMessage.value = message;
+      isError.value = true;
+    })
+    .finally(() => {
+      isDeleteLoading.value = false;
+      idDeliveryCharges.value = null;
+      isDelete.value = false;
+    });
+};
 
-	watch(perPage, () => {
-		currentPage.value = 1; // Reset to first page when `perPage` changes
-		getDeliveryChargesData();
-		getAppActive();
-	});
+onMounted(() => {
+  getDeliveryChargesData();
+  getAppActive();
+});
 
+watch(perPage, () => {
+  currentPage.value = 1; // Reset to first page when `perPage` changes
+  getDeliveryChargesData();
+  getAppActive();
+});
 </script>
 
 <style lang="scss" scoped>

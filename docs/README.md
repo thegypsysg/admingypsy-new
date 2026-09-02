@@ -1,26 +1,27 @@
 # 📖 AdminGypsy — Agent Reference Guide (docs/README.md)
 
 > **Untuk:** Model AI (Gemini / Claude) yang akan bekerja di proyek ini.
-> **Update terakhir:** 2026-09-02 (Fase Opsional P3 — API Caching Selesai; Fase Opsional DX1 — TypeScript Migration didokumentasikan)
+> **Update terakhir:** 2026-09-02 (Fase 7 UX7 — View Modernization terdokumentasikan; semua fase sebelumnya selesai)
 
 ---
 
 ## 🗺️ Status Proyek Saat Ini
 
-| Fase   | Nama                       | Status                         |
-| ------ | -------------------------- | ------------------------------ |
-| Fase 1 | Security Hardening         | ✅ SELESAI (commit `39ce7f1d`) |
-| Fase 2 | Architecture Upgrade       | ✅ SELESAI                     |
-| Fase 3 | Code Quality & Performance | ✅ SELESAI                     |
-| Fase 4 | UX & Security Polish       | ✅ SELESAI                     |
-| Fase 5 | Performance Optimization   | ✅ SELESAI                     |
-| Fase 6 | Developer Experience       | ✅ SELESAI                     |
-| Fase Opsional P4 | Migrasi Vue CLI → Vite | ✅ SELESAI (branch `vite-migration`) |
-| Fase Opsional DX4 | Rename Direktori Views | ✅ SELESAI |
-| Fase Opsional P3 | API Caching Layer | ✅ SELESAI |
-| Fase Opsional DX1 | TypeScript Migration (Gradual) | ✅ SELESAI |
+| Fase              | Nama                           | Status                         |
+| ----------------- | ------------------------------ | ------------------------------ |
+| Fase 1            | Security Hardening             | ✅ SELESAI (commit `39ce7f1d`) |
+| Fase 2            | Architecture Upgrade           | ✅ SELESAI                     |
+| Fase 3            | Code Quality & Performance     | ✅ SELESAI                     |
+| Fase 4            | UX & Security Polish           | ✅ SELESAI                     |
+| Fase 5            | Performance Optimization       | ✅ SELESAI                     |
+| Fase 6            | Developer Experience           | ✅ SELESAI                     |
+| Fase Opsional P4  | Migrasi Vue CLI → Vite         | ✅ SELESAI                     |
+| Fase Opsional DX4 | Rename Direktori Views         | ✅ SELESAI                     |
+| Fase Opsional P3  | API Caching Layer              | ✅ SELESAI                     |
+| Fase Opsional DX1 | TypeScript Migration (Gradual) | ✅ SELESAI                     |
+| **Fase 7 UX7**    | **View Modernization**         | **✅ SELESAI**                 |
 
-Semua fase perbaikan (Fase 1–6, Fase Opsional P4, DX4, P3, dan DX1) telah berhasil diimplementasikan dan diverifikasi via `npm run type-check` (0 error) dan `npm run build` (0 error).
+Semua fase perbaikan (Fase 1–6, Fase Opsional P4, DX4, P3, DX1, dan Fase 7 UX7) telah berhasil diimplementasikan dan diverifikasi via `npm run type-check` (0 error) dan `npm run build` (0 error).
 
 ---
 
@@ -47,8 +48,9 @@ Semua fase perbaikan (Fase 1–6, Fase Opsional P4, DX4, P3, dan DX1) telah berh
 
 1. **Jangan ubah file di `src/views/`** kecuali ada instruksi eksplisit di IMPLEMENTATION.md
 2. **Jangan uninstall package** tanpa memverifikasi bahwa package tersebut tidak digunakan (gunakan `grep_search`)
-3. **Verifikasi `npm run serve` tidak error** setelah SETIAP perubahan
+3. **Verifikasi `npm run build` tidak error** setelah SETIAP batch 10 view yang dimodifikasi
 4. **Baca file lengkap sebelum mengedit** — jangan asumsi isi file berdasarkan namanya
+5. **Jangan modifikasi logic bisnis** — di Fase 7 UX7, hanya ganti UI boilerplate (v-snackbar, v-dialog, v-progress-circular)
 
 ---
 
@@ -231,17 +233,123 @@ const { data, isLoading, execute } = useTypedApi<ApiResponse<AppItem[]>>();
 
 > **Penting:** `tsconfig.json` sudah dikonfigurasi dengan `strict: false` dan `checkJs: false` agar file JS lama tidak error. Jalankan `npm run type-check` untuk verifikasi file TypeScript baru.
 
+### 9. Komponen Reusable yang Sudah Siap Pakai (Fase 7 UX7)
+
+Semua komponen ini sudah terpasang dan siap digunakan di view mana pun:
+
+#### `GlobalNotification.vue` — Notifikasi Global
+
+Sudah terpasang di `App.vue`. **Tidak perlu ditambahkan ke view** — langsung gunakan store-nya:
+
+```javascript
+// Di dalam <script> Options API:
+import { useNotificationStore } from '@/stores/notification';
+
+export default {
+  // Wajib: inisialisasi via setup() agar bisa diakses via this.notification
+  setup() {
+    const notification = useNotificationStore();
+    return { notification };
+  },
+  methods: {
+    onSuccess() {
+      this.notification.success('Data saved successfully!');
+    },
+    onError(error) {
+      const message = error?.response?.data?.message || 'Something went wrong!';
+      this.notification.error(message);
+    },
+  },
+};
+```
+
+#### `ConfirmDialog.vue` — Dialog Konfirmasi Delete
+
+```javascript
+// Import dan registrasi:
+import ConfirmDialog from '@/components/ConfirmDialog.vue';
+export default {
+  components: { ConfirmDialog },
+  data: () => ({ isDelete: false, idToDelete: null, isDeleteLoading: false }),
+  methods: {
+    openDelete(id) {
+      this.idToDelete = id;
+      this.isDelete = true;
+    },
+    async handleDelete() {
+      this.isDeleteLoading = true;
+      try {
+        await axios.delete(`/endpoint/${this.idToDelete}`);
+        this.notification.success('Deleted successfully!');
+        this.fetchData();
+      } catch (e) {
+        this.notification.error(e?.response?.data?.message || 'Delete failed.');
+      } finally {
+        this.isDeleteLoading = false;
+        this.idToDelete = null;
+        // isDelete TIDAK perlu direset — ConfirmDialog auto-close
+      }
+    },
+  },
+};
+```
+
+```html
+<!-- Di template: -->
+<confirm-dialog
+  v-model="isDelete"
+  title="Delete Item"
+  message="Are you sure? This action cannot be undone."
+  :loading="isDeleteLoading"
+  @confirm="handleDelete"
+/>
+```
+
+#### `EmptyState.vue` — State Data Kosong
+
+```javascript
+import EmptyState from '@/components/EmptyState.vue';
+export default { components: { EmptyState } };
+```
+
+```html
+<!-- Letakkan di luar v-table, setelah penutup </v-sheet> atau </v-col> -->
+<empty-state
+  v-if="!isLoading && (!filteredItems || filteredItems.length === 0)"
+  title="No Data Found"
+  subtitle="There are no records to display."
+/>
+```
+
+#### `SkeletonTable.vue` — Loading Skeleton
+
+```javascript
+import SkeletonTable from '@/components/SkeletonTable.vue';
+export default { components: { SkeletonTable } };
+```
+
+```html
+<!-- Letakkan tepat sebelum v-table, gantikan v-progress-circular -->
+<skeleton-table v-if="isLoading" :rows="5" :columns="6" />
+<v-table v-if="!isLoading">
+  <!-- ... -->
+</v-table>
+```
+
 ## 🔎 Cara Mencari Sesuatu di Proyek
 
-| Butuh                                    | Command                                                                      |
-| ---------------------------------------- | ---------------------------------------------------------------------------- |
-| Cari semua `localStorage` yang tersisa   | `grep_search "localStorage" SearchPath: src/ MatchPerLine: true`             |
-| Cari komponen yang masih pakai Vuex      | `grep_search "$store" SearchPath: src/ MatchPerLine: true`                   |
-| Cari semua import raw axios              | `grep_search "import http from 'axios'" SearchPath: src/ MatchPerLine: true` |
-| Cari semua eventBus usage                | `grep_search "eventBus" SearchPath: src/ MatchPerLine: true`                 |
-| Hitung baris sebuah file                 | `(Get-Content "src/path/file.vue").Count`                                    |
-| Cek apakah package terinstall            | `node -e "require('mitt'); console.log('ok')"`                               |
-| Lihat perubahan git yang belum di-commit | `git diff` atau `git status`                                                 |
+| Butuh                                              | Command                                                                                            |
+| -------------------------------------------------- | -------------------------------------------------------------------------------------------------- |
+| Cari semua `localStorage` yang tersisa             | `grep_search "localStorage" SearchPath: src/ MatchPerLine: true`                                   |
+| Cari komponen yang masih pakai Vuex                | `grep_search "$store" SearchPath: src/ MatchPerLine: true`                                         |
+| Cari semua import raw axios                        | `grep_search "import http from 'axios'" SearchPath: src/ MatchPerLine: true`                       |
+| Cari semua eventBus usage                          | `grep_search "eventBus" SearchPath: src/ MatchPerLine: true`                                       |
+| **Cari view yang masih pakai v-snackbar**          | `grep_search "v-snackbar" SearchPath: src/views/ Includes: ["*.vue"] MatchPerLine: false`          |
+| **Cari view yang masih pakai v-progress-circular** | `grep_search "v-progress-circular" SearchPath: src/views/ Includes: ["*.vue"] MatchPerLine: false` |
+| **Cari view yang masih pakai isDelete**            | `grep_search "isDelete" SearchPath: src/views/ Includes: ["*.vue"] MatchPerLine: false`            |
+| Hitung baris sebuah file                           | `(Get-Content "src/path/file.vue").Count`                                                          |
+| Cek apakah package terinstall                      | `node -e "require('mitt'); console.log('ok')"`                                                     |
+| Lihat perubahan git yang belum di-commit           | `git diff` atau `git status`                                                                       |
 
 ---
 

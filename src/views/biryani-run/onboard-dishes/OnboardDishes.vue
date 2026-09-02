@@ -86,11 +86,7 @@
           </v-col>
           <v-col cols="12" md="2">
             <v-btn
-              :prepend-icon="
-                isEdit
-                  ? 'mdi-account-multiple-check'
-                  : 'mdi-account-multiple-plus'
-              "
+              :prepend-icon="isEdit ? 'mdi-account-multiple-check' : 'mdi-account-multiple-plus'"
               color="indigo-accent-2"
               style="text-transform: none; margin-top: -30px !important"
               type="submit"
@@ -171,17 +167,11 @@
                             : 'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png'
                         "
                       >
-                        <template #placeholder>
-                          <div class="skeleton" /> </template
+                        <template #placeholder> <div class="skeleton" /> </template
                       ></v-img>
                     </div>
                   </td>
-                  <td
-                    style="
-                      font-weight: 500 !important;
-                      border-bottom: none !important;
-                    "
-                  >
+                  <td style="font-weight: 500 !important; border-bottom: none !important">
                     {{ item?.dish?.dish_name }}
                   </td>
                   <td
@@ -202,92 +192,51 @@
                   >
                     {{ item?.app?.app_name }}
                   </td>
-                  <td
-                    style="
-                      font-weight: 500 !important;
-                      border-bottom: none !important;
-                    "
-                  >
+                  <td style="font-weight: 500 !important; border-bottom: none !important">
                     {{ item.userName }}
                   </td>
-                  <td
-                    style="
-                      font-weight: 500 !important;
-                      border-bottom: none !important;
-                    "
-                  >
+                  <td style="font-weight: 500 !important; border-bottom: none !important">
                     {{ item.dated }}
                   </td>
                   <td style="border-bottom: none !important">
                     <div class="d-flex">
+                      <v-btn color="green" variant="text" @click="editOnboardDishes(item)" icon>
+                        <v-icon>mdi-pencil-outline</v-icon>
+                        <v-tooltip location="top" activator="parent">Edit</v-tooltip>
+                      </v-btn>
                       <v-btn
-                            color="green"
-                            variant="text" @click="editOnboardDishes(item)"
-                            icon
-                          >
-  <v-icon>mdi-pencil-outline</v-icon>  <v-tooltip location="top" activator="parent">Edit</v-tooltip>
-</v-btn>
-                      <v-btn
-                            color="red" variant="text"
-                            :disabled="isDeleteLoading"
-                            @click="openDeleteConfirm(item.obd_id)"
-                            icon
-                          >
-  <v-icon>mdi-trash-can-outline</v-icon>  <v-tooltip location="top" activator="parent">Delete</v-tooltip>
-</v-btn>
+                        color="red"
+                        variant="text"
+                        :disabled="isDeleteLoading"
+                        @click="openDeleteConfirm(item.obd_id)"
+                        icon
+                      >
+                        <v-icon>mdi-trash-can-outline</v-icon>
+                        <v-tooltip location="top" activator="parent">Delete</v-tooltip>
+                      </v-btn>
                     </div>
                   </td>
                 </tr>
               </template>
-              <tr v-if="isLoading">
-                <td :colspan="6" class="text-center">
-                  <v-progress-circular
-                    indeterminate
-                    color="indigo-accent-2"
-                  ></v-progress-circular>
-                </td>
-              </tr>
             </tbody>
           </v-table>
+          <skeleton-table v-if="isLoading" :rows="5" :columns="8" />
+          <empty-state
+            v-if="!isLoading && (!filteredItems || filteredItems.length === 0)"
+            title="No Data Found"
+            subtitle="There are no records to display."
+          />
         </v-col>
       </v-row>
     </v-sheet>
-    <v-snackbar
-      location="top"
-      color="green"
-      v-model="isSuccess"
-      :timeout="3000"
-    >
-      {{ successMessage }}
 
-      <template v-slot:actions>
-        <v-btn color="white" variant="text" @click="isSuccess = false">
-          <v-icon>mdi-close</v-icon>
-        </v-btn>
-      </template>
-    </v-snackbar>
-    <v-snackbar location="top" color="red" v-model="isError" :timeout="3000">
-      {{ errorMessage }}
-
-      <template v-slot:actions>
-        <v-btn color="white" variant="text" @click="isError = false">
-          <v-icon>mdi-close</v-icon>
-        </v-btn>
-      </template>
-    </v-snackbar>
-    <v-dialog persistent width="500" v-model="isDelete">
-      <v-card>
-        <v-card-title>Confirmation</v-card-title>
-        <v-card-text>
-          Are you sure want to delete this onboard dish?
-        </v-card-text>
-        <v-card-actions>
-          <v-spacer></v-spacer>
-          <v-btn color="error" text @click="cancelDelete">No</v-btn>
-          <v-btn color="success" text @click="deleteOnboardDishes">Yes</v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
+    <confirm-dialog
+      v-model="isDelete"
+      title="Confirmation"
+      message="Are you sure you want to delete this item? This action cannot be undone."
+      :loading="isDeleteLoading"
+      @confirm="deleteOnboardDishes"
+    />
     <v-dialog persistent width="auto" v-model="isOpenMainImage">
       <v-card width="750">
         <v-card-title class="upload-title px-6 py-4">
@@ -302,11 +251,7 @@
         </v-card-text>
         <v-card-actions class="mt-16">
           <v-spacer></v-spacer>
-          <v-btn
-            style="text-transform: none"
-            color="error"
-            text
-            @click="closeMainImage"
+          <v-btn style="text-transform: none" color="error" text @click="closeMainImage"
             >Cancel</v-btn
           >
           <v-btn
@@ -322,6 +267,10 @@
 </template>
 
 <script>
+import SkeletonTable from '@/components/SkeletonTable.vue';
+import EmptyState from '@/components/EmptyState.vue';
+import ConfirmDialog from '@/components/ConfirmDialog.vue';
+import { useNotificationStore } from '@/stores/notification';
 import ImageUpload from '@/components/ImageUpload.vue';
 import axios from '@/util/axios';
 import { setAuthHeader } from '@/util/axios';
@@ -329,6 +278,16 @@ import { setAuthHeader } from '@/util/axios';
 
 export default {
   name: 'OnboardDishes',
+  components: {
+    ConfirmDialog,
+    EmptyState,
+    SkeletonTable,
+    ImageUpload,
+  },
+  setup() {
+    const notification = useNotificationStore();
+    return { notification };
+  },
 
   data: () => ({
     //fileURL: 'https://admin1.the-gypsy.sg/img/app/',
@@ -336,8 +295,6 @@ export default {
     isLoading: false,
     isSending: false,
     isEdit: false,
-    isSuccess: false,
-    isError: false,
     isDelete: false,
     isDeleteLoading: false,
     onboardDishesIdToDelete: null,
@@ -349,8 +306,6 @@ export default {
       description: null,
     },
     isOpenMainImage: false,
-    successMessage: '',
-    errorMessage: '',
     input: {
       obd_id: 0,
       dish_id: null,
@@ -425,8 +380,7 @@ export default {
           .post(`/onboard-dishes/update`, payload)
           .then((response) => {
             const data = response.data;
-            this.successMessage = data.message;
-            this.isSuccess = true;
+            this.notification.success(data.message);
             this.getOnboardDishesData();
             this.input = {
               obd_id: 0,
@@ -442,8 +396,7 @@ export default {
               error.response.data.message === ''
                 ? 'Something Wrong!!!'
                 : error.response.data.message;
-            this.errorMessage = message;
-            this.isError = true;
+            this.notification.error(message);
           })
           .finally(() => {
             this.isEdit = false;
@@ -463,8 +416,7 @@ export default {
           .post(`/onboard-dishes`, payload)
           .then((response) => {
             const data = response.data;
-            this.successMessage = data.message;
-            this.isSuccess = true;
+            this.notification.success(data.message);
             this.getOnboardDishesData();
             this.input = {
               obd_id: 0,
@@ -480,8 +432,7 @@ export default {
               error.response.data.message === ''
                 ? 'Something Wrong!!!'
                 : error.response.data.message;
-            this.errorMessage = message;
-            this.isError = true;
+            this.notification.error(message);
           })
           .finally(() => {
             this.isSending = false;
@@ -502,19 +453,15 @@ export default {
         .delete(`/onboard-dishes/${this.onboardDishesIdToDelete}`)
         .then((response) => {
           const data = response.data;
-          this.successMessage = data.message;
-          this.isSuccess = true;
+          this.notification.success(data.message);
           this.getOnboardDishesData();
         })
         .catch((error) => {
           // eslint-disable-next-line
           console.log(error);
           const message =
-            error.response.data.message === ''
-              ? 'Something Wrong!!!'
-              : error.response.data.message;
-          this.errorMessage = message;
-          this.isError = true;
+            error.response.data.message === '' ? 'Something Wrong!!!' : error.response.data.message;
+          this.notification.error(message);
         })
         .finally(() => {
           this.isDeleteLoading = false;
@@ -545,11 +492,8 @@ export default {
           // eslint-disable-next-line
           console.log(error);
           const message =
-            error.response.data.message === ''
-              ? 'Something Wrong!!!'
-              : error.response.data.message;
-          this.errorMessage = message;
-          this.isError = true;
+            error.response.data.message === '' ? 'Something Wrong!!!' : error.response.data.message;
+          this.notification.error(message);
         })
         .finally(() => {
           this.isLoading = false;
@@ -575,11 +519,8 @@ export default {
           // eslint-disable-next-line
           console.log(error);
           const message =
-            error.response.data.message === ''
-              ? 'Something Wrong!!!'
-              : error.response.data.message;
-          this.errorMessage = message;
-          this.isError = true;
+            error.response.data.message === '' ? 'Something Wrong!!!' : error.response.data.message;
+          this.notification.error(message);
         });
     },
     getMainCategories() {
@@ -602,11 +543,8 @@ export default {
           // eslint-disable-next-line
           console.log(error);
           const message =
-            error.response.data.message === ''
-              ? 'Something Wrong!!!'
-              : error.response.data.message;
-          this.errorMessage = message;
-          this.isError = true;
+            error.response.data.message === '' ? 'Something Wrong!!!' : error.response.data.message;
+          this.notification.error(message);
         });
     },
     getDishMasters() {
@@ -629,15 +567,11 @@ export default {
           // eslint-disable-next-line
           console.log(error);
           const message =
-            error.response.data.message === ''
-              ? 'Something Wrong!!!'
-              : error.response.data.message;
-          this.errorMessage = message;
-          this.isError = true;
+            error.response.data.message === '' ? 'Something Wrong!!!' : error.response.data.message;
+          this.notification.error(message);
         });
     },
   },
-  components: { ImageUpload },
 };
 </script>
 

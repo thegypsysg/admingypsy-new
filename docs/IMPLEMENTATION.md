@@ -4008,11 +4008,10 @@ _File ini diperbarui pada 2026-09-01. Fase 1, Fase 2, Fase 3, Fase 4, Fase 5, da
 5. **`npm run build` berhasil (0 errors)** adalah syarat minimum, bukan jaminan aplikasi berjalan.
 6. **Semua `process.env.VUE_APP_*` WAJIB diganti** dengan `import.meta.env.VITE_*` — ada 6 lokasi yang sudah teridentifikasi.
 
-> [!WARNING]
-> **Dampak Finansial:** Vite menggunakan `import.meta.env.VITE_*` bukan `process.env.VUE_APP_*`. Jika satu saja terlewat, fitur yang bergantung pada env var tersebut (API call, file URL) akan GAGAL secara senyap di production.
+> [!WARNING] > **Dampak Finansial:** Vite menggunakan `import.meta.env.VITE_*` bukan `process.env.VUE_APP_*`. Jika satu saja terlewat, fitur yang bergantung pada env var tersebut (API call, file URL) akan GAGAL secara senyap di production.
 
-> [!NOTE]
-> **Lokasi `process.env.VUE_APP_*` yang sudah teridentifikasi (6 file):**
+> [!NOTE] > **Lokasi `process.env.VUE_APP_*` yang sudah teridentifikasi (6 file):**
+>
 > - `src/main.js` → `process.env.VUE_APP_FILE_URL` (line 26)
 > - `src/util/apiClient.js` → `process.env.VUE_APP_API_BASE_URL` (line 20)
 > - `src/components/HeaderDashboard.vue` → `process.env.VUE_APP_FILE_URL` (line 83)
@@ -4026,41 +4025,41 @@ _File ini diperbarui pada 2026-09-01. Fase 1, Fase 2, Fase 3, Fase 4, Fase 5, da
 
 Fase Opsional P4 adalah migrasi build tool dari **Vue CLI (Webpack)** ke **Vite**. Ini akan menghasilkan:
 
-| Metrik | Vue CLI (Webpack) | Vite |
-|--------|-------------------|------|
-| Cold start dev server | ~30 detik | < 1 detik |
-| Hot Module Replacement | 1–3 detik | < 100ms |
-| Build production | ~2 menit | ~14 detik |
-| Bundle size | Lebih besar | Lebih kecil |
+| Metrik                 | Vue CLI (Webpack) | Vite        |
+| ---------------------- | ----------------- | ----------- |
+| Cold start dev server  | ~30 detik         | < 1 detik   |
+| Hot Module Replacement | 1–3 detik         | < 100ms     |
+| Build production       | ~2 menit          | ~14 detik   |
+| Bundle size            | Lebih besar       | Lebih kecil |
 
 **Mengapa ini Opsional:** Manfaatnya besar untuk developer experience (kecepatan dev server), tetapi risikonya tinggi karena menyentuh konfigurasi inti yang memengaruhi semua file di proyek. Direkomendasikan dilakukan ketika ada waktu khusus untuk testing menyeluruh.
 
-| # | Task ID | Nama Task | Dampak | Risiko | Estimasi |
-|---|---------|-----------|--------|--------|----------|
-| 1 | T1 | Buat branch baru & backup | - | 🟢 Rendah | 15 menit |
-| 2 | T2 | Uninstall Vue CLI, install Vite + plugins | Sangat Tinggi | 🔴 Tinggi | 1–2 jam |
-| 3 | T3 | Buat `vite.config.js` | Sangat Tinggi | 🟡 Sedang | 1–1.5 jam |
-| 4 | T4 | Migrasi environment variables | Sangat Tinggi | 🔴 Tinggi | 2–3 jam |
-| 5 | T5 | Update entry point `index.html` | Tinggi | 🟡 Sedang | 30 menit |
-| 6 | T6 | Update `src/main.js` dan plugins | Tinggi | 🟡 Sedang | 1–2 jam |
-| 7 | T7 | Testing & verifikasi seluruh aplikasi | - | 🟡 Sedang | 8–12 jam |
-| 8 | T8 | Update dokumentasi & merge | - | 🟢 Rendah | 1 jam |
+| #   | Task ID | Nama Task                                 | Dampak        | Risiko    | Estimasi  |
+| --- | ------- | ----------------------------------------- | ------------- | --------- | --------- |
+| 1   | T1      | Buat branch baru & backup                 | -             | 🟢 Rendah | 15 menit  |
+| 2   | T2      | Uninstall Vue CLI, install Vite + plugins | Sangat Tinggi | 🔴 Tinggi | 1–2 jam   |
+| 3   | T3      | Buat `vite.config.js`                     | Sangat Tinggi | 🟡 Sedang | 1–1.5 jam |
+| 4   | T4      | Migrasi environment variables             | Sangat Tinggi | 🔴 Tinggi | 2–3 jam   |
+| 5   | T5      | Update entry point `index.html`           | Tinggi        | 🟡 Sedang | 30 menit  |
+| 6   | T6      | Update `src/main.js` dan plugins          | Tinggi        | 🟡 Sedang | 1–2 jam   |
+| 7   | T7      | Testing & verifikasi seluruh aplikasi     | -             | 🟡 Sedang | 8–12 jam  |
+| 8   | T8      | Update dokumentasi & merge                | -             | 🟢 Rendah | 1 jam     |
 
 ---
 
 ## 🕐 Timeline & Estimasi
 
-| Task | Nama | Estimasi | Urutan | Dependency |
-|------|------|----------|--------|------------|
-| T1 | Branch baru & backup | 15 menit | 1 | Independen |
-| T2 | Uninstall Vue CLI / install Vite | 1–2 jam | 2 | T1 selesai |
-| T3 | `vite.config.js` | 1–1.5 jam | 3 | T2 selesai |
-| T4 | Migrasi env vars (.env + src files) | 2–3 jam | 4 | T3 selesai |
-| T5 | Update `index.html` | 30 menit | 5 | T4 selesai |
-| T6 | Update `src/main.js` dan plugins | 1–2 jam | 6 | T5 selesai |
-| T7 | Testing menyeluruh semua halaman | 8–12 jam | 7 | T6 selesai |
-| T8 | Dokumentasi & merge ke `refactor` | 1 jam | 8 | T7 selesai |
-| | **TOTAL** | **15–22 jam** | | |
+| Task | Nama                                | Estimasi      | Urutan | Dependency |
+| ---- | ----------------------------------- | ------------- | ------ | ---------- |
+| T1   | Branch baru & backup                | 15 menit      | 1      | Independen |
+| T2   | Uninstall Vue CLI / install Vite    | 1–2 jam       | 2      | T1 selesai |
+| T3   | `vite.config.js`                    | 1–1.5 jam     | 3      | T2 selesai |
+| T4   | Migrasi env vars (.env + src files) | 2–3 jam       | 4      | T3 selesai |
+| T5   | Update `index.html`                 | 30 menit      | 5      | T4 selesai |
+| T6   | Update `src/main.js` dan plugins    | 1–2 jam       | 6      | T5 selesai |
+| T7   | Testing menyeluruh semua halaman    | 8–12 jam      | 7      | T6 selesai |
+| T8   | Dokumentasi & merge ke `refactor`   | 1 jam         | 8      | T7 selesai |
+|      | **TOTAL**                           | **15–22 jam** |        |            |
 
 ### Dependency Chart
 
@@ -4074,15 +4073,15 @@ T1 → T2 → T3 → T4 → T5 → T6 → T7 → T8
 
 ## 📊 Estimasi Resource
 
-| Resource | Detail |
-|----------|--------|
-| **Model** | Gemini Flash (High) atau Claude Sonnet |
-| **Branch** | Buat branch baru: `git checkout -b vite-migration` |
-| **File yang WAJIB diubah** | `package.json`, `vite.config.js` (baru), `index.html`, `.env.local`, `.env.production`, 5 file src |
-| **File yang WAJIB diperiksa satu per satu** | Seluruh `src/views/` untuk cek penggunaan `process.env.*` |
-| **Dependency dihapus** | `@vue/cli-service`, `@vue/cli-plugin-babel`, `@vue/cli-plugin-eslint`, `@vue/cli-plugin-router` |
-| **Dependency baru** | `vite`, `@vitejs/plugin-vue`, `vite-plugin-vuetify` |
-| **Tools yang dibutuhkan** | `run_command`, `view_file`, `grep_search`, `replace_file_content`, `write_to_file` |
+| Resource                                    | Detail                                                                                             |
+| ------------------------------------------- | -------------------------------------------------------------------------------------------------- |
+| **Model**                                   | Gemini Flash (High) atau Claude Sonnet                                                             |
+| **Branch**                                  | Buat branch baru: `git checkout -b vite-migration`                                                 |
+| **File yang WAJIB diubah**                  | `package.json`, `vite.config.js` (baru), `index.html`, `.env.local`, `.env.production`, 5 file src |
+| **File yang WAJIB diperiksa satu per satu** | Seluruh `src/views/` untuk cek penggunaan `process.env.*`                                          |
+| **Dependency dihapus**                      | `@vue/cli-service`, `@vue/cli-plugin-babel`, `@vue/cli-plugin-eslint`, `@vue/cli-plugin-router`    |
+| **Dependency baru**                         | `vite`, `@vitejs/plugin-vue`, `vite-plugin-vuetify`                                                |
+| **Tools yang dibutuhkan**                   | `run_command`, `view_file`, `grep_search`, `replace_file_content`, `write_to_file`                 |
 
 ---
 
@@ -4112,6 +4111,7 @@ Migrasi ke Vite adalah perubahan besar yang harus dikerjakan di branch terpisah.
 **Risiko:** 🟢 Sangat Rendah
 
 **⚠️ Catatan Penting:**
+
 - Jangan pernah langsung bekerja di branch `refactor` atau `main` untuk task ini
 - Commit pekerjaan secara berkala selama proses migrasi
 
@@ -4163,6 +4163,7 @@ Menghapus semua package Vue CLI (build tool lama) dan menginstal Vite beserta pl
 **Risiko:** 🔴 Tinggi — setelah uninstall Vue CLI, `npm run serve` dan `npm run build` tidak akan berjalan sampai Vite dikonfigurasi sepenuhnya
 
 **⚠️ Catatan Penting:**
+
 - Setelah uninstall, proyek tidak akan bisa di-serve sampai T3 dan T5 selesai
 - Package `vuetify` tetap di `dependencies` — yang berubah hanya `@vue/cli-plugin-vuetify` di devDependencies
 - `husky`, `lint-staged`, `prettier`, `eslint` tetap dipertahankan
@@ -4250,6 +4251,7 @@ Membuat file konfigurasi Vite yang menggantikan fungsi `vue.config.js`. Vite men
 **Risiko:** 🟡 Sedang — konfigurasi proxy API dan alias path harus benar
 
 **⚠️ Catatan Penting:**
+
 - Vite menggunakan `vite.config.js` dengan format `import`/`export`, bukan `require()`
 - Path alias `@` ke `src/` WAJIB dikonfigurasi agar semua import `@/...` berfungsi
 - Tidak perlu lagi `configureWebpack.optimization.splitChunks` — Vite melakukan code splitting secara otomatis via Rollup
@@ -4331,6 +4333,7 @@ Ini adalah task yang **paling kritis dan paling mudah menyebabkan bug** jika tid
 **Risiko:** 🔴 Sangat Tinggi — kode yang terlewas akan menyebabkan API call gagal tanpa pesan error yang jelas
 
 **⚠️ Catatan Penting:**
+
 - Gunakan `grep_search` untuk mencari SEMUA penggunaan `process.env.VUE_APP_` sebelum mengubah apapun
 - Berdasarkan audit awal, ada **6 file** yang perlu diperbarui (lihat catatan di awal dokumen ini)
 - File di `src/views/` yang memiliki penggunaan WAJIB juga diubah — tidak ada pengecualian di task ini
@@ -4414,6 +4417,7 @@ VITE_FILE_URL=https://admin1.the-gypsy.sg/img/app/
 **Step-by-step:**
 
 1. Baca masing-masing file dan ubah `process.env.VUE_APP_FILE_URL` menjadi `import.meta.env.VITE_FILE_URL`:
+
    - `src/components/HeaderDashboard.vue` (line 83)
    - `src/components/ImageUpload.vue` (line 208)
    - `src/components/SidebarDashboard.vue` (line 79)
@@ -4433,6 +4437,7 @@ Vue CLI menyembunyikan `index.html` di dalam `public/index.html` dan memasukkan 
 **Risiko:** 🟡 Sedang — jika `index.html` tidak benar, aplikasi tidak akan tampil sama sekali
 
 **⚠️ Catatan Penting:**
+
 - File `public/index.html` dari Vue CLI TIDAK digunakan oleh Vite
 - Vite membutuhkan `index.html` di **root proyek** (bukan di dalam `public/`)
 - Aset di folder `public/` tetap bisa diakses dengan path `/` (tidak berubah)
@@ -4493,6 +4498,7 @@ Memeriksa apakah ada perubahan yang diperlukan di `src/main.js` dan file plugin 
 **Risiko:** 🟡 Sedang — import path dan CSS import perlu diverifikasi
 
 **⚠️ Catatan Penting:**
+
 - Import path yang menggunakan `@/` tetap berfungsi karena sudah dikonfigurasi di `vite.config.js`
 - Import CSS dari `node_modules` menggunakan path absolut (tanpa `~`) — Vite sudah mendukung ini
 - `process.env.NODE_ENV` tetap tersedia di Vite (tidak perlu diubah)
@@ -4548,6 +4554,7 @@ Ini adalah task **terlama dan terpenting**. Setelah build berhasil, SETIAP halam
 **Risiko:** 🔴 Tinggi — regresi mungkin muncul di tempat yang tidak terduga
 
 **⚠️ Catatan Penting:**
+
 - `npm run build` berhasil BUKAN jaminan semua halaman berfungsi
 - Fokus testing pada fitur yang menggunakan env vars: API call dan image URL
 - Test di browser dengan Network tab terbuka untuk melihat apakah ada request yang gagal
@@ -4667,15 +4674,15 @@ git merge vite-migration
 
 ## 🛡️ Risk & Mitigation
 
-| Task | Risiko | Probabilitas | Mitigasi |
-|------|--------|--------------|----------|
-| T2 (Uninstall) | Proyek tidak bisa build sampai Vite selesai dikonfigurasi | 🔴 Pasti terjadi | Normal — ikuti alur task T2→T3→T4→T5→T6 tanpa skip |
-| T3 (vite.config) | Plugin `vite-plugin-vuetify` versi baru tidak kompatibel | 🟡 Sedang | Cek versi Vuetify yang terpasang (`^3.0.0-beta.0`) dan sesuaikan versi plugin |
-| T4 (env vars) | Satu `process.env.VUE_APP_*` terlewas → API / image gagal | 🔴 Sangat Tinggi | Gunakan `grep_search` sebelum dan sesudah migrasi untuk memverifikasi |
-| T5 (index.html) | Favicon atau meta tag hilang | 🟡 Sedang | Salin konten `<head>` dari `public/index.html` yang ada |
-| T6 (plugins) | CommonJS `require()` di plugin tidak kompatibel Vite | 🟡 Sedang | Konversi ke `import ... from` atau gunakan `createRequire` jika terpaksa |
-| T7 (testing) | Regresi halaman yang tidak terduga | 🟡 Sedang | Testing manual menyeluruh — tidak ada jalan pintas |
-| Semua | Keputusan untuk rollback | 🟡 Sedang | Gunakan branch terpisah — rollback semudah `git checkout refactor` |
+| Task             | Risiko                                                    | Probabilitas     | Mitigasi                                                                      |
+| ---------------- | --------------------------------------------------------- | ---------------- | ----------------------------------------------------------------------------- |
+| T2 (Uninstall)   | Proyek tidak bisa build sampai Vite selesai dikonfigurasi | 🔴 Pasti terjadi | Normal — ikuti alur task T2→T3→T4→T5→T6 tanpa skip                            |
+| T3 (vite.config) | Plugin `vite-plugin-vuetify` versi baru tidak kompatibel  | 🟡 Sedang        | Cek versi Vuetify yang terpasang (`^3.0.0-beta.0`) dan sesuaikan versi plugin |
+| T4 (env vars)    | Satu `process.env.VUE_APP_*` terlewas → API / image gagal | 🔴 Sangat Tinggi | Gunakan `grep_search` sebelum dan sesudah migrasi untuk memverifikasi         |
+| T5 (index.html)  | Favicon atau meta tag hilang                              | 🟡 Sedang        | Salin konten `<head>` dari `public/index.html` yang ada                       |
+| T6 (plugins)     | CommonJS `require()` di plugin tidak kompatibel Vite      | 🟡 Sedang        | Konversi ke `import ... from` atau gunakan `createRequire` jika terpaksa      |
+| T7 (testing)     | Regresi halaman yang tidak terduga                        | 🟡 Sedang        | Testing manual menyeluruh — tidak ada jalan pintas                            |
+| Semua            | Keputusan untuk rollback                                  | 🟡 Sedang        | Gunakan branch terpisah — rollback semudah `git checkout refactor`            |
 
 ---
 
@@ -4714,12 +4721,12 @@ Pada fase DX4, seluruh 86 direktori berspasi di `src/views/` telah berhasil di-r
 
 ## 🕐 Timeline & Hasil
 
-| Task | Nama | Estimasi | Status |
-|---|---|---|---|
-| T1 | Audit & Rename 86 Folder via `git mv` | 1–1.5 jam | ✅ SELESAI |
-| T2 | Fix 74 Import Paths di Vue Router (`index.js`) | 1 jam | ✅ SELESAI |
-| T3 | Build Verification (Production & Dev) | 30 menit | ✅ SELESAI (0 Errors) |
-| T4 | Update Dokumentasi | 30 menit | ✅ SELESAI |
+| Task | Nama                                           | Estimasi  | Status                |
+| ---- | ---------------------------------------------- | --------- | --------------------- |
+| T1   | Audit & Rename 86 Folder via `git mv`          | 1–1.5 jam | ✅ SELESAI            |
+| T2   | Fix 74 Import Paths di Vue Router (`index.js`) | 1 jam     | ✅ SELESAI            |
+| T3   | Build Verification (Production & Dev)          | 30 menit  | ✅ SELESAI (0 Errors) |
+| T4   | Update Dokumentasi                             | 30 menit  | ✅ SELESAI            |
 
 ---
 
@@ -4735,7 +4742,7 @@ Pada fase DX4, seluruh 86 direktori berspasi di `src/views/` telah berhasil di-r
 
 ---
 
-*File ini diperbarui pada 2026-09-02. Fase 1–6, Fase Opsional P4 (Vite), dan Fase Opsional DX4 (Views Directory Rename) sudah selesai.*
+_File ini diperbarui pada 2026-09-02. Fase 1–6, Fase Opsional P4 (Vite), dan Fase Opsional DX4 (Views Directory Rename) sudah selesai._
 
 ---
 
@@ -4777,14 +4784,14 @@ Setiap kali user berpindah halaman atau me-refresh, semua API endpoint dipanggil
 
 ## 🕐 Timeline
 
-| Task | Nama | Estimasi | Urutan |
-|---|---|---|---|
-| T1 | Audit view kandidat untuk caching | 30 menit | 1 |
-| T2 | Perkuat `useApiWithCache.js` dengan support `params` (jika belum) | 15 menit | 2 (setelah T1) |
-| T3 | Integrasi cache ke 5 view prioritas | 1–1.5 jam | 3 (setelah T2) |
-| T4 | Integrasi invalidasi cache setelah operasi CUD | 30 menit | 4 (setelah T3) |
-| T5 | Verifikasi build dan testing | 30 menit | 5 (setelah T4) |
-| T6 | Update dokumentasi | 15 menit | 6 (setelah T5) |
+| Task | Nama                                                              | Estimasi  | Urutan         |
+| ---- | ----------------------------------------------------------------- | --------- | -------------- |
+| T1   | Audit view kandidat untuk caching                                 | 30 menit  | 1              |
+| T2   | Perkuat `useApiWithCache.js` dengan support `params` (jika belum) | 15 menit  | 2 (setelah T1) |
+| T3   | Integrasi cache ke 5 view prioritas                               | 1–1.5 jam | 3 (setelah T2) |
+| T4   | Integrasi invalidasi cache setelah operasi CUD                    | 30 menit  | 4 (setelah T3) |
+| T5   | Verifikasi build dan testing                                      | 30 menit  | 5 (setelah T4) |
+| T6   | Update dokumentasi                                                | 15 menit  | 6 (setelah T5) |
 
 **Total Estimasi: 3–3.5 jam**
 
@@ -4792,13 +4799,13 @@ Setiap kali user berpindah halaman atau me-refresh, semua API endpoint dipanggil
 
 ## 📊 Estimasi Resource
 
-| Resource | Detail |
-|---|---|
-| **Model** | Gemini 3.7 Flash (High) |
-| **File yang mungkin diubah** | `src/composables/useApiWithCache.js`, 5–10 view file di `src/views/` |
-| **File yang TIDAK boleh diubah** | `src/util/apiClient.js`, `src/util/axios.js`, `src/router/index.js` |
-| **Tools yang dibutuhkan** | `view_file`, `grep_search`, `replace_file_content`, `run_command` |
-| **Batas Waktu Total** | ~3.5 jam |
+| Resource                         | Detail                                                               |
+| -------------------------------- | -------------------------------------------------------------------- |
+| **Model**                        | Gemini 3.7 Flash (High)                                              |
+| **File yang mungkin diubah**     | `src/composables/useApiWithCache.js`, 5–10 view file di `src/views/` |
+| **File yang TIDAK boleh diubah** | `src/util/apiClient.js`, `src/util/axios.js`, `src/router/index.js`  |
+| **Tools yang dibutuhkan**        | `view_file`, `grep_search`, `replace_file_content`, `run_command`    |
+| **Batas Waktu Total**            | ~3.5 jam                                                             |
 
 ---
 
@@ -4830,6 +4837,7 @@ Setiap kali user berpindah halaman atau me-refresh, semua API endpoint dipanggil
 
 - **Deskripsi:** Periksa apakah composable yang ada di `src/composables/useApiWithCache.js` sudah mendukung `params` query string (untuk endpoint seperti `/items?page=1&status=active`). Jika belum, tambahkan dukungannya.
 - **Step-by-step execution:**
+
   1. Buka dan baca `src/composables/useApiWithCache.js` dengan `view_file`.
   2. Verifikasi bahwa composable sudah:
      - Mendukung opsi `params` (query string) sebagai bagian dari cache key.
@@ -4851,6 +4859,7 @@ Setiap kali user berpindah halaman atau me-refresh, semua API endpoint dipanggil
 
 - **Deskripsi:** Modifikasi 5 view prioritas hasil audit T1 agar menggunakan `useApiWithCache` untuk GET data referensi/master. Logika bisnis (sorting, filtering, CUD) tidak berubah.
 - **Step-by-step execution:**
+
   1. Untuk setiap view kandidat, **buka filenya** dengan `view_file` dan pahami seluruh isinya sebelum mengedit.
   2. Tambahkan import `useApiWithCache` di bagian `<script>`:
      ```javascript
@@ -4859,6 +4868,7 @@ Setiap kali user berpindah halaman atau me-refresh, semua API endpoint dipanggil
   3. Di `created()` atau `mounted()`, ganti pola `this.$api.get(url).then(...)` dengan pattern berikut (sesuaikan dengan konteks komponen):
 
      **Pola SEBELUM (tanpa cache):**
+
      ```javascript
      created() {
        this.$api.get('/industry-master').then((res) => {
@@ -4868,6 +4878,7 @@ Setiap kali user berpindah halaman atau me-refresh, semua API endpoint dipanggil
      ```
 
      **Pola SESUDAH (dengan cache — gunakan di Options API):**
+
      ```javascript
      import { useApiWithCache } from '@/composables/useApiWithCache';
 
@@ -4885,6 +4896,7 @@ Setiap kali user berpindah halaman atau me-refresh, semua API endpoint dipanggil
      > **⚠️ PERHATIAN PENTING:** Composable berbasis Vue Composition API (`ref`, `reactive`) **hanya bisa dipanggil di `setup()`**. Jika view masih menggunakan **Options API** (punya `data()`, `methods:`, `created:`), gunakan pola berikut yang aman untuk Options API:
 
      **Pola AMAN untuk Options API (tanpa Composition API setup):**
+
      ```javascript
      // Impor langsung apiCache dari composable
      import { apiCache } from '@/composables/useApiWithCache';
@@ -4899,10 +4911,12 @@ Setiap kali user berpindah halaman atau me-refresh, semua API endpoint dipanggil
      ```
 
      > **🔑 KEPUTUSAN PENTING:** Jika komponen target menggunakan **Options API**, gunakan pendekatan **cache manual berbasis module Map** yang sudah diekspor dari `useApiWithCache.js`:
+
      ```javascript
      import { apiCache } from '@/composables/useApiWithCache';
      // apiCache.clear(), apiCache.size(), apiCache.keys() tersedia
      ```
+
      NAMUN, untuk cache GET request di Options API, **cara termudah dan teraman** adalah membuat simple in-memory Map di level modul yang bisa diakses langsung:
 
      ```javascript
@@ -4915,6 +4929,7 @@ Setiap kali user berpindah halaman atau me-refresh, semua API endpoint dipanggil
      ```
 
      > **📌 KESIMPULAN STRATEGI T3:**
+     >
      > - Jika view sudah menggunakan `<script setup>` → integrasikan `useApiWithCache` langsung.
      > - Jika view masih Options API → **SKIP caching di view tersebut** untuk sesi ini (tidak breaking, tidak perlu diubah).
      > - Fokuskan hanya pada view yang sudah `<script setup>`.
@@ -4934,7 +4949,9 @@ Setiap kali user berpindah halaman atau me-refresh, semua API endpoint dipanggil
 - **Step-by-step execution:**
   1. Di view yang sudah menggunakan `useApiWithCache`, simpan referensi ke fungsi `invalidate`:
      ```javascript
-     const { fetch, data, invalidate } = useApiWithCache('/industry-master', { ttlMs: 5 * 60 * 1000 });
+     const { fetch, data, invalidate } = useApiWithCache('/industry-master', {
+       ttlMs: 5 * 60 * 1000,
+     });
      ```
   2. Temukan method yang dipanggil setelah operasi CUD berhasil (biasanya ada `this.getList()`, `this.loadData()`, atau `this.initialize()`).
   3. Panggil `invalidate()` **sebelum** fetch ulang:
@@ -4984,13 +5001,13 @@ Setiap kali user berpindah halaman atau me-refresh, semua API endpoint dipanggil
 
 ## 🛡️ Risk & Mitigation
 
-| Task | Risiko | Probabilitas | Mitigasi |
-|---|---|---|---|
-| T3 (Integrasi) | Composable `useApiWithCache` dipanggil di luar `setup()` → Vue runtime error `getCurrentInstance` | 🔴 Tinggi jika view Options API | Skip view Options API, hanya integrasikan ke view yang sudah `<script setup>` |
-| T3 (Integrasi) | Data stale (cache tidak terupdate) setelah CUD | 🟡 Sedang | Selalu panggil `invalidate()` sebelum fetch ulang di T4 |
-| T3 (Integrasi) | Cache key collision jika dua endpoint berbeda tapi URL sama | 🟢 Rendah | Cache key sudah termasuk `params` query string di implementasi saat ini |
-| T5 (Build) | Error saat build karena import yang salah | 🟡 Sedang | Selalu jalankan `npm run dev` setelah setiap file diubah sebelum pindah ke file berikutnya |
-| Semua | Perubahan menyebabkan regresi di view yang tidak terkait | 🟢 Rendah | Perubahan bersifat additive — tidak ada logika yang dihapus, hanya menambahkan layer cache |
+| Task           | Risiko                                                                                            | Probabilitas                    | Mitigasi                                                                                   |
+| -------------- | ------------------------------------------------------------------------------------------------- | ------------------------------- | ------------------------------------------------------------------------------------------ |
+| T3 (Integrasi) | Composable `useApiWithCache` dipanggil di luar `setup()` → Vue runtime error `getCurrentInstance` | 🔴 Tinggi jika view Options API | Skip view Options API, hanya integrasikan ke view yang sudah `<script setup>`              |
+| T3 (Integrasi) | Data stale (cache tidak terupdate) setelah CUD                                                    | 🟡 Sedang                       | Selalu panggil `invalidate()` sebelum fetch ulang di T4                                    |
+| T3 (Integrasi) | Cache key collision jika dua endpoint berbeda tapi URL sama                                       | 🟢 Rendah                       | Cache key sudah termasuk `params` query string di implementasi saat ini                    |
+| T5 (Build)     | Error saat build karena import yang salah                                                         | 🟡 Sedang                       | Selalu jalankan `npm run dev` setelah setiap file diubah sebelum pindah ke file berikutnya |
+| Semua          | Perubahan menyebabkan regresi di view yang tidak terkait                                          | 🟢 Rendah                       | Perubahan bersifat additive — tidak ada logika yang dihapus, hanya menambahkan layer cache |
 
 ---
 
@@ -4999,6 +5016,7 @@ Setiap kali user berpindah halaman atau me-refresh, semua API endpoint dipanggil
 ### Apa yang SUDAH Ada (Jangan Dibuat Ulang)
 
 File `src/composables/useApiWithCache.js` sudah ada dengan fitur lengkap:
+
 - `fetch(forceRefresh = false)` — ambil data, dari cache jika valid
 - `invalidate()` — hapus cache entry untuk URL+params spesifik
 - `clearAllCache()` — bersihkan seluruh cache
@@ -5012,7 +5030,13 @@ File `src/composables/useApiWithCache.js` sudah ada dengan fitur lengkap:
 import { onMounted } from 'vue';
 import { useApiWithCache } from '@/composables/useApiWithCache';
 
-const { data: industryList, isLoading, error, fetch, invalidate } = useApiWithCache(
+const {
+  data: industryList,
+  isLoading,
+  error,
+  fetch,
+  invalidate,
+} = useApiWithCache(
   '/industry-master',
   { ttlMs: 5 * 60 * 1000 } // 5 menit
 );
@@ -5025,7 +5049,7 @@ onMounted(() => {
 async function saveIndustry() {
   await api.post('/industry-master', form);
   invalidate(); // hapus cache lama
-  fetch();      // fetch ulang
+  fetch(); // fetch ulang
 }
 ```
 
@@ -5054,7 +5078,7 @@ Composable ini hanya boleh dipakai di view yang menggunakan `<script setup>`. Vi
 
 ---
 
-*File ini diperbarui pada 2026-09-02. Fase 1–6, Fase Opsional P4 (Vite), Fase Opsional DX4 (Views Rename), dan Fase Opsional P3 (API Caching) sudah selesai.*
+_File ini diperbarui pada 2026-09-02. Fase 1–6, Fase Opsional P4 (Vite), Fase Opsional DX4 (Views Rename), dan Fase Opsional P3 (API Caching) sudah selesai._
 
 ---
 
@@ -5069,8 +5093,7 @@ Composable ini hanya boleh dipakai di view yang menggunakan `<script setup>`. Vi
 
 ## ⚠️ PERINGATAN KRITIS — BACA SEBELUM MEMULAI
 
-> [!CAUTION]
-> **Ini adalah fase yang kompleks dan berisiko tinggi jika dilakukan secara agresif.**
+> [!CAUTION] > **Ini adalah fase yang kompleks dan berisiko tinggi jika dilakukan secara agresif.**
 > Strategi yang WAJIB diikuti adalah **incremental / opt-in** — TypeScript hanya ditambahkan secara bertahap, dimulai dari file utilitas baru, kemudian composable, dan terakhir komponen shared jika diperlukan.
 
 **Prinsip Aman WAJIB diikuti:**
@@ -5093,6 +5116,7 @@ Proyek saat ini menggunakan JavaScript murni tanpa type checking. Ini menyebabka
 - **Refactoring berbahaya** — rename fungsi/variabel tanpa type-checking menyebabkan bug tersembunyi.
 
 **Tujuan Fase DX1:** Mengintegrasikan TypeScript secara **gradual dan opt-in** tanpa mematahkan satu pun file yang sudah ada. Pada akhir fase ini:
+
 - TypeScript sudah terkonfigurasi dan berjalan di proyek.
 - File utilitas baru (`src/util/`) ditulis dalam TypeScript.
 - Composable baru (`src/composables/`) ditulis dalam TypeScript.
@@ -5102,14 +5126,14 @@ Proyek saat ini menggunakan JavaScript murni tanpa type checking. Ini menyebabka
 
 ## 🕐 Timeline
 
-| Task | Nama | Estimasi | Urutan |
-|---|---|---|---|
-| T1 | Install TypeScript dependencies dan konfigurasi `tsconfig.json` | 30 menit | 1 |
-| T2 | Buat `env.d.ts` dan `vite-env.d.ts` untuk type declaration | 20 menit | 2 (setelah T1) |
-| T3 | Buat `src/types/` — centralized type definitions untuk domain proyek | 45 menit | 3 (setelah T2) |
-| T4 | Migrasi composable baru ke `.ts` (hanya file baru, jangan ubah yang ada) | 1–1.5 jam | 4 (setelah T3) |
-| T5 | Verifikasi `vue-tsc --noEmit` dan `npm run build` berjalan 0 error | 30 menit | 5 (setelah T4) |
-| T6 | Update dokumentasi dan panduan pengembangan | 15 menit | 6 (setelah T5) |
+| Task | Nama                                                                     | Estimasi  | Urutan         |
+| ---- | ------------------------------------------------------------------------ | --------- | -------------- |
+| T1   | Install TypeScript dependencies dan konfigurasi `tsconfig.json`          | 30 menit  | 1              |
+| T2   | Buat `env.d.ts` dan `vite-env.d.ts` untuk type declaration               | 20 menit  | 2 (setelah T1) |
+| T3   | Buat `src/types/` — centralized type definitions untuk domain proyek     | 45 menit  | 3 (setelah T2) |
+| T4   | Migrasi composable baru ke `.ts` (hanya file baru, jangan ubah yang ada) | 1–1.5 jam | 4 (setelah T3) |
+| T5   | Verifikasi `vue-tsc --noEmit` dan `npm run build` berjalan 0 error       | 30 menit  | 5 (setelah T4) |
+| T6   | Update dokumentasi dan panduan pengembangan                              | 15 menit  | 6 (setelah T5) |
 
 **Total Estimasi: 3.5–4 jam**
 
@@ -5117,14 +5141,14 @@ Proyek saat ini menggunakan JavaScript murni tanpa type checking. Ini menyebabka
 
 ## 📊 Estimasi Resource
 
-| Resource | Detail |
-|---|---|
-| **Model** | Gemini 3.7 Flash (High) |
-| **File BARU yang akan dibuat** | `tsconfig.json`, `env.d.ts`, `src/types/index.ts`, `src/types/api.ts`, `src/types/auth.ts` |
-| **File yang BOLEH dimodifikasi** | `package.json` (menambahkan devDependencies), composable baru di `src/composables/` |
+| Resource                         | Detail                                                                                                    |
+| -------------------------------- | --------------------------------------------------------------------------------------------------------- |
+| **Model**                        | Gemini 3.7 Flash (High)                                                                                   |
+| **File BARU yang akan dibuat**   | `tsconfig.json`, `env.d.ts`, `src/types/index.ts`, `src/types/api.ts`, `src/types/auth.ts`                |
+| **File yang BOLEH dimodifikasi** | `package.json` (menambahkan devDependencies), composable baru di `src/composables/`                       |
 | **File yang TIDAK BOLEH diubah** | Semua `*.vue` di `src/views/`, `src/components/`, `src/router/index.js`, `src/main.js`, `vite.config.mjs` |
-| **Tools yang dibutuhkan** | `write_to_file`, `run_command`, `view_file`, `grep_search` |
-| **Batas Waktu Total** | ~4 jam |
+| **Tools yang dibutuhkan**        | `write_to_file`, `run_command`, `view_file`, `grep_search`                                                |
+| **Batas Waktu Total**            | ~4 jam                                                                                                    |
 
 ---
 
@@ -5134,6 +5158,7 @@ Proyek saat ini menggunakan JavaScript murni tanpa type checking. Ini menyebabka
 
 - **Deskripsi:** Install package TypeScript yang diperlukan dan buat file `tsconfig.json` dengan konfigurasi yang aman (non-strict) agar TypeScript bisa hidup berdampingan dengan file JavaScript yang sudah ada.
 - **Step-by-step execution:**
+
   1. Jalankan instalasi dev dependencies:
      ```powershell
      npm install -D typescript @vue/tsconfig vue-tsc --legacy-peer-deps
@@ -5187,7 +5212,9 @@ Proyek saat ini menggunakan JavaScript murni tanpa type checking. Ini menyebabka
 
 - **Deskripsi:** Buat file type declaration agar TypeScript mengenali modul seperti `*.vue`, `*.scss`, dan environment variables Vite (`import.meta.env`).
 - **Step-by-step execution:**
+
   1. Buat file `env.d.ts` di **root proyek** (sejajar dengan `package.json`):
+
      ```typescript
      /// <reference types="vite/client" />
 
@@ -5200,7 +5227,9 @@ Proyek saat ini menggunakan JavaScript murni tanpa type checking. Ini menyebabka
        readonly env: ImportMetaEnv;
      }
      ```
+
   2. Buat file `src/vite-env.d.ts` untuk mendeklarasikan modul `*.vue`:
+
      ```typescript
      /// <reference types="vite/client" />
 
@@ -5210,6 +5239,7 @@ Proyek saat ini menggunakan JavaScript murni tanpa type checking. Ini menyebabka
        export default component;
      }
      ```
+
   3. Verifikasi TypeScript mengenali `import.meta.env.VITE_API_BASE_URL` tanpa error:
      ```powershell
      npm run type-check
@@ -5227,8 +5257,10 @@ Proyek saat ini menggunakan JavaScript murni tanpa type checking. Ini menyebabka
 
 - **Deskripsi:** Buat direktori `src/types/` berisi type definitions yang merepresentasikan domain data proyek (API response, auth, form payload). File ini menjadi "single source of truth" untuk semua type yang digunakan di file TypeScript baru.
 - **Step-by-step execution:**
+
   1. Buat direktori `src/types/` (jika belum ada).
   2. Buat file `src/types/api.ts` untuk type API response umum:
+
      ```typescript
      // src/types/api.ts
 
@@ -5262,7 +5294,9 @@ Proyek saat ini menggunakan JavaScript murni tanpa type checking. Ini menyebabka
        status?: number;
      }
      ```
+
   3. Buat file `src/types/auth.ts` untuk type data autentikasi:
+
      ```typescript
      // src/types/auth.ts
 
@@ -5276,7 +5310,9 @@ Proyek saat ini menggunakan JavaScript murni tanpa type checking. Ini menyebabka
        loginTime?: string;
      }
      ```
+
   4. Buat file `src/types/app.ts` untuk type data umum domain proyek:
+
      ```typescript
      // src/types/app.ts
 
@@ -5304,6 +5340,7 @@ Proyek saat ini menggunakan JavaScript murni tanpa type checking. Ini menyebabka
        country_name: string;
      }
      ```
+
   5. Buat file `src/types/index.ts` sebagai barrel export:
      ```typescript
      // src/types/index.ts
@@ -5324,7 +5361,9 @@ Proyek saat ini menggunakan JavaScript murni tanpa type checking. Ini menyebabka
 
 - **Deskripsi:** Buat contoh composable baru dalam TypeScript untuk memverifikasi bahwa TypeScript bekerja dengan baik bersama Vue 3 Composition API. **JANGAN mengubah composable yang sudah ada** (`useApi.js`, `useApiWithCache.js`, dll). Cukup buat **satu composable baru** sebagai template/proof-of-concept.
 - **Step-by-step execution:**
+
   1. Buat file `src/composables/useTypedApi.ts` — composable generik dengan type support penuh:
+
      ```typescript
      // src/composables/useTypedApi.ts
      // TypeScript version of useApi.js — gunakan untuk kode baru saja
@@ -5337,7 +5376,10 @@ Proyek saat ini menggunakan JavaScript murni tanpa type checking. Ini menyebabka
        data: Ref<T | null>;
        isLoading: Ref<boolean>;
        error: Ref<string | null>;
-       execute: (requestFn: () => Promise<{ data: T }>, transform?: (data: T) => T) => Promise<T | null>;
+       execute: (
+         requestFn: () => Promise<{ data: T }>,
+         transform?: (data: T) => T
+       ) => Promise<T | null>;
        reset: () => void;
      }
 
@@ -5357,7 +5399,7 @@ Proyek saat ini menggunakan JavaScript murni tanpa type checking. Ini menyebabka
 
        async function execute(
          requestFn: () => Promise<{ data: T }>,
-         transform?: (data: T) => T,
+         transform?: (data: T) => T
        ): Promise<T | null> {
          isLoading.value = true;
          error.value = null;
@@ -5386,6 +5428,7 @@ Proyek saat ini menggunakan JavaScript murni tanpa type checking. Ini menyebabka
        return { data, isLoading, error, execute, reset };
      }
      ```
+
   2. Verifikasi file baru bisa diimport tanpa error dengan menjalankan type-check:
      ```powershell
      npm run type-check
@@ -5404,6 +5447,7 @@ Proyek saat ini menggunakan JavaScript murni tanpa type checking. Ini menyebabka
 
 - **Deskripsi:** Pastikan seluruh setup TypeScript tidak memperkenalkan error baru dan tidak memecahkan build maupun runtime aplikasi.
 - **Step-by-step execution:**
+
   1. Jalankan type-check:
      ```powershell
      npm run type-check
@@ -5413,7 +5457,7 @@ Proyek saat ini menggunakan JavaScript murni tanpa type checking. Ini menyebabka
      ```powershell
      npm run build
      ```
-     *Pass criteria: exit code 0, 0 build errors.*
+     _Pass criteria: exit code 0, 0 build errors._
   3. Verifikasi dev server berjalan normal:
      ```powershell
      npm run dev
@@ -5435,6 +5479,7 @@ Proyek saat ini menggunakan JavaScript murni tanpa type checking. Ini menyebabka
 
 - **Deskripsi:** Tandai Fase Opsional DX1 sebagai SELESAI di semua file dokumentasi dan tambahkan panduan penggunaan TypeScript untuk developer/AI agent berikutnya.
 - **Step-by-step execution:**
+
   1. Di `docs/IMPLEMENTATION.md`: Ubah status header DX1 dari `BELUM DIMULAI` menjadi `COMPLETED` dan tambahkan catatan eksekusi.
   2. Di `docs/IMPROVEMENT.md`: Ubah status DX1 menjadi `✅ Selesai` dan centang checklist roadmap.
   3. Di `docs/README.md`:
@@ -5450,15 +5495,15 @@ Proyek saat ini menggunakan JavaScript murni tanpa type checking. Ini menyebabka
 
 ## 🛡️ Risk & Mitigation
 
-| Task | Risiko | Probabilitas | Mitigasi |
-|---|---|---|---|
-| T1 (Install) | Konflik versi antara `@vue/tsconfig` dan `vue@3.2.x` | 🟡 Sedang | Gunakan `@vue/tsconfig@0.4.0` yang diketahui kompatibel dengan Vue 3.2; gunakan `--legacy-peer-deps` |
-| T1 (tsconfig) | `vue-tsc` menghasilkan error dari ratusan file `*.vue` lama | 🟡 Sedang | Pastikan `strict: false`, `checkJs: false`, dan `allowJs: true` sudah di-set. Error dari file JS/Vue lama tidak memblokir `vite build` |
-| T2 (env.d.ts) | File `env.d.ts` konflik dengan deklarasi lain | 🟢 Rendah | Buat file di root (bukan di `src/`) dan gunakan `/// <reference types="vite/client" />` di baris pertama |
-| T4 (composable) | TypeScript generic vue `Ref<T>` menghasilkan kompleksitas type yang tidak perlu | 🟡 Sedang | Gunakan `as Ref<T | null>` untuk casting eksplisit; jika masih error, ganti dengan `ref<T | null>(null)` tanpa casting |
-| T4 (composable) | Import `@/util/axios` dari file `.ts` gagal resolve | 🟡 Sedang | Pastikan `tsconfig.json` memiliki `paths: { "@/*": ["./src/*"] }` dan `baseUrl: "."` |
-| T5 (build) | `vue-tsc` memblokir build jika ada error | 🟢 Rendah | Script `type-check` dan `build` adalah dua perintah terpisah. `vite build` tidak menjalankan `vue-tsc` kecuali dikonfigurasi secara eksplisit |
-| Semua | Perubahan TypeScript memecahkan hot-reload Vite | 🟢 Rendah | TypeScript hanya diterapkan pada file baru. File lama tidak terpengaruh |
+| Task            | Risiko                                                                          | Probabilitas | Mitigasi                                                                                                                                      |
+| --------------- | ------------------------------------------------------------------------------- | ------------ | --------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------- | -------------------------- |
+| T1 (Install)    | Konflik versi antara `@vue/tsconfig` dan `vue@3.2.x`                            | 🟡 Sedang    | Gunakan `@vue/tsconfig@0.4.0` yang diketahui kompatibel dengan Vue 3.2; gunakan `--legacy-peer-deps`                                          |
+| T1 (tsconfig)   | `vue-tsc` menghasilkan error dari ratusan file `*.vue` lama                     | 🟡 Sedang    | Pastikan `strict: false`, `checkJs: false`, dan `allowJs: true` sudah di-set. Error dari file JS/Vue lama tidak memblokir `vite build`        |
+| T2 (env.d.ts)   | File `env.d.ts` konflik dengan deklarasi lain                                   | 🟢 Rendah    | Buat file di root (bukan di `src/`) dan gunakan `/// <reference types="vite/client" />` di baris pertama                                      |
+| T4 (composable) | TypeScript generic vue `Ref<T>` menghasilkan kompleksitas type yang tidak perlu | 🟡 Sedang    | Gunakan `as Ref<T                                                                                                                             | null>`untuk casting eksplisit; jika masih error, ganti dengan`ref<T | null>(null)` tanpa casting |
+| T4 (composable) | Import `@/util/axios` dari file `.ts` gagal resolve                             | 🟡 Sedang    | Pastikan `tsconfig.json` memiliki `paths: { "@/*": ["./src/*"] }` dan `baseUrl: "."`                                                          |
+| T5 (build)      | `vue-tsc` memblokir build jika ada error                                        | 🟢 Rendah    | Script `type-check` dan `build` adalah dua perintah terpisah. `vite build` tidak menjalankan `vue-tsc` kecuali dikonfigurasi secara eksplisit |
+| Semua           | Perubahan TypeScript memecahkan hot-reload Vite                                 | 🟢 Rendah    | TypeScript hanya diterapkan pada file baru. File lama tidak terpengaruh                                                                       |
 
 ---
 
@@ -5466,31 +5511,32 @@ Proyek saat ini menggunakan JavaScript murni tanpa type checking. Ini menyebabka
 
 ### File yang Harus Dibuat (BARU)
 
-| File | Lokasi | Keterangan |
-|---|---|---|
-| `tsconfig.json` | Root proyek | Konfigurasi TypeScript utama |
-| `env.d.ts` | Root proyek | Type declaration untuk `import.meta.env` |
-| `src/vite-env.d.ts` | `src/` | Declaration untuk module `*.vue` |
-| `src/types/api.ts` | `src/types/` | API response type definitions |
-| `src/types/auth.ts` | `src/types/` | Auth & token type definitions |
-| `src/types/app.ts` | `src/types/` | Domain model type definitions |
-| `src/types/index.ts` | `src/types/` | Barrel export untuk semua types |
-| `src/composables/useTypedApi.ts` | `src/composables/` | Proof-of-concept composable TypeScript |
+| File                             | Lokasi             | Keterangan                               |
+| -------------------------------- | ------------------ | ---------------------------------------- |
+| `tsconfig.json`                  | Root proyek        | Konfigurasi TypeScript utama             |
+| `env.d.ts`                       | Root proyek        | Type declaration untuk `import.meta.env` |
+| `src/vite-env.d.ts`              | `src/`             | Declaration untuk module `*.vue`         |
+| `src/types/api.ts`               | `src/types/`       | API response type definitions            |
+| `src/types/auth.ts`              | `src/types/`       | Auth & token type definitions            |
+| `src/types/app.ts`               | `src/types/`       | Domain model type definitions            |
+| `src/types/index.ts`             | `src/types/`       | Barrel export untuk semua types          |
+| `src/composables/useTypedApi.ts` | `src/composables/` | Proof-of-concept composable TypeScript   |
 
 ### File yang TIDAK BOLEH Diubah
 
-| File | Alasan |
-|---|---|
-| Semua `*.vue` di `src/views/` | 74+ view, risiko breaking change sangat tinggi |
-| Semua `*.vue` di `src/components/` | Komponen shared yang sudah stabil |
-| `src/composables/*.js` | Composable yang sudah diintegrasikan ke banyak view |
-| `src/router/index.js` | 74 route definition, sangat kompleks |
-| `src/main.js` | Entry point aplikasi |
-| `vite.config.mjs` | Build configuration |
+| File                               | Alasan                                              |
+| ---------------------------------- | --------------------------------------------------- |
+| Semua `*.vue` di `src/views/`      | 74+ view, risiko breaking change sangat tinggi      |
+| Semua `*.vue` di `src/components/` | Komponen shared yang sudah stabil                   |
+| `src/composables/*.js`             | Composable yang sudah diintegrasikan ke banyak view |
+| `src/router/index.js`              | 74 route definition, sangat kompleks                |
+| `src/main.js`                      | Entry point aplikasi                                |
+| `vite.config.mjs`                  | Build configuration                                 |
 
 ### Strategi Migrasi Jangka Panjang (Di Luar Scope DX1)
 
 Setelah DX1 selesai, migrasi bertahap bisa dilanjutkan dengan urutan berikut:
+
 1. Composable lama (`useApi.js` → `useApi.ts`, `useApiWithCache.js` → `useApiWithCache.ts`)
 2. Utility files (`src/util/*.js` → `*.ts`)
 3. Pinia stores (`src/stores/*.js` → `*.ts`)
@@ -5513,11 +5559,698 @@ Setelah DX1 selesai, migrasi bertahap bisa dilanjutkan dengan urutan berikut:
 
 ---
 
-*File ini diperbarui pada 2026-09-02. Fase 1–6, Fase Opsional P4 (Vite), Fase Opsional DX4 (Views Rename), Fase Opsional P3 (API Caching), dan Fase Opsional DX1 (TypeScript Migration) sudah selesai.*
+_File ini diperbarui pada 2026-09-02. Fase 1–6, Fase Opsional P4 (Vite), Fase Opsional DX4 (Views Rename), Fase Opsional P3 (API Caching), dan Fase Opsional DX1 (TypeScript Migration) sudah selesai._
 
+---
 
+# 🔵 IMPLEMENTATION.md — Fase 7: UX7 View Modernization
 
+> **Status:** ✅ COMPLETED
+> **Target Audiens:** Model Gemini 3.7 Flash (High) yang mengeksekusi task ini
+> **Tanggal selesai:** 2026-09-02
+> **Estimasi Total:** 20–40 jam
+> **Hasil Aktual:** 100% selesai (111 views termodernisasi, 0 snackbars tersisa, 97 skeleton tables & empty states terpasang, 94 confirm dialogs terpasang)
+> **Prioritas:** #1 — Selesai & Terverifikasi
+> **Terakhir diperbarui:** 2026-09-02
 
+---
 
+## 🎯 Ringkasan Eksekutif
 
+**UX7 adalah fase modernisasi view** — mengintegrasikan komponen reusable yang sudah selesai dibuat (di Fase 4 & 5) ke dalam 80+ view yang masih menggunakan pola lama.
 
+Saat ini, semua komponen dan infrastruktur **sudah 100% siap**:
+
+- ✅ `GlobalNotification.vue` + `stores/notification.js` sudah ada di `App.vue`
+- ✅ `ConfirmDialog.vue` sudah tersedia di `src/components/`
+- ✅ `EmptyState.vue` sudah tersedia di `src/components/`
+- ✅ `SkeletonTable.vue` sudah tersedia di `src/components/`
+
+Yang perlu dilakukan adalah **mengganti pola lama di setiap view** satu per satu:
+
+| Pola Lama (di 80+ view)                          | Pola Baru                                       |
+| ------------------------------------------------ | ----------------------------------------------- |
+| `v-snackbar` success/error inline                | `useNotificationStore().success()` / `.error()` |
+| `v-dialog` konfirmasi delete inline              | `<confirm-dialog>` component                    |
+| `<tr v-if="isLoading"><td><v-progress-circular>` | `<skeleton-table>` component                    |
+| Tabel kosong tanpa feedback                      | `<empty-state>` component                       |
+
+> **PENTING:** Semua view menggunakan **Options API** (bukan `<script setup>`). Pinia store BISA digunakan di Options API — ini sudah diverifikasi. Lihat pola penggunaan di Task 1.
+
+> **PENDEKATAN:** Migrasi dilakukan **satu view per satu secara iteratif**. Verifikasi `npm run build` setelah setiap batch 10 view. Jangan memodifikasi logic bisnis — hanya ganti UI boilerplate.
+
+---
+
+## 📅 Timeline
+
+| Fase    | Task                                                   | Estimasi  | Kumulatif |
+| ------- | ------------------------------------------------------ | --------- | --------- |
+| Batch 1 | UX7-T1: Migrasi `v-snackbar` — 80+ view                | 12–20 jam | 12–20 jam |
+| Batch 2 | UX7-T2: Migrasi `v-dialog` konfirmasi — 60+ view       | 8–15 jam  | 20–35 jam |
+| Batch 3 | UX7-T3: Tambahkan `EmptyState.vue` — view prioritas    | 3–5 jam   | 23–40 jam |
+| Batch 4 | UX7-T4: Tambahkan `SkeletonTable.vue` — view prioritas | 3–5 jam   | 26–45 jam |
+
+> **Urutan eksekusi:** T1 → T2 → T3 → T4. T1 dan T2 adalah yang paling berdampak.
+
+---
+
+## 📦 Estimasi Resource
+
+| Item                         | Detail                                                                               |
+| ---------------------------- | ------------------------------------------------------------------------------------ |
+| Total view yang dimodifikasi | ~80–90 file `.vue` di `src/views/`                                                   |
+| File komponen yang dipakai   | `GlobalNotification.vue`, `ConfirmDialog.vue`, `EmptyState.vue`, `SkeletonTable.vue` |
+| File store yang dipakai      | `src/stores/notification.js`                                                         |
+| Package baru yang diinstall  | ❌ Tidak ada                                                                         |
+| Build tool                   | Vite (`npm run build`)                                                               |
+| Verifikasi                   | `npm run build` setelah setiap batch                                                 |
+
+---
+
+## 📋 Detail Task
+
+---
+
+### UX7-T1: Migrasi `v-snackbar` Inline → `useNotificationStore`
+
+#### Deskripsi
+
+Setiap view di `src/views/` saat ini memiliki 2 `v-snackbar` identik untuk notifikasi sukses dan error, ditambah 4–6 reactive state (`isSuccess`, `isError`, `successMessage`, `errorMessage`). Total ~80+ view dengan duplikasi kode yang sama.
+
+**Tujuan:** Hapus semua `v-snackbar` dan state terkait dari view. Ganti panggilan notifikasi dengan `useNotificationStore().success()` / `.error()`.
+
+**Komponen yang sudah siap:**
+
+- `src/components/GlobalNotification.vue` — sudah terpasang di `App.vue`
+- `src/stores/notification.js` — sudah diregistrasi di Pinia
+
+#### Step-by-Step Execution
+
+**Langkah 0 — Identifikasi semua target view**
+
+Gunakan `grep_search` untuk menemukan semua view yang masih punya `v-snackbar`:
+
+```
+grep_search:
+  Query: "v-snackbar"
+  SearchPath: "d:/Projects/freelance/admingypsy-new/src/views"
+  Includes: ["*.vue"]
+  MatchPerLine: false
+```
+
+Simpan daftar file hasilnya. Inilah daftar view yang perlu dimigrasi.
+
+**Langkah 1 — Pola SEBELUM (di setiap view lama)**
+
+Cari dan hapus blok template ini di tiap view:
+
+```html
+<!-- HAPUS blok template ini (2 v-snackbar) -->
+<v-snackbar location="top" color="green" v-model="isSuccess" :timeout="3000">
+  {{ successMessage }}
+  <template v-slot:actions>
+    <v-btn color="white" variant="text" @click="isSuccess = false">
+      <v-icon>mdi-close</v-icon>
+    </v-btn>
+  </template>
+</v-snackbar>
+<v-snackbar location="top" color="red" v-model="isError" :timeout="3000">
+  {{ errorMessage }}
+  <template v-slot:actions>
+    <v-btn color="white" variant="text" @click="isError = false">
+      <v-icon>mdi-close</v-icon>
+    </v-btn>
+  </template>
+</v-snackbar>
+```
+
+Cari dan hapus dari `data()`:
+
+```javascript
+// HAPUS state ini dari data():
+isSuccess: false,
+isError: false,
+successMessage: '',
+errorMessage: '',
+```
+
+**Langkah 2 — Tambahkan import Pinia store ke `<script>`**
+
+```javascript
+// Tambahkan di bagian import (di dalam <script>, bukan <script setup>)
+import { useNotificationStore } from '@/stores/notification';
+```
+
+**Langkah 3 — Inisialisasi store di `created()` atau `setup()`**
+
+Karena semua view masih menggunakan **Options API**, gunakan pola ini:
+
+```javascript
+export default {
+  name: 'NamaView',
+
+  // Tambahkan setup() untuk mengekspos store ke Options API
+  setup() {
+    const notification = useNotificationStore();
+    return { notification };
+  },
+
+  data: () => ({
+    // ... data lama tanpa isSuccess, isError, successMessage, errorMessage
+  }),
+
+  methods: {
+    saveData() {
+      // ...
+      axios.post(...)
+        .then((response) => {
+          // SEBELUM: this.successMessage = data.message; this.isSuccess = true;
+          // SESUDAH:
+          this.notification.success(response.data.message || 'Data saved successfully!');
+        })
+        .catch((error) => {
+          // SEBELUM: this.errorMessage = message; this.isError = true;
+          // SESUDAH:
+          const message = error?.response?.data?.message || 'Something went wrong!';
+          this.notification.error(message);
+        });
+    },
+  },
+};
+```
+
+> **CATATAN PENTING:** Gunakan `setup()` yang mengembalikan `{ notification }` agar bisa diakses via `this.notification` di Options API. Ini pola resmi Vue 3 dan TIDAK menyebabkan error.
+
+**Langkah 4 — Ganti semua panggilan notifikasi di methods**
+
+Cari semua pola berikut dan ganti:
+
+| Sebelum                                               | Sesudah                             |
+| ----------------------------------------------------- | ----------------------------------- |
+| `this.successMessage = '...'; this.isSuccess = true;` | `this.notification.success('...');` |
+| `this.errorMessage = '...'; this.isError = true;`     | `this.notification.error('...');`   |
+| `this.isSuccess = false;`                             | _(hapus — tidak perlu)_             |
+| `this.isError = false;`                               | _(hapus — tidak perlu)_             |
+
+**Langkah 5 — Verifikasi per batch**
+
+Setelah mengerjakan batch 10 view, jalankan:
+
+```powershell
+npm run build
+```
+
+Pastikan build berhasil tanpa error sebelum melanjutkan ke batch berikutnya.
+
+#### Estimasi Waktu per Sub-Task
+
+| Sub-Task                              | Estimasi            |
+| ------------------------------------- | ------------------- |
+| Identifikasi semua view (grep_search) | 5 menit             |
+| Migrasi per view (rata-rata)          | 8–15 menit per view |
+| Verifikasi build per batch (10 view)  | 2–3 menit           |
+| Total 80 view                         | 12–20 jam           |
+
+#### Estimasi Total Waktu: 12–20 jam
+
+#### Complexity: 🟡 Medium
+
+Perubahan bersifat repetitif dan mekanis. Tidak ada perubahan logic bisnis. Risiko utama adalah lupa menghapus state yang tidak lagi dipakai.
+
+#### Risk
+
+| Risk                                                                           | Mitigasi                                                                                              |
+| ------------------------------------------------------------------------------ | ----------------------------------------------------------------------------------------------------- |
+| Lupa hapus state di `data()` → dead code                                       | Setelah selesai satu view, search `isSuccess\|isError\|successMessage\|errorMessage` di file tersebut |
+| View tertentu punya variasi nama state (misal `isSuccessAdd`, `isErrorDelete`) | Baca seluruh `data()` view sebelum mulai migrasi                                                      |
+| Error jika `useNotificationStore` dipanggil di luar `setup()`                  | Selalu inisialisasi via `setup()` yang mengembalikan `{ notification }`                               |
+| Pesan error dari API tidak konsisten                                           | Gunakan optional chaining: `error?.response?.data?.message \|\| 'Something went wrong!'`              |
+
+---
+
+### UX7-T2: Migrasi `v-dialog` Konfirmasi Delete → `<confirm-dialog>`
+
+#### Deskripsi
+
+Setiap view yang memiliki fitur delete mempunyai `v-dialog` konfirmasi yang identik. Rata-rata setiap view memiliki state `isDelete`, `isDeleteLoading`, dan ID yang akan dihapus. `ConfirmDialog.vue` sudah tersedia dan mendukung semua fitur ini termasuk prop `loading`.
+
+**Tujuan:** Hapus semua `v-dialog` konfirmasi delete inline. Ganti dengan `<confirm-dialog>` reusable.
+
+**Komponen yang sudah siap:**
+
+- `src/components/ConfirmDialog.vue`
+
+Props yang tersedia:
+
+```
+modelValue    (Boolean)  — v-model untuk open/close
+title         (String)   — default: 'Confirmation'
+message       (String)   — default: 'Are you sure you want to proceed?'
+confirmText   (String)   — default: 'Yes'
+cancelText    (String)   — default: 'Cancel'
+confirmColor  (String)   — default: 'error'
+icon          (String)   — default: 'mdi-alert-circle-outline'
+width         (Number)   — default: 420
+loading       (Boolean)  — default: false (tampilkan spinner di tombol confirm)
+
+Events:
+@confirm  — dipanggil saat user klik tombol konfirmasi
+@cancel   — dipanggil saat user klik tombol cancel
+```
+
+#### Step-by-Step Execution
+
+**Langkah 0 — Identifikasi semua target view**
+
+```
+grep_search:
+  Query: "isDelete"
+  SearchPath: "d:/Projects/freelance/admingypsy-new/src/views"
+  Includes: ["*.vue"]
+  MatchPerLine: false
+```
+
+**Langkah 1 — Pola SEBELUM (v-dialog inline)**
+
+```html
+<!-- HAPUS blok ini -->
+<v-dialog persistent width="500" v-model="isDelete">
+  <v-card>
+    <v-card-title>Confirmation</v-card-title>
+    <v-card-text>Are you sure want to delete this item?</v-card-text>
+    <v-card-actions>
+      <v-spacer></v-spacer>
+      <v-btn color="error" text @click="cancelDelete">No</v-btn>
+      <v-btn color="success" text @click="deleteItem">
+        {{ isDeleteLoading ? 'Deleting...' : 'Yes' }}
+      </v-btn>
+    </v-card-actions>
+  </v-card>
+</v-dialog>
+```
+
+**Langkah 2 — Pola SESUDAH (ConfirmDialog component)**
+
+Tambahkan import komponen di `<script>`:
+
+```javascript
+import ConfirmDialog from '@/components/ConfirmDialog.vue';
+
+export default {
+  components: {
+    // ... komponen lain
+    ConfirmDialog,
+  },
+  // ...
+};
+```
+
+Ganti di template:
+
+```html
+<!-- GANTI dengan ini -->
+<confirm-dialog
+  v-model="isDelete"
+  title="Delete Item"
+  message="Are you sure you want to delete this item? This action cannot be undone."
+  confirm-text="Delete"
+  confirm-color="error"
+  :loading="isDeleteLoading"
+  @confirm="deleteItem"
+/>
+```
+
+> **PENTING:** Hapus method `cancelDelete()` jika isinya hanya mengeset `isDelete = false`. `ConfirmDialog` sudah menghandle close otomatis via `update:modelValue`. Jika `cancelDelete()` melakukan hal lain (misal reset ID), pertahankan dan bind ke `@cancel`.
+
+**Langkah 3 — Sesuaikan method deleteItem**
+
+Pola lama biasanya menutup dialog di dalam `.finally()`. Dengan `ConfirmDialog`, dialog sudah ditutup otomatis saat user klik confirm. Cukup hapus `this.isDelete = false` di dalam method:
+
+```javascript
+// SEBELUM:
+deleteItem() {
+  this.isDeleteLoading = true;
+  axios.delete(`/endpoint/${this.idToDelete}`)
+    .then(() => {
+      this.successMessage = 'Deleted!';
+      this.isSuccess = true;        // ← sudah diganti di T1
+      this.getData();
+    })
+    .catch(() => {
+      this.errorMessage = 'Failed!';
+      this.isError = true;          // ← sudah diganti di T1
+    })
+    .finally(() => {
+      this.isDeleteLoading = false;
+      this.isDelete = false;        // ← hapus ini, dialog sudah auto-close
+      this.idToDelete = null;
+    });
+},
+
+// SESUDAH:
+deleteItem() {
+  this.isDeleteLoading = true;
+  axios.delete(`/endpoint/${this.idToDelete}`)
+    .then(() => {
+      this.notification.success('Item deleted successfully!');
+      this.getData();
+    })
+    .catch((error) => {
+      const message = error?.response?.data?.message || 'Failed to delete item.';
+      this.notification.error(message);
+    })
+    .finally(() => {
+      this.isDeleteLoading = false;
+      this.idToDelete = null;
+      // isDelete tidak perlu di-set false — ConfirmDialog auto-close
+    });
+},
+```
+
+**Langkah 4 — Verifikasi per batch**
+
+```powershell
+npm run build
+```
+
+#### Estimasi Waktu per Sub-Task
+
+| Sub-Task                              | Estimasi            |
+| ------------------------------------- | ------------------- |
+| Identifikasi semua view (grep_search) | 5 menit             |
+| Migrasi per view (rata-rata)          | 8–12 menit per view |
+| Verifikasi build per batch (10 view)  | 2–3 menit           |
+| Total 60 view                         | 8–15 jam            |
+
+#### Estimasi Total Waktu: 8–15 jam
+
+#### Complexity: 🟡 Medium
+
+Mirip dengan T1 — repetitif dan mekanis. Variasi terbesar adalah nama method dan ID yang dipakai untuk delete. Selalu baca method `cancelDelete`, `openDeleteConfirm`, dan `deleteItem` sebelum memodifikasi.
+
+#### Risk
+
+| Risk                                                          | Mitigasi                                                                                                   |
+| ------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------- |
+| View memiliki beberapa jenis delete (item berbeda)            | Buat satu `confirm-dialog` per jenis delete dengan v-model yang berbeda (`isDeleteItem1`, `isDeleteItem2`) |
+| `cancelDelete()` melakukan reset state selain menutup dialog  | Pertahankan method dan bind ke event `@cancel` di `<confirm-dialog>`                                       |
+| `isDelete = false` di `.finally()` menyebabkan flicker        | Hapus baris tersebut — dialog auto-close mencegah kebutuhan ini                                            |
+| View pakai `v-dialog` yang sama untuk hal lain (bukan delete) | Jangan sentuh — hanya ganti `v-dialog` yang merupakan konfirmasi delete                                    |
+
+---
+
+### UX7-T3: Tambahkan `EmptyState.vue` ke View Prioritas
+
+#### Deskripsi
+
+View yang menampilkan tabel tidak memberikan feedback visual saat data kosong. `EmptyState.vue` sudah tersedia dan siap dipakai. Task ini menambahkan `EmptyState` ke view-view dengan trafik tinggi terlebih dahulu.
+
+**Tujuan:** Tambahkan `<empty-state>` di bawah tabel saat `items.length === 0 && !isLoading`.
+
+**Komponen yang sudah siap:**
+
+- `src/components/EmptyState.vue`
+
+Props:
+
+```
+icon        (String)  — default: 'mdi-database-off-outline'
+iconSize    (Number)  — default: 72
+iconColor   (String)  — default: 'grey-lighten-2'
+title       (String)  — default: 'No Data Found'
+subtitle    (String)  — default: 'There are no records to display.'
+actionLabel (String)  — default: '' (kosong = tidak tampil)
+actionIcon  (String)  — default: 'mdi-plus'
+actionColor (String)  — default: 'primary'
+
+Events:
+@action — dipanggil saat tombol action diklik
+```
+
+#### Step-by-Step Execution
+
+**Langkah 0 — Prioritaskan view yang paling sering dibuka**
+
+Tidak harus semua view — fokus pada view dengan trafik tinggi:
+
+- Dashboard views
+- Master data views utama (facility, property-types, dll.)
+
+**Langkah 1 — Tambahkan import di `<script>`**
+
+```javascript
+import EmptyState from '@/components/EmptyState.vue';
+
+export default {
+  components: {
+    // ...
+    EmptyState,
+  },
+};
+```
+
+**Langkah 2 — Tambahkan di template setelah tbody atau setelah tabel**
+
+Pola view ini menggunakan `v-table` dengan `tbody`. Tambahkan `empty-state` di dalam `tbody` atau tepat setelah `v-table`:
+
+```html
+<!-- Opsi A: Di dalam tbody (disarankan untuk v-table) -->
+<tbody>
+  <template v-for="item in filteredItems" :key="item.id">
+    <!-- baris tabel -->
+  </template>
+  <!-- Loading state (jika belum ada SkeletonTable) -->
+  <tr v-if="isLoading">
+    <td :colspan="6" class="text-center py-6">
+      <v-progress-circular indeterminate color="primary" />
+    </td>
+  </tr>
+</tbody>
+
+<!-- TAMBAHKAN ini tepat setelah </v-table> atau </v-sheet> yang membungkus tabel -->
+<empty-state
+  v-if="!isLoading && (!filteredItems || filteredItems.length === 0)"
+  title="No Data Found"
+  subtitle="There are no records to display."
+/>
+```
+
+```html
+<!-- Opsi B: Di dalam tbody untuk v-data-table (jika view pakai v-data-table) -->
+<v-data-table :items="items" ...>
+  <template v-slot:no-data>
+    <empty-state title="No Data Found" subtitle="There are no records to display." />
+  </template>
+</v-data-table>
+```
+
+> **CATATAN:** Gunakan Opsi A untuk view yang pakai `v-table` manual (mayoritas). Gunakan Opsi B hanya jika view pakai `v-data-table` Vuetify.
+
+**Langkah 3 — Verifikasi per batch**
+
+```powershell
+npm run build
+```
+
+#### Estimasi Waktu per Sub-Task
+
+| Sub-Task                    | Estimasi           |
+| --------------------------- | ------------------ |
+| Identifikasi view prioritas | 10 menit           |
+| Migrasi per view            | 3–5 menit per view |
+| Total ~30–50 view prioritas | 3–5 jam            |
+
+#### Estimasi Total Waktu: 3–5 jam
+
+#### Complexity: 🟢 Low
+
+Penambahan additive — tidak ada yang dihapus. Risiko sangat rendah.
+
+#### Risk
+
+| Risk                                                                 | Mitigasi                                                                       |
+| -------------------------------------------------------------------- | ------------------------------------------------------------------------------ |
+| `filteredItems` undefined saat view baru mount                       | Gunakan `filteredItems?.length === 0` atau pastikan `items: []` di `data()`    |
+| Empty state muncul sebelum data selesai load                         | Selalu tambahkan kondisi `&& !isLoading`                                       |
+| View menggunakan computed `filteredItems` yang bisa return undefined | Pastikan computed selalu return array: `return this.items.filter(...) \|\| []` |
+
+---
+
+### UX7-T4: Tambahkan `SkeletonTable.vue` sebagai Pengganti `v-progress-circular`
+
+#### Deskripsi
+
+Saat ini, loading state di tabel ditampilkan sebagai `v-progress-circular` di dalam tabel yang sangat minimal. `SkeletonTable.vue` memberikan UX yang jauh lebih baik dengan placeholder tabel yang beranimasi.
+
+**Tujuan:** Ganti `<tr v-if="isLoading"><td><v-progress-circular>` dengan `<skeleton-table>` yang ditampilkan di atas tabel.
+
+**Komponen yang sudah siap:**
+
+- `src/components/SkeletonTable.vue`
+
+Props:
+
+```
+rows           (Number)         — jumlah baris skeleton, default: 5
+columns        (Number|Array)   — jumlah kolom (angka) atau array nama kolom, default: 4
+showThumbnail  (Boolean)        — tampilkan avatar di kolom pertama, default: false
+```
+
+#### Step-by-Step Execution
+
+**Langkah 0 — Identifikasi view yang masih pakai `v-progress-circular` di tabel**
+
+```
+grep_search:
+  Query: "v-progress-circular"
+  SearchPath: "d:/Projects/freelance/admingypsy-new/src/views"
+  Includes: ["*.vue"]
+  MatchPerLine: false
+```
+
+**Langkah 1 — Tambahkan import di `<script>`**
+
+```javascript
+import SkeletonTable from '@/components/SkeletonTable.vue';
+
+export default {
+  components: {
+    // ...
+    SkeletonTable,
+  },
+};
+```
+
+**Langkah 2 — Ganti pola di template**
+
+Pola lama (di dalam `tbody`):
+
+```html
+<!-- HAPUS ini dari dalam tbody -->
+<tr v-if="isLoading">
+  <td :colspan="6" class="text-center">
+    <v-progress-circular indeterminate color="indigo-accent-2"></v-progress-circular>
+  </td>
+</tr>
+```
+
+Pola baru (di luar tabel, sebagai pengganti):
+
+```html
+<!-- Hitung berapa kolom yang ada di tabel view ini -->
+<!-- Lihat header tabel: <th> = jumlah kolom -->
+
+<!-- TAMBAHKAN tepat sebelum v-table atau v-sheet yang membungkus tabel -->
+<skeleton-table v-if="isLoading" :rows="5" :columns="6" />
+
+<!-- Tabel hanya ditampilkan jika tidak loading -->
+<v-table v-if="!isLoading" ...> ... </v-table>
+```
+
+> **PENTING:** Gunakan `:columns="N"` di mana N adalah jumlah `<th>` di header tabel view tersebut. Hitung dengan melihat template view.
+
+> **Jika view punya gambar di kolom pertama:** Tambahkan `:show-thumbnail="true"` ke `skeleton-table`.
+
+**Langkah 3 — Verifikasi tidak ada regresi**
+
+Pastikan:
+
+1. Saat pertama load → `SkeletonTable` tampil
+2. Setelah data load → tabel normal tampil
+3. `isEmpty` state benar (T3 sudah ditambahkan sebelumnya)
+
+```powershell
+npm run build
+```
+
+#### Estimasi Waktu per Sub-Task
+
+| Sub-Task                 | Estimasi           |
+| ------------------------ | ------------------ |
+| Identifikasi view target | 5 menit            |
+| Migrasi per view         | 5–8 menit per view |
+| Total ~30–50 view        | 3–5 jam            |
+
+#### Estimasi Total Waktu: 3–5 jam
+
+#### Complexity: 🟡 Medium-Low
+
+Memerlukan perubahan structure template (memindahkan `v-if` dari dalam `tbody` ke membungkus `v-table`). Tetap bersifat additive — tidak ada logic bisnis yang berubah.
+
+#### Risk
+
+| Risk                                                                  | Mitigasi                                                                                        |
+| --------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------- |
+| `v-table` dan `skeleton-table` tampil bersamaan                       | Pastikan kondisi `v-if="isLoading"` dan `v-if="!isLoading"` tidak ada overlap                   |
+| Jumlah kolom skeleton tidak sesuai tabel                              | Hitung `<th>` di header tabel view tersebut sebelum set `:columns`                              |
+| View punya loading state yang berbeda (`isLoading2`, `isDataLoading`) | Gunakan nama state loading yang benar sesuai view                                               |
+| View menggunakan `v-data-table` bukan `v-table`                       | Gunakan `v-slot:loading` dari Vuetify: `<template v-slot:loading><skeleton-table /></template>` |
+
+---
+
+## ⚠️ Risk & Mitigation Global
+
+| Risk                                                              | Severity  | Mitigasi                                                                          |
+| ----------------------------------------------------------------- | --------- | --------------------------------------------------------------------------------- |
+| Breaking perubahan logic bisnis                                   | 🔴 Tinggi | Jangan ubah apapun selain UI boilerplate. Jangan sentuh method fetch/save/delete. |
+| Error `Cannot read properties of undefined` saat ganti notifikasi | 🟡 Sedang | Selalu gunakan optional chaining: `error?.response?.data?.message`                |
+| `useNotificationStore` error "getActivePinia"                     | 🟡 Sedang | Pastikan inisialisasi di dalam `setup()`, bukan di `data()` atau luar component   |
+| Komponen tidak diregistrasi (Vue warning)                         | 🟡 Sedang | Tambahkan ke `components: {}` di setiap view yang menggunakannya                  |
+| Build error karena import path salah                              | 🟡 Sedang | Selalu gunakan `@/components/NamaKomponen.vue` — path absolut dengan alias `@`    |
+| Regresi di view lain yang tidak disentuh                          | 🟢 Rendah | Jalankan `npm run build` per batch 10 view — build gagal = ada error              |
+
+---
+
+## ✅ Checklist Verifikasi per View
+
+Setelah mengerjakan satu view, verifikasi:
+
+```
+□ v-snackbar success/error sudah dihapus dari template
+□ isSuccess, isError, successMessage, errorMessage sudah dihapus dari data()
+□ useNotificationStore sudah diimport dan diinisialisasi via setup()
+□ Semua pemanggilan notifikasi sudah pakai notification.success() / notification.error()
+□ (Jika T2) v-dialog konfirmasi delete sudah diganti dengan <confirm-dialog>
+□ (Jika T2) ConfirmDialog sudah ditambahkan ke components: {}
+□ (Jika T3) EmptyState sudah tampil saat data kosong (tidak loading)
+□ (Jika T4) SkeletonTable sudah menggantikan v-progress-circular
+□ npm run build sukses tanpa error
+```
+
+---
+
+## 📝 Execution Log
+
+```
+Tanggal mulai: 2026-09-02
+Tanggal selesai: 2026-09-02
+Model: Gemini 3.7 Flash (High)
+
+UX7-T1 — v-snackbar migration:
+- Views diproses: 111 views di src/views
+- Views selesai: 111 / 111
+- Sisa v-snackbar inline: 0
+- Status: ✅ SELESAI
+
+UX7-T2 — ConfirmDialog migration:
+- Views diproses: 94 views dengan delete dialog di src/views
+- Views selesai: 94 / 94
+- Status: ✅ SELESAI
+
+UX7-T3 — EmptyState:
+- Views selesai: 97 / 97 (seluruh view bertabel)
+- Status: ✅ SELESAI
+
+UX7-T4 — SkeletonTable:
+- Views selesai: 97 / 97 (seluruh view bertabel)
+- Sisa v-progress-circular inline: 0
+- Status: ✅ SELESAI
+
+Verifikasi Final:
+- npm run type-check: PASSED (0 errors)
+- npm run build: PASSED (Vite production bundle built in 11.65s, 0 errors)
+```
+
+---
+
+_File ini diperbarui pada 2026-09-02. Fase 1–6, Fase Opsional P4 (Vite), Fase Opsional DX4 (Views Rename), Fase Opsional P3 (API Caching), Fase Opsional DX1 (TypeScript Migration), dan Fase 7 UX7 (View Modernization) sudah SELESAI._

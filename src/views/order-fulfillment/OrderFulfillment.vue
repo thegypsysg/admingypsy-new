@@ -47,9 +47,7 @@
         <h3 class="text-grey-darken-1 font-weight-medium mt-2">
           {{ checkIfToday(item?.delivery_day) ? 'Today' : item?.delivery_day }}
         </h3>
-        <p class="text-blue-darken-2 text-body-2 mt-3">
-          ({{ item?.total_orders }} Orders)
-        </p>
+        <p class="text-blue-darken-2 text-body-2 mt-3">({{ item?.total_orders }} Orders)</p>
       </v-col>
     </v-row>
     <v-sheet class="py-6 px-4 mt-10" border rounded width="100%">
@@ -96,20 +94,15 @@
                               style="min-width: 150px !important"
                             >
                               <template #item="{ props, item }">
-                                <div
-                                  v-bind="props"
-                                  class="d-flex align-center py-2 px-3"
-                                >
+                                <div v-bind="props" class="d-flex align-center py-2 px-3">
                                   <!-- Label Hitam -->
                                   <span class="text-black">
                                     {{
                                       item?.raw?.partner?.partner_name &&
-                                      item?.raw?.partner_location?.town
-                                        ?.town_name
+                                      item?.raw?.partner_location?.town?.town_name
                                         ? `${item.raw.partner.partner_name} | ${item.raw.partner_location.town.town_name}`
                                         : item?.raw?.partner?.partner_name &&
-                                          item?.raw?.partner_location?.city
-                                            ?.city_name
+                                          item?.raw?.partner_location?.city?.city_name
                                         ? `${item.raw.partner.partner_name} | ${item.raw.partner_location.city.city_name}`
                                         : item?.raw?.partner?.partner_name
                                         ? item.raw.partner.partner_name
@@ -118,17 +111,14 @@
                                   </span>
                                   <!-- Label Merah -->
                                   <span
-                                    v-if="
-                                      item?.raw?.merchant_price_list?.length
-                                    "
+                                    v-if="item?.raw?.merchant_price_list?.length"
                                     class="text-red-darken-3 font-weight-bold ml-2"
                                   >
                                     (S$
                                     {{
-                                      parseFloat(
-                                        item.raw.merchant_price_list[0]
-                                          .shop_rate
-                                      ).toFixed(2)
+                                      parseFloat(item.raw.merchant_price_list[0].shop_rate).toFixed(
+                                        2
+                                      )
                                     }})
                                   </span>
                                 </div>
@@ -140,12 +130,10 @@
                                   <span class="text-black">
                                     {{
                                       item?.raw?.partner?.partner_name &&
-                                      item?.raw?.partner_location?.town
-                                        ?.town_name
+                                      item?.raw?.partner_location?.town?.town_name
                                         ? `${item.raw.partner.partner_name} | ${item.raw.partner_location.town.town_name}`
                                         : item?.raw?.partner?.partner_name &&
-                                          item?.raw?.partner_location?.city
-                                            ?.city_name
+                                          item?.raw?.partner_location?.city?.city_name
                                         ? `${item.raw.partner.partner_name} | ${item.raw.partner_location.city.city_name}`
                                         : item?.raw?.partner?.partner_name
                                         ? item.raw.partner.partner_name
@@ -154,17 +142,14 @@
                                   </span>
                                   <!-- Label Merah -->
                                   <span
-                                    v-if="
-                                      item?.raw?.merchant_price_list?.length
-                                    "
+                                    v-if="item?.raw?.merchant_price_list?.length"
                                     class="text-red-darken-3 font-weight-bold ml-2"
                                   >
                                     (S$
                                     {{
-                                      parseFloat(
-                                        item.raw.merchant_price_list[0]
-                                          .shop_rate
-                                      ).toFixed(2)
+                                      parseFloat(item.raw.merchant_price_list[0].shop_rate).toFixed(
+                                        2
+                                      )
                                     }})
                                   </span>
                                 </div>
@@ -182,10 +167,7 @@
                             >
                               ADD
                             </v-btn>
-                            <div
-                              v-else
-                              class="d-flex align-center font-weight-black"
-                            >
+                            <div v-else class="d-flex align-center font-weight-black">
                               <span
                                 @click="openCancelVendor(item)"
                                 class="text-red-darken-4 mx-4"
@@ -202,6 +184,12 @@
                         </tr>
                       </tbody>
                     </v-table>
+                    <skeleton-table v-if="isLoading" :rows="5" :columns="5" />
+                    <empty-state
+                      v-if="!isLoading && (!orderFulfillment || orderFulfillment.length === 0)"
+                      title="No Data Found"
+                      subtitle="There are no records to display."
+                    />
                   </td>
                 </tr>
 
@@ -211,35 +199,20 @@
                     <v-table class="w-50">
                       <tbody>
                         <tr v-for="del in item?.cart_details" :key="del?.cd_id">
-                          <td
-                            style="border-bottom: none !important"
-                            class="pt-4"
-                          >
+                          <td style="border-bottom: none !important" class="pt-4">
                             {{ del?.cd_id }}
                           </td>
-                          <td
-                            style="border-bottom: none !important"
-                            class="pt-4"
-                          >
+                          <td style="border-bottom: none !important" class="pt-4">
                             {{ item?.product_name }}
                             ({{ item?.quantity_name }})
                           </td>
-                          <td
-                            style="border-bottom: none !important"
-                            class="pt-4 text-no-wrap"
-                          >
+                          <td style="border-bottom: none !important" class="pt-4 text-no-wrap">
                             <span v-if="del?.rate">S$</span> {{ del?.rate }}
                           </td>
-                          <td
-                            style="border-bottom: none !important"
-                            class="pt-4"
-                          >
+                          <td style="border-bottom: none !important" class="pt-4">
                             {{ del?.qty }}
                           </td>
-                          <td
-                            style="border-bottom: none !important"
-                            class="pt-4 text-no-wrap"
-                          >
+                          <td style="border-bottom: none !important" class="pt-4 text-no-wrap">
                             <span v-if="del?.amount">S$</span> {{ del?.amount }}
                           </td>
                         </tr>
@@ -248,42 +221,12 @@
                   </td>
                 </tr>
               </template>
-              <tr v-if="isLoading">
-                <td :colspan="8" class="text-center">
-                  <v-progress-circular
-                    indeterminate
-                    color="indigo-accent-2"
-                  ></v-progress-circular>
-                </td>
-              </tr>
             </tbody>
           </v-table>
         </v-col>
       </v-row>
     </v-sheet>
-    <v-snackbar
-      location="top"
-      color="green"
-      v-model="isSuccess"
-      :timeout="3000"
-    >
-      {{ successMessage }}
 
-      <template v-slot:actions>
-        <v-btn color="white" variant="text" @click="isSuccess = false">
-          <v-icon>mdi-close</v-icon>
-        </v-btn>
-      </template>
-    </v-snackbar>
-    <v-snackbar location="top" color="red" v-model="isError" :timeout="3000">
-      {{ errorMessage }}
-
-      <template v-slot:actions>
-        <v-btn color="white" variant="text" @click="isError = false">
-          <v-icon>mdi-close</v-icon>
-        </v-btn>
-      </template>
-    </v-snackbar>
     <v-dialog persistent width="500" v-model="addVendor">
       <v-card>
         <v-card-text> Do you wish to select this Vendor . ? </v-card-text>
@@ -308,6 +251,9 @@
 </template>
 
 <script>
+import SkeletonTable from '@/components/SkeletonTable.vue';
+import EmptyState from '@/components/EmptyState.vue';
+import { useNotificationStore } from '@/stores/notification';
 import axios from '@/util/axios';
 import moment from 'moment';
 import { setAuthHeader } from '@/util/axios';
@@ -315,14 +261,20 @@ import { setAuthHeader } from '@/util/axios';
 
 export default {
   name: 'OrderFulfillment',
+  components: {
+    EmptyState,
+    SkeletonTable,
+  },
+  setup() {
+    const notification = useNotificationStore();
+    return { notification };
+  },
   data: () => ({
     // fileURL: 'https://admin1.the-gypsy.sg/img/app/',
     valid: false,
     isLoading: false,
     isSending: false,
     isSending2: false,
-    isSuccess: false,
-    isError: false,
     addVendor: false,
     cancelVendor: false,
     addVendorData: null,
@@ -331,8 +283,6 @@ export default {
     perPage: 5,
     totalPages: 1,
     totalItems: 0,
-    successMessage: '',
-    errorMessage: '',
     search: '',
     items: [],
     orderFulfillment: [],
@@ -361,9 +311,7 @@ export default {
     getItemsData(deliveryDate) {
       this.isLoading = true;
       axios
-        .get(
-          `/order-fullfilment/get-cart-details-by-delivery-date?date=${deliveryDate}`
-        )
+        .get(`/order-fullfilment/get-cart-details-by-delivery-date?date=${deliveryDate}`)
         .then((response) => {
           const data = response.data;
           this.items = data.data;
@@ -372,11 +320,8 @@ export default {
           // eslint-disable-next-line
           console.log(error);
           const message =
-            error.response.data.message === ''
-              ? 'Something Wrong!!!'
-              : error.response.data.message;
-          this.errorMessage = message;
-          this.isError = true;
+            error.response.data.message === '' ? 'Something Wrong!!!' : error.response.data.message;
+          this.notification.error(message);
         })
         .finally(() => {
           this.isLoading = false;
@@ -401,11 +346,8 @@ export default {
           // eslint-disable-next-line
           console.log(error);
           const message =
-            error.response.data.message === ''
-              ? 'Something Wrong!!!'
-              : error.response.data.message;
-          this.errorMessage = message;
-          this.isError = true;
+            error.response.data.message === '' ? 'Something Wrong!!!' : error.response.data.message;
+          this.notification.error(message);
         })
         .finally(() => {
           this.isLoading = false;
@@ -423,11 +365,9 @@ export default {
               ...item,
               id: item?.partner_id,
               name:
-                item?.partner?.partner_name &&
-                item?.partner_location?.town?.town_name
+                item?.partner?.partner_name && item?.partner_location?.town?.town_name
                   ? `${item.partner.partner_name} | ${item.partner_location.town.town_name}`
-                  : item?.partner?.partner_name &&
-                    item?.partner_location?.city?.city_name
+                  : item?.partner?.partner_name && item?.partner_location?.city?.city_name
                   ? `${item.partner.partner_name} | ${item.partner_location.city.city_name}`
                   : item?.partner?.partner_name
                   ? item.partner.partner_name
@@ -440,8 +380,7 @@ export default {
         .catch((error) => {
           console.log(error);
           const message = error.response?.data?.message || 'Something Wrong!!!';
-          this.errorMessage = message;
-          this.isError = true;
+          this.notification.error(message);
         })
         .finally(() => {
           this.isLoading = false;
@@ -528,8 +467,7 @@ export default {
         .post(`/order-fullfilment/add-vendor-data`, payload)
         .then((response) => {
           const data = response.data;
-          this.successMessage = data.message;
-          this.isSuccess = true;
+          this.notification.success(data.message);
           this.addVendor = false;
           this.getItemsData(this.selectedOrderFulfillment?.delivery_date);
         })
@@ -537,11 +475,8 @@ export default {
           // eslint-disable-next-line
           console.log(error);
           const message =
-            error.response.data.error === ''
-              ? 'Something Wrong!!!'
-              : error.response.data.error;
-          this.errorMessage = message;
-          this.isError = true;
+            error.response.data.error === '' ? 'Something Wrong!!!' : error.response.data.error;
+          this.notification.error(message);
         });
     },
     deleteVendor() {
@@ -554,8 +489,7 @@ export default {
         })
         .then((response) => {
           const data = response.data;
-          this.successMessage = data.message;
-          this.isSuccess = true;
+          this.notification.success(data.message);
           this.cancelVendor = false;
           this.getItemsData(this.selectedOrderFulfillment?.delivery_date);
         })
@@ -563,11 +497,8 @@ export default {
           // eslint-disable-next-line
           console.log(error);
           const message =
-            error.response.data.error === ''
-              ? 'Something Wrong!!!'
-              : error.response.data.error;
-          this.errorMessage = message;
-          this.isError = true;
+            error.response.data.error === '' ? 'Something Wrong!!!' : error.response.data.error;
+          this.notification.error(message);
         });
       // .finally(() => {
       //   this.isDeleteLoading = false;

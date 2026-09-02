@@ -217,15 +217,9 @@
           <v-table class="country-table">
             <thead>
               <tr>
-                <th class="text-left font-weight-bold text-blue-accent-4">
-                  Banner id
-                </th>
-                <th class="text-left font-weight-bold text-black">
-                  Merchant Name
-                </th>
-                <th class="text-left font-weight-bold text-blue-accent-4">
-                  Banner Header
-                </th>
+                <th class="text-left font-weight-bold text-blue-accent-4">Banner id</th>
+                <th class="text-left font-weight-bold text-black">Merchant Name</th>
+                <th class="text-left font-weight-bold text-blue-accent-4">Banner Header</th>
                 <th class="text-left font-weight-bold text-black">User</th>
                 <th class="text-left font-weight-bold text-black">Dated</th>
                 <th class="text-left font-weight-bold text-black"></th>
@@ -246,21 +240,20 @@
                   </td>
                   <td>
                     <div class="d-flex">
+                      <v-btn color="green" variant="text" @click="editBanner(item)" icon>
+                        <v-icon>mdi-pencil-outline</v-icon>
+                        <v-tooltip location="top" activator="parent">Edit</v-tooltip>
+                      </v-btn>
                       <v-btn
-                            color="green"
-                            variant="text" @click="editBanner(item)"
-                            icon
-                          >
-  <v-icon>mdi-pencil-outline</v-icon>  <v-tooltip location="top" activator="parent">Edit</v-tooltip>
-</v-btn>
-                      <v-btn
-                            color="red" variant="text"
-                            :disabled="isDeleteLoading"
-                            @click="openDeleteConfirm(item.id)"
-                            icon
-                          >
-  <v-icon>mdi-trash-can-outline</v-icon>  <v-tooltip location="top" activator="parent">Delete</v-tooltip>
-</v-btn>
+                        color="red"
+                        variant="text"
+                        :disabled="isDeleteLoading"
+                        @click="openDeleteConfirm(item.id)"
+                        icon
+                      >
+                        <v-icon>mdi-trash-can-outline</v-icon>
+                        <v-tooltip location="top" activator="parent">Delete</v-tooltip>
+                      </v-btn>
                     </div>
                   </td>
                 </tr>
@@ -321,8 +314,7 @@
                                 :to="`/displayed-banners/outlets/${item.id}/${item.mall_id}`"
                               >
                                 <span
-                                  >Outlets (<span class="text-red">
-                                    {{ item.outlets }} </span
+                                  >Outlets (<span class="text-red"> {{ item.outlets }} </span
                                   >)</span
                                 >
                               </router-link>
@@ -350,10 +342,7 @@
                                   <div class="d-flex align-center w-100">
                                     <div class="w-25 py-1">
                                       <div>
-                                        <v-img
-                                          height="40"
-                                          :src="item?.raw?.image"
-                                        >
+                                        <v-img height="40" :src="item?.raw?.image">
                                           <template #placeholder>
                                             <div class="skeleton" />
                                           </template>
@@ -402,14 +391,9 @@
                                     <p class="mt-2">:</p>
                                   </v-col>
                                   <v-col class="d-flex flex-wrap" cols="7">
-                                    <template
-                                      v-if="
-                                        item.tagHeaderItems?.CAT?.length > 0
-                                      "
-                                    >
+                                    <template v-if="item.tagHeaderItems?.CAT?.length > 0">
                                       <v-chip
-                                        v-for="tagItem in item.tagHeaderItems
-                                          ?.CAT"
+                                        v-for="tagItem in item.tagHeaderItems?.CAT"
                                         :key="tagItem.mpt_id"
                                         color="primary"
                                         dark
@@ -436,12 +420,9 @@
                                     <p class="mt-2">:</p>
                                   </v-col>
                                   <v-col class="d-flex flex-wrap" cols="7">
-                                    <template
-                                      v-if="item.tagHeaderItems?.PT?.length > 0"
-                                    >
+                                    <template v-if="item.tagHeaderItems?.PT?.length > 0">
                                       <v-chip
-                                        v-for="tagItem in item.tagHeaderItems
-                                          ?.PT"
+                                        v-for="tagItem in item.tagHeaderItems?.PT"
                                         :key="tagItem.mpt_id"
                                         color="primary"
                                         dark
@@ -468,12 +449,9 @@
                                     <p class="mt-2">:</p>
                                   </v-col>
                                   <v-col class="d-flex flex-wrap" cols="7">
-                                    <template
-                                      v-if="item.tagHeaderItems?.MT?.length > 0"
-                                    >
+                                    <template v-if="item.tagHeaderItems?.MT?.length > 0">
                                       <v-chip
-                                        v-for="tagItem in item.tagHeaderItems
-                                          ?.MT"
+                                        v-for="tagItem in item.tagHeaderItems?.MT"
                                         :key="tagItem.mpt_id"
                                         color="primary"
                                         dark
@@ -500,14 +478,9 @@
                                     <p class="mt-2">:</p>
                                   </v-col>
                                   <v-col class="d-flex flex-wrap" cols="7">
-                                    <template
-                                      v-if="
-                                        item.tagHeaderItems?.PPLT?.length > 0
-                                      "
-                                    >
+                                    <template v-if="item.tagHeaderItems?.PPLT?.length > 0">
                                       <v-chip
-                                        v-for="tagItem in item.tagHeaderItems
-                                          ?.PPLT"
+                                        v-for="tagItem in item.tagHeaderItems?.PPLT"
                                         :key="tagItem.mpt_id"
                                         color="primary"
                                         dark
@@ -534,12 +507,9 @@
                                     <p class="mt-2">:</p>
                                   </v-col>
                                   <v-col class="d-flex flex-wrap" cols="7">
-                                    <template
-                                      v-if="item.tagHeaderItems?.DT?.length > 0"
-                                    >
+                                    <template v-if="item.tagHeaderItems?.DT?.length > 0">
                                       <v-chip
-                                        v-for="tagItem in item.tagHeaderItems
-                                          ?.DT"
+                                        v-for="tagItem in item.tagHeaderItems?.DT"
                                         :key="tagItem.mpt_id"
                                         color="primary"
                                         dark
@@ -573,14 +543,9 @@
                                     <p class="mt-2">:</p>
                                   </v-col>
                                   <v-col class="d-flex flex-wrap" cols="7">
-                                    <template
-                                      v-if="
-                                        item.tagHeaderItems?.DAYST?.length > 0
-                                      "
-                                    >
+                                    <template v-if="item.tagHeaderItems?.DAYST?.length > 0">
                                       <v-chip
-                                        v-for="tagItem in item.tagHeaderItems
-                                          ?.DAYST"
+                                        v-for="tagItem in item.tagHeaderItems?.DAYST"
                                         :key="tagItem.mpt_id"
                                         color="primary"
                                         dark
@@ -607,12 +572,9 @@
                                     <p class="mt-2">:</p>
                                   </v-col>
                                   <v-col class="d-flex flex-wrap" cols="7">
-                                    <template
-                                      v-if="item.tagHeaderItems?.VT?.length > 0"
-                                    >
+                                    <template v-if="item.tagHeaderItems?.VT?.length > 0">
                                       <v-chip
-                                        v-for="tagItem in item.tagHeaderItems
-                                          ?.VT"
+                                        v-for="tagItem in item.tagHeaderItems?.VT"
                                         :key="tagItem.mpt_id"
                                         color="primary"
                                         dark
@@ -639,14 +601,9 @@
                                     <p class="mt-2">:</p>
                                   </v-col>
                                   <v-col class="d-flex flex-wrap" cols="7">
-                                    <template
-                                      v-if="
-                                        item.tagHeaderItems?.OPT?.length > 0
-                                      "
-                                    >
+                                    <template v-if="item.tagHeaderItems?.OPT?.length > 0">
                                       <v-chip
-                                        v-for="tagItem in item.tagHeaderItems
-                                          ?.OPT"
+                                        v-for="tagItem in item.tagHeaderItems?.OPT"
                                         :key="tagItem.mpt_id"
                                         color="primary"
                                         dark
@@ -669,71 +626,54 @@
                               </v-col>
                             </v-row>
                           </td>
-                          </tr>
-                        </v-table>
+                        </tr>
+                      </v-table>
                     </div>
                   </td>
                 </tr>
               </template>
-              <tr v-if="isLoading">
-                <td :colspan="6" class="text-center">
-                  <v-progress-circular
-                    indeterminate
-                    color="indigo-accent-2"
-                  ></v-progress-circular>
-                </td>
-              </tr>
             </tbody>
           </v-table>
+          <skeleton-table v-if="isLoading" :rows="5" :columns="6" />
+          <empty-state
+            v-if="!isLoading && (!filteredItems || filteredItems.length === 0)"
+            title="No Data Found"
+            subtitle="There are no records to display."
+          />
         </v-col>
       </v-row>
     </v-sheet>
-    <v-snackbar
-      location="top"
-      color="green"
-      v-model="isSuccess"
-      :timeout="3000"
-    >
-      {{ successMessage }}
 
-      <template v-slot:actions>
-        <v-btn color="white" variant="text" @click="isSuccess = false">
-          <v-icon>mdi-close</v-icon>
-        </v-btn>
-      </template>
-    </v-snackbar>
-    <v-snackbar location="top" color="red" v-model="isError" :timeout="3000">
-      {{ errorMessage }}
-
-      <template v-slot:actions>
-        <v-btn color="white" variant="text" @click="isError = false">
-          <v-icon>mdi-close</v-icon>
-        </v-btn>
-      </template>
-    </v-snackbar>
-    <v-dialog persistent width="500" v-model="isDelete">
-      <v-card>
-        <v-card-title>Confirmation</v-card-title>
-        <v-card-text> Are you sure want to delete this banner? </v-card-text>
-        <v-card-actions>
-          <v-spacer></v-spacer>
-          <v-btn color="error" text @click="cancelDelete">No</v-btn>
-          <v-btn color="success" text @click="deleteBanner">{{
-            isDeleteLoading ? 'Deleting...' : 'Yes'
-          }}</v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
+    <confirm-dialog
+      v-model="isDelete"
+      title="Confirmation"
+      message="Are you sure you want to delete this item? This action cannot be undone."
+      :loading="isDeleteLoading"
+      @confirm="deleteBanner"
+    />
   </v-container>
 </template>
 
 <script>
+import SkeletonTable from '@/components/SkeletonTable.vue';
+import EmptyState from '@/components/EmptyState.vue';
+import ConfirmDialog from '@/components/ConfirmDialog.vue';
+import { useNotificationStore } from '@/stores/notification';
 import axios from '@/util/axios';
 import { setAuthHeader } from '@/util/axios';
 // import app from '@/util/eventBus';
 
 export default {
   name: 'DisplayedBanners',
+  components: {
+    ConfirmDialog,
+    EmptyState,
+    SkeletonTable,
+  },
+  setup() {
+    const notification = useNotificationStore();
+    return { notification };
+  },
   data: () => ({
     // fileURL: 'https://admin1.the-gypsy.sg/img/app/',
     activeMalls: [],
@@ -743,16 +683,12 @@ export default {
     requestCount: 0,
     isSending: false,
     isSending2: false,
-    isError: false,
     isEdit: false,
-    isSuccess: false,
     isDelete: false,
     isDeleteLoading: false,
     bannerIdToDelete: null,
     tableHeaders: [{ text: 'Gambar', value: 'image' }],
     isOpenImage: false,
-    successMessage: '',
-    errorMessage: '',
     imageFile: [],
 
     bannerDataToImage: {
@@ -906,8 +842,7 @@ export default {
           .post(`/mall-displays/update`, payload)
           .then((response) => {
             const data = response.data;
-            this.successMessage = data.message;
-            this.isSuccess = true;
+            this.notification.success(data.message);
             this.getItemsData();
             this.input = {
               id: 0,
@@ -923,8 +858,7 @@ export default {
               : error.response.data.message === ''
               ? 'Something Wrong!!!'
               : error.response.data.message;
-            this.errorMessage = message;
-            this.isError = true;
+            this.notification.error(message);
             this.input = {
               id: 0,
               mall: null,
@@ -948,8 +882,7 @@ export default {
           .post(`/mall-displays`, payload)
           .then((response) => {
             const data = response.data;
-            this.successMessage = data.message;
-            this.isSuccess = true;
+            this.notification.success(data.message);
             this.getItemsData();
             this.input = {
               id: 0,
@@ -967,8 +900,7 @@ export default {
               : error.response.data.message === ''
               ? 'Something Wrong!!!'
               : error.response.data.message;
-            this.errorMessage = message;
-            this.isError = true;
+            this.notification.error(message);
           })
           .finally(() => {
             this.isSending = false;
@@ -993,19 +925,15 @@ export default {
         .delete(`/mall-displays/${this.bannerIdToDelete}`)
         .then((response) => {
           const data = response.data;
-          this.successMessage = data.message;
-          this.isSuccess = true;
+          this.notification.success(data.message);
           this.getItemsData();
         })
         .catch((error) => {
           // eslint-disable-next-line
           console.log(error);
           const message =
-            error.response.data.message === ''
-              ? 'Something Wrong!!!'
-              : error.response.data.message;
-          this.errorMessage = message;
-          this.isError = true;
+            error.response.data.message === '' ? 'Something Wrong!!!' : error.response.data.message;
+          this.notification.error(message);
         })
         .finally(() => {
           this.isDeleteLoading = false;
@@ -1064,14 +992,8 @@ export default {
               // partner_id: item.partner_id || null,
               // country: item.country_name || '',
               // country_id: item.country_id || null,
-              isActive:
-                item.active == 'N' ? false : item.active == 'Y' ? true : null,
-              isFeatured:
-                item.featured == 'N'
-                  ? false
-                  : item.featured == 'Y'
-                  ? true
-                  : null,
+              isActive: item.active == 'N' ? false : item.active == 'Y' ? true : null,
+              isFeatured: item.featured == 'N' ? false : item.featured == 'Y' ? true : null,
               image: item.image || null,
               user: item.name || '',
               user_id: item.user_id || '',
@@ -1085,11 +1007,8 @@ export default {
       } catch (error) {
         console.log(error);
         const message =
-          error.response.data.message === ''
-            ? 'Something Wrong!!!'
-            : error.response.data.message;
-        this.errorMessage = message;
-        this.isError = true;
+          error.response.data.message === '' ? 'Something Wrong!!!' : error.response.data.message;
+        this.notification.error(message);
       } finally {
         this.isLoading = false;
       }
@@ -1116,19 +1035,14 @@ export default {
           // eslint-disable-next-line
           console.log(error);
           const message =
-            error.response.data.message === ''
-              ? 'Something Wrong!!!'
-              : error.response.data.message;
-          this.errorMessage = message;
-          this.isError = true;
+            error.response.data.message === '' ? 'Something Wrong!!!' : error.response.data.message;
+          this.notification.error(message);
         });
     },
     async getTagsHeaderDataById(id) {
       // this.isLoading = true;
       try {
-        const response = await axios.get(
-          `/mall-display-tags/${id}/tags-by-tag-header`
-        );
+        const response = await axios.get(`/mall-display-tags/${id}/tags-by-tag-header`);
         const data = response.data.data;
         //const newData = [];
         //for (const key in data) {
@@ -1182,8 +1096,7 @@ export default {
         .post(`/mall-display-tags`, payload)
         .then((response) => {
           const data = response.data;
-          this.successMessage = data.message;
-          this.isSuccess = true;
+          this.notification.success(data.message);
           this.getItemsData();
           item.selectedTag = null;
         })
@@ -1195,8 +1108,7 @@ export default {
             : error.response.data.message === ''
             ? 'Something Wrong!!!'
             : error.response.data.message;
-          this.errorMessage = message;
-          this.isError = true;
+          this.notification.error(message);
         })
         .finally(() => {
           item.loadingTag = false;
@@ -1208,19 +1120,15 @@ export default {
         .delete(`/mall-display-tags/${id}`)
         .then((response) => {
           const data = response.data;
-          this.successMessage = data.message;
-          this.isSuccess = true;
+          this.notification.success(data.message);
           this.getItemsData();
         })
         .catch((error) => {
           // eslint-disable-next-line
           console.log(error);
           const message =
-            error.response.data.message === ''
-              ? 'Something Wrong!!!'
-              : error.response.data.message;
-          this.errorMessage = message;
-          this.isError = true;
+            error.response.data.message === '' ? 'Something Wrong!!!' : error.response.data.message;
+          this.notification.error(message);
         })
         .finally(() => {
           this.isDeleteLoading = false;
@@ -1247,11 +1155,8 @@ export default {
           // eslint-disable-next-line
           console.log(error);
           const message =
-            error.response.data.message === ''
-              ? 'Something Wrong!!!'
-              : error.response.data.message;
-          this.errorMessage = message;
-          this.isError = true;
+            error.response.data.message === '' ? 'Something Wrong!!!' : error.response.data.message;
+          this.notification.error(message);
         })
         .finally(() => {
           this.isLoading = false;
@@ -1263,19 +1168,15 @@ export default {
         .get(`/mall-displays/toggle-active/${id}`)
         .then((response) => {
           const data = response.data;
-          this.successMessage = data.message;
-          this.isSuccess = true;
+          this.notification.success(data.message);
           this.getItemsData();
         })
         .catch((error) => {
           // eslint-disable-next-line
           console.log(error);
           const message =
-            error.response.data.message === ''
-              ? 'Something Wrong!!!'
-              : error.response.data.message;
-          this.errorMessage = message;
-          this.isError = true;
+            error.response.data.message === '' ? 'Something Wrong!!!' : error.response.data.message;
+          this.notification.error(message);
         })
         .finally(() => {
           this.isSending2 = false;
@@ -1287,19 +1188,15 @@ export default {
         .get(`/mall-displays/toggle-featured/${id}`)
         .then((response) => {
           const data = response.data;
-          this.successMessage = data.message;
-          this.isSuccess = true;
+          this.notification.success(data.message);
           this.getItemsData();
         })
         .catch((error) => {
           // eslint-disable-next-line
           console.log(error);
           const message =
-            error.response.data.message === ''
-              ? 'Something Wrong!!!'
-              : error.response.data.message;
-          this.errorMessage = message;
-          this.isError = true;
+            error.response.data.message === '' ? 'Something Wrong!!!' : error.response.data.message;
+          this.notification.error(message);
         })
         .finally(() => {
           this.isSending2 = false;

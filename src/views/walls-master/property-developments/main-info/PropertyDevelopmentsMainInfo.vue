@@ -72,38 +72,14 @@
               required
             ></v-textarea>
           </v-col>
-          
         </v-row>
       </v-container>
     </v-form>
-    <v-snackbar
-      location="top"
-      color="green"
-      v-model="isSuccess"
-      :timeout="3000"
-    >
-      {{ successMessage }}
-
-      <template v-slot:actions>
-        <v-btn color="white" variant="text" @click="isSuccess = false">
-          <v-icon>mdi-close</v-icon>
-        </v-btn>
-      </template>
-    </v-snackbar>
-
-    <v-snackbar location="top" color="red" v-model="isError" :timeout="3000">
-      {{ errorMessage }}
-
-      <template v-slot:actions>
-        <v-btn color="white" variant="text" @click="isError = false">
-          <v-icon>mdi-close</v-icon>
-        </v-btn>
-      </template>
-    </v-snackbar>
   </v-container>
 </template>
 
 <script>
+import { useNotificationStore } from '@/stores/notification';
 import axios from '@/util/axios';
 // import moment from 'moment';
 import { setAuthHeader } from '@/util/axios';
@@ -111,6 +87,10 @@ import { setAuthHeader } from '@/util/axios';
 
 export default {
   name: 'ParkingMainInfo',
+  setup() {
+    const notification = useNotificationStore();
+    return { notification };
+  },
   data: () => ({
     // fileURL: 'https://admin1.the-gypsy.sg/img/app/',
     developmentId: null,
@@ -118,14 +98,10 @@ export default {
     valid: false,
     isLoading: false,
     isSending: false,
-    isError: false,
     isEdit: false,
-    isSuccess: false,
     isDelete: false,
     isDeleteLoading: false,
     isOpenImage: false,
-    successMessage: '',
-    errorMessage: '',
     input: {
       development_id: 0,
       project_header: '',
@@ -144,27 +120,28 @@ export default {
   methods: {
     getDevelopementData() {
       this.isLoading = true;
-      axios.get(`/4walls-property-developments/${this.developmentId}`).then((response) => {
-        this.developementData = response.data.data;
-        this.input.project_header = this.developementData.project_header;
-        this.input.project_description = this.developementData.project_description;
-      })
-      .catch((error) => {
-        console.log(error);
-      })
-      .finally(() => {
-        this.isLoading = false;
-      });
-
+      axios
+        .get(`/4walls-property-developments/${this.developmentId}`)
+        .then((response) => {
+          this.developementData = response.data.data;
+          this.input.project_header = this.developementData.project_header;
+          this.input.project_description = this.developementData.project_description;
+        })
+        .catch((error) => {
+          console.log(error);
+        })
+        .finally(() => {
+          this.isLoading = false;
+        });
     },
-    
+
     saveData() {
       if (this.valid) {
         this.isSending = true;
         const payload = {
           development_id: this.developmentId,
-          developer_id : this.developementData.developer_id,
-          project_name : this.developementData.project_name,
+          developer_id: this.developementData.developer_id,
+          project_name: this.developementData.project_name,
           project_header: this.input.project_header,
           project_description: this.input.project_description,
         };
@@ -172,8 +149,7 @@ export default {
           .post(`/4walls-property-developments/update`, payload)
           .then((response) => {
             const data = response.data;
-            this.successMessage = data.message;
-            this.isSuccess = true;
+            this.notification.success(data.message);
           })
           .catch((error) => {
             // eslint-disable-next-line
@@ -183,8 +159,7 @@ export default {
               : error.response.data.project_description
               ? 'Please fill the description field'
               : error.response.data.message;
-            this.errorMessage = message;
-            this.isError = true;
+            this.notification.error(message);
           })
           .finally(() => {
             this.isSending = false;

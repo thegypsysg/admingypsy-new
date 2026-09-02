@@ -1,7 +1,6 @@
 <!-- eslint-disable vue/no-deprecated-v-bind-sync -->
 <template>
   <v-container>
-    
     <div class="d-flex ml-4 mb-4" style="gap: 30px">
       <div>
         <router-link
@@ -75,13 +74,9 @@
           </v-col>
           <v-col cols="12" md="2" class="align-center">
             <v-btn
-              :prepend-icon="
-                isEdit
-                  ? 'mdi-account-multiple-check'
-                  : 'mdi-account-multiple-plus'
-              "
+              :prepend-icon="isEdit ? 'mdi-account-multiple-check' : 'mdi-account-multiple-plus'"
               color="indigo-accent-2"
-              style="text-transform: none;margin-top: -30px !important;"
+              style="text-transform: none; margin-top: -30px !important"
               type="submit"
               variant="flat"
               class="w-100"
@@ -101,7 +96,7 @@
               v-if="isEdit"
               prepend-icon="mdi-account-multiple-remove"
               color="red"
-              style="text-transform: none;margin-top: -30px !important;"
+              style="text-transform: none; margin-top: -30px !important"
               variant="flat"
               class="w-100 mt-8"
               @click="cancelEdit"
@@ -146,11 +141,11 @@
             <tbody>
               <template v-for="(item, index) in filteredItems" :key="item.id">
                 <tr>
-                  <td style="border-bottom: none !important;">{{ item.restaurant_id }}</td>
-                  <td style="font-weight: 500 !important;border-bottom: none !important;">
+                  <td style="border-bottom: none !important">{{ item.restaurant_id }}</td>
+                  <td style="font-weight: 500 !important; border-bottom: none !important">
                     {{ item.partner?.partner_name }}
                   </td>
-                  <td style="font-weight: 500 !important;border-bottom: none !important;">
+                  <td style="font-weight: 500 !important; border-bottom: none !important">
                     {{ item.country?.country_name }}
                   </td>
                   <td>
@@ -193,29 +188,28 @@
                       <v-btn size="27" :value="false"> No </v-btn>
                     </v-btn-toggle>
                   </td>
-                  <td style="font-weight: 500 !important;border-bottom: none !important;">
+                  <td style="font-weight: 500 !important; border-bottom: none !important">
                     {{ item.user.name }}
                   </td>
-                  <td style="font-weight: 500 !important;border-bottom: none !important;">
+                  <td style="font-weight: 500 !important; border-bottom: none !important">
                     {{ item.dated }}
                   </td>
-                  <td style="border-bottom: none !important;">
+                  <td style="border-bottom: none !important">
                     <div class="d-flex">
+                      <v-btn color="green" variant="text" @click="editRestaurant(item)" icon>
+                        <v-icon>mdi-pencil-outline</v-icon>
+                        <v-tooltip location="top" activator="parent">Edit</v-tooltip>
+                      </v-btn>
                       <v-btn
-                            color="green"
-                            variant="text" @click="editRestaurant(item)"
-                            icon
-                          >
-  <v-icon>mdi-pencil-outline</v-icon>  <v-tooltip location="top" activator="parent">Edit</v-tooltip>
-</v-btn>
-                      <v-btn
-                            color="red" variant="text"
-                            :disabled="isDeleteLoading"
-                            @click="openDeleteConfirm(item.restaurant_id)"
-                            icon
-                          >
-  <v-icon>mdi-trash-can-outline</v-icon>  <v-tooltip location="top" activator="parent">Delete</v-tooltip>
-</v-btn>
+                        color="red"
+                        variant="text"
+                        :disabled="isDeleteLoading"
+                        @click="openDeleteConfirm(item.restaurant_id)"
+                        icon
+                      >
+                        <v-icon>mdi-trash-can-outline</v-icon>
+                        <v-tooltip location="top" activator="parent">Delete</v-tooltip>
+                      </v-btn>
                     </div>
                   </td>
                 </tr>
@@ -264,55 +258,25 @@
                   </td>
                 </tr>
               </template>
-              <tr v-if="isLoading">
-                <td :colspan="6" class="text-center">
-                  <v-progress-circular
-                    indeterminate
-                    color="indigo-accent-2"
-                  ></v-progress-circular>
-                </td>
-              </tr>
             </tbody>
           </v-table>
+          <skeleton-table v-if="isLoading" :rows="5" :columns="8" />
+          <empty-state
+            v-if="!isLoading && (!filteredItems || filteredItems.length === 0)"
+            title="No Data Found"
+            subtitle="There are no records to display."
+          />
         </v-col>
       </v-row>
     </v-sheet>
-    <v-snackbar
-      location="top"
-      color="green"
-      v-model="isSuccess"
-      :timeout="3000"
-    >
-      {{ successMessage }}
 
-      <template v-slot:actions>
-        <v-btn color="white" variant="text" @click="isSuccess = false">
-          <v-icon>mdi-close</v-icon>
-        </v-btn>
-      </template>
-    </v-snackbar>
-    <v-snackbar location="top" color="red" v-model="isError" :timeout="3000">
-      {{ errorMessage }}
-
-      <template v-slot:actions>
-        <v-btn color="white" variant="text" @click="isError = false">
-          <v-icon>mdi-close</v-icon>
-        </v-btn>
-      </template>
-    </v-snackbar>
-    <v-dialog persistent width="500" v-model="isDelete">
-      <v-card>
-        <v-card-title>Confirmation</v-card-title>
-        <v-card-text>
-          Are you sure want to delete this property type?
-        </v-card-text>
-        <v-card-actions>
-          <v-spacer></v-spacer>
-          <v-btn color="error" text @click="cancelDelete">No</v-btn>
-          <v-btn color="success" text @click="deleteRestaurant">Yes</v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
+    <confirm-dialog
+      v-model="isDelete"
+      title="Confirmation"
+      message="Are you sure you want to delete this item? This action cannot be undone."
+      :loading="isDeleteLoading"
+      @confirm="deleteRestaurant"
+    />
     <v-dialog persistent width="auto" v-model="isOpenMainImage">
       <v-card width="750">
         <v-card-title class="upload-title px-6 py-4">
@@ -327,11 +291,7 @@
         </v-card-text>
         <v-card-actions class="mt-16">
           <v-spacer></v-spacer>
-          <v-btn
-            style="text-transform: none"
-            color="error"
-            text
-            @click="closeMainImage"
+          <v-btn style="text-transform: none" color="error" text @click="closeMainImage"
             >Cancel</v-btn
           >
           <v-btn
@@ -357,13 +317,7 @@
         </v-card-text>
         <v-card-actions class="mt-16">
           <v-spacer></v-spacer>
-          <v-btn
-            style="text-transform: none"
-            color="error"
-            text
-            @click="closeLogo"
-            >Cancel</v-btn
-          >
+          <v-btn style="text-transform: none" color="error" text @click="closeLogo">Cancel</v-btn>
           <v-btn
             style="background-color: #9ddcff; text-transform: none"
             color="black"
@@ -387,11 +341,7 @@
         </v-card-text>
         <v-card-actions class="mt-16">
           <v-spacer></v-spacer>
-          <v-btn
-            style="text-transform: none"
-            color="error"
-            text
-            @click="closeIconImage"
+          <v-btn style="text-transform: none" color="error" text @click="closeIconImage"
             >Cancel</v-btn
           >
           <v-btn
@@ -407,6 +357,10 @@
 </template>
 
 <script>
+import SkeletonTable from '@/components/SkeletonTable.vue';
+import EmptyState from '@/components/EmptyState.vue';
+import ConfirmDialog from '@/components/ConfirmDialog.vue';
+import { useNotificationStore } from '@/stores/notification';
 import ImageUpload from '@/components/ImageUpload.vue';
 import axios from '@/util/axios';
 import { setAuthHeader } from '@/util/axios';
@@ -414,20 +368,26 @@ import { setAuthHeader } from '@/util/axios';
 
 export default {
   name: 'PropertyTypes',
+  components: {
+    ConfirmDialog,
+    EmptyState,
+    SkeletonTable,
+    ImageUpload,
+  },
+  setup() {
+    const notification = useNotificationStore();
+    return { notification };
+  },
   data: () => ({
     //fileURL: 'https://admin1.the-gypsy.sg/img/app/',
     valid: false,
     isLoading: false,
     isSending: false,
     isEdit: false,
-    isSuccess: false,
-    isError: false,
     isDelete: false,
     isDeleteLoading: false,
     propertyIdToDelete: null,
     tableHeaders: [{ text: 'Gambar', value: 'image' }],
-    successMessage: '',
-    errorMessage: '',
     input: {
       restaurant_id: 0,
       partner_id: null,
@@ -519,8 +479,7 @@ export default {
           .post(`/biryani-restaurant-masters/update`, payload)
           .then((response) => {
             const data = response.data;
-            this.successMessage = data.message;
-            this.isSuccess = true;
+            this.notification.success(data.message);
             this.getRestaurantData();
             this.input = {
               restaurant_id: 0,
@@ -535,8 +494,7 @@ export default {
               error.response.data.message === ''
                 ? 'Something Wrong!!!'
                 : error.response.data.message;
-            this.errorMessage = message;
-            this.isError = true;
+            this.notification.error(message);
           })
           .finally(() => {
             this.isEdit = false;
@@ -555,8 +513,7 @@ export default {
           .post(`/biryani-restaurant-masters`, payload)
           .then((response) => {
             const data = response.data;
-            this.successMessage = data.message;
-            this.isSuccess = true;
+            this.notification.success(data.message);
             this.getRestaurantData();
             this.input = {
               restaurant_id: 0,
@@ -571,8 +528,7 @@ export default {
               error.response.data.message === ''
                 ? 'Something Wrong!!!'
                 : error.response.data.message;
-            this.errorMessage = message;
-            this.isError = true;
+            this.notification.error(message);
           })
           .finally(() => {
             this.isSending = false;
@@ -597,19 +553,15 @@ export default {
         .delete(`/biryani-restaurant-masters/${this.propertyIdToDelete}`)
         .then((response) => {
           const data = response.data;
-          this.successMessage = data.message;
-          this.isSuccess = true;
+          this.notification.success(data.message);
           this.getRestaurantData();
         })
         .catch((error) => {
           // eslint-disable-next-line
           console.log(error);
           const message =
-            error.response.data.message === ''
-              ? 'Something Wrong!!!'
-              : error.response.data.message;
-          this.errorMessage = message;
-          this.isError = true;
+            error.response.data.message === '' ? 'Something Wrong!!!' : error.response.data.message;
+          this.notification.error(message);
         })
         .finally(() => {
           this.isDeleteLoading = false;
@@ -627,14 +579,14 @@ export default {
         .catch((error) => {
           // eslint-disable-next-line
           console.log(error);
-        }); 
+        });
     },
     getRestaurantData() {
       this.isLoading = true;
       axios
         .get(`/biryani-restaurant-masters`)
         .then((response) => {
-          this.items = response.data.data.map(item => ({
+          this.items = response.data.data.map((item) => ({
             ...item,
             isActive: item.active !== 'Y' ? false : true,
             isFeatured: item.featured !== 'Y' ? false : true,
@@ -644,11 +596,8 @@ export default {
           // eslint-disable-next-line
           console.log(error);
           const message =
-            error.response.data.message === ''
-              ? 'Something Wrong!!!'
-              : error.response.data.message;
-          this.errorMessage = message;
-          this.isError = true;
+            error.response.data.message === '' ? 'Something Wrong!!!' : error.response.data.message;
+          this.notification.error(message);
         })
         .finally(() => {
           this.isLoading = false;
@@ -672,11 +621,8 @@ export default {
           // eslint-disable-next-line
           console.log(error);
           const message =
-            error.response.data.message === ''
-              ? 'Something Wrong!!!'
-              : error.response.data.message;
-          this.errorMessage = message;
-          this.isError = true;
+            error.response.data.message === '' ? 'Something Wrong!!!' : error.response.data.message;
+          this.notification.error(message);
         });
     },
     getCity() {
@@ -704,14 +650,10 @@ export default {
         });
     },
     filterCity(country_id) {
-      return this.resource.city.filter(
-        (item) => item.country_id === country_id
-      );
+      return this.resource.city.filter((item) => item.country_id === country_id);
     },
     filterTown(city_id) {
-      return this.resource.town.filter(
-        (item) => item.city_id === city_id
-      );
+      return this.resource.town.filter((item) => item.city_id === city_id);
     },
     activeRestaurant(restaurant_id) {
       this.isSending2 = true;
@@ -719,19 +661,15 @@ export default {
         .get(`/biryani-restaurant-masters/toggle-active/${restaurant_id}`)
         .then((response) => {
           const data = response.data;
-          this.successMessage = data.message;
-          this.isSuccess = true;
+          this.notification.success(data.message);
           this.getRestaurantData();
         })
         .catch((error) => {
           // eslint-disable-next-line
           console.log(error);
           const message =
-            error.response.data.message === ''
-              ? 'Something Wrong!!!'
-              : error.response.data.message;
-          this.errorMessage = message;
-          this.isError = true;
+            error.response.data.message === '' ? 'Something Wrong!!!' : error.response.data.message;
+          this.notification.error(message);
         })
         .finally(() => {
           this.isSending2 = false;
@@ -743,19 +681,15 @@ export default {
         .get(`/biryani-restaurant-masters/toggle-featured/${restaurant_id}`)
         .then((response) => {
           const data = response.data;
-          this.successMessage = data.message;
-          this.isSuccess = true;
+          this.notification.success(data.message);
           this.getRestaurantData();
         })
         .catch((error) => {
           // eslint-disable-next-line
           console.log(error);
           const message =
-            error.response.data.message === ''
-              ? 'Something Wrong!!!'
-              : error.response.data.message;
-          this.errorMessage = message;
-          this.isError = true;
+            error.response.data.message === '' ? 'Something Wrong!!!' : error.response.data.message;
+          this.notification.error(message);
         })
         .finally(() => {
           this.isSending2 = false;
@@ -772,19 +706,15 @@ export default {
         .post(`/biryani-restaurant-masters/update`, payload)
         .then((response) => {
           const data = response.data;
-          this.successMessage = data.message;
-          this.isSuccess = true;
+          this.notification.success(data.message);
           this.getRestaurantData();
         })
         .catch((error) => {
           // eslint-disable-next-line
           console.log(error);
           const message =
-            error.response.data.message === ''
-              ? 'Something Wrong!!!'
-              : error.response.data.message;
-          this.errorMessage = message;
-          this.isError = true;
+            error.response.data.message === '' ? 'Something Wrong!!!' : error.response.data.message;
+          this.notification.error(message);
         });
     },
     saveTown(town_id, index) {
@@ -796,19 +726,15 @@ export default {
         .post(`/biryani-restaurant-masters/update`, payload)
         .then((response) => {
           const data = response.data;
-          this.successMessage = data.message;
-          this.isSuccess = true;
+          this.notification.success(data.message);
           this.getRestaurantData();
         })
         .catch((error) => {
           // eslint-disable-next-line
           console.log(error);
           const message =
-            error.response.data.message === ''
-              ? 'Something Wrong!!!'
-              : error.response.data.message;
-          this.errorMessage = message;
-          this.isError = true;
+            error.response.data.message === '' ? 'Something Wrong!!!' : error.response.data.message;
+          this.notification.error(message);
         });
     },
     saveLatitude(latitude, index) {
@@ -816,32 +742,24 @@ export default {
         restaurant_id: this.items[index].restaurant_id,
         latitude: latitude,
       };
-      axios
-        .post(`/biryani-restaurant-masters/update`, payload)
-        .then((response) => {
-          const data = response.data;
-          this.successMessage = data.message;
-          this.isSuccess = true;
-          this.getRestaurantData();
-        })
+      axios.post(`/biryani-restaurant-masters/update`, payload).then((response) => {
+        const data = response.data;
+        this.notification.success(data.message);
+        this.getRestaurantData();
+      });
     },
     saveLongitude(longitude, index) {
       let payload = {
         restaurant_id: this.items[index].restaurant_id,
         longitude: longitude,
       };
-      axios
-        .post(`/biryani-restaurant-masters/update`, payload)
-        .then((response) => {
-          const data = response.data;
-          this.successMessage = data.message;
-          this.isSuccess = true;
-          this.getRestaurantData();
-        })
+      axios.post(`/biryani-restaurant-masters/update`, payload).then((response) => {
+        const data = response.data;
+        this.notification.success(data.message);
+        this.getRestaurantData();
+      });
     },
   },
-  
-  components: { ImageUpload },
 };
 </script>
 

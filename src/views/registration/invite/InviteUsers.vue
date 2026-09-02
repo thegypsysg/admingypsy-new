@@ -33,11 +33,7 @@
           <v-col cols="12" md="3">
             <v-radio-group
               v-model="input.gender"
-              style="
-                border: 1px solid rgb(166, 166, 166);
-                border-radius: 5px;
-                height: 42px;
-              "
+              style="border: 1px solid rgb(166, 166, 166); border-radius: 5px; height: 42px"
               inline
             >
               <!-- density="compact" -->
@@ -138,11 +134,7 @@
         <v-row class="mt-n2">
           <v-col cols="12" md="2">
             <v-btn
-              :prepend-icon="
-                isEdit
-                  ? 'mdi-account-multiple-check'
-                  : 'mdi-account-multiple-plus'
-              "
+              :prepend-icon="isEdit ? 'mdi-account-multiple-check' : 'mdi-account-multiple-plus'"
               color="indigo-accent-2"
               style="text-transform: none"
               type="submit"
@@ -191,9 +183,7 @@
       </v-row> -->
       <v-row align="center" justify="space-between">
         <v-col cols="8">
-          <span>
-            Showing {{ startItem }} - {{ endItem }} from {{ totalItems }} item
-          </span>
+          <span> Showing {{ startItem }} - {{ endItem }} from {{ totalItems }} item </span>
         </v-col>
         <v-col cols="4" class="text-right">
           <v-select
@@ -270,13 +260,9 @@
                   <td>{{ item?.user?.name }}</td>
                   <td>
                     <div class="d-flex">
-                      <v-btn
-                        color="green"
-                        variant="text"
-                        @click="editUser(item)"
-                        icon
+                      <v-btn color="green" variant="text" @click="editUser(item)" icon>
+                        <v-icon>mdi-pencil-outline</v-icon></v-btn
                       >
-  <v-icon>mdi-pencil-outline</v-icon></v-btn>
                       <v-btn
                         color="red"
                         variant="text"
@@ -284,7 +270,8 @@
                         @click="openDeleteConfirm(item.id)"
                         icon
                       >
-  <v-icon>mdi-trash-can-outline</v-icon></v-btn>
+                        <v-icon>mdi-trash-can-outline</v-icon></v-btn
+                      >
                     </div>
                   </td>
                 </tr>
@@ -312,15 +299,11 @@
                           <td style="width: 50px"></td>
                           <td class="pr-10 pt-2 pb-4">
                             Skills:
-                            <span class="text-blue-accent-4">{{
-                              item?.skills?.skills_name
-                            }}</span>
+                            <span class="text-blue-accent-4">{{ item?.skills?.skills_name }}</span>
                           </td>
                           <td class="pr-10 pt-2 pb-4">
                             App Id:
-                            <span class="text-blue-accent-4">{{
-                              item?.app?.app_name
-                            }}</span>
+                            <span class="text-blue-accent-4">{{ item?.app?.app_name }}</span>
                           </td>
                           <td class="pr-10 pt-2 pb-4">
                             Registered:
@@ -388,37 +371,24 @@
                       <v-table class="text-left font-weight-bold">
                         <tr>
                           <td style="width: 60px"></td>
-                          <td
-                            style="width: 600px; overflow: hidden"
-                            class="pt-2 pb-4"
-                          >
+                          <td style="width: 600px; overflow: hidden" class="pt-2 pb-4">
                             <v-row>
                               <v-col cols="2">
-                                <p
-                                  class="text-caption font-weight-bold text-no-wrap"
-                                >
+                                <p class="text-caption font-weight-bold text-no-wrap">
                                   Email Sent On
                                 </p>
                               </v-col>
                               <v-col cols="2">
-                                <p class="text-caption font-weight-bold">
-                                  App Name
-                                </p>
+                                <p class="text-caption font-weight-bold">App Name</p>
                               </v-col>
                               <v-col cols="4">
-                                <p class="text-caption font-weight-bold">
-                                  Subject
-                                </p>
+                                <p class="text-caption font-weight-bold">Subject</p>
                               </v-col>
                               <v-col cols="2">
-                                <p class="text-caption font-weight-bold">
-                                  User
-                                </p>
+                                <p class="text-caption font-weight-bold">User</p>
                               </v-col>
                               <v-col cols="2">
-                                <p class="text-caption font-weight-bold">
-                                  Dated
-                                </p>
+                                <p class="text-caption font-weight-bold">Dated</p>
                               </v-col>
                             </v-row>
                             <v-row
@@ -459,16 +429,14 @@
                   </td>
                 </tr>
               </template>
-              <tr v-if="isLoading">
-                <td :colspan="6" class="text-center">
-                  <v-progress-circular
-                    indeterminate
-                    color="indigo-accent-2"
-                  ></v-progress-circular>
-                </td>
-              </tr>
             </tbody>
           </v-table>
+          <skeleton-table v-if="isLoading" :rows="5" :columns="8" />
+          <empty-state
+            v-if="!isLoading && (!items || items.length === 0)"
+            title="No Data Found"
+            subtitle="There are no records to display."
+          />
           <v-pagination
             v-model="currentPage"
             :length="totalPages"
@@ -477,57 +445,25 @@
         </v-col>
       </v-row>
     </v-sheet>
-    <v-snackbar
-      location="top"
-      color="green"
-      v-model="isSuccess"
-      :timeout="3000"
-    >
-      {{ successMessage }}
 
-      <template v-slot:actions>
-        <v-btn color="white" variant="text" @click="isSuccess = false">
-          <v-icon>mdi-close</v-icon>
-        </v-btn>
-      </template>
-    </v-snackbar>
-    <v-snackbar location="top" color="red" v-model="isError" :timeout="3000">
-      {{ errorMessage }}
-
-      <template v-slot:actions>
-        <v-btn color="white" variant="text" @click="isError = false">
-          <v-icon>mdi-close</v-icon>
-        </v-btn>
-      </template>
-    </v-snackbar>
-    <v-dialog persistent width="500" v-model="isDelete">
-      <v-card>
-        <v-card-title>Confirmation</v-card-title>
-        <v-card-text> Are you sure want to delete this user? </v-card-text>
-        <v-card-actions>
-          <v-spacer></v-spacer>
-          <v-btn color="error" text @click="cancelDelete">No</v-btn>
-          <v-btn color="success" text @click="deleteUser">Yes</v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
+    <confirm-dialog
+      v-model="isDelete"
+      title="Confirmation"
+      message="Are you sure you want to delete this item? This action cannot be undone."
+      :loading="isDeleteLoading"
+      @confirm="deleteUser"
+    />
     <v-dialog persistent width="400" v-model="isSuccessEmail">
       <v-card class="py-8 px-4">
-        <v-card-title class="text-center"
-          >Email has been successfully sent</v-card-title
-        >
+        <v-card-title class="text-center">Email has been successfully sent</v-card-title>
         <v-card-actions class="d-flex justify-center mt-8">
-          <v-btn class="w-100 bg-primary" text @click="closeSuccessEmail"
-            >OK</v-btn
-          >
+          <v-btn class="w-100 bg-primary" text @click="closeSuccessEmail">OK</v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
     <v-dialog persistent width="auto" v-model="isOpenImage">
       <v-card width="750">
-        <v-card-title class="upload-title px-6 py-4">
-          Upload Image - User</v-card-title
-        >
+        <v-card-title class="upload-title px-6 py-4"> Upload Image - User</v-card-title>
         <v-card-text>
           <image-upload
             :image-file="imageFile"
@@ -537,13 +473,7 @@
         </v-card-text>
         <v-card-actions class="mt-16">
           <v-spacer></v-spacer>
-          <v-btn
-            style="text-transform: none"
-            color="error"
-            text
-            @click="closeImage"
-            >Cancel</v-btn
-          >
+          <v-btn style="text-transform: none" color="error" text @click="closeImage">Cancel</v-btn>
           <v-btn
             style="background-color: #9ddcff; text-transform: none"
             color="black"
@@ -557,12 +487,26 @@
 </template>
 
 <script>
+import SkeletonTable from '@/components/SkeletonTable.vue';
+import EmptyState from '@/components/EmptyState.vue';
+import ConfirmDialog from '@/components/ConfirmDialog.vue';
+import { useNotificationStore } from '@/stores/notification';
 import ImageUpload from '@/components/ImageUpload.vue';
 import axios from '@/util/axios';
 import { setAuthHeader } from '@/util/axios';
 
 export default {
   name: 'UserMaster',
+  components: {
+    ConfirmDialog,
+    EmptyState,
+    SkeletonTable,
+    ImageUpload,
+  },
+  setup() {
+    const notification = useNotificationStore();
+    return { notification };
+  },
   data: () => ({
     // fileURL: 'https://admin1.the-gypsy.sg/img/app/',
     valid: false,
@@ -571,9 +515,7 @@ export default {
     isSending: false,
     isSendTemplate: false,
     isEdit: false,
-    isSuccess: false,
     isSuccessEmail: false,
-    isError: false,
     isDelete: false,
     isDeleteLoading: false,
     userIdToDelete: null,
@@ -592,8 +534,6 @@ export default {
       remarks: null,
     },
     isOpenImage: false,
-    successMessage: '',
-    errorMessage: '',
     input: {
       id: 0,
       fullName: null,
@@ -641,8 +581,7 @@ export default {
       ],
       emailRules: [
         (value) => {
-          if (/.+@.+\..+/.test(value) || value == null || value == '')
-            return true;
+          if (/.+@.+\..+/.test(value) || value == null || value == '') return true;
           return 'E-mail must be valid.';
         },
       ],
@@ -717,19 +656,15 @@ export default {
         .delete(`/invites/${this.userDataToImage.id}/image`)
         .then((response) => {
           const data = response.data;
-          this.successMessage = data.message;
-          this.isSuccess = true;
+          this.notification.success(data.message);
           this.getItemsData();
         })
         .catch((error) => {
           // eslint-disable-next-line
           console.log(error);
           const message =
-            error.response.data.message === ''
-              ? 'Something Wrong!!!'
-              : error.response.data.message;
-          this.errorMessage = message;
-          this.isError = true;
+            error.response.data.message === '' ? 'Something Wrong!!!' : error.response.data.message;
+          this.notification.error(message);
         })
         .finally(() => {
           this.isEdit = false;
@@ -811,19 +746,15 @@ export default {
         })
         .then((response) => {
           const data = response.data;
-          this.successMessage = data.message;
-          this.isSuccess = true;
+          this.notification.success(data.message);
           this.getItemsData();
         })
         .catch((error) => {
           // eslint-disable-next-line
           console.log(error);
           const message =
-            error.response.data.message === ''
-              ? 'Something Wrong!!!'
-              : error.response.data.message;
-          this.errorMessage = message;
-          this.isError = true;
+            error.response.data.message === '' ? 'Something Wrong!!!' : error.response.data.message;
+          this.notification.error(message);
         })
         .finally(() => {
           this.isEdit = false;
@@ -876,14 +807,11 @@ export default {
       axios
         .post(`/invites/update`, payload)
         .then((response) => {
-          this.successMessage = response.data.message;
-          this.isSuccess = true;
+          this.notification.success(response.data.message);
         })
         .catch((error) => {
           console.error(error);
-          this.errorMessage =
-            error.response?.data?.message || 'Something Wrong!!!';
-          this.isError = true;
+          this.notification.error(error.response?.data?.message || 'Something Wrong!!!');
         });
     },
     editUser(invite) {
@@ -935,8 +863,7 @@ export default {
           .post(`/invites/update`, payload)
           .then((response) => {
             const data = response.data;
-            this.successMessage = data.message;
-            this.isSuccess = true;
+            this.notification.success(data.message);
             this.getItemsData();
             this.input = {
               id: 0,
@@ -959,8 +886,7 @@ export default {
               error.response.data.message === ''
                 ? 'Something Wrong!!!'
                 : error.response.data.message;
-            this.errorMessage = message;
-            this.isError = true;
+            this.notification.error(message);
           })
           .finally(() => {
             this.isEdit = false;
@@ -985,8 +911,7 @@ export default {
           .post(`/invites`, payload)
           .then((response) => {
             const data = response.data;
-            this.successMessage = data.message;
-            this.isSuccess = true;
+            this.notification.success(data.message);
             this.getItemsData();
             this.input = {
               id: 0,
@@ -1009,8 +934,7 @@ export default {
               error.response.data.message === ''
                 ? 'Something Wrong!!!'
                 : error.response.data.message;
-            this.errorMessage = message;
-            this.isError = true;
+            this.notification.error(message);
           })
           .finally(() => {
             this.isSending = false;
@@ -1035,19 +959,15 @@ export default {
         .delete(`/invites/${this.userIdToDelete}`)
         .then((response) => {
           const data = response.data;
-          this.successMessage = data.message;
-          this.isSuccess = true;
+          this.notification.success(data.message);
           this.getItemsData();
         })
         .catch((error) => {
           // eslint-disable-next-line
           console.log(error);
           const message =
-            error.response.data.message === ''
-              ? 'Something Wrong!!!'
-              : error.response.data.message;
-          this.errorMessage = message;
-          this.isError = true;
+            error.response.data.message === '' ? 'Something Wrong!!!' : error.response.data.message;
+          this.notification.error(message);
         })
         .finally(() => {
           this.isDeleteLoading = false;
@@ -1079,8 +999,7 @@ export default {
             : error.response.data.message === ''
             ? 'Something Wrong!!!'
             : error.response.data.message;
-          this.errorMessage = message;
-          this.isError = true;
+          this.notification.error(message);
         })
         .finally(() => {
           item.loading = false;
@@ -1101,9 +1020,7 @@ export default {
 
         items = await Promise.all(
           items.map(async (item) => {
-            const emailSentItems = await this.getEmailSentDataById(
-              item.invite_id
-            );
+            const emailSentItems = await this.getEmailSentDataById(item.invite_id);
             this.requestCount++;
             return {
               ...item,
@@ -1127,9 +1044,7 @@ export default {
         const response = await axios.get(`/invites/search`, {
           params: {
             skillsName: this.input.skills
-              ? this.resource.skills.filter(
-                  (item) => item.id == this.input.skills
-                )[0].name
+              ? this.resource.skills.filter((item) => item.id == this.input.skills)[0].name
               : null,
             email: this.input.email,
             fullName: this.input.fullName,
@@ -1152,12 +1067,9 @@ export default {
             id: item.invite_id || 0,
             name: item.full_name || '',
             email: item.email || '',
-            code:
-              this.resource.code.filter((i) => i.id == item.from_country)[0]
-                ?.code || '',
+            code: this.resource.code.filter((i) => i.id == item.from_country)[0]?.code || '',
             phone: item.mobile_number || '',
-            gender:
-              item.gender == 'M' ? 'Male' : item.gender == 'F' ? 'Female' : '',
+            gender: item.gender == 'M' ? 'Male' : item.gender == 'F' ? 'Female' : '',
             genderCode: item.gender || '',
             skills_id: item.skills_id || null,
             skills: item.skills?.skills_name || '',
@@ -1177,11 +1089,8 @@ export default {
       } catch (error) {
         console.log(error);
         const message =
-          error.response.data.message === ''
-            ? 'Something Wrong!!!'
-            : error.response.data.message;
-        this.errorMessage = message;
-        this.isError = true;
+          error.response.data.message === '' ? 'Something Wrong!!!' : error.response.data.message;
+        this.notification.error(message);
       } finally {
         this.isLoading = false;
       }
@@ -1214,11 +1123,8 @@ export default {
           // eslint-disable-next-line
           console.log(error);
           const message =
-            error.response.data.message === ''
-              ? 'Something Wrong!!!'
-              : error.response.data.message;
-          this.errorMessage = message;
-          this.isError = true;
+            error.response.data.message === '' ? 'Something Wrong!!!' : error.response.data.message;
+          this.notification.error(message);
         });
     },
     getCountryCode2() {
@@ -1235,11 +1141,8 @@ export default {
           // eslint-disable-next-line
           console.log(error);
           const message =
-            error.response.data.message === ''
-              ? 'Something Wrong!!!'
-              : error.response.data.message;
-          this.errorMessage = message;
-          this.isError = true;
+            error.response.data.message === '' ? 'Something Wrong!!!' : error.response.data.message;
+          this.notification.error(message);
         });
     },
     getPrimarySkillData() {
@@ -1263,11 +1166,8 @@ export default {
           // eslint-disable-next-line
           console.log(error);
           const message =
-            error.response.data.message === ''
-              ? 'Something Wrong!!!'
-              : error.response.data.message;
-          this.errorMessage = message;
-          this.isError = true;
+            error.response.data.message === '' ? 'Something Wrong!!!' : error.response.data.message;
+          this.notification.error(message);
         })
         .finally(() => {
           this.isLoading = false;
@@ -1289,11 +1189,8 @@ export default {
           // eslint-disable-next-line
           console.log(error);
           const message =
-            error.response.data.message === ''
-              ? 'Something Wrong!!!'
-              : error.response.data.message;
-          this.errorMessage = message;
-          this.isError = true;
+            error.response.data.message === '' ? 'Something Wrong!!!' : error.response.data.message;
+          this.notification.error(message);
         });
     },
     getAppActive() {
@@ -1316,11 +1213,8 @@ export default {
           // eslint-disable-next-line
           console.log(error);
           const message =
-            error.response.data.message === ''
-              ? 'Something Wrong!!!'
-              : error.response.data.message;
-          this.errorMessage = message;
-          this.isError = true;
+            error.response.data.message === '' ? 'Something Wrong!!!' : error.response.data.message;
+          this.notification.error(message);
         });
     },
     getEmail() {
@@ -1348,15 +1242,11 @@ export default {
           // eslint-disable-next-line
           console.log(error);
           const message =
-            error.response.data.message === ''
-              ? 'Something Wrong!!!'
-              : error.response.data.message;
-          this.errorMessage = message;
-          this.isError = true;
+            error.response.data.message === '' ? 'Something Wrong!!!' : error.response.data.message;
+          this.notification.error(message);
         });
     },
   },
-  components: { ImageUpload },
 };
 </script>
 

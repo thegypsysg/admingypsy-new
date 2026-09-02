@@ -47,15 +47,11 @@
         <span
           style="cursor: pointer"
           class="font-weight-bold"
-          :class="
-            selectedCity == city.city_id ? 'text-blue-darken-4' : undefined
-          "
+          :class="selectedCity == city.city_id ? 'text-blue-darken-4' : undefined"
           @click="changeSelectedCity(city.city_id, city?.currency_symbol)"
           >{{ city.city_name }}</span
         >
-        <span v-if="index != cities.length - 1" class="mx-1 font-weight-bold">
-          |
-        </span>
+        <span v-if="index != cities.length - 1" class="mx-1 font-weight-bold"> | </span>
       </template>
     </div>
     <v-form v-model="valid" @submit.prevent>
@@ -80,24 +76,12 @@
                   <span class="text-red">{{ item.raw.brand_count }}</span>
                   Brands )</span
                 > -->
-                <div
-                  v-bind="props"
-                  class="d-flex align-center w-100 text-no-wrap"
-                >
+                <div v-bind="props" class="d-flex align-center w-100 text-no-wrap">
                   <div style="width: 15%" class="mr-2">
                     <div
-                      style="
-                        height: 34px;
-                        width: 100%;
-                        object-fit: cover;
-                        object-position: center;
-                      "
+                      style="height: 34px; width: 100%; object-fit: cover; object-position: center"
                     >
-                      <v-img
-                        height="34"
-                        cover
-                        :src="$fileURL + item?.raw?.image"
-                      >
+                      <v-img height="34" cover :src="$fileURL + item?.raw?.image">
                         <template #placeholder>
                           <div class="skeleton" />
                         </template>
@@ -123,11 +107,7 @@
                           object-position: center;
                         "
                       >
-                        <v-img
-                          height="40"
-                          cover
-                          :src="$fileURL + item?.raw?.image"
-                        >
+                        <v-img height="40" cover :src="$fileURL + item?.raw?.image">
                           <template #placeholder>
                             <div class="skeleton" />
                           </template>
@@ -147,17 +127,9 @@
           <v-col cols="12" md="3">
             <div
               class="d-flex align-content-center p-0 w-100"
-              style="
-                height: 40px;
-                overflow-y: hidden;
-                border-radius: 5px;
-                border: 1px grey solid;
-              "
+              style="height: 40px; overflow-y: hidden; border-radius: 5px; border: 1px grey solid"
             >
-              <div
-                class="d-flex justify-center align-center w-33"
-                style="background: #e9ecef"
-              >
+              <div class="d-flex justify-center align-center w-33" style="background: #e9ecef">
                 <h4 style="color: #077cff">{{ selectedCurrency }}</h4>
               </div>
               <v-text-field
@@ -229,9 +201,7 @@
       </v-row>
       <v-row align="center" justify="space-between">
         <v-col cols="8">
-          <span>
-            Showing {{ startItem }} - {{ endItem }} from {{ totalItems }} item
-          </span>
+          <span> Showing {{ startItem }} - {{ endItem }} from {{ totalItems }} item </span>
         </v-col>
         <v-col cols="4" class="text-right">
           <v-select
@@ -280,8 +250,7 @@
                             ? $fileURL + item.image_1
                             : 'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png'
                         "
-                        ><template #placeholder>
-                          <div class="skeleton" /> </template
+                        ><template #placeholder> <div class="skeleton" /> </template
                       ></v-img>
                     </div>
                   </td>
@@ -353,7 +322,8 @@
                         @click="openDeleteConfirm(item.id)"
                         icon
                       >
-  <v-icon>mdi-trash-can-outline</v-icon></v-btn>
+                        <v-icon>mdi-trash-can-outline</v-icon></v-btn
+                      >
                     </div>
                   </td>
                 </tr>
@@ -364,14 +334,8 @@
                       <v-table class="text-left font-weight-bold">
                         <thead>
                           <tr>
-                            <th
-                              class="text-left"
-                              style="width: 75px; border: none !important"
-                            ></th>
-                            <th
-                              class="text-left"
-                              style="width: 75px; border: none !important"
-                            ></th>
+                            <th class="text-left" style="width: 75px; border: none !important"></th>
+                            <th class="text-left" style="width: 75px; border: none !important"></th>
                             <th class="text-left">Gift Item</th>
                             <th class="text-left">Limited Edition</th>
                             <th class="text-left">Special Edition</th>
@@ -383,12 +347,8 @@
                         </thead>
                         <tbody>
                           <tr>
-                            <td
-                              style="width: 75px; border: none !important"
-                            ></td>
-                            <td
-                              style="width: 75px; border: none !important"
-                            ></td>
+                            <td style="width: 75px; border: none !important"></td>
+                            <td style="width: 75px; border: none !important"></td>
                             <td>
                               <v-btn-toggle
                                 style="
@@ -470,6 +430,12 @@
                           </tr>
                         </tbody>
                       </v-table>
+                      <skeleton-table v-if="isLoading" :rows="5" :columns="18" />
+                      <empty-state
+                        v-if="!isLoading && (!cities || cities.length === 0)"
+                        title="No Data Found"
+                        subtitle="There are no records to display."
+                      />
                     </div>
                   </td>
                 </tr>
@@ -483,8 +449,7 @@
                           <td class="pr-6 pt-2 pb-4">
                             <div class="d-flex align-center">
                               <div class="mr-2 mt-5">
-                                <v-label
-                                  class="text-blue-lighten-2 text-body-2 mb-2"
+                                <v-label class="text-blue-lighten-2 text-body-2 mb-2"
                                   >Merchant Prices</v-label
                                 >
                                 <v-autocomplete
@@ -499,9 +464,7 @@
                                 ></v-autocomplete>
                               </div>
                               <div class="mr-2">
-                                <v-label class="text-black text-body-2 mb-2"
-                                  >Shop Rate</v-label
-                                >
+                                <v-label class="text-black text-body-2 mb-2">Shop Rate</v-label>
                                 <div
                                   class="d-flex align-content-center p-0 w-100"
                                   style="
@@ -564,10 +527,7 @@
                         <tr>
                           <td style="width: 75px"></td>
                           <td style="width: 75px"></td>
-                          <td
-                            style="width: 600px; overflow: hidden"
-                            class="pt-2 pb-4"
-                          >
+                          <td style="width: 600px; overflow: hidden" class="pt-2 pb-4">
                             <v-row
                               v-for="data in item.priceListItems"
                               :key="data?.mpl_id"
@@ -581,28 +541,20 @@
                                     class="d-flex align-center justify-space-between"
                                   >
                                     <p class="text-caption font-weight-bold">
-                                      {{
-                                        data?.onboard_merchant?.partner
-                                          ?.partner_name || '-'
-                                      }}
+                                      {{ data?.onboard_merchant?.partner?.partner_name || '-' }}
                                     </p>
                                     <!-- </v-col>
                                   <v-col cols="2"> -->
-                                    <p
-                                      class="text-caption font-weight-bold text-no-wrap"
-                                    >
+                                    <p class="text-caption font-weight-bold text-no-wrap">
                                       {{
-                                        data?.onboard_merchant?.partner_location
-                                          ?.town?.town_name || '-'
+                                        data?.onboard_merchant?.partner_location?.town?.town_name ||
+                                        '-'
                                       }}
                                     </p>
                                     <!-- </v-col>
                                   <v-col cols="2"> -->
                                     <p class="text-caption font-weight-bold">
-                                      {{
-                                        data?.onboard_merchant?.partner_contact
-                                          ?.name || '-'
-                                      }}
+                                      {{ data?.onboard_merchant?.partner_contact?.name || '-' }}
                                     </p>
                                     <!-- </v-col> -->
                                     <!-- <v-col cols="2"> -->
@@ -611,14 +563,9 @@
                                         :href="`https://api.whatsapp.com/send?phone=${data?.onboard_merchant?.partner_contact?.whats_app}&text=Hello`"
                                         class="text-decoration-none text-grey-darken-1 text-no-wrap"
                                       >
-                                        {{
-                                          data?.onboard_merchant
-                                            ?.partner_contact?.whats_app
+                                        {{ data?.onboard_merchant?.partner_contact?.whats_app
                                         }}<v-icon
-                                          v-if="
-                                            data?.onboard_merchant
-                                              ?.partner_contact?.whats_app
-                                          "
+                                          v-if="data?.onboard_merchant?.partner_contact?.whats_app"
                                           color="#4EC053"
                                           size="20"
                                           class="ml-2 fab fa-whatsapp"
@@ -644,15 +591,14 @@
                                       @click="openDeleteConfirm2(data?.mpl_id)"
                                       icon
                                     >
-  <v-icon>mdi-trash-can-outline</v-icon></v-btn>
+                                      <v-icon>mdi-trash-can-outline</v-icon></v-btn
+                                    >
                                   </v-col>
                                 </v-row>
                                 <v-row class="py-0">
                                   <v-col cols="2"></v-col>
                                   <v-col cols="3">
-                                    <v-label class="text-black text-body-2 mb-2"
-                                      >Shop Rate</v-label
-                                    >
+                                    <v-label class="text-black text-body-2 mb-2">Shop Rate</v-label>
                                     <div
                                       class="d-flex align-content-center p-0 w-100"
                                       style="
@@ -681,19 +627,13 @@
                                         placeholder="0"
                                         v-model="data.shop_rate"
                                         @input="
-                                          debouncedUpdate2(
-                                            data.mpl_id,
-                                            data.shop_rate,
-                                            'shop'
-                                          )
+                                          debouncedUpdate2(data.mpl_id, data.shop_rate, 'shop')
                                         "
                                       ></v-text-field>
                                     </div>
                                   </v-col>
                                   <v-col cols="3">
-                                    <v-label class="text-black text-body-2 mb-2"
-                                      >Web Rate</v-label
-                                    >
+                                    <v-label class="text-black text-body-2 mb-2">Web Rate</v-label>
                                     <div
                                       class="d-flex align-content-center p-0 w-100"
                                       style="
@@ -721,20 +661,12 @@
                                         density="compact"
                                         placeholder="0"
                                         v-model="data.web_rate"
-                                        @input="
-                                          debouncedUpdate2(
-                                            data.mpl_id,
-                                            data.web_rate,
-                                            'web'
-                                          )
-                                        "
+                                        @input="debouncedUpdate2(data.mpl_id, data.web_rate, 'web')"
                                       ></v-text-field>
                                     </div>
                                   </v-col>
                                   <v-col cols="2">
-                                    <v-label class="text-black text-body-2 mb-2"
-                                      >Active</v-label
-                                    >
+                                    <v-label class="text-black text-body-2 mb-2">Active</v-label>
                                     <v-btn-toggle
                                       style="
                                         font-size: 10px !important;
@@ -748,13 +680,9 @@
                                       rounded="5"
                                       @click="activePrice2(data.mpl_id)"
                                     >
-                                      <v-btn size="27" :value="true">
-                                        Yes
-                                      </v-btn>
+                                      <v-btn size="27" :value="true"> Yes </v-btn>
 
-                                      <v-btn size="27" :value="false">
-                                        No
-                                      </v-btn>
+                                      <v-btn size="27" :value="false"> No </v-btn>
                                     </v-btn-toggle>
                                   </v-col>
                                 </v-row>
@@ -767,14 +695,6 @@
                   </td>
                 </tr>
               </template>
-              <tr v-if="isLoading">
-                <td :colspan="7" class="text-center">
-                  <v-progress-circular
-                    indeterminate
-                    color="indigo-accent-2"
-                  ></v-progress-circular>
-                </td>
-              </tr>
             </tbody>
           </v-table>
           <v-pagination
@@ -785,46 +705,18 @@
         </v-col>
       </v-row>
     </v-sheet>
-    <v-snackbar
-      location="top"
-      color="green"
-      v-model="isSuccess"
-      :timeout="3000"
-    >
-      {{ successMessage }}
 
-      <template v-slot:actions>
-        <v-btn color="white" variant="text" @click="isSuccess = false">
-          <v-icon>mdi-close</v-icon>
-        </v-btn>
-      </template>
-    </v-snackbar>
-    <v-snackbar location="top" color="red" v-model="isError" :timeout="3000">
-      {{ errorMessage }}
-
-      <template v-slot:actions>
-        <v-btn color="white" variant="text" @click="isError = false">
-          <v-icon>mdi-close</v-icon>
-        </v-btn>
-      </template>
-    </v-snackbar>
-    <v-dialog persistent width="500" v-model="isDelete">
-      <v-card>
-        <v-card-title>Confirmation</v-card-title>
-        <v-card-text> Are you sure want to delete this price? </v-card-text>
-        <v-card-actions>
-          <v-spacer></v-spacer>
-          <v-btn color="error" text @click="cancelDelete">No</v-btn>
-          <v-btn color="success" text @click="deletePrice">Yes</v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
+    <confirm-dialog
+      v-model="isDelete"
+      title="Confirmation"
+      message="Are you sure you want to delete this item? This action cannot be undone."
+      :loading="isDeleteLoading"
+      @confirm="deletePrice"
+    />
     <v-dialog persistent width="500" v-model="isDelete2">
       <v-card>
         <v-card-title>Confirmation</v-card-title>
-        <v-card-text>
-          Are you sure want to delete this merchant price?
-        </v-card-text>
+        <v-card-text> Are you sure want to delete this merchant price? </v-card-text>
         <v-card-actions>
           <v-spacer></v-spacer>
           <v-btn color="error" text @click="cancelDelete2">No</v-btn>
@@ -834,21 +726,15 @@
     </v-dialog>
     <v-dialog persistent width="400" v-model="isSuccessEmail">
       <v-card class="py-8 px-4">
-        <v-card-title class="text-center"
-          >Email has been successfully sent</v-card-title
-        >
+        <v-card-title class="text-center">Email has been successfully sent</v-card-title>
         <v-card-actions class="d-flex justify-center mt-8">
-          <v-btn class="w-100 bg-primary" text @click="closeSuccessEmail"
-            >OK</v-btn
-          >
+          <v-btn class="w-100 bg-primary" text @click="closeSuccessEmail">OK</v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
     <v-dialog persistent width="auto" v-model="isOpenImage">
       <v-card width="750">
-        <v-card-title class="upload-title px-6 py-4">
-          Upload Image - Price</v-card-title
-        >
+        <v-card-title class="upload-title px-6 py-4"> Upload Image - Price</v-card-title>
         <v-card-text>
           <image-upload
             :image-file="imageFile"
@@ -858,13 +744,7 @@
         </v-card-text>
         <v-card-actions class="mt-16">
           <v-spacer></v-spacer>
-          <v-btn
-            style="text-transform: none"
-            color="error"
-            text
-            @click="closeImage"
-            >Cancel</v-btn
-          >
+          <v-btn style="text-transform: none" color="error" text @click="closeImage">Cancel</v-btn>
           <v-btn
             style="background-color: #9ddcff; text-transform: none"
             color="black"
@@ -878,12 +758,26 @@
 </template>
 
 <script>
+import SkeletonTable from '@/components/SkeletonTable.vue';
+import EmptyState from '@/components/EmptyState.vue';
+import ConfirmDialog from '@/components/ConfirmDialog.vue';
+import { useNotificationStore } from '@/stores/notification';
 import ImageUpload from '@/components/ImageUpload.vue';
 import axios from '@/util/axios';
 import { setAuthHeader } from '@/util/axios';
 
 export default {
   name: 'PriceMaster',
+  components: {
+    ConfirmDialog,
+    EmptyState,
+    SkeletonTable,
+    ImageUpload,
+  },
+  setup() {
+    const notification = useNotificationStore();
+    return { notification };
+  },
   data: () => ({
     // fileURL: 'https://admin1.the-gypsy.sg/img/app/',
     selectedApp: 3,
@@ -897,9 +791,7 @@ export default {
     isSending3: false,
     isSending4: false,
     isSendTemplate: false,
-    isSuccess: false,
     isSuccessEmail: false,
-    isError: false,
     isDelete: false,
     isDeleteLoading: false,
     priceIdToDelete: null,
@@ -921,8 +813,6 @@ export default {
       price: null,
     },
     isOpenImage: false,
-    successMessage: '',
-    errorMessage: '',
     input: {
       id: 0,
       product: null,
@@ -954,8 +844,7 @@ export default {
       ],
       emailRules: [
         (value) => {
-          if (/.+@.+\..+/.test(value) || value == null || value == '')
-            return true;
+          if (/.+@.+\..+/.test(value) || value == null || value == '') return true;
           return 'E-mail must be valid.';
         },
       ],
@@ -1028,19 +917,15 @@ export default {
         .delete(`/invites/${this.priceDataToImage.id}/image`)
         .then((response) => {
           const data = response.data;
-          this.successMessage = data.message;
-          this.isSuccess = true;
+          this.notification.success(data.message);
           this.getItemsData(this.selectedCity);
         })
         .catch((error) => {
           // eslint-disable-next-line
           console.log(error);
           const message =
-            error.response.data.message === ''
-              ? 'Something Wrong!!!'
-              : error.response.data.message;
-          this.errorMessage = message;
-          this.isError = true;
+            error.response.data.message === '' ? 'Something Wrong!!!' : error.response.data.message;
+          this.notification.error(message);
         })
         .finally(() => {
           this.isSending = false;
@@ -1104,19 +989,15 @@ export default {
         })
         .then((response) => {
           const data = response.data;
-          this.successMessage = data.message;
-          this.isSuccess = true;
+          this.notification.success(data.message);
           this.getItemsData(this.selectedCity);
         })
         .catch((error) => {
           // eslint-disable-next-line
           console.log(error);
           const message =
-            error.response.data.message === ''
-              ? 'Something Wrong!!!'
-              : error.response.data.message;
-          this.errorMessage = message;
-          this.isError = true;
+            error.response.data.message === '' ? 'Something Wrong!!!' : error.response.data.message;
+          this.notification.error(message);
         })
         .finally(() => {
           this.isSending = false;
@@ -1152,14 +1033,11 @@ export default {
       axios
         .post(`/price-list/update`, payload)
         .then((response) => {
-          this.successMessage = response.data.message;
-          this.isSuccess = true;
+          this.notification.success(response.data.message);
         })
         .catch((error) => {
           console.error(error);
-          this.errorMessage =
-            error.response?.data?.message || 'Something Wrong!!!';
-          this.isError = true;
+          this.notification.error(error.response?.data?.message || 'Something Wrong!!!');
         });
     },
     debouncedUpdate2(id, value, type) {
@@ -1191,8 +1069,7 @@ export default {
         .post(`/merchant-price-list/update`, payload)
         .then((response) => {
           const data = response.data;
-          this.successMessage = data.message;
-          this.isSuccess = true;
+          this.notification.success(data.message);
         })
         .catch((error) => {
           // eslint-disable-next-line
@@ -1204,8 +1081,7 @@ export default {
             : error.response.data.message
             ? error.response.data.message
             : 'Something Wrong!!!';
-          this.errorMessage = message;
-          this.isError = true;
+          this.notification.error(message);
         });
     },
     saveData() {
@@ -1222,8 +1098,7 @@ export default {
           .post(`/price-list`, payload)
           .then((response) => {
             const data = response.data;
-            this.successMessage = data.message;
-            this.isSuccess = true;
+            this.notification.success(data.message);
             this.getItemsData(this.selectedCity);
             this.input = {
               id: 0,
@@ -1239,8 +1114,7 @@ export default {
               : error.response.data.error
               ? error.response.data.error
               : 'Something Wrong!!!';
-            this.errorMessage = message;
-            this.isError = true;
+            this.notification.error(message);
           })
           .finally(() => {
             this.isSending = false;
@@ -1277,19 +1151,15 @@ export default {
         .delete(`/price-list/${this.priceIdToDelete}`)
         .then((response) => {
           const data = response.data;
-          this.successMessage = data.message;
-          this.isSuccess = true;
+          this.notification.success(data.message);
           this.getItemsData(this.selectedCity);
         })
         .catch((error) => {
           // eslint-disable-next-line
           console.log(error);
           const message =
-            error.response.data.message === ''
-              ? 'Something Wrong!!!'
-              : error.response.data.message;
-          this.errorMessage = message;
-          this.isError = true;
+            error.response.data.message === '' ? 'Something Wrong!!!' : error.response.data.message;
+          this.notification.error(message);
         })
         .finally(() => {
           this.isDeleteLoading = false;
@@ -1303,19 +1173,15 @@ export default {
         .delete(`/merchant-price-list/${this.merchantPriceIdToDelete}`)
         .then((response) => {
           const data = response.data;
-          this.successMessage = data.message;
-          this.isSuccess = true;
+          this.notification.success(data.message);
           this.getItemsData(this.selectedCity);
         })
         .catch((error) => {
           // eslint-disable-next-line
           console.log(error);
           const message =
-            error.response.data.message === ''
-              ? 'Something Wrong!!!'
-              : error.response.data.message;
-          this.errorMessage = message;
-          this.isError = true;
+            error.response.data.message === '' ? 'Something Wrong!!!' : error.response.data.message;
+          this.notification.error(message);
         })
         .finally(() => {
           this.isDeleteLoading2 = false;
@@ -1340,8 +1206,7 @@ export default {
           console.log(data);
           item.merchantPrice = null;
           item.shopRate = null;
-          this.successMessage = 'Merchant Price and shop rate is sent';
-          this.isSuccess = true;
+          this.notification.success('Merchant Price and shop rate is sent');
           this.getItemsData(this.selectedCity);
         })
         .catch((error) => {
@@ -1352,8 +1217,7 @@ export default {
             : error.response.data.message === ''
             ? 'Something Wrong!!!'
             : error.response.data.message;
-          this.errorMessage = message;
-          this.isError = true;
+          this.notification.error(message);
         })
         .finally(() => {
           item.loading = false;
@@ -1418,44 +1282,20 @@ export default {
             return {
               ...item,
               id: item.price_id || 0,
-              isActive:
-                item.active == 'N' ? false : item.active == 'Y' ? true : null,
+              isActive: item.active == 'N' ? false : item.active == 'Y' ? true : null,
               merchantPrice: null,
               shopRate: null,
               loading: false,
-              isGiftItem:
-                item?.gift_item == 'N'
-                  ? false
-                  : item?.gift_item == 'Y'
-                  ? true
-                  : null,
+              isGiftItem: item?.gift_item == 'N' ? false : item?.gift_item == 'Y' ? true : null,
               isLimitedEdition:
-                item?.limited_edition == 'N'
-                  ? false
-                  : item?.limited_edition == 'Y'
-                  ? true
-                  : null,
+                item?.limited_edition == 'N' ? false : item?.limited_edition == 'Y' ? true : null,
               isSpecialEdition:
-                item?.special_edition == 'N'
-                  ? false
-                  : item?.special_edition == 'Y'
-                  ? true
-                  : null,
-              isMiniature:
-                item?.miniature == 'N'
-                  ? false
-                  : item?.miniature == 'Y'
-                  ? true
-                  : null,
+                item?.special_edition == 'N' ? false : item?.special_edition == 'Y' ? true : null,
+              isMiniature: item?.miniature == 'N' ? false : item?.miniature == 'Y' ? true : null,
               priceListItems: item.merchant_price_list.map((data) => {
                 return {
                   ...data,
-                  isActive:
-                    data.active == 'N'
-                      ? false
-                      : data.active == 'Y'
-                      ? true
-                      : null,
+                  isActive: data.active == 'N' ? false : data.active == 'Y' ? true : null,
                 };
               }),
             };
@@ -1469,11 +1309,8 @@ export default {
       } catch (error) {
         console.log(error);
         const message =
-          error.response.data.message === ''
-            ? 'Something Wrong!!!'
-            : error.response.data.message;
-        this.errorMessage = message;
-        this.isError = true;
+          error.response.data.message === '' ? 'Something Wrong!!!' : error.response.data.message;
+        this.notification.error(message);
       } finally {
         this.isLoading = false;
       }
@@ -1512,11 +1349,8 @@ export default {
           // eslint-disable-next-line
           console.log(error);
           const message =
-            error.response.data.message === ''
-              ? 'Something Wrong!!!'
-              : error.response.data.message;
-          this.errorMessage = message;
-          this.isError = true;
+            error.response.data.message === '' ? 'Something Wrong!!!' : error.response.data.message;
+          this.notification.error(message);
         });
     },
     //getProductRanges() {
@@ -1547,7 +1381,7 @@ export default {
     //          ? 'Something Wrong!!!'
     //          : error.response.data.message;
     //      this.errorMessage = message;
-    //      this.isError = true;
+    //
     //    });
     //},
     getProductRanges() {
@@ -1573,8 +1407,7 @@ export default {
         .catch((error) => {
           console.log(error);
           const message = error.response?.data?.message || 'Something Wrong!!!';
-          this.errorMessage = message;
-          this.isError = true;
+          this.notification.error(message);
         });
     },
     getOnboardMerchants(appId, cityId) {
@@ -1588,11 +1421,9 @@ export default {
               ...item,
               id: item?.om_id,
               name:
-                item?.partner?.partner_name &&
-                item?.partner_location?.town?.town_name
+                item?.partner?.partner_name && item?.partner_location?.town?.town_name
                   ? `${item.partner.partner_name} | ${item.partner_location.town.town_name}`
-                  : item?.partner?.partner_name &&
-                    item?.partner_location?.city?.city_name
+                  : item?.partner?.partner_name && item?.partner_location?.city?.city_name
                   ? `${item.partner.partner_name} | ${item.partner_location.city.city_name}`
                   : item?.partner?.partner_name
                   ? item.partner.partner_name
@@ -1605,8 +1436,7 @@ export default {
         .catch((error) => {
           console.log(error);
           const message = error.response?.data?.message || 'Something Wrong!!!';
-          this.errorMessage = message;
-          this.isError = true;
+          this.notification.error(message);
         });
     },
     activePrice(id) {
@@ -1615,19 +1445,15 @@ export default {
         .get(`/price-list/toggle-active/${id}`)
         .then((response) => {
           const data = response.data;
-          this.successMessage = data.message;
-          this.isSuccess = true;
+          this.notification.success(data.message);
           this.getItemsData(this.selectedCity);
         })
         .catch((error) => {
           // eslint-disable-next-line
           console.log(error);
           const message =
-            error.response.data.message === ''
-              ? 'Something Wrong!!!'
-              : error.response.data.message;
-          this.errorMessage = message;
-          this.isError = true;
+            error.response.data.message === '' ? 'Something Wrong!!!' : error.response.data.message;
+          this.notification.error(message);
         })
         .finally(() => {
           this.isSending2 = false;
@@ -1639,19 +1465,15 @@ export default {
         .get(`/merchant-price-list/toggle-active/${id}`)
         .then((response) => {
           const data = response.data;
-          this.successMessage = data.message;
-          this.isSuccess = true;
+          this.notification.success(data.message);
           //this.getItemsData(this.selectedCity);
         })
         .catch((error) => {
           // eslint-disable-next-line
           console.log(error);
           const message =
-            error.response.data.message === ''
-              ? 'Something Wrong!!!'
-              : error.response.data.message;
-          this.errorMessage = message;
-          this.isError = true;
+            error.response.data.message === '' ? 'Something Wrong!!!' : error.response.data.message;
+          this.notification.error(message);
         })
         .finally(() => {
           this.isSending3 = false;
@@ -1663,26 +1485,21 @@ export default {
         .get(`/price-list/toggle-items/${type}/${id}`)
         .then((response) => {
           const data = response.data;
-          this.successMessage = data.message;
-          this.isSuccess = true;
+          this.notification.success(data.message);
           //this.getItemsData(this.selectedCity);
         })
         .catch((error) => {
           // eslint-disable-next-line
           console.log(error);
           const message =
-            error.response.data.message === ''
-              ? 'Something Wrong!!!'
-              : error.response.data.message;
-          this.errorMessage = message;
-          this.isError = true;
+            error.response.data.message === '' ? 'Something Wrong!!!' : error.response.data.message;
+          this.notification.error(message);
         })
         .finally(() => {
           this.isSending4 = false;
         });
     },
   },
-  components: { ImageUpload },
 };
 </script>
 

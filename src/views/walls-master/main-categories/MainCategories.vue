@@ -1,7 +1,7 @@
 <!-- eslint-disable vue/no-deprecated-v-bind-sync -->
 <template>
   <v-container>
-    <HeaderWallMaster />  
+    <HeaderWallMaster />
     <v-form v-model="valid" @submit.prevent>
       <v-container>
         <v-row>
@@ -25,18 +25,14 @@
               rows="3"
               variant="outlined"
               required
-              style="height: 100px !important;"
+              style="height: 100px !important"
             ></v-textarea>
           </v-col>
           <v-col cols="12" md="2">
             <v-btn
-              :prepend-icon="
-                isEdit
-                  ? 'mdi-account-multiple-check'
-                  : 'mdi-account-multiple-plus'
-              "
+              :prepend-icon="isEdit ? 'mdi-account-multiple-check' : 'mdi-account-multiple-plus'"
               color="indigo-accent-2"
-              style="text-transform: none;margin-top: -30px !important;"
+              style="text-transform: none; margin-top: -30px !important"
               type="submit"
               variant="flat"
               class="w-100"
@@ -56,7 +52,7 @@
               v-if="isEdit"
               prepend-icon="mdi-account-multiple-remove"
               color="red"
-              style="text-transform: none;margin-top: -30px !important;"
+              style="text-transform: none; margin-top: -30px !important"
               variant="flat"
               class="w-100 mt-8"
               @click="cancelEdit"
@@ -103,9 +99,9 @@
             <tbody>
               <template v-for="item in filteredItems" :key="item.id">
                 <tr>
-                  <td style="border-bottom: none !important;">{{ item.category_id }}</td>
-                  
-                  <td style="border-bottom: none !important;">
+                  <td style="border-bottom: none !important">{{ item.category_id }}</td>
+
+                  <td style="border-bottom: none !important">
                     <div class="image-upload-cont">
                       <v-img
                         class="image-upload-item"
@@ -118,12 +114,11 @@
                             : 'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png'
                         "
                       >
-                        <template #placeholder>
-                          <div class="skeleton" /> </template
+                        <template #placeholder> <div class="skeleton" /> </template
                       ></v-img>
                     </div>
                   </td>
-                  <td style="border-bottom: none !important;">
+                  <td style="border-bottom: none !important">
                     <div class="image-upload-cont">
                       <v-img
                         class="image-upload-item"
@@ -136,12 +131,11 @@
                             : 'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png'
                         "
                       >
-                        <template #placeholder>
-                          <div class="skeleton" /> </template
+                        <template #placeholder> <div class="skeleton" /> </template
                       ></v-img>
                     </div>
                   </td>
-                  <td style="border-bottom: none !important;">
+                  <td style="border-bottom: none !important">
                     <div class="image-upload-cont">
                       <v-img
                         class="image-upload-item"
@@ -154,18 +148,17 @@
                             : 'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png'
                         "
                       >
-                        <template #placeholder>
-                          <div class="skeleton" /> </template
+                        <template #placeholder> <div class="skeleton" /> </template
                       ></v-img>
                     </div>
                   </td>
-                  <td style="font-weight: 500 !important;border-bottom: none !important;">
+                  <td style="font-weight: 500 !important; border-bottom: none !important">
                     {{ item.category_name }}
                   </td>
-                  <td style="font-weight: 500 !important;border-bottom: none !important;">
+                  <td style="font-weight: 500 !important; border-bottom: none !important">
                     {{ item.description }}
                   </td>
-                  <td style="font-weight: 500 !important;border-bottom: none !important;">
+                  <td style="font-weight: 500 !important; border-bottom: none !important">
                     <v-btn-toggle
                       style="
                         font-size: 10px !important;
@@ -184,29 +177,28 @@
                       <v-btn size="27" :value="false"> No </v-btn>
                     </v-btn-toggle>
                   </td>
-                  <td style="font-weight: 500 !important;border-bottom: none !important;">
+                  <td style="font-weight: 500 !important; border-bottom: none !important">
                     {{ item.user.name }}
                   </td>
-                  <td style="font-weight: 500 !important;border-bottom: none !important;">
+                  <td style="font-weight: 500 !important; border-bottom: none !important">
                     {{ item.dated }}
                   </td>
-                  <td style="border-bottom: none !important;">
+                  <td style="border-bottom: none !important">
                     <div class="d-flex">
+                      <v-btn color="green" variant="text" @click="editMainCategory(item)" icon>
+                        <v-icon>mdi-pencil-outline</v-icon>
+                        <v-tooltip location="top" activator="parent">Edit</v-tooltip>
+                      </v-btn>
                       <v-btn
-                            color="green"
-                            variant="text" @click="editMainCategory(item)"
-                            icon
-                          >
-  <v-icon>mdi-pencil-outline</v-icon>  <v-tooltip location="top" activator="parent">Edit</v-tooltip>
-</v-btn>
-                      <v-btn
-                            color="red" variant="text"
-                            :disabled="isDeleteLoading"
-                            @click="openDeleteConfirm(item.category_id)"
-                            icon
-                          >
-  <v-icon>mdi-trash-can-outline</v-icon>  <v-tooltip location="top" activator="parent">Delete</v-tooltip>
-</v-btn>
+                        color="red"
+                        variant="text"
+                        :disabled="isDeleteLoading"
+                        @click="openDeleteConfirm(item.category_id)"
+                        icon
+                      >
+                        <v-icon>mdi-trash-can-outline</v-icon>
+                        <v-tooltip location="top" activator="parent">Delete</v-tooltip>
+                      </v-btn>
                     </div>
                   </td>
                 </tr>
@@ -241,7 +233,9 @@
                       variant="outlined"
                       density="compact"
                       required
-                      @change="saveButtonName(item.category_id, item.category_name, item.button_name)"
+                      @change="
+                        saveButtonName(item.category_id, item.category_name, item.button_name)
+                      "
                     ></v-text-field>
                   </td>
                   <td></td>
@@ -249,55 +243,25 @@
                   <td></td>
                 </tr>
               </template>
-              <tr v-if="isLoading">
-                <td :colspan="6" class="text-center">
-                  <v-progress-circular
-                    indeterminate
-                    color="indigo-accent-2"
-                  ></v-progress-circular>
-                </td>
-              </tr>
             </tbody>
           </v-table>
+          <skeleton-table v-if="isLoading" :rows="5" :columns="10" />
+          <empty-state
+            v-if="!isLoading && (!filteredItems || filteredItems.length === 0)"
+            title="No Data Found"
+            subtitle="There are no records to display."
+          />
         </v-col>
       </v-row>
     </v-sheet>
-    <v-snackbar
-      location="top"
-      color="green"
-      v-model="isSuccess"
-      :timeout="3000"
-    >
-      {{ successMessage }}
 
-      <template v-slot:actions>
-        <v-btn color="white" variant="text" @click="isSuccess = false">
-          <v-icon>mdi-close</v-icon>
-        </v-btn>
-      </template>
-    </v-snackbar>
-    <v-snackbar location="top" color="red" v-model="isError" :timeout="3000">
-      {{ errorMessage }}
-
-      <template v-slot:actions>
-        <v-btn color="white" variant="text" @click="isError = false">
-          <v-icon>mdi-close</v-icon>
-        </v-btn>
-      </template>
-    </v-snackbar>
-    <v-dialog persistent width="500" v-model="isDelete">
-      <v-card>
-        <v-card-title>Confirmation</v-card-title>
-        <v-card-text>
-          Are you sure want to delete this property type?
-        </v-card-text>
-        <v-card-actions>
-          <v-spacer></v-spacer>
-          <v-btn color="error" text @click="cancelDelete">No</v-btn>
-          <v-btn color="success" text @click="deleteMainCategory">Yes</v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
+    <confirm-dialog
+      v-model="isDelete"
+      title="Confirmation"
+      message="Are you sure you want to delete this item? This action cannot be undone."
+      :loading="isDeleteLoading"
+      @confirm="deleteMainCategory"
+    />
     <v-dialog persistent width="auto" v-model="isOpenMainImage">
       <v-card width="750">
         <v-card-title class="upload-title px-6 py-4">
@@ -312,11 +276,7 @@
         </v-card-text>
         <v-card-actions class="mt-16">
           <v-spacer></v-spacer>
-          <v-btn
-            style="text-transform: none"
-            color="error"
-            text
-            @click="closeMainImage"
+          <v-btn style="text-transform: none" color="error" text @click="closeMainImage"
             >Cancel</v-btn
           >
           <v-btn
@@ -342,13 +302,7 @@
         </v-card-text>
         <v-card-actions class="mt-16">
           <v-spacer></v-spacer>
-          <v-btn
-            style="text-transform: none"
-            color="error"
-            text
-            @click="closeLogo"
-            >Cancel</v-btn
-          >
+          <v-btn style="text-transform: none" color="error" text @click="closeLogo">Cancel</v-btn>
           <v-btn
             style="background-color: #9ddcff; text-transform: none"
             color="black"
@@ -372,11 +326,7 @@
         </v-card-text>
         <v-card-actions class="mt-16">
           <v-spacer></v-spacer>
-          <v-btn
-            style="text-transform: none"
-            color="error"
-            text
-            @click="closeIconImage"
+          <v-btn style="text-transform: none" color="error" text @click="closeIconImage"
             >Cancel</v-btn
           >
           <v-btn
@@ -392,6 +342,10 @@
 </template>
 
 <script>
+import SkeletonTable from '@/components/SkeletonTable.vue';
+import EmptyState from '@/components/EmptyState.vue';
+import ConfirmDialog from '@/components/ConfirmDialog.vue';
+import { useNotificationStore } from '@/stores/notification';
 import ImageUpload from '@/components/ImageUpload.vue';
 import axios from '@/util/axios';
 import { setAuthHeader } from '@/util/axios';
@@ -400,14 +354,23 @@ import HeaderWallMaster from '@/components/HeaderWallMaster.vue';
 
 export default {
   name: 'PropertyTypes',
+  components: {
+    ConfirmDialog,
+    EmptyState,
+    SkeletonTable,
+    ImageUpload,
+    HeaderWallMaster,
+  },
+  setup() {
+    const notification = useNotificationStore();
+    return { notification };
+  },
   data: () => ({
     //fileURL: 'https://admin1.the-gypsy.sg/img/app/',
     valid: false,
     isLoading: false,
     isSending: false,
     isEdit: false,
-    isSuccess: false,
-    isError: false,
     isDelete: false,
     isDeleteLoading: false,
     propertyIdToDelete: null,
@@ -433,8 +396,6 @@ export default {
     isOpenMainImage: false,
     isOpenLongImage: false,
     isOpenIconImage: false,
-    successMessage: '',
-    errorMessage: '',
     input: {
       category_id: 0,
       category_name: null,
@@ -496,24 +457,18 @@ export default {
     deleteLongImageFile() {
       this.isSending = true;
       axios
-        .delete(
-          `/4walls-main-categories/${this.propertyDataToLongImage.category_id}/long-image`
-        )
+        .delete(`/4walls-main-categories/${this.propertyDataToLongImage.category_id}/long-image`)
         .then((response) => {
           const data = response.data;
-          this.successMessage = data.message;
-          this.isSuccess = true;
+          this.notification.success(data.message);
           this.getMainCategoriesData();
         })
         .catch((error) => {
           // eslint-disable-next-line
           console.log(error);
           const message =
-            error.response.data.message === ''
-              ? 'Something Wrong!!!'
-              : error.response.data.message;
-          this.errorMessage = message;
-          this.isError = true;
+            error.response.data.message === '' ? 'Something Wrong!!!' : error.response.data.message;
+          this.notification.error(message);
         })
         .finally(() => {
           this.isEdit = false;
@@ -527,24 +482,18 @@ export default {
     deleteMainImageFile() {
       this.isSending = true;
       axios
-        .delete(
-          `/4walls-main-categories/${this.propertyDataToMainImage.category_id}/main-image`
-        )
+        .delete(`/4walls-main-categories/${this.propertyDataToMainImage.category_id}/main-image`)
         .then((response) => {
           const data = response.data;
-          this.successMessage = data.message;
-          this.isSuccess = true;
+          this.notification.success(data.message);
           this.getMainCategoriesData();
         })
         .catch((error) => {
           // eslint-disable-next-line
           console.log(error);
           const message =
-            error.response.data.message === ''
-              ? 'Something Wrong!!!'
-              : error.response.data.message;
-          this.errorMessage = message;
-          this.isError = true;
+            error.response.data.message === '' ? 'Something Wrong!!!' : error.response.data.message;
+          this.notification.error(message);
         })
         .finally(() => {
           this.isEdit = false;
@@ -558,24 +507,18 @@ export default {
     deleteIconImageFile() {
       this.isSending = true;
       axios
-        .delete(
-          `/4walls-main-categories/${this.propertyDataToIconImage.category_id}/icon-image`
-        )
+        .delete(`/4walls-main-categories/${this.propertyDataToIconImage.category_id}/icon-image`)
         .then((response) => {
           const data = response.data;
-          this.successMessage = data.message;
-          this.isSuccess = true;
+          this.notification.success(data.message);
           this.getMainCategoriesData();
         })
         .catch((error) => {
           // eslint-disable-next-line
           console.log(error);
           const message =
-            error.response.data.message === ''
-              ? 'Something Wrong!!!'
-              : error.response.data.message;
-          this.errorMessage = message;
-          this.isError = true;
+            error.response.data.message === '' ? 'Something Wrong!!!' : error.response.data.message;
+          this.notification.error(message);
         })
         .finally(() => {
           this.isEdit = false;
@@ -619,7 +562,7 @@ export default {
         category_id: this.propertyDataToIconImage.category_id,
         category_name: this.propertyDataToIconImage.category_name,
         description: this.propertyDataToIconImage.description,
-        icon_image: this.iconImageFile[0],  
+        icon_image: this.iconImageFile[0],
       };
       axios
         .post(`/4walls-main-categories/update`, payload, {
@@ -627,21 +570,17 @@ export default {
             'Content-Type': 'multipart/form-data',
           },
         })
-        .then((response) => { 
+        .then((response) => {
           const data = response.data;
-          this.successMessage = data.message;
-          this.isSuccess = true;
+          this.notification.success(data.message);
           this.getMainCategoriesData();
         })
         .catch((error) => {
           // eslint-disable-next-line
           console.log(error);
           const message =
-            error.response.data.message === ''
-              ? 'Something Wrong!!!'
-              : error.response.data.message;
-          this.errorMessage = message;
-          this.isError = true;
+            error.response.data.message === '' ? 'Something Wrong!!!' : error.response.data.message;
+          this.notification.error(message);
         })
         .finally(() => {
           this.isEdit = false;
@@ -682,10 +621,10 @@ export default {
       this.propertyDataToLongImage = {
         category_id: 0,
         category_name: null,
-        description: null, 
+        description: null,
       };
     },
-    saveLongImage() { 
+    saveLongImage() {
       this.isSending = true;
       const payload = {
         category_id: this.propertyDataToLongImage.category_id,
@@ -701,19 +640,15 @@ export default {
         })
         .then((response) => {
           const data = response.data;
-          this.successMessage = data.message;
-          this.isSuccess = true;
+          this.notification.success(data.message);
           this.getMainCategoriesData();
         })
         .catch((error) => {
           // eslint-disable-next-line
           console.log(error);
           const message =
-            error.response.data.message === ''
-              ? 'Something Wrong!!!'
-              : error.response.data.message;
-          this.errorMessage = message;
-          this.isError = true;
+            error.response.data.message === '' ? 'Something Wrong!!!' : error.response.data.message;
+          this.notification.error(message);
         })
         .finally(() => {
           this.isEdit = false;
@@ -773,19 +708,15 @@ export default {
         })
         .then((response) => {
           const data = response.data;
-          this.successMessage = data.message;
-          this.isSuccess = true;
+          this.notification.success(data.message);
           this.getMainCategoriesData();
         })
         .catch((error) => {
           // eslint-disable-next-line
           console.log(error);
           const message =
-            error.response.data.message === ''
-              ? 'Something Wrong!!!'
-              : error.response.data.message;
-          this.errorMessage = message;
-          this.isError = true;
+            error.response.data.message === '' ? 'Something Wrong!!!' : error.response.data.message;
+          this.notification.error(message);
         })
         .finally(() => {
           this.isEdit = false;
@@ -831,8 +762,7 @@ export default {
           .post(`/4walls-main-categories/update`, payload)
           .then((response) => {
             const data = response.data;
-            this.successMessage = data.message;
-            this.isSuccess = true;
+            this.notification.success(data.message);
             this.getMainCategoriesData();
             this.input = {
               category_id: 0,
@@ -849,8 +779,7 @@ export default {
               error.response.data.message === ''
                 ? 'Something Wrong!!!'
                 : error.response.data.message;
-            this.errorMessage = message;
-            this.isError = true;
+            this.notification.error(message);
           })
           .finally(() => {
             this.isEdit = false;
@@ -869,19 +798,15 @@ export default {
         .post(`/4walls-main-categories/update`, payload)
         .then((response) => {
           const data = response.data;
-          this.successMessage = data.message;
-          this.isSuccess = true;
+          this.notification.success(data.message);
           this.getMainCategoriesData();
         })
         .catch((error) => {
           // eslint-disable-next-line
           console.log(error);
           const message =
-            error.response.data.message === ''
-              ? 'Something Wrong!!!'
-              : error.response.data.message;
-          this.errorMessage = message;
-          this.isError = true;
+            error.response.data.message === '' ? 'Something Wrong!!!' : error.response.data.message;
+          this.notification.error(message);
         })
         .finally(() => {
           this.isSending = false;
@@ -898,19 +823,15 @@ export default {
         .post(`/4walls-main-categories/update`, payload)
         .then((response) => {
           const data = response.data;
-          this.successMessage = data.message;
-          this.isSuccess = true;
+          this.notification.success(data.message);
           this.getMainCategoriesData();
         })
         .catch((error) => {
           // eslint-disable-next-line
           console.log(error);
           const message =
-            error.response.data.message === ''
-              ? 'Something Wrong!!!'
-              : error.response.data.message;
-          this.errorMessage = message;
-          this.isError = true;
+            error.response.data.message === '' ? 'Something Wrong!!!' : error.response.data.message;
+          this.notification.error(message);
         })
         .finally(() => {
           this.isSending = false;
@@ -927,19 +848,15 @@ export default {
         .post(`/4walls-main-categories/update`, payload)
         .then((response) => {
           const data = response.data;
-          this.successMessage = data.message;
-          this.isSuccess = true;
+          this.notification.success(data.message);
           this.getMainCategoriesData();
         })
         .catch((error) => {
           // eslint-disable-next-line
           console.log(error);
           const message =
-            error.response.data.message === ''
-              ? 'Something Wrong!!!'
-              : error.response.data.message;
-          this.errorMessage = message;
-          this.isError = true;
+            error.response.data.message === '' ? 'Something Wrong!!!' : error.response.data.message;
+          this.notification.error(message);
         })
         .finally(() => {
           this.isSending = false;
@@ -956,8 +873,7 @@ export default {
           .post(`/4walls-main-categories`, payload)
           .then((response) => {
             const data = response.data;
-            this.successMessage = data.message;
-            this.isSuccess = true;
+            this.notification.success(data.message);
             this.getMainCategoriesData();
             this.input = {
               category_id: 0,
@@ -974,8 +890,7 @@ export default {
               error.response.data.message === ''
                 ? 'Something Wrong!!!'
                 : error.response.data.message;
-            this.errorMessage = message;
-            this.isError = true;
+            this.notification.error(message);
           })
           .finally(() => {
             this.isSending = false;
@@ -1000,19 +915,15 @@ export default {
         .delete(`/4walls-main-categories/${this.propertyIdToDelete}`)
         .then((response) => {
           const data = response.data;
-          this.successMessage = data.message;
-          this.isSuccess = true;
+          this.notification.success(data.message);
           this.getMainCategoriesData();
         })
         .catch((error) => {
           // eslint-disable-next-line
           console.log(error);
           const message =
-            error.response.data.message === ''
-              ? 'Something Wrong!!!'
-              : error.response.data.message;
-          this.errorMessage = message;
-          this.isError = true;
+            error.response.data.message === '' ? 'Something Wrong!!!' : error.response.data.message;
+          this.notification.error(message);
         })
         .finally(() => {
           this.isDeleteLoading = false;
@@ -1035,8 +946,7 @@ export default {
               long_image: item.long_image || null,
               main_image: item.main_image || null,
               icon_image: item.icon_image || null,
-              isActive:
-                item.active == 'N' ? false : item.active == 'Y' ? true : null,
+              isActive: item.active == 'N' ? false : item.active == 'Y' ? true : null,
               user: item.user || '',
               dated: item.dated || '',
               tag_line: item.tag_line || '',
@@ -1049,11 +959,8 @@ export default {
           // eslint-disable-next-line
           console.log(error);
           const message =
-            error.response.data.message === ''
-              ? 'Something Wrong!!!'
-              : error.response.data.message;
-          this.errorMessage = message;
-          this.isError = true;
+            error.response.data.message === '' ? 'Something Wrong!!!' : error.response.data.message;
+          this.notification.error(message);
         })
         .finally(() => {
           this.isLoading = false;
@@ -1065,26 +972,21 @@ export default {
         .get(`/4walls-main-categories/toggle-active/${category_id}`)
         .then((response) => {
           const data = response.data;
-          this.successMessage = data.message;
-          this.isSuccess = true;
+          this.notification.success(data.message);
           this.getMainCategoriesData();
         })
         .catch((error) => {
           // eslint-disable-next-line
           console.log(error);
           const message =
-            error.response.data.message === ''
-              ? 'Something Wrong!!!'
-              : error.response.data.message;
-          this.errorMessage = message;
-          this.isError = true;
+            error.response.data.message === '' ? 'Something Wrong!!!' : error.response.data.message;
+          this.notification.error(message);
         })
         .finally(() => {
           this.isSending2 = false;
         });
     },
   },
-  components: { ImageUpload, HeaderWallMaster },
 };
 </script>
 

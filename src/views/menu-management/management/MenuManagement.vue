@@ -78,10 +78,7 @@
                   min-width: 13 0px;
                 "
               >
-                <div
-                  class="d-flex justify-center align-center w-33"
-                  style="background: #e9ecef"
-                >
+                <div class="d-flex justify-center align-center w-33" style="background: #e9ecef">
                   <h4 style="color: #077cff">S$</h4>
                 </div>
                 <v-text-field
@@ -271,10 +268,7 @@
                     ></v-select>
                   </div>
                 </fieldset>
-                <div
-                  class="d-flex align-center font-weight-bold ml-2"
-                  style="font-size: 12px"
-                >
+                <div class="d-flex align-center font-weight-bold ml-2" style="font-size: 12px">
                   Mins
                 </div>
               </div>
@@ -284,11 +278,7 @@
         <v-row class="d-flex align-baseline">
           <v-col cols="12" md="2">
             <v-btn
-              :prepend-icon="
-                isEdit
-                  ? 'mdi-account-multiple-check'
-                  : 'mdi-account-multiple-plus'
-              "
+              :prepend-icon="isEdit ? 'mdi-account-multiple-check' : 'mdi-account-multiple-plus'"
               color="indigo-accent-2"
               style="text-transform: none; margin-top: -30px !important"
               type="submit"
@@ -339,9 +329,7 @@
       </v-row>
       <v-row align="center" justify="space-between">
         <v-col cols="8">
-          <span>
-            Showing {{ startItem }} - {{ endItem }} from {{ totalItems }} item
-          </span>
+          <span> Showing {{ startItem }} - {{ endItem }} from {{ totalItems }} item </span>
         </v-col>
         <v-col cols="4" class="text-right">
           <v-select
@@ -390,34 +378,23 @@
                             : 'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png'
                         "
                       >
-                        <template #placeholder>
-                          <div class="skeleton" /> </template
+                        <template #placeholder> <div class="skeleton" /> </template
                       ></v-img>
                     </div>
                   </td>
                   <td class="border-b-0 font-weight-bold pt-3 pb-2">
                     {{ item?.dish?.dish_name }}
-                    <p
-                      class="text-blue-darken-1 font-weight-medium text-caption mt-2"
-                    >
+                    <p class="text-blue-darken-1 font-weight-medium text-caption mt-2">
                       {{ item?.menu_category?.menu_header }}
                     </p>
                   </td>
-                  <td
-                    style="max-width: 300px"
-                    class="border-b-0 font-weight-bold pt-3 pb-2"
-                  >
+                  <td style="max-width: 300px" class="border-b-0 font-weight-bold pt-3 pb-2">
                     {{ item?.restaurant?.partner?.partner_name }}
                   </td>
                   <td class="border-b-0 font-weight-bold pt-3 pb-2">
-                    {{
-                      item?.restaurant?.partner_location?.town?.town_name || '-'
-                    }}
+                    {{ item?.restaurant?.partner_location?.town?.town_name || '-' }}
                   </td>
-                  <td
-                    style="max-width: 300px"
-                    class="border-b-0 font-weight-bold pt-3 pb-2"
-                  >
+                  <td style="max-width: 300px" class="border-b-0 font-weight-bold pt-3 pb-2">
                     <div
                       class="d-flex align-content-center p-0"
                       style="
@@ -455,16 +432,9 @@
                   </td>
                   <td class="border-b-0 pt-3 pb-2">
                     <div class="d-flex">
-                      <v-btn
-                        color="green"
-                        variant="text"
-                        @click="editMenuPrices(item)"
-                        icon
-                      >
+                      <v-btn color="green" variant="text" @click="editMenuPrices(item)" icon>
                         <v-icon>mdi-pencil-outline</v-icon>
-                        <v-tooltip location="top" activator="parent"
-                          >Edit</v-tooltip
-                        >
+                        <v-tooltip location="top" activator="parent">Edit</v-tooltip>
                       </v-btn>
                       <v-btn
                         color="red"
@@ -474,9 +444,7 @@
                         icon
                       >
                         <v-icon>mdi-trash-can-outline</v-icon>
-                        <v-tooltip location="top" activator="parent"
-                          >Delete</v-tooltip
-                        >
+                        <v-tooltip location="top" activator="parent">Delete</v-tooltip>
                       </v-btn>
                     </div>
                   </td>
@@ -488,11 +456,7 @@
                       density="compact"
                       v-model="item.dish_description"
                       @input="
-                        debouncedUpdate(
-                          item.mrp_id,
-                          item.dish_description,
-                          'dish_description',
-                        )
+                        debouncedUpdate(item.mrp_id, item.dish_description, 'dish_description')
                       "
                       placeholder="Dish Description details"
                       variant="outlined"
@@ -517,10 +481,7 @@
                   </td>
                   <td class="border-b-0" colspan="2">
                     <div class="pt-2 pb-4 d-flex ga-4">
-                      <div
-                        style="font-size: 12px; font-weight: 600"
-                        class="mr-2"
-                      >
+                      <div style="font-size: 12px; font-weight: 600" class="mr-2">
                         <p>Active</p>
 
                         <v-btn-toggle
@@ -563,10 +524,7 @@
                         </v-btn-toggle>
                       </div>
 
-                      <div
-                        style="font-size: 12px; font-weight: 600"
-                        class="ml-2"
-                      >
+                      <div style="font-size: 12px; font-weight: 600" class="ml-2">
                         <p>Veg</p>
                         <v-btn-toggle
                           style="
@@ -586,10 +544,7 @@
                           <v-btn size="27" :value="false"> No </v-btn>
                         </v-btn-toggle>
                       </div>
-                      <div
-                        style="font-size: 12px; font-weight: 600"
-                        class="ml-1"
-                      >
+                      <div style="font-size: 12px; font-weight: 600" class="ml-1">
                         <p>Non Veg</p>
                         <v-btn-toggle
                           style="
@@ -609,10 +564,7 @@
                           <v-btn size="27" :value="false"> No </v-btn>
                         </v-btn-toggle>
                       </div>
-                      <div
-                        style="font-size: 12px; font-weight: 600"
-                        class="ml-2"
-                      >
+                      <div style="font-size: 12px; font-weight: 600" class="ml-2">
                         <p>Halal</p>
                         <v-btn-toggle
                           style="
@@ -646,13 +598,7 @@
                       hide-details
                       rows="2"
                       style="min-width: 200px"
-                      @input="
-                        debouncedUpdate(
-                          item.mrp_id,
-                          item.whats_free,
-                          'whats_free',
-                        )
-                      "
+                      @input="debouncedUpdate(item.mrp_id, item.whats_free, 'whats_free')"
                     ></v-textarea>
                   </td>
                   <td class="pb-3 border-b-0">
@@ -663,13 +609,7 @@
                       variant="outlined"
                       hide-details
                       rows="2"
-                      @input="
-                        debouncedUpdate(
-                          item.mrp_id,
-                          item.whats_included,
-                          'whats_included',
-                        )
-                      "
+                      @input="debouncedUpdate(item.mrp_id, item.whats_included, 'whats_included')"
                     ></v-textarea>
                   </td>
                   <td class="border-b-0" colspan="2">
@@ -719,11 +659,7 @@
                       </div>
                       <div>
                         <div
-                          style="
-                            font-size: 11px;
-                            font-weight: bold;
-                            color: #666;
-                          "
+                          style="font-size: 11px; font-weight: bold; color: #666"
                           class="text-center mb-1 text-no-wrap"
                         >
                           24 hrs Notice
@@ -754,10 +690,7 @@
                   <td class="pb-3 border-b-sm"></td>
                   <td class="pb-3 border-b-sm" colspan="2">
                     <!-- Bottom Links -->
-                    <div
-                      class="d-flex mt-4 font-weight-black"
-                      style="font-size: 12px; gap: 8px"
-                    >
+                    <div class="d-flex mt-4 font-weight-black" style="font-size: 12px; gap: 8px">
                       <!-- :to="`/biryani-home/onboard-prices/pax-kgs/${item.mrp_id}`" -->
                       <router-link
                         to="#"
@@ -779,16 +712,14 @@
                   <td class="pb-3 border-b-sm" colspan="6"></td>
                 </tr>
               </template>
-              <tr v-if="isLoading">
-                <td :colspan="6" class="text-center">
-                  <v-progress-circular
-                    indeterminate
-                    color="indigo-accent-2"
-                  ></v-progress-circular>
-                </td>
-              </tr>
             </tbody>
           </v-table>
+          <skeleton-table v-if="isLoading" :rows="5" :columns="9" />
+          <empty-state
+            v-if="!isLoading && (!items || items.length === 0)"
+            title="No Data Found"
+            subtitle="There are no records to display."
+          />
           <v-pagination
             v-model="currentPage"
             :length="totalPages"
@@ -797,47 +728,17 @@
         </v-col>
       </v-row>
     </v-sheet>
-    <v-snackbar
-      location="top"
-      color="green"
-      v-model="isSuccess"
-      :timeout="3000"
-    >
-      {{ successMessage }}
 
-      <template v-slot:actions>
-        <v-btn color="white" variant="text" @click="isSuccess = false">
-          <v-icon>mdi-close</v-icon>
-        </v-btn>
-      </template>
-    </v-snackbar>
-    <v-snackbar location="top" color="red" v-model="isError" :timeout="3000">
-      {{ errorMessage }}
-
-      <template v-slot:actions>
-        <v-btn color="white" variant="text" @click="isError = false">
-          <v-icon>mdi-close</v-icon>
-        </v-btn>
-      </template>
-    </v-snackbar>
-    <v-dialog persistent width="500" v-model="isDelete">
-      <v-card>
-        <v-card-title>Confirmation</v-card-title>
-        <v-card-text>
-          Are you sure want to delete this menu rate price?
-        </v-card-text>
-        <v-card-actions>
-          <v-spacer></v-spacer>
-          <v-btn color="error" text @click="cancelDelete">No</v-btn>
-          <v-btn color="success" text @click="deleteMenuPrices">Yes</v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
+    <confirm-dialog
+      v-model="isDelete"
+      title="Confirmation"
+      message="Are you sure you want to delete this item? This action cannot be undone."
+      :loading="isDeleteLoading"
+      @confirm="deleteMenuPrices"
+    />
     <v-dialog persistent width="auto" v-model="isOpenImage">
       <v-card width="750">
-        <v-card-title class="upload-title px-6 py-4">
-          Upload Image - Menu Rate Prices</v-card-title
-        >
+        <v-card-title class="upload-title px-6 py-4"> Upload Image - Menu Rate Prices</v-card-title>
         <v-card-text>
           <image-upload
             :image-file="imageFile"
@@ -847,13 +748,7 @@
         </v-card-text>
         <v-card-actions class="mt-16">
           <v-spacer></v-spacer>
-          <v-btn
-            style="text-transform: none"
-            color="error"
-            text
-            @click="closeImage"
-            >Cancel</v-btn
-          >
+          <v-btn style="text-transform: none" color="error" text @click="closeImage">Cancel</v-btn>
           <v-btn
             style="background-color: #9ddcff; text-transform: none"
             color="black"
@@ -867,6 +762,10 @@
 </template>
 
 <script>
+import SkeletonTable from '@/components/SkeletonTable.vue';
+import EmptyState from '@/components/EmptyState.vue';
+import ConfirmDialog from '@/components/ConfirmDialog.vue';
+import { useNotificationStore } from '@/stores/notification';
 import ImageUpload from '@/components/ImageUpload.vue';
 import axios from '@/util/axios';
 import { setAuthHeader } from '@/util/axios';
@@ -874,6 +773,16 @@ import { setAuthHeader } from '@/util/axios';
 
 export default {
   name: 'MenuManagement',
+  components: {
+    ConfirmDialog,
+    EmptyState,
+    SkeletonTable,
+    ImageUpload,
+  },
+  setup() {
+    const notification = useNotificationStore();
+    return { notification };
+  },
 
   data: () => ({
     //fileURL: 'https://admin1.the-gypsy.sg/img/app/',
@@ -883,8 +792,6 @@ export default {
     isSending2: false,
     isSending3: false,
     isEdit: false,
-    isSuccess: false,
-    isError: false,
     isDelete: false,
     isDeleteLoading: false,
     isOpenImage: false,
@@ -894,8 +801,6 @@ export default {
     menuPricesDataToImage: {
       mrp_id: 0,
     },
-    successMessage: '',
-    errorMessage: '',
     input: {
       mrp_id: 0,
       restaurant_id: null,
@@ -960,24 +865,18 @@ export default {
     deleteImageFile() {
       this.isSending = true;
       axios
-        .delete(
-          `/menu-rate-prices/${this.menuPricesDataToImage.mrp_id}/main-image`,
-        )
+        .delete(`/menu-rate-prices/${this.menuPricesDataToImage.mrp_id}/main-image`)
         .then((response) => {
           const data = response.data;
-          this.successMessage = data.message;
-          this.isSuccess = true;
+          this.notification.success(data.message);
           this.getMenuPricesData();
         })
         .catch((error) => {
           // eslint-disable-next-line
           console.log(error);
           const message =
-            error.response.data.message === ''
-              ? 'Something Wrong!!!'
-              : error.response.data.message;
-          this.errorMessage = message;
-          this.isError = true;
+            error.response.data.message === '' ? 'Something Wrong!!!' : error.response.data.message;
+          this.notification.error(message);
         })
         .finally(() => {
           this.isEdit = false;
@@ -1026,8 +925,7 @@ export default {
         })
         .then((response) => {
           const data = response.data;
-          this.successMessage = data.message;
-          this.isSuccess = true;
+          this.notification.success(data.message);
           this.getMenuPricesData();
           // app.config.globalProperties.$eventBus.$emit('update-image');
         })
@@ -1035,11 +933,8 @@ export default {
           // eslint-disable-next-line
           console.log(error);
           const message =
-            error.response.data.message === ''
-              ? 'Something Wrong!!!'
-              : error.response.data.message;
-          this.errorMessage = message;
-          this.isError = true;
+            error.response.data.message === '' ? 'Something Wrong!!!' : error.response.data.message;
+          this.notification.error(message);
         })
         .finally(() => {
           this.isEdit = false;
@@ -1083,8 +978,7 @@ export default {
           .post(`/menu-rate-prices/update`, payload)
           .then((response) => {
             const data = response.data;
-            this.successMessage = data.message;
-            this.isSuccess = true;
+            this.notification.success(data.message);
             this.getMenuPricesData();
             this.input = {
               mrp_id: 0,
@@ -1100,8 +994,7 @@ export default {
               error.response.data.message === ''
                 ? 'Something Wrong!!!'
                 : error.response.data.message;
-            this.errorMessage = message;
-            this.isError = true;
+            this.notification.error(message);
           })
           .finally(() => {
             this.isEdit = false;
@@ -1154,14 +1047,11 @@ export default {
       axios
         .post(url, payload)
         .then((response) => {
-          this.successMessage = response.data.message;
-          this.isSuccess = true;
+          this.notification.success(response.data.message);
         })
         .catch((error) => {
           console.error(error);
-          this.errorMessage =
-            error.response?.data?.message || 'Something Wrong!!!';
-          this.isError = true;
+          this.notification.error(error.response?.data?.message || 'Something Wrong!!!');
         });
     },
     saveData() {
@@ -1176,8 +1066,7 @@ export default {
           .post(`/menu-rate-prices`, payload)
           .then((response) => {
             const data = response.data;
-            this.successMessage = data.message;
-            this.isSuccess = true;
+            this.notification.success(data.message);
             this.getMenuPricesData();
             this.input = {
               mrp_id: 0,
@@ -1193,8 +1082,7 @@ export default {
               error.response.data.message === ''
                 ? 'Something Wrong!!!'
                 : error.response.data.message;
-            this.errorMessage = message;
-            this.isError = true;
+            this.notification.error(message);
           })
           .finally(() => {
             this.isSending = false;
@@ -1215,19 +1103,15 @@ export default {
         .delete(`/menu-rate-prices/${this.menuPricesIdToDelete}`)
         .then((response) => {
           const data = response.data;
-          this.successMessage = data.message;
-          this.isSuccess = true;
+          this.notification.success(data.message);
           this.getMenuPricesData();
         })
         .catch((error) => {
           // eslint-disable-next-line
           console.log(error);
           const message =
-            error.response.data.message === ''
-              ? 'Something Wrong!!!'
-              : error.response.data.message;
-          this.errorMessage = message;
-          this.isError = true;
+            error.response.data.message === '' ? 'Something Wrong!!!' : error.response.data.message;
+          this.notification.error(message);
         })
         .finally(() => {
           this.isDeleteLoading = false;
@@ -1257,42 +1141,16 @@ export default {
               dishName: item?.dish?.dish_name || '',
               restaurantName: item?.restaurant?.partner?.partner_name || '',
               userName: item?.user?.name || '',
-              isActive:
-                item.active == 'N' ? false : item.active == 'Y' ? true : null,
-              isFeatured:
-                item.featured == 'N'
-                  ? false
-                  : item.featured == 'Y'
-                  ? true
-                  : null,
-              isPlatinum:
-                item.platinum == 'N'
-                  ? false
-                  : item.platinum == 'Y'
-                  ? true
-                  : null,
-              isPrivileged:
-                item.privileged == 'N'
-                  ? false
-                  : item.privileged == 'Y'
-                  ? true
-                  : null,
+              isActive: item.active == 'N' ? false : item.active == 'Y' ? true : null,
+              isFeatured: item.featured == 'N' ? false : item.featured == 'Y' ? true : null,
+              isPlatinum: item.platinum == 'N' ? false : item.platinum == 'Y' ? true : null,
+              isPrivileged: item.privileged == 'N' ? false : item.privileged == 'Y' ? true : null,
               isLive: item.live == 'N' ? false : item.live == 'Y' ? true : null,
               isVeg: item.veg == 'N' ? false : item.veg == 'Y' ? true : null,
-              isNonVeg:
-                item['non-veg'] == 'N'
-                  ? false
-                  : item['non-veg'] == 'Y'
-                  ? true
-                  : null,
-              isHalal:
-                item.halal == 'N' ? false : item.halal == 'Y' ? true : null,
+              isNonVeg: item['non-veg'] == 'N' ? false : item['non-veg'] == 'Y' ? true : null,
+              isHalal: item.halal == 'N' ? false : item.halal == 'Y' ? true : null,
               is24h:
-                item['24_hrs_notice'] == 'N'
-                  ? false
-                  : item['24_hrs_notice'] == 'Y'
-                  ? true
-                  : null,
+                item['24_hrs_notice'] == 'N' ? false : item['24_hrs_notice'] == 'Y' ? true : null,
             };
           });
 
@@ -1305,11 +1163,8 @@ export default {
           // eslint-disable-next-line
           console.log(error);
           const message =
-            error.response.data.message === ''
-              ? 'Something Wrong!!!'
-              : error.response.data.message;
-          this.errorMessage = message;
-          this.isError = true;
+            error.response.data.message === '' ? 'Something Wrong!!!' : error.response.data.message;
+          this.notification.error(message);
         })
         .finally(() => {
           this.isLoading = false;
@@ -1335,11 +1190,8 @@ export default {
           // eslint-disable-next-line
           console.log(error);
           const message =
-            error.response.data.message === ''
-              ? 'Something Wrong!!!'
-              : error.response.data.message;
-          this.errorMessage = message;
-          this.isError = true;
+            error.response.data.message === '' ? 'Something Wrong!!!' : error.response.data.message;
+          this.notification.error(message);
         });
     },
     getDishMasters() {
@@ -1362,11 +1214,8 @@ export default {
           // eslint-disable-next-line
           console.log(error);
           const message =
-            error.response.data.message === ''
-              ? 'Something Wrong!!!'
-              : error.response.data.message;
-          this.errorMessage = message;
-          this.isError = true;
+            error.response.data.message === '' ? 'Something Wrong!!!' : error.response.data.message;
+          this.notification.error(message);
         });
     },
     getPrepMasters() {
@@ -1389,11 +1238,8 @@ export default {
           // eslint-disable-next-line
           console.log(error);
           const message =
-            error.response.data.message === ''
-              ? 'Something Wrong!!!'
-              : error.response.data.message;
-          this.errorMessage = message;
-          this.isError = true;
+            error.response.data.message === '' ? 'Something Wrong!!!' : error.response.data.message;
+          this.notification.error(message);
         });
     },
     getCategoryMasters() {
@@ -1421,11 +1267,8 @@ export default {
           // eslint-disable-next-line
           console.log(error);
           const message =
-            error.response.data.message === ''
-              ? 'Something Wrong!!!'
-              : error.response.data.message;
-          this.errorMessage = message;
-          this.isError = true;
+            error.response.data.message === '' ? 'Something Wrong!!!' : error.response.data.message;
+          this.notification.error(message);
         });
     },
     getQuantityData() {
@@ -1446,11 +1289,8 @@ export default {
           // eslint-disable-next-line
           console.log(error);
           const message =
-            error.response.data.message === ''
-              ? 'Something Wrong!!!'
-              : error.response.data.message;
-          this.errorMessage = message;
-          this.isError = true;
+            error.response.data.message === '' ? 'Something Wrong!!!' : error.response.data.message;
+          this.notification.error(message);
         })
         .finally(() => {
           this.isLoading = false;
@@ -1465,18 +1305,14 @@ export default {
         .post(`/menu-rate-prices/update-quantity`, payload)
         .then((response) => {
           const data = response.data;
-          this.successMessage = data.message;
-          this.isSuccess = true;
+          this.notification.success(data.message);
         })
         .catch((error) => {
           // eslint-disable-next-line
           console.log(error);
           const message =
-            error.response.data.message === ''
-              ? 'Something Wrong!!!'
-              : error.response.data.message;
-          this.errorMessage = message;
-          this.isError = true;
+            error.response.data.message === '' ? 'Something Wrong!!!' : error.response.data.message;
+          this.notification.error(message);
         });
     },
     updatePrepTime(item) {
@@ -1488,18 +1324,14 @@ export default {
         .post(`/menu-rate-prices/update-prep-time`, payload)
         .then((response) => {
           const data = response.data;
-          this.successMessage = data.message;
-          this.isSuccess = true;
+          this.notification.success(data.message);
         })
         .catch((error) => {
           // eslint-disable-next-line
           console.log(error);
           const message =
-            error.response.data.message === ''
-              ? 'Something Wrong!!!'
-              : error.response.data.message;
-          this.errorMessage = message;
-          this.isError = true;
+            error.response.data.message === '' ? 'Something Wrong!!!' : error.response.data.message;
+          this.notification.error(message);
         });
     },
     togglePrice(id, type) {
@@ -1508,19 +1340,15 @@ export default {
         .get(`/menu-rate-prices/toggle-field/${type}/${id}`)
         .then((response) => {
           const data = response.data;
-          this.successMessage = data.message;
-          this.isSuccess = true;
+          this.notification.success(data.message);
           this.getMenuPricesData();
         })
         .catch((error) => {
           // eslint-disable-next-line
           console.log(error);
           const message =
-            error.response.data.message === ''
-              ? 'Something Wrong!!!'
-              : error.response.data.message;
-          this.errorMessage = message;
-          this.isError = true;
+            error.response.data.message === '' ? 'Something Wrong!!!' : error.response.data.message;
+          this.notification.error(message);
         })
         .finally(() => {
           this.isSending2 = false;
@@ -1532,26 +1360,21 @@ export default {
         .get(`/menu-rate-prices/toggle-field/${type}/${id}`)
         .then((response) => {
           const data = response.data;
-          this.successMessage = data.message;
-          this.isSuccess = true;
+          this.notification.success(data.message);
           this.getMenuPricesData();
         })
         .catch((error) => {
           // eslint-disable-next-line
           console.log(error);
           const message =
-            error.response.data.message === ''
-              ? 'Something Wrong!!!'
-              : error.response.data.message;
-          this.errorMessage = message;
-          this.isError = true;
+            error.response.data.message === '' ? 'Something Wrong!!!' : error.response.data.message;
+          this.notification.error(message);
         })
         .finally(() => {
           this.isSending3 = false;
         });
     },
   },
-  components: { ImageUpload },
 };
 </script>
 

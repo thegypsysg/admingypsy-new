@@ -155,38 +155,14 @@
               required
             ></v-textarea>
           </v-col>
-          
         </v-row>
       </v-container>
     </v-form>
-    <v-snackbar
-      location="top"
-      color="green"
-      v-model="isSuccess"
-      :timeout="3000"
-    >
-      {{ successMessage }}
-
-      <template v-slot:actions>
-        <v-btn color="white" variant="text" @click="isSuccess = false">
-          <v-icon>mdi-close</v-icon>
-        </v-btn>
-      </template>
-    </v-snackbar>
-
-    <v-snackbar location="top" color="red" v-model="isError" :timeout="3000">
-      {{ errorMessage }}
-
-      <template v-slot:actions>
-        <v-btn color="white" variant="text" @click="isError = false">
-          <v-icon>mdi-close</v-icon>
-        </v-btn>
-      </template>
-    </v-snackbar>
   </v-container>
 </template>
 
 <script>
+import { useNotificationStore } from '@/stores/notification';
 import axios from '@/util/axios';
 // import moment from 'moment';
 import { setAuthHeader } from '@/util/axios';
@@ -194,6 +170,10 @@ import { setAuthHeader } from '@/util/axios';
 import moment from 'moment';
 export default {
   name: 'ConstructionMasterMainInfo',
+  setup() {
+    const notification = useNotificationStore();
+    return { notification };
+  },
   data: () => ({
     // fileURL: 'https://admin1.the-gypsy.sg/img/app/',
     constructionId: null,
@@ -201,14 +181,10 @@ export default {
     valid: false,
     isLoading: false,
     isSending: false,
-    isError: false,
     isEdit: false,
-    isSuccess: false,
     isDelete: false,
     isDeleteLoading: false,
     isOpenImage: false,
-    successMessage: '',
-    errorMessage: '',
     input: {
       cc_id: 0,
       bt_id: 0,
@@ -234,23 +210,29 @@ export default {
   methods: {
     getConstructionData() {
       this.isLoading = true;
-      axios.get(`/4walls-construction-masters/${this.constructionId}`).then((response) => {
-        this.constructionData = response.data.data;
-        this.input.under_construction = this.constructionData.under_construction == 'Y' ? true : false;
-        this.input.top = this.constructionData.top == 'Y' ? true : false;
-        this.input.total_floors = this.constructionData.total_floors;
-        this.input.project_start_on = this.formatDateDisplay(this.constructionData.project_start_on);
-        this.input.project_completion_on = this.formatDateDisplay(this.constructionData.project_completion_on);
-        this.input.tag_line = this.constructionData.tag_line;
-        this.input.brief_details = this.constructionData.brief_details;
-      })
-      .catch((error) => {
-        console.log(error);
-      })
-      .finally(() => {
-        this.isLoading = false;
-      });
-
+      axios
+        .get(`/4walls-construction-masters/${this.constructionId}`)
+        .then((response) => {
+          this.constructionData = response.data.data;
+          this.input.under_construction =
+            this.constructionData.under_construction == 'Y' ? true : false;
+          this.input.top = this.constructionData.top == 'Y' ? true : false;
+          this.input.total_floors = this.constructionData.total_floors;
+          this.input.project_start_on = this.formatDateDisplay(
+            this.constructionData.project_start_on
+          );
+          this.input.project_completion_on = this.formatDateDisplay(
+            this.constructionData.project_completion_on
+          );
+          this.input.tag_line = this.constructionData.tag_line;
+          this.input.brief_details = this.constructionData.brief_details;
+        })
+        .catch((error) => {
+          console.log(error);
+        })
+        .finally(() => {
+          this.isLoading = false;
+        });
     },
     formatDateDatabase(date) {
       return moment(date).format('DD/MM/YYYY');
@@ -270,16 +252,15 @@ export default {
           brief_details: this.input.brief_details,
           project_start_on: this.formatDateDatabase(this.input.project_start_on),
           project_completion_on: this.formatDateDatabase(this.input.project_completion_on),
-          under_construction: this.input.under_construction ? "Y" : "N",
-          top: this.input.top ? "Y" : "N",
+          under_construction: this.input.under_construction ? 'Y' : 'N',
+          top: this.input.top ? 'Y' : 'N',
           total_floors: this.input.total_floors,
         };
         axios
           .post(`/4walls-construction-masters/update`, payload)
           .then((response) => {
             const data = response.data;
-            this.successMessage = data.message;
-            this.isSuccess = true;
+            this.notification.success(data.message);
           })
           .catch((error) => {
             // eslint-disable-next-line
@@ -289,8 +270,7 @@ export default {
               : error.response.data.tag_line
               ? 'Please fill the description field'
               : error.response.data.message;
-            this.errorMessage = message;
-            this.isError = true;
+            this.notification.error(message);
           })
           .finally(() => {
             this.isSending = false;

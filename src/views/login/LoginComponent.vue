@@ -36,12 +36,7 @@
               <div class="d-flex align-center mt-n4">
                 <v-checkbox v-model="rememberMe" class="black--text">
                   <template v-slot:label>
-                    <span
-                      style="
-                        font-weight: 400;
-                        font-size: 14px;
-                        color: #000 !important;
-                      "
+                    <span style="font-weight: 400; font-size: 14px; color: #000 !important"
                       >Remember this Device</span
                     >
                   </template>
@@ -49,12 +44,7 @@
                 <a
                   href="#"
                   class="text-body-2 mt-n6 font-weight-regular"
-                  style="
-                    text-decoration: none;
-                    color: #4b80b1;
-                    font-weight: 400;
-                    font-size: 12px;
-                  "
+                  style="text-decoration: none; color: #4b80b1; font-weight: 400; font-size: 12px"
                   >Forgot Password?</a
                 >
               </div>
@@ -151,21 +141,6 @@
               </div>
             </v-form>
           </v-card>
-
-          <v-snackbar
-            location="top"
-            color="red"
-            v-model="isError"
-            :timeout="1000"
-          >
-            {{ errorMessage }}
-
-            <template v-slot:actions>
-              <v-btn color="white" variant="text" @click="isError = false">
-                <v-icon>mdi-close</v-icon>
-              </v-btn>
-            </template>
-          </v-snackbar>
         </v-col>
       </v-row>
     </v-container>
@@ -173,6 +148,7 @@
 </template>
 
 <script>
+import { useNotificationStore } from '@/stores/notification';
 import axios from '@/util/axios';
 import { setAuthHeader } from '@/util/axios';
 import { tokenStorage } from '@/util/tokenStorage';
@@ -181,6 +157,10 @@ import { tokenStorage } from '@/util/tokenStorage';
 // const baseUrl = `https://admin1.the-gypsy.sg/api/`;
 
 export default {
+  setup() {
+    const notification = useNotificationStore();
+    return { notification };
+  },
   data() {
     return {
       rememberMe: false,
@@ -191,9 +171,7 @@ export default {
         password: '',
       },
 
-      isError: false,
       isLoggingIn: false,
-      errorMessage: '',
     };
   },
   computed: {
@@ -209,14 +187,11 @@ export default {
     passwordRules() {
       return [
         (v) => !!v || 'Password is required', // Aturan: Password wajib diisi
-        (v) =>
-          (v && v.length >= 6) || 'Password should be at least 6 characters', // Aturan: Password minimal 6 karakter
+        (v) => (v && v.length >= 6) || 'Password should be at least 6 characters', // Aturan: Password minimal 6 karakter
       ];
     },
     isValid() {
-      return (
-        this.validateEmail(this.input.email) && this.input.password.length >= 6
-      );
+      return this.validateEmail(this.input.email) && this.input.password.length >= 6;
     },
   },
   created() {
@@ -282,11 +257,9 @@ export default {
         this.$router.push('/');
       } catch (error) {
         if (error.response.status == 401) {
-          this.isError = true;
-          this.errorMessage = 'Email/Password is incorrect!';
+          this.notification.error('Email/Password is incorrect!');
         } else {
-          this.isError = true;
-          this.errorMessage = error.response.data.error;
+          this.notification.error(error.response.data.error);
         }
         // console.log(error);
       } finally {

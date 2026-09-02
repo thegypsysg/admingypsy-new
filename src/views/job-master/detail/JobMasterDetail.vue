@@ -24,7 +24,7 @@
         {{ itemData?.position || '' }}
       </h2>
     </div>
-    <h2 class="ml-4 mb-6" style="color: #ED1C24; font-weight: 600">
+    <h2 class="ml-4 mb-6" style="color: #ed1c24; font-weight: 600">
       {{ itemData?.client || '' }}
     </h2>
     <div class="d-flex ml-4 mb-4" style="gap: 50px">
@@ -75,8 +75,7 @@
           <v-col cols="12" md="2">
             <div>
               <label>Multiple Locations</label>
-              <v-checkbox v-model="input.multiLocations" class="text-black">
-              </v-checkbox>
+              <v-checkbox v-model="input.multiLocations" class="text-black"> </v-checkbox>
             </div>
           </v-col>
           <v-col class="pt-10" cols="12" md="3">
@@ -119,8 +118,7 @@
               </div>
               <div>
                 <label>No Expiry</label>
-                <v-checkbox v-model="input.expiry" class="text-black">
-                </v-checkbox>
+                <v-checkbox v-model="input.expiry" class="text-black"> </v-checkbox>
               </div>
             </div>
           </v-col>
@@ -249,33 +247,11 @@
         </v-row>
       </v-container>
     </v-form>
-    <v-snackbar
-      location="top"
-      color="green"
-      v-model="isSuccess"
-      :timeout="3000"
-    >
-      {{ successMessage }}
-
-      <template v-slot:actions>
-        <v-btn color="white" variant="text" @click="isSuccess = false">
-          <v-icon>mdi-close</v-icon>
-        </v-btn>
-      </template>
-    </v-snackbar>
-    <v-snackbar location="top" color="red" v-model="isError" :timeout="3000">
-      {{ errorMessage }}
-
-      <template v-slot:actions>
-        <v-btn color="white" variant="text" @click="isError = false">
-          <v-icon>mdi-close</v-icon>
-        </v-btn>
-      </template>
-    </v-snackbar>
   </v-container>
 </template>
 
 <script>
+import { useNotificationStore } from '@/stores/notification';
 import axios from '@/util/axios';
 import { setAuthHeader } from '@/util/axios';
 import moment from 'moment';
@@ -283,16 +259,16 @@ import moment from 'moment';
 
 export default {
   name: 'PartnerMaster',
+  setup() {
+    const notification = useNotificationStore();
+    return { notification };
+  },
   data: () => ({
     // fileURL: 'https://admin1.the-gypsy.sg/img/app/',
     valid: false,
     idJob: null,
     isLoading: false,
     isSending: false,
-    isError: false,
-    isSuccess: false,
-    successMessage: '',
-    errorMessage: '',
     input: {
       id: null,
       positionId: null,
@@ -358,9 +334,7 @@ export default {
           skills_id: this.input.skillsId,
           partner_id: this.input.partnerId,
           expiry: this.input.expiry == true ? 'Y' : 'N',
-          expiry_date: moment(this.input.expiryDate, 'yyyy-mm-DD').format(
-            'DD/mm/yyyy'
-          ),
+          expiry_date: moment(this.input.expiryDate, 'yyyy-mm-DD').format('DD/mm/yyyy'),
           num_positions: this.input.numPosition,
           job_type_id: this.input.jobType,
           working_options_id: this.input.workOptions,
@@ -369,9 +343,7 @@ export default {
           pl_id: this.input.jobLocation,
           status: this.input.status,
           show_in_country: this.input.showCountry,
-          job_dated:  moment(this.input.postedOn, 'yyyy-mm-DD').format(
-            'DD/mm/yyyy'
-          ),
+          job_dated: moment(this.input.postedOn, 'yyyy-mm-DD').format('DD/mm/yyyy'),
           shift_details: this.input.shift,
           // foreigners: this.input.isForeigners,
           // country: this.input.country,
@@ -381,8 +353,7 @@ export default {
           .post(`/jobs/update`, payload)
           .then((response) => {
             const data = response.data;
-            this.successMessage = data.message;
-            this.isSuccess = true;
+            this.notification.success(data.message);
             this.getJobData();
           })
           .catch((error) => {
@@ -392,8 +363,7 @@ export default {
               error.response.data.message === ''
                 ? 'Something Wrong!!!'
                 : error.response.data.message;
-            this.errorMessage = message;
-            this.isError = true;
+            this.notification.error(message);
           })
           .finally(() => {
             this.isSending = false;
@@ -420,13 +390,10 @@ export default {
             positionId: data.position_id || 0,
             skillsId: data.skills_id || 0,
             partnerId: data.partner_id || 0,
-            postedOn:
-              moment(data.job_dated, 'DD/mm/yyyy').format('yyyy-mm-DD') || '',
+            postedOn: moment(data.job_dated, 'DD/mm/yyyy').format('yyyy-mm-DD') || '',
             days: '30',
-            expiry:
-              data.expiry == 'N' ? false : data.expiry == 'Y' ? true : false,
-            expiryDate:
-              moment(data.expiry_date, 'DD/mm/yyyy').format('yyyy-mm-DD') || '',
+            expiry: data.expiry == 'N' ? false : data.expiry == 'Y' ? true : false,
+            expiryDate: moment(data.expiry_date, 'DD/mm/yyyy').format('yyyy-mm-DD') || '',
             numPosition: data.num_positions || 1,
             jobType: data.job_type_id || null,
             workOptions: data.working_options_id || null,
@@ -442,12 +409,7 @@ export default {
             country: data.partner.country_id || null,
             showCountry: data.show_in_country || null,
             status: data.status || null,
-            isForeigners:
-              data.foreigners == 'N'
-                ? false
-                : data.foreigners == 'Y'
-                ? true
-                : false,
+            isForeigners: data.foreigners == 'N' ? false : data.foreigners == 'Y' ? true : false,
           };
           // console.log(this.input);
           this.getJobLocations();
@@ -456,11 +418,8 @@ export default {
           // eslint-disable-next-line
           console.log(error);
           const message =
-            error.response.data.message === ''
-              ? 'Something Wrong!!!'
-              : error.response.data.message;
-          this.errorMessage = message;
-          this.isError = true;
+            error.response.data.message === '' ? 'Something Wrong!!!' : error.response.data.message;
+          this.notification.error(message);
         })
         .finally(() => {
           this.isLoading = false;
@@ -482,11 +441,8 @@ export default {
           // eslint-disable-next-line
           console.log(error);
           const message =
-            error.response.data.message === ''
-              ? 'Something Wrong!!!'
-              : error.response.data.message;
-          this.errorMessage = message;
-          this.isError = true;
+            error.response.data.message === '' ? 'Something Wrong!!!' : error.response.data.message;
+          this.notification.error(message);
         });
     },
     getWorkingOptions() {
@@ -505,11 +461,8 @@ export default {
           // eslint-disable-next-line
           console.log(error);
           const message =
-            error.response.data.message === ''
-              ? 'Something Wrong!!!'
-              : error.response.data.message;
-          this.errorMessage = message;
-          this.isError = true;
+            error.response.data.message === '' ? 'Something Wrong!!!' : error.response.data.message;
+          this.notification.error(message);
         });
     },
     getJobLocations() {
@@ -528,11 +481,8 @@ export default {
           // eslint-disable-next-line
           console.log(error);
           const message =
-            error.response.data.message === ''
-              ? 'Something Wrong!!!'
-              : error.response.data.message;
-          this.errorMessage = message;
-          this.isError = true;
+            error.response.data.message === '' ? 'Something Wrong!!!' : error.response.data.message;
+          this.notification.error(message);
         });
     },
     getCountry() {
@@ -557,11 +507,8 @@ export default {
           // eslint-disable-next-line
           console.log(error);
           const message =
-            error.response.data.message === ''
-              ? 'Something Wrong!!!'
-              : error.response.data.message;
-          this.errorMessage = message;
-          this.isError = true;
+            error.response.data.message === '' ? 'Something Wrong!!!' : error.response.data.message;
+          this.notification.error(message);
         });
     },
     foreignersJob(id) {
@@ -570,18 +517,14 @@ export default {
         .get(`/jobs/toggle-foreigners/${id}`)
         .then((response) => {
           const data = response.data;
-          this.successMessage = data.message;
-          this.isSuccess = true;
+          this.notification.success(data.message);
         })
         .catch((error) => {
           // eslint-disable-next-line
           console.log(error);
           const message =
-            error.response.data.message === ''
-              ? 'Something Wrong!!!'
-              : error.response.data.message;
-          this.errorMessage = message;
-          this.isError = true;
+            error.response.data.message === '' ? 'Something Wrong!!!' : error.response.data.message;
+          this.notification.error(message);
         });
       // .finally(() => {
       //   this.isSending = false;

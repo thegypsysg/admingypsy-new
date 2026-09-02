@@ -33,11 +33,7 @@
           </v-col>
           <v-col cols="12" md="2">
             <v-btn
-              :prepend-icon="
-                isEdit
-                  ? 'mdi-account-multiple-check'
-                  : 'mdi-account-multiple-plus'
-              "
+              :prepend-icon="isEdit ? 'mdi-account-multiple-check' : 'mdi-account-multiple-plus'"
               color="indigo-accent-2"
               style="text-transform: none"
               type="submit"
@@ -103,46 +99,48 @@
             <tbody>
               <template v-for="item in filteredItems" :key="item.id">
                 <tr>
-                  <td style="border-bottom: none !important;">{{ item.development_id }}</td>
-                  
-                  <td style="font-weight: 500 !important;border-bottom: none !important;">
+                  <td style="border-bottom: none !important">{{ item.development_id }}</td>
+
+                  <td style="font-weight: 500 !important; border-bottom: none !important">
                     {{ item.project_name }}
                   </td>
-                  <td style="font-weight: 500 !important;border-bottom: none !important;">
+                  <td style="font-weight: 500 !important; border-bottom: none !important">
                     {{ item.developer.partner.partner_name }}
                   </td>
-                  <td style="font-weight: 500 !important;border-bottom: none !important;">
+                  <td style="font-weight: 500 !important; border-bottom: none !important">
                     {{ item.country.country_name }}
                   </td>
-                  <td style="font-weight: 500 !important;border-bottom: none !important;">
+                  <td style="font-weight: 500 !important; border-bottom: none !important">
                     {{ item.dated }}
                   </td>
-                  <td style="font-weight: 500 !important;border-bottom: none !important;">
-                  </td>
-                  <td style="font-weight: 500 !important;border-bottom: none !important;">
-                  </td>
-                  <td style="border-bottom: none !important;">
+                  <td style="font-weight: 500 !important; border-bottom: none !important"></td>
+                  <td style="font-weight: 500 !important; border-bottom: none !important"></td>
+                  <td style="border-bottom: none !important">
                     <div class="d-flex">
                       <v-btn
-                            color="green"
-                            variant="text" @click="editPropertyDevelopment(item)"
-                            icon
-                          >
-  <v-icon>mdi-pencil-outline</v-icon>  <v-tooltip location="top" activator="parent">Edit</v-tooltip>
-</v-btn>
+                        color="green"
+                        variant="text"
+                        @click="editPropertyDevelopment(item)"
+                        icon
+                      >
+                        <v-icon>mdi-pencil-outline</v-icon>
+                        <v-tooltip location="top" activator="parent">Edit</v-tooltip>
+                      </v-btn>
                       <v-btn
-                            color="red" variant="text"
-                            :disabled="isDeleteLoading"
-                            @click="openDeleteConfirm(item.development_id)"
-                            icon
-                          >
-  <v-icon>mdi-trash-can-outline</v-icon>  <v-tooltip location="top" activator="parent">Delete</v-tooltip>
-</v-btn>
+                        color="red"
+                        variant="text"
+                        :disabled="isDeleteLoading"
+                        @click="openDeleteConfirm(item.development_id)"
+                        icon
+                      >
+                        <v-icon>mdi-trash-can-outline</v-icon>
+                        <v-tooltip location="top" activator="parent">Delete</v-tooltip>
+                      </v-btn>
                     </div>
                   </td>
                 </tr>
                 <tr>
-                  <td style="border-bottom: none !important;">
+                  <td style="border-bottom: none !important">
                     <span class="font-weight-bold">Logo</span>
                     <div class="image-upload-cont">
                       <v-img
@@ -156,12 +154,11 @@
                             : 'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png'
                         "
                       >
-                        <template #placeholder>
-                          <div class="skeleton" /> </template
+                        <template #placeholder> <div class="skeleton" /> </template
                       ></v-img>
                     </div>
                   </td>
-                  <td style="border-bottom: none !important;">
+                  <td style="border-bottom: none !important">
                     <span class="font-weight-bold">Main Image</span>
                     <div class="image-upload-cont">
                       <v-img
@@ -175,12 +172,11 @@
                             : 'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png'
                         "
                       >
-                        <template #placeholder>
-                          <div class="skeleton" /> </template
+                        <template #placeholder> <div class="skeleton" /> </template
                       ></v-img>
                     </div>
                   </td>
-                  <td style="border-bottom: none !important;">
+                  <td style="border-bottom: none !important">
                     <v-autocomplete
                       class="mt-8"
                       density="compact"
@@ -194,7 +190,7 @@
                       @update:modelValue="setCity(item, $event)"
                     ></v-autocomplete>
                   </td>
-                  <td style="border-bottom: none !important;">
+                  <td style="border-bottom: none !important">
                     <v-autocomplete
                       class="mt-8"
                       density="compact"
@@ -208,7 +204,7 @@
                       @update:modelValue="setTown(item, $event)"
                     ></v-autocomplete>
                   </td>
-                  <td style="border-bottom: none !important;">
+                  <td style="border-bottom: none !important">
                     <span class="font-weight-bold">Active</span>
                     <v-btn-toggle
                       style="
@@ -228,7 +224,7 @@
                       <v-btn size="27" :value="false"> No </v-btn>
                     </v-btn-toggle>
                   </td>
-                  <td style="border-bottom: none !important;">
+                  <td style="border-bottom: none !important">
                     <span class="font-weight-bold">Featured</span>
                     <v-btn-toggle
                       style="
@@ -248,7 +244,7 @@
                       <v-btn size="27" :value="false"> No </v-btn>
                     </v-btn-toggle>
                   </td>
-                  <td style="border-bottom: none !important;">
+                  <td style="border-bottom: none !important">
                     <span class="font-weight-bold">Under Construction</span>
                     <v-btn-toggle
                       style="
@@ -268,10 +264,10 @@
                       <v-btn size="27" :value="false"> No </v-btn>
                     </v-btn-toggle>
                   </td>
-                  <td style="border-bottom: none !important;"></td>
+                  <td style="border-bottom: none !important"></td>
                 </tr>
                 <tr>
-                  <td style="border-bottom: none !important;" colspan="2">
+                  <td style="border-bottom: none !important" colspan="2">
                     <v-select
                       density="compact"
                       v-model="item.agent_id"
@@ -284,8 +280,8 @@
                       @update:modelValue="saveAgent(item.agent_id, item)"
                     ></v-select>
                   </td>
-                  <td style="border-bottom: none !important;">
-                    <v-text-field 
+                  <td style="border-bottom: none !important">
+                    <v-text-field
                       density="compact"
                       v-model="item.latitude"
                       label="Latitude"
@@ -294,8 +290,8 @@
                       @blur="saveLatitude(item.latitude, item)"
                     ></v-text-field>
                   </td>
-                  <td style="border-bottom: none !important;">
-                    <v-text-field 
+                  <td style="border-bottom: none !important">
+                    <v-text-field
                       density="compact"
                       v-model="item.longitude"
                       label="Longitude"
@@ -304,12 +300,12 @@
                       @blur="saveLongitude(item.longitude, item)"
                     ></v-text-field>
                   </td>
-                  <td style="border-bottom: none !important;">
+                  <td style="border-bottom: none !important">
                     <span class="font-weight-bold">Completion :</span>
                   </td>
-                  <td style="border-bottom: none !important;">
+                  <td style="border-bottom: none !important">
                     <span class="font-weight-bold">Month :</span>
-                    <v-text-field 
+                    <v-text-field
                       density="compact"
                       v-model="item.completion_month"
                       variant="outlined"
@@ -317,9 +313,9 @@
                       @blur="saveCompletionMonth(item.completion_month, item)"
                     ></v-text-field>
                   </td>
-                  <td style="border-bottom: none !important;">
+                  <td style="border-bottom: none !important">
                     <span class="font-weight-bold">Year :</span>
-                    <v-text-field 
+                    <v-text-field
                       density="compact"
                       v-model="item.completion_year"
                       variant="outlined"
@@ -327,7 +323,7 @@
                       @blur="saveCompletionYear(item.completion_year, item)"
                     ></v-text-field>
                   </td>
-                  <td style="border-bottom: none !important;"></td>
+                  <td style="border-bottom: none !important"></td>
                 </tr>
                 <tr>
                   <td>
@@ -357,55 +353,25 @@
                   <td colspan="5"></td>
                 </tr>
               </template>
-              <tr v-if="isLoading">
-                <td :colspan="6" class="text-center">
-                  <v-progress-circular
-                    indeterminate
-                    color="indigo-accent-2"
-                  ></v-progress-circular>
-                </td>
-              </tr>
             </tbody>
           </v-table>
+          <skeleton-table v-if="isLoading" :rows="5" :columns="7" />
+          <empty-state
+            v-if="!isLoading && (!filteredItems || filteredItems.length === 0)"
+            title="No Data Found"
+            subtitle="There are no records to display."
+          />
         </v-col>
       </v-row>
     </v-sheet>
-    <v-snackbar
-      location="top"
-      color="green"
-      v-model="isSuccess"
-      :timeout="3000"
-    >
-      {{ successMessage }}
 
-      <template v-slot:actions>
-        <v-btn color="white" variant="text" @click="isSuccess = false">
-          <v-icon>mdi-close</v-icon>
-        </v-btn>
-      </template>
-    </v-snackbar>
-    <v-snackbar location="top" color="red" v-model="isError" :timeout="3000">
-      {{ errorMessage }}
-
-      <template v-slot:actions>
-        <v-btn color="white" variant="text" @click="isError = false">
-          <v-icon>mdi-close</v-icon>
-        </v-btn>
-      </template>
-    </v-snackbar>
-    <v-dialog persistent width="500" v-model="isDelete">
-      <v-card>
-        <v-card-title>Confirmation</v-card-title>
-        <v-card-text>
-          Are you sure want to delete this property type?
-        </v-card-text>
-        <v-card-actions>
-          <v-spacer></v-spacer>
-          <v-btn color="error" text @click="cancelDelete">No</v-btn>
-          <v-btn color="success" text @click="deletePropertyDevelopment">Yes</v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
+    <confirm-dialog
+      v-model="isDelete"
+      title="Confirmation"
+      message="Are you sure you want to delete this item? This action cannot be undone."
+      :loading="isDeleteLoading"
+      @confirm="deletePropertyDevelopment"
+    />
     <v-dialog persistent width="auto" v-model="isOpenMainImage">
       <v-card width="750">
         <v-card-title class="upload-title px-6 py-4">
@@ -420,11 +386,7 @@
         </v-card-text>
         <v-card-actions class="mt-16">
           <v-spacer></v-spacer>
-          <v-btn
-            style="text-transform: none"
-            color="error"
-            text
-            @click="closeMainImage"
+          <v-btn style="text-transform: none" color="error" text @click="closeMainImage"
             >Cancel</v-btn
           >
           <v-btn
@@ -450,13 +412,7 @@
         </v-card-text>
         <v-card-actions class="mt-16">
           <v-spacer></v-spacer>
-          <v-btn
-            style="text-transform: none"
-            color="error"
-            text
-            @click="closeLogo"
-            >Cancel</v-btn
-          >
+          <v-btn style="text-transform: none" color="error" text @click="closeLogo">Cancel</v-btn>
           <v-btn
             style="background-color: #9ddcff; text-transform: none"
             color="black"
@@ -470,6 +426,10 @@
 </template>
 
 <script>
+import SkeletonTable from '@/components/SkeletonTable.vue';
+import EmptyState from '@/components/EmptyState.vue';
+import ConfirmDialog from '@/components/ConfirmDialog.vue';
+import { useNotificationStore } from '@/stores/notification';
 import ImageUpload from '@/components/ImageUpload.vue';
 import axios from '@/util/axios';
 import { setAuthHeader } from '@/util/axios';
@@ -478,14 +438,23 @@ import HeaderWallMaster from '@/components/HeaderWallMaster.vue';
 
 export default {
   name: 'PropertyTypes',
+  components: {
+    ConfirmDialog,
+    EmptyState,
+    SkeletonTable,
+    ImageUpload,
+    HeaderWallMaster,
+  },
+  setup() {
+    const notification = useNotificationStore();
+    return { notification };
+  },
   data: () => ({
     //fileURL: 'https://admin1.the-gypsy.sg/img/app/',
     valid: false,
     isLoading: false,
     isSending: false,
     isEdit: false,
-    isSuccess: false,
-    isError: false,
     isDelete: false,
     isDeleteLoading: false,
     propertyIdToDelete: null,
@@ -510,8 +479,6 @@ export default {
     },
     isOpenMainImage: false,
     isOpenLogo: false,
-    successMessage: '',
-    errorMessage: '',
     input: {
       development_id: 0,
       project_name: null,
@@ -595,19 +562,15 @@ export default {
         })
         .then((response) => {
           const data = response.data;
-          this.successMessage = data.message;
-          this.isSuccess = true;
+          this.notification.success(data.message);
           this.getPropertyDevelopmentsData();
         })
         .catch((error) => {
           // eslint-disable-next-line
           console.log(error);
           const message =
-            error.response.data.message === ''
-              ? 'Something Wrong!!!'
-              : error.response.data.message;
-          this.errorMessage = message;
-          this.isError = true;
+            error.response.data.message === '' ? 'Something Wrong!!!' : error.response.data.message;
+          this.notification.error(message);
         })
         .finally(() => {
           this.isEdit = false;
@@ -642,19 +605,15 @@ export default {
         })
         .then((response) => {
           const data = response.data;
-          this.successMessage = data.message;
-          this.isSuccess = true;
+          this.notification.success(data.message);
           this.getPropertyDevelopmentsData();
         })
         .catch((error) => {
           // eslint-disable-next-line
           console.log(error);
           const message =
-            error.response.data.message === ''
-              ? 'Something Wrong!!!'
-              : error.response.data.message;
-          this.errorMessage = message;
-          this.isError = true;
+            error.response.data.message === '' ? 'Something Wrong!!!' : error.response.data.message;
+          this.notification.error(message);
         })
         .finally(() => {
           this.isEdit = false;
@@ -685,19 +644,15 @@ export default {
         )
         .then((response) => {
           const data = response.data;
-          this.successMessage = data.message;
-          this.isSuccess = true;
+          this.notification.success(data.message);
           this.getPropertyDevelopmentsData();
         })
         .catch((error) => {
           // eslint-disable-next-line
           console.log(error);
           const message =
-            error.response.data.message === ''
-              ? 'Something Wrong!!!'
-              : error.response.data.message;
-          this.errorMessage = message;
-          this.isError = true;
+            error.response.data.message === '' ? 'Something Wrong!!!' : error.response.data.message;
+          this.notification.error(message);
         })
         .finally(() => {
           this.isEdit = false;
@@ -715,24 +670,18 @@ export default {
     deleteLogoFile() {
       this.isSending = true;
       axios
-        .delete(
-          `/4walls-property-developments/${this.propertyDataToLogo.development_id}/logo`
-        )
+        .delete(`/4walls-property-developments/${this.propertyDataToLogo.development_id}/logo`)
         .then((response) => {
           const data = response.data;
-          this.successMessage = data.message;
-          this.isSuccess = true;
+          this.notification.success(data.message);
           this.getPropertyDevelopmentsData();
         })
         .catch((error) => {
           // eslint-disable-next-line
           console.log(error);
           const message =
-            error.response.data.message === ''
-              ? 'Something Wrong!!!'
-              : error.response.data.message;
-          this.errorMessage = message;
-          this.isError = true;
+            error.response.data.message === '' ? 'Something Wrong!!!' : error.response.data.message;
+          this.notification.error(message);
         })
         .finally(() => {
           this.isEdit = false;
@@ -803,19 +752,15 @@ export default {
         })
         .then((response) => {
           const data = response.data;
-          this.successMessage = data.message;
-          this.isSuccess = true;
+          this.notification.success(data.message);
           this.getPropertyDevelopmentsData();
         })
         .catch((error) => {
           // eslint-disable-next-line
           console.log(error);
           const message =
-            error.response.data.message === ''
-              ? 'Something Wrong!!!'
-              : error.response.data.message;
-          this.errorMessage = message;
-          this.isError = true;
+            error.response.data.message === '' ? 'Something Wrong!!!' : error.response.data.message;
+          this.notification.error(message);
         })
         .finally(() => {
           this.isEdit = false;
@@ -888,19 +833,15 @@ export default {
         })
         .then((response) => {
           const data = response.data;
-          this.successMessage = data.message;
-          this.isSuccess = true;
+          this.notification.success(data.message);
           this.getPropertyDevelopmentsData();
         })
         .catch((error) => {
           // eslint-disable-next-line
           console.log(error);
           const message =
-            error.response.data.message === ''
-              ? 'Something Wrong!!!'
-              : error.response.data.message;
-          this.errorMessage = message;
-          this.isError = true;
+            error.response.data.message === '' ? 'Something Wrong!!!' : error.response.data.message;
+          this.notification.error(message);
         })
         .finally(() => {
           this.isEdit = false;
@@ -960,8 +901,7 @@ export default {
           .post(`/4walls-property-developments/update`, payload)
           .then((response) => {
             const data = response.data;
-            this.successMessage = data.message;
-            this.isSuccess = true;
+            this.notification.success(data.message);
             this.getPropertyDevelopmentsData();
             this.input = {
               development_id: 0,
@@ -981,8 +921,7 @@ export default {
               error.response.data.message === ''
                 ? 'Something Wrong!!!'
                 : error.response.data.message;
-            this.errorMessage = message;
-            this.isError = true;
+            this.notification.error(message);
           })
           .finally(() => {
             this.isEdit = false;
@@ -1001,8 +940,7 @@ export default {
           .post(`/4walls-property-developments`, payload)
           .then((response) => {
             const data = response.data;
-            this.successMessage = data.message;
-            this.isSuccess = true;
+            this.notification.success(data.message);
             this.getPropertyDevelopmentsData();
             this.input = {
               id: 0,
@@ -1018,8 +956,7 @@ export default {
               error.response.data.message === ''
                 ? 'Something Wrong!!!'
                 : error.response.data.message;
-            this.errorMessage = message;
-            this.isError = true;
+            this.notification.error(message);
           })
           .finally(() => {
             this.isSending = false;
@@ -1044,19 +981,15 @@ export default {
         .delete(`/4walls-property-developments/${this.propertyIdToDelete}`)
         .then((response) => {
           const data = response.data;
-          this.successMessage = data.message;
-          this.isSuccess = true;
+          this.notification.success(data.message);
           this.getPropertyDevelopmentsData();
         })
         .catch((error) => {
           // eslint-disable-next-line
           console.log(error);
           const message =
-            error.response.data.message === ''
-              ? 'Something Wrong!!!'
-              : error.response.data.message;
-          this.errorMessage = message;
-          this.isError = true;
+            error.response.data.message === '' ? 'Something Wrong!!!' : error.response.data.message;
+          this.notification.error(message);
         })
         .finally(() => {
           this.isDeleteLoading = false;
@@ -1085,14 +1018,8 @@ export default {
               town_id: item.town_id || null,
               logo: item.logo || null,
               main_image: item.main_image || null,
-              isActive:
-                item.active == 'N' ? false : item.active == 'Y' ? true : null,
-              isFeatured:
-                item.featured == 'N'
-                  ? false
-                  : item.featured == 'Y'
-                  ? true
-                  : null,
+              isActive: item.active == 'N' ? false : item.active == 'Y' ? true : null,
+              isFeatured: item.featured == 'N' ? false : item.featured == 'Y' ? true : null,
               isUnderConstruction:
                 item.under_construction == 'N'
                   ? false
@@ -1113,11 +1040,8 @@ export default {
           // eslint-disable-next-line
           console.log(error);
           const message =
-            error.response.data.message === ''
-              ? 'Something Wrong!!!'
-              : error.response.data.message;
-          this.errorMessage = message;
-          this.isError = true;
+            error.response.data.message === '' ? 'Something Wrong!!!' : error.response.data.message;
+          this.notification.error(message);
         })
         .finally(() => {
           this.isLoading = false;
@@ -1134,11 +1058,8 @@ export default {
           // eslint-disable-next-line
           console.log(error);
           const message =
-            error.response.data.message === ''
-              ? 'Something Wrong!!!'
-              : error.response.data.message;
-          this.errorMessage = message;
-          this.isError = true;
+            error.response.data.message === '' ? 'Something Wrong!!!' : error.response.data.message;
+          this.notification.error(message);
         })
         .finally(() => {
           this.isLoading = false;
@@ -1154,26 +1075,22 @@ export default {
           // eslint-disable-next-line
           console.log(error);
           const message =
-            error.response.data.message === ''
-              ? 'Something Wrong!!!'
-              : error.response.data.message;
-          this.errorMessage = message;
-          this.isError = true;
+            error.response.data.message === '' ? 'Something Wrong!!!' : error.response.data.message;
+          this.notification.error(message);
         });
     },
     getTownData() {
-      axios.get(`/towns`).then((response) => {
+      axios
+        .get(`/towns`)
+        .then((response) => {
           this.resource.towns = response.data.data;
         })
         .catch((error) => {
           // eslint-disable-next-line
           console.log(error);
           const message =
-            error.response.data.message === ''
-              ? 'Something Wrong!!!'
-              : error.response.data.message;
-          this.errorMessage = message;
-          this.isError = true;
+            error.response.data.message === '' ? 'Something Wrong!!!' : error.response.data.message;
+          this.notification.error(message);
         });
     },
     getAgentsData() {
@@ -1183,28 +1100,28 @@ export default {
     },
     saveAgent(agent_id, item) {
       this.isSending2 = true;
-      axios.post(`/4walls-property-developments/update`, {
-        development_id: item.development_id,
-        project_name: item.project_name,
-        developer_id: item.developer_id,
-        agent_id: agent_id,
-      }).then((response) => {
-        const data = response.data;
-        this.successMessage = data.message;
-        this.isSuccess = true;
-        this.getPropertyDevelopmentsData();
-      }).catch((error) => {
-        // eslint-disable-next-line
-        console.log(error);
-        const message =
-          error.response.data.message === ''
-            ? 'Something Wrong!!!'
-            : error.response.data.message;
-        this.errorMessage = message;
-        this.isError = true;
-      }).finally(() => {
-        this.isSending2 = false;
-      });
+      axios
+        .post(`/4walls-property-developments/update`, {
+          development_id: item.development_id,
+          project_name: item.project_name,
+          developer_id: item.developer_id,
+          agent_id: agent_id,
+        })
+        .then((response) => {
+          const data = response.data;
+          this.notification.success(data.message);
+          this.getPropertyDevelopmentsData();
+        })
+        .catch((error) => {
+          // eslint-disable-next-line
+          console.log(error);
+          const message =
+            error.response.data.message === '' ? 'Something Wrong!!!' : error.response.data.message;
+          this.notification.error(message);
+        })
+        .finally(() => {
+          this.isSending2 = false;
+        });
     },
     featuredPropertyDevelopment(id) {
       this.isSending2 = true;
@@ -1212,19 +1129,15 @@ export default {
         .get(`/4walls-property-developments/toggle-featured/${id}`)
         .then((response) => {
           const data = response.data;
-          this.successMessage = data.message;
-          this.isSuccess = true;
+          this.notification.success(data.message);
           this.getPropertyDevelopersData();
         })
         .catch((error) => {
           // eslint-disable-next-line
           console.log(error);
           const message =
-            error.response.data.message === ''
-              ? 'Something Wrong!!!'
-              : error.response.data.message;
-          this.errorMessage = message;
-          this.isError = true;
+            error.response.data.message === '' ? 'Something Wrong!!!' : error.response.data.message;
+          this.notification.error(message);
         })
         .finally(() => {
           this.isSending2 = false;
@@ -1236,19 +1149,15 @@ export default {
         .get(`/4walls-property-developments/toggle-under-construction/${id}`)
         .then((response) => {
           const data = response.data;
-          this.successMessage = data.message;
-          this.isSuccess = true;
+          this.notification.success(data.message);
           this.getPropertyDevelopersData();
         })
         .catch((error) => {
           // eslint-disable-next-line
           console.log(error);
           const message =
-            error.response.data.message === ''
-              ? 'Something Wrong!!!'
-              : error.response.data.message;
-          this.errorMessage = message;
-          this.isError = true;
+            error.response.data.message === '' ? 'Something Wrong!!!' : error.response.data.message;
+          this.notification.error(message);
         })
         .finally(() => {
           this.isSending2 = false;
@@ -1260,19 +1169,15 @@ export default {
         .get(`/4walls-property-developments/toggle-active/${developer_id}`)
         .then((response) => {
           const data = response.data;
-          this.successMessage = data.message;
-          this.isSuccess = true;
+          this.notification.success(data.message);
           this.getPropertyDevelopersData();
         })
         .catch((error) => {
           // eslint-disable-next-line
           console.log(error);
           const message =
-            error.response.data.message === ''
-              ? 'Something Wrong!!!'
-              : error.response.data.message;
-          this.errorMessage = message;
-          this.isError = true;
+            error.response.data.message === '' ? 'Something Wrong!!!' : error.response.data.message;
+          this.notification.error(message);
         })
         .finally(() => {
           this.isSending2 = false;
@@ -1289,19 +1194,15 @@ export default {
         })
         .then((response) => {
           const data = response.data;
-          this.successMessage = data.message;
-          this.isSuccess = true;
+          this.notification.success(data.message);
           this.getPropertyDevelopmentsData();
         })
         .catch((error) => {
           // eslint-disable-next-line
           console.log(error);
           const message =
-            error.response.data.message === ''
-              ? 'Something Wrong!!!'
-              : error.response.data.message;
-          this.errorMessage = message;
-          this.isError = true;
+            error.response.data.message === '' ? 'Something Wrong!!!' : error.response.data.message;
+          this.notification.error(message);
         })
         .finally(() => {
           this.isSending2 = false;
@@ -1318,19 +1219,15 @@ export default {
         })
         .then((response) => {
           const data = response.data;
-          this.successMessage = data.message;
-          this.isSuccess = true;
+          this.notification.success(data.message);
           this.getPropertyDevelopmentsData();
         })
         .catch((error) => {
           // eslint-disable-next-line
           console.log(error);
           const message =
-            error.response.data.message === ''
-              ? 'Something Wrong!!!'
-              : error.response.data.message;
-          this.errorMessage = message;
-          this.isError = true;
+            error.response.data.message === '' ? 'Something Wrong!!!' : error.response.data.message;
+          this.notification.error(message);
         })
         .finally(() => {
           this.isSending2 = false;
@@ -1347,19 +1244,15 @@ export default {
         })
         .then((response) => {
           const data = response.data;
-          this.successMessage = data.message;
-          this.isSuccess = true;
+          this.notification.success(data.message);
           this.getPropertyDevelopmentsData();
         })
         .catch((error) => {
           // eslint-disable-next-line
           console.log(error);
           const message =
-            error.response.data.message === ''
-              ? 'Something Wrong!!!'
-              : error.response.data.message;
-          this.errorMessage = message;
-          this.isError = true;
+            error.response.data.message === '' ? 'Something Wrong!!!' : error.response.data.message;
+          this.notification.error(message);
         })
         .finally(() => {
           this.isSending2 = false;
@@ -1376,26 +1269,21 @@ export default {
         })
         .then((response) => {
           const data = response.data;
-          this.successMessage = data.message;
-          this.isSuccess = true;
+          this.notification.success(data.message);
           this.getPropertyDevelopmentsData();
         })
         .catch((error) => {
           // eslint-disable-next-line
           console.log(error);
           const message =
-            error.response.data.message === ''
-              ? 'Something Wrong!!!'
-              : error.response.data.message;
-          this.errorMessage = message;
-          this.isError = true;
+            error.response.data.message === '' ? 'Something Wrong!!!' : error.response.data.message;
+          this.notification.error(message);
         })
         .finally(() => {
           this.isSending2 = false;
         });
     },
   },
-  components: { ImageUpload, HeaderWallMaster },
 };
 </script>
 

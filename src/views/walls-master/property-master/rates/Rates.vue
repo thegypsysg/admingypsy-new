@@ -48,11 +48,7 @@
           <v-col cols="12" md="2">
             <div>
               <v-btn
-                :prepend-icon="
-                  isEdit
-                    ? 'mdi-account-multiple-check'
-                    : 'mdi-account-multiple-plus'
-                "
+                :prepend-icon="isEdit ? 'mdi-account-multiple-check' : 'mdi-account-multiple-plus'"
                 color="indigo-accent-2"
                 style="text-transform: none"
                 type="submit"
@@ -97,15 +93,9 @@
               <tr>
                 <th class="text-left font-weight-bold text-black">Id</th>
                 <th class="text-left font-weight-bold text-black">Rate Type</th>
-                <th class="text-left font-weight-bold text-black">
-                  Rate Description
-                </th>
-                <th class="text-left font-weight-bold text-black">
-                  Rate (SGD)
-                </th>
-                <th class="text-left font-weight-bold text-black">
-                  Rate (IDR)
-                </th>
+                <th class="text-left font-weight-bold text-black">Rate Description</th>
+                <th class="text-left font-weight-bold text-black">Rate (SGD)</th>
+                <th class="text-left font-weight-bold text-black">Rate (IDR)</th>
                 <th class="text-left font-weight-bold text-black">User</th>
                 <th class="text-left font-weight-bold text-black">Dated</th>
                 <th class="text-left font-weight-bold text-black">Actions</th>
@@ -144,9 +134,7 @@
                       @focusout="saveRateHome(item.rate_home, item)"
                     >
                       <template #prepend-inner>
-                        <span class="text-blue-darken-4 pr-2"
-                          >{{ item?.currency_symbol }}
-                        </span>
+                        <span class="text-blue-darken-4 pr-2">{{ item?.currency_symbol }} </span>
                         |
                       </template>
                     </v-text-field>
@@ -160,13 +148,9 @@
                     <div class="d-flex align-center">
                       <v-tooltip location="top">
                         <template v-slot:activator="{ props }">
-                          <v-btn
-                            color="green"
-                            variant="text"
-                            v-bind="props"
-                            icon
+                          <v-btn color="green" variant="text" v-bind="props" icon>
+                            <v-icon>mdi-pencil-outline</v-icon></v-btn
                           >
-  <v-icon>mdi-pencil-outline</v-icon></v-btn>
                           <!-- @click="editPropertyRates(item)" -->
                         </template>
                         <span>Edit</span>
@@ -180,7 +164,8 @@
                             :disabled="isDeleteLoading"
                             icon
                           >
-  <v-icon>mdi-trash-can-outline</v-icon></v-btn>
+                            <v-icon>mdi-trash-can-outline</v-icon></v-btn
+                          >
                           <!-- @click="openDeleteConfirm(item.id)" -->
                         </template>
                         <span>Delete</span>
@@ -189,60 +174,28 @@
                   </td>
                 </tr>
               </template>
-              <tr v-if="isLoading2">
-                <td :colspan="6" class="text-center">
-                  <v-progress-circular
-                    indeterminate
-                    color="indigo-accent-2"
-                  ></v-progress-circular>
-                </td>
-              </tr>
             </tbody>
           </v-table>
+          <skeleton-table v-if="isLoading" :rows="5" :columns="8" />
+          <empty-state
+            v-if="!isLoading && (!items || items.length === 0)"
+            title="No Data Found"
+            subtitle="There are no records to display."
+          />
         </v-col>
       </v-row>
     </v-sheet>
-    <v-snackbar
-      location="top"
-      color="green"
-      v-model="isSuccess"
-      :timeout="3000"
-    >
-      {{ successMessage }}
 
-      <template v-slot:actions>
-        <v-btn color="white" variant="text" @click="isSuccess = false">
-          <v-icon>mdi-close</v-icon>
-        </v-btn>
-      </template>
-    </v-snackbar>
-    <v-snackbar location="top" color="red" v-model="isError" :timeout="3000">
-      {{ errorMessage }}
-
-      <template v-slot:actions>
-        <v-btn color="white" variant="text" @click="isError = false">
-          <v-icon>mdi-close</v-icon>
-        </v-btn>
-      </template>
-    </v-snackbar>
-    <v-dialog persistent width="500" v-model="isDelete">
-      <v-card>
-        <v-card-title>Confirmation</v-card-title>
-        <v-card-text> Are you sure want to delete this level? </v-card-text>
-        <v-card-actions>
-          <v-spacer></v-spacer>
-          <v-btn color="error" text @click="cancelDelete">No</v-btn>
-          <v-btn color="success" text @click="deleteLocation">{{
-            isDeleteLoading ? 'Deleting...' : 'Yes'
-          }}</v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
+    <confirm-dialog
+      v-model="isDelete"
+      title="Confirmation"
+      message="Are you sure you want to delete this item? This action cannot be undone."
+      :loading="isDeleteLoading"
+      @confirm="deleteLocation"
+    />
     <v-dialog persistent width="auto" v-model="isOpenImage">
       <v-card width="750">
-        <v-card-title class="upload-title px-6 py-4">
-          Upload Image - Partner Location</v-card-title
-        >
+        <v-card-title class="upload-title px-6 py-4"> Upload Image - Partner Location</v-card-title>
         <v-card-text>
           <image-upload
             :image-file="imageFile"
@@ -252,13 +205,7 @@
         </v-card-text>
         <v-card-actions class="mt-16">
           <v-spacer></v-spacer>
-          <v-btn
-            style="text-transform: none"
-            color="error"
-            text
-            @click="closeImage"
-            >Cancel</v-btn
-          >
+          <v-btn style="text-transform: none" color="error" text @click="closeImage">Cancel</v-btn>
           <v-btn
             style="background-color: #9ddcff; text-transform: none"
             color="black"
@@ -272,6 +219,10 @@
 </template>
 
 <script>
+import SkeletonTable from '@/components/SkeletonTable.vue';
+import EmptyState from '@/components/EmptyState.vue';
+import ConfirmDialog from '@/components/ConfirmDialog.vue';
+import { useNotificationStore } from '@/stores/notification';
 import ImageUpload from '@/components/ImageUpload.vue';
 import axios from '@/util/axios';
 import { setAuthHeader } from '@/util/axios';
@@ -279,6 +230,16 @@ import { setAuthHeader } from '@/util/axios';
 
 export default {
   name: 'ManageLevels',
+  components: {
+    ConfirmDialog,
+    EmptyState,
+    SkeletonTable,
+    ImageUpload,
+  },
+  setup() {
+    const notification = useNotificationStore();
+    return { notification };
+  },
   data: () => ({
     // fileURL: 'https://admin1.the-gypsy.sg/img/app/',
     tagLine: null,
@@ -287,16 +248,12 @@ export default {
     isLoading: false,
     isLoading2: false,
     isSending: false,
-    isError: false,
     isEdit: false,
-    isSuccess: false,
     isDelete: false,
     isDeleteLoading: false,
     locationIdToDelete: null,
     tableHeaders: [{ text: 'Gambar', value: 'image' }],
     isOpenImage: false,
-    successMessage: '',
-    errorMessage: '',
     imageFile: [],
     resource: {
       rates: [],
@@ -358,8 +315,7 @@ export default {
           .post(`/4walls-property-rates`, payload)
           .then((response) => {
             const data = response.data;
-            this.successMessage = data.message;
-            this.isSuccess = true;
+            this.notification.success(data.message);
             this.getPropertyRatesData();
             this.input = {
               id: 0,
@@ -374,8 +330,7 @@ export default {
               : error.response.data.message === ''
               ? 'Something Wrong!!!'
               : error.response.data.error;
-            this.errorMessage = message;
-            this.isError = true;
+            this.notification.error(message);
           })
           .finally(() => {
             this.isSending = false;
@@ -394,8 +349,7 @@ export default {
           .post(`/4walls-property-rates/update`, payload)
           .then((response) => {
             const data = response.data;
-            this.successMessage = data.message;
-            this.isSuccess = true;
+            this.notification.success(data.message);
             //this.getConstructionCategoryData();
           })
           .catch((error) => {
@@ -403,8 +357,7 @@ export default {
             const message = error.response.data.rate_home
               ? 'Please fill the rate home field'
               : error.response.data.message;
-            this.errorMessage = message;
-            this.isError = true;
+            this.notification.error(message);
           })
           .finally(() => {
             this.isSending = false;
@@ -423,8 +376,7 @@ export default {
           .post(`/4walls-property-rates/update`, payload)
           .then((response) => {
             const data = response.data;
-            this.successMessage = data.message;
-            this.isSuccess = true;
+            this.notification.success(data.message);
             //this.getConstructionCategoryData();
           })
           .catch((error) => {
@@ -432,8 +384,7 @@ export default {
             const message = error.response.data.rate_sg
               ? 'Please fill the rate sg field'
               : error.response.data.message;
-            this.errorMessage = message;
-            this.isError = true;
+            this.notification.error(message);
           })
           .finally(() => {
             this.isSending = false;
@@ -458,19 +409,15 @@ export default {
         .delete(`/4walls-property-rates/${this.locationIdToDelete}`)
         .then((response) => {
           const data = response.data;
-          this.successMessage = data.message;
-          this.isSuccess = true;
+          this.notification.success(data.message);
           this.getPropertyRatesData();
         })
         .catch((error) => {
           // eslint-disable-next-line
           console.log(error);
           const message =
-            error.response.data.message === ''
-              ? 'Something Wrong!!!'
-              : error.response.data.message;
-          this.errorMessage = message;
-          this.isError = true;
+            error.response.data.message === '' ? 'Something Wrong!!!' : error.response.data.message;
+          this.notification.error(message);
         })
         .finally(() => {
           this.isDeleteLoading = false;
@@ -487,9 +434,7 @@ export default {
           this.items = data.map((item) => {
             return {
               ...item,
-              rateHome: item?.rate_home
-                ? parseInt(item?.rate_home.replace(/,/g, ''), 10)
-                : null,
+              rateHome: item?.rate_home ? parseInt(item?.rate_home.replace(/,/g, ''), 10) : null,
             };
           });
         })
@@ -497,11 +442,8 @@ export default {
           // eslint-disable-next-line
           console.log(error);
           const message =
-            error.response.data.message === ''
-              ? 'Something Wrong!!!'
-              : error.response.data.message;
-          this.errorMessage = message;
-          this.isError = true;
+            error.response.data.message === '' ? 'Something Wrong!!!' : error.response.data.message;
+          this.notification.error(message);
         })
         .finally(() => {
           this.isLoading = false;
@@ -525,18 +467,14 @@ export default {
           // eslint-disable-next-line
           console.log(error);
           const message =
-            error.response.data.message === ''
-              ? 'Something Wrong!!!'
-              : error.response.data.message;
-          this.errorMessage = message;
-          this.isError = true;
+            error.response.data.message === '' ? 'Something Wrong!!!' : error.response.data.message;
+          this.notification.error(message);
         })
         .finally(() => {
           this.isLoading = false;
         });
     },
   },
-  components: { ImageUpload },
 };
 </script>
 

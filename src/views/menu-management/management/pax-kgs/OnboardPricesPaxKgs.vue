@@ -15,13 +15,9 @@
       <h3 class="ml-4">
         <span style="font-weight: 700">{{ itemData?.dishName || '' }}</span>
         <span class="mx-4" style="color: #ccc">|</span>
-        <span style="font-weight: 700">{{
-          itemData?.restaurantName || ''
-        }}</span>
+        <span style="font-weight: 700">{{ itemData?.restaurantName || '' }}</span>
         <span class="mx-4" style="color: #ccc">|</span>
-        <span style="font-weight: 700">{{
-          itemData?.quantityName || '1 Pax'
-        }}</span>
+        <span style="font-weight: 700">{{ itemData?.quantityName || '1 Pax' }}</span>
       </h3>
     </template>
     <v-form v-model="valid" @submit.prevent>
@@ -42,11 +38,7 @@
           </v-col>
           <v-col class="mt-0" cols="12" md="2">
             <v-btn
-              :prepend-icon="
-                isEdit
-                  ? 'mdi-account-multiple-check'
-                  : 'mdi-account-multiple-plus'
-              "
+              :prepend-icon="isEdit ? 'mdi-account-multiple-check' : 'mdi-account-multiple-plus'"
               color="indigo-accent-2"
               style="text-transform: none"
               type="submit"
@@ -124,9 +116,7 @@
                     </div>
                   </td>
                   <td>
-                    <span class="font-weight-bold">{{
-                      item.pax_kgs_name
-                    }}</span>
+                    <span class="font-weight-bold">{{ item.pax_kgs_name }}</span>
                   </td>
                   <td>
                     <div
@@ -141,11 +131,7 @@
                     >
                       <div
                         class="d-flex justify-center align-center"
-                        style="
-                          background: #e9ecef;
-                          min-width: 40px;
-                          padding: 0 8px;
-                        "
+                        style="background: #e9ecef; min-width: 40px; padding: 0 8px"
                       >
                         <h4 style="color: #077cff">S$</h4>
                       </div>
@@ -169,42 +155,33 @@
                   </td>
                   <td>
                     <div class="d-flex">
+                      <v-btn color="green" variant="text" @click="editPaxKgs(item)" icon>
+                        <v-icon>mdi-pencil-outline</v-icon>
+                        <v-tooltip location="top" activator="parent">Edit</v-tooltip>
+                      </v-btn>
                       <v-btn
-                            color="green"
-                            variant="text" @click="editPaxKgs(item)"
-                            icon
-                          >
-  <v-icon>mdi-pencil-outline</v-icon>  <v-tooltip location="top" activator="parent">Edit</v-tooltip>
-</v-btn>
-                      <v-btn
-                            color="red" variant="text"
-                            :disabled="isDeleteLoading"
-                            @click="openDeleteConfirm(item.id)"
-                            icon
-                          >
-  <v-icon>mdi-trash-can-outline</v-icon>  <v-tooltip location="top" activator="parent">Delete</v-tooltip>
-</v-btn>
+                        color="red"
+                        variant="text"
+                        :disabled="isDeleteLoading"
+                        @click="openDeleteConfirm(item.id)"
+                        icon
+                      >
+                        <v-icon>mdi-trash-can-outline</v-icon>
+                        <v-tooltip location="top" activator="parent">Delete</v-tooltip>
+                      </v-btn>
                     </div>
                   </td>
                 </tr>
                 <tr>
                   <td class="border-b-sm pb-2"></td>
                   <td class="border-b-sm pb-2" colspan="2">
-                    <div
-                      class="font-weight-bold mb-1"
-                      style="font-size: 12px; color: #555"
-                    >
+                    <div class="font-weight-bold mb-1" style="font-size: 12px; color: #555">
                       What's Included. ?
                     </div>
                     <v-textarea
                       density="compact"
                       v-model="item.dish_description"
-                      @input="
-                        debouncedUpdateDescription(
-                          item.id,
-                          item.dish_description,
-                        )
-                      "
+                      @input="debouncedUpdateDescription(item.id, item.dish_description)"
                       placeholder="Dish Description details"
                       variant="outlined"
                       hide-details
@@ -255,11 +232,7 @@
                       </div>
                       <div>
                         <div
-                          style="
-                            font-size: 11px;
-                            font-weight: bold;
-                            color: #666;
-                          "
+                          style="font-size: 11px; font-weight: bold; color: #666"
                           class="text-center mb-1 text-no-wrap"
                         >
                           24 hrs Notice
@@ -280,10 +253,7 @@
                         </v-btn-toggle>
                       </div>
                     </div>
-                    <div
-                      class="font-weight-bold mb-1"
-                      style="font-size: 12px; color: #555"
-                    >
+                    <div class="font-weight-bold mb-1" style="font-size: 12px; color: #555">
                       What's Free
                     </div>
                     <v-textarea
@@ -298,58 +268,28 @@
                   <td class="pb-2 border-b-sm" colspan="3"></td>
                 </tr>
               </template>
-              <tr v-if="isLoading">
-                <td :colspan="7" class="text-center">
-                  <v-progress-circular
-                    indeterminate
-                    color="indigo-accent-2"
-                  ></v-progress-circular>
-                </td>
-              </tr>
             </tbody>
           </v-table>
+          <skeleton-table v-if="isLoading" :rows="5" :columns="7" />
+          <empty-state
+            v-if="!isLoading && (!filteredItems || filteredItems.length === 0)"
+            title="No Data Found"
+            subtitle="There are no records to display."
+          />
         </v-col>
       </v-row>
     </v-sheet>
-    <v-snackbar
-      location="top"
-      color="green"
-      v-model="isSuccess"
-      :timeout="3000"
-    >
-      {{ successMessage }}
 
-      <template v-slot:actions>
-        <v-btn color="white" variant="text" @click="isSuccess = false">
-          <v-icon>mdi-close</v-icon>
-        </v-btn>
-      </template>
-    </v-snackbar>
-    <v-snackbar location="top" color="red" v-model="isError" :timeout="3000">
-      {{ errorMessage }}
-
-      <template v-slot:actions>
-        <v-btn color="white" variant="text" @click="isError = false">
-          <v-icon>mdi-close</v-icon>
-        </v-btn>
-      </template>
-    </v-snackbar>
-    <v-dialog persistent width="500" v-model="isDelete">
-      <v-card>
-        <v-card-title>Confirmation</v-card-title>
-        <v-card-text> Are you sure want to delete this pax / kgs? </v-card-text>
-        <v-card-actions>
-          <v-spacer></v-spacer>
-          <v-btn color="error" text @click="cancelDelete">No</v-btn>
-          <v-btn color="success" text @click="deletePaxKgs">Yes</v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
+    <confirm-dialog
+      v-model="isDelete"
+      title="Confirmation"
+      message="Are you sure you want to delete this item? This action cannot be undone."
+      :loading="isDeleteLoading"
+      @confirm="deletePaxKgs"
+    />
     <v-dialog persistent width="auto" v-model="isOpenImage">
       <v-card width="750">
-        <v-card-title class="upload-title px-6 py-4">
-          Upload Image - Pax / Kgs</v-card-title
-        >
+        <v-card-title class="upload-title px-6 py-4"> Upload Image - Pax / Kgs</v-card-title>
         <v-card-text>
           <image-upload
             :image-file="imageFile"
@@ -359,13 +299,7 @@
         </v-card-text>
         <v-card-actions class="mt-16">
           <v-spacer></v-spacer>
-          <v-btn
-            style="text-transform: none"
-            color="error"
-            text
-            @click="closeImage"
-            >Cancel</v-btn
-          >
+          <v-btn style="text-transform: none" color="error" text @click="closeImage">Cancel</v-btn>
           <v-btn
             style="background-color: #9ddcff; text-transform: none"
             color="black"
@@ -379,12 +313,26 @@
 </template>
 
 <script>
+import SkeletonTable from '@/components/SkeletonTable.vue';
+import EmptyState from '@/components/EmptyState.vue';
+import ConfirmDialog from '@/components/ConfirmDialog.vue';
+import { useNotificationStore } from '@/stores/notification';
 import ImageUpload from '@/components/ImageUpload.vue';
 import axios from '@/util/axios';
 import { setAuthHeader } from '@/util/axios';
 
 export default {
   name: 'OnboardPricesPaxKgs',
+  components: {
+    ConfirmDialog,
+    EmptyState,
+    SkeletonTable,
+    ImageUpload,
+  },
+  setup() {
+    const notification = useNotificationStore();
+    return { notification };
+  },
   data: () => ({
     idBrp: null,
     itemData: null,
@@ -392,8 +340,6 @@ export default {
     isLoading: false,
     isSending: false,
     isEdit: false,
-    isSuccess: false,
-    isError: false,
     isDelete: false,
     isDeleteLoading: false,
     isOpenImage: false,
@@ -402,8 +348,6 @@ export default {
     paxKgsDataToImage: {
       brp_id_2: 0,
     },
-    successMessage: '',
-    errorMessage: '',
     input: {
       id: 0,
       pax_kgs_id: null,
@@ -470,8 +414,7 @@ export default {
             error.response?.data?.message === ''
               ? 'Something Wrong!!!'
               : error.response?.data?.message || 'Something Wrong!!!';
-          this.errorMessage = message;
-          this.isError = true;
+          this.notification.error(message);
         })
         .finally(() => {
           this.isLoading = false;
@@ -502,8 +445,7 @@ export default {
             error.response?.data?.message === ''
               ? 'Something Wrong!!!'
               : error.response?.data?.message || 'Something Wrong!!!';
-          this.errorMessage = message;
-          this.isError = true;
+          this.notification.error(message);
         })
         .finally(() => {
           this.isLoading = false;
@@ -527,8 +469,7 @@ export default {
             error.response?.data?.message === ''
               ? 'Something Wrong!!!'
               : error.response?.data?.message || 'Something Wrong!!!';
-          this.errorMessage = message;
-          this.isError = true;
+          this.notification.error(message);
         });
     },
     editPaxKgs(item) {
@@ -557,8 +498,7 @@ export default {
           .post(`/biryani-run-prices2/update`, payload)
           .then((response) => {
             const data = response.data;
-            this.successMessage = data.message;
-            this.isSuccess = true;
+            this.notification.success(data.message);
             this.getPaxKgsData();
             this.input = {
               id: 0,
@@ -571,8 +511,7 @@ export default {
               error.response?.data?.error === ''
                 ? 'Something Wrong!!!'
                 : error.response?.data?.error || 'Something Wrong!!!';
-            this.errorMessage = message;
-            this.isError = true;
+            this.notification.error(message);
           })
           .finally(() => {
             this.isEdit = false;
@@ -591,8 +530,7 @@ export default {
           .post(`/biryani-run-prices2`, payload)
           .then((response) => {
             const data = response.data;
-            this.successMessage = data.message;
-            this.isSuccess = true;
+            this.notification.success(data.message);
             this.getPaxKgsData();
             this.input = {
               id: 0,
@@ -605,8 +543,7 @@ export default {
               error.response?.data?.error === ''
                 ? 'Something Wrong!!!'
                 : error.response?.data?.error || 'Something Wrong!!!';
-            this.errorMessage = message;
-            this.isError = true;
+            this.notification.error(message);
           })
           .finally(() => {
             this.isSending = false;
@@ -627,8 +564,7 @@ export default {
         .delete(`/biryani-run-prices2/${this.paxKgsIdToDelete}`)
         .then((response) => {
           const data = response.data;
-          this.successMessage = data.message;
-          this.isSuccess = true;
+          this.notification.success(data.message);
           this.getPaxKgsData();
         })
         .catch((error) => {
@@ -637,8 +573,7 @@ export default {
             error.response?.data?.message === ''
               ? 'Something Wrong!!!'
               : error.response?.data?.message || 'Something Wrong!!!';
-          this.errorMessage = message;
-          this.isError = true;
+          this.notification.error(message);
         })
         .finally(() => {
           this.isDeleteLoading = false;
@@ -662,14 +597,11 @@ export default {
       axios
         .post(`/biryani-run-prices2/update-rate`, payload)
         .then((response) => {
-          this.successMessage = response.data.message;
-          this.isSuccess = true;
+          this.notification.success(response.data.message);
         })
         .catch((error) => {
           console.error(error);
-          this.errorMessage =
-            error.response?.data?.message || 'Something Wrong!!!';
-          this.isError = true;
+          this.notification.error(error.response?.data?.message || 'Something Wrong!!!');
         });
     },
     debouncedUpdateDescription(id, value) {
@@ -688,14 +620,11 @@ export default {
       axios
         .post(`/biryani-run-prices2/update-description`, payload)
         .then((response) => {
-          this.successMessage = response.data.message;
-          this.isSuccess = true;
+          this.notification.success(response.data.message);
         })
         .catch((error) => {
           console.error(error);
-          this.errorMessage =
-            error.response?.data?.message || 'Something Wrong!!!';
-          this.isError = true;
+          this.notification.error(error.response?.data?.message || 'Something Wrong!!!');
         });
     },
     openImage(item) {
@@ -734,8 +663,7 @@ export default {
         .delete(`/biryani-run-prices2/${this.paxKgsDataToImage.brp_id_2}/image`)
         .then((response) => {
           const data = response.data;
-          this.successMessage = data.message;
-          this.isSuccess = true;
+          this.notification.success(data.message);
           this.getPaxKgsData();
         })
         .catch((error) => {
@@ -744,8 +672,7 @@ export default {
             error.response?.data?.message === ''
               ? 'Something Wrong!!!'
               : error.response?.data?.message || 'Something Wrong!!!';
-          this.errorMessage = message;
-          this.isError = true;
+          this.notification.error(message);
         })
         .finally(() => {
           this.isSending = false;
@@ -766,8 +693,7 @@ export default {
         })
         .then((response) => {
           const data = response.data;
-          this.successMessage = data.message;
-          this.isSuccess = true;
+          this.notification.success(data.message);
           this.getPaxKgsData();
         })
         .catch((error) => {
@@ -776,8 +702,7 @@ export default {
             error.response?.data?.message === ''
               ? 'Something Wrong!!!'
               : error.response?.data?.message || 'Something Wrong!!!';
-          this.errorMessage = message;
-          this.isError = true;
+          this.notification.error(message);
         })
         .finally(() => {
           this.isSending = false;
@@ -789,7 +714,6 @@ export default {
         });
     },
   },
-  components: { ImageUpload },
 };
 </script>
 

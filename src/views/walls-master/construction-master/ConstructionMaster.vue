@@ -2,7 +2,7 @@
 <!-- eslint-disable vue/no-deprecated-v-bind-sync -->
 <template>
   <v-container>
-    <HeaderWallMaster/>
+    <HeaderWallMaster />
     <v-form v-model="valid" @submit.prevent>
       <v-container>
         <v-row>
@@ -14,7 +14,6 @@
               variant="outlined"
               density="compact"
               :rules="rules.construction_nameRules"
-
               required
             ></v-text-field>
           </v-col>
@@ -32,7 +31,6 @@
               :items="constructionCategory"
             ></v-autocomplete>
           </v-col>
-          
         </v-row>
         <v-row>
           <v-col cols="12" md="4">
@@ -51,11 +49,7 @@
           </v-col>
           <v-col cols="12" md="2">
             <v-btn
-              :prepend-icon="
-                isEdit
-                  ? 'mdi-account-multiple-check'
-                  : 'mdi-account-multiple-plus'
-              "
+              :prepend-icon="isEdit ? 'mdi-account-multiple-check' : 'mdi-account-multiple-plus'"
               color="indigo-accent-2"
               style="text-transform: none"
               type="submit"
@@ -138,8 +132,7 @@
                             : 'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png'
                         "
                       >
-                        <template #placeholder>
-                          <div class="skeleton" /> </template
+                        <template #placeholder> <div class="skeleton" /> </template
                       ></v-img>
                     </div>
                   </td>
@@ -156,8 +149,7 @@
                             : 'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png'
                         "
                       >
-                        <template #placeholder>
-                          <div class="skeleton" /> </template
+                        <template #placeholder> <div class="skeleton" /> </template
                       ></v-img>
                     </div>
                   </td>
@@ -169,25 +161,29 @@
                   <td>
                     <div class="d-flex">
                       <v-btn
-                            color="green"
-                            variant="text" @click="editConstructionMaster(item)"
-                            icon
-                          >
-  <v-icon>mdi-pencil-outline</v-icon>  <v-tooltip location="top" activator="parent">Edit</v-tooltip>
-</v-btn>
+                        color="green"
+                        variant="text"
+                        @click="editConstructionMaster(item)"
+                        icon
+                      >
+                        <v-icon>mdi-pencil-outline</v-icon>
+                        <v-tooltip location="top" activator="parent">Edit</v-tooltip>
+                      </v-btn>
                       <v-btn
-                            color="red" variant="text"
-                            :disabled="isDeleteLoading"
-                            @click="openDeleteConfirm(item.construction_id)"
-                            icon
-                          >
-  <v-icon>mdi-trash-can-outline</v-icon>  <v-tooltip location="top" activator="parent">Delete</v-tooltip>
-</v-btn>
+                        color="red"
+                        variant="text"
+                        :disabled="isDeleteLoading"
+                        @click="openDeleteConfirm(item.construction_id)"
+                        icon
+                      >
+                        <v-icon>mdi-trash-can-outline</v-icon>
+                        <v-tooltip location="top" activator="parent">Delete</v-tooltip>
+                      </v-btn>
                     </div>
                   </td>
                 </tr>
                 <tr>
-                  <td style="border-bottom: none !important;" colspan="2">
+                  <td style="border-bottom: none !important" colspan="2">
                     <v-select
                       density="compact"
                       v-model="item.agent_id"
@@ -200,7 +196,7 @@
                       @update:modelValue="saveAgent(item.agent_id, item)"
                     ></v-select>
                   </td>
-                  <td style="border-bottom: none !important;">
+                  <td style="border-bottom: none !important">
                     <label>Country</label>
                     <v-select
                       v-model="item.country_id"
@@ -209,10 +205,18 @@
                       item-title="country_name"
                       item-value="country_id"
                       :items="resource.countries"
-                      @update:modelValue="saveCountry(item.country_id, index, item.bt_id, item.cc_id, item.construction_name)"
+                      @update:modelValue="
+                        saveCountry(
+                          item.country_id,
+                          index,
+                          item.bt_id,
+                          item.cc_id,
+                          item.construction_name
+                        )
+                      "
                     ></v-select>
                   </td>
-                  <td style="border-bottom: none !important;">
+                  <td style="border-bottom: none !important">
                     <label>City</label>
                     <v-select
                       v-model="item.city_id"
@@ -221,10 +225,18 @@
                       :items="filterCity(item.country_id)"
                       item-title="city_name"
                       item-value="city_id"
-                      @update:modelValue="saveCity(item.city_id, index, item.bt_id, item.cc_id, item.construction_name)"
+                      @update:modelValue="
+                        saveCity(
+                          item.city_id,
+                          index,
+                          item.bt_id,
+                          item.cc_id,
+                          item.construction_name
+                        )
+                      "
                     ></v-select>
                   </td>
-                  <td style="border-bottom: none !important;">
+                  <td style="border-bottom: none !important">
                     <label>Town</label>
                     <v-select
                       v-model="item.town_id"
@@ -233,31 +245,55 @@
                       :items="filterTown(item.city_id)"
                       item-title="town_name"
                       item-value="town_id"
-                      @update:modelValue="saveTown(item.town_id, index, item.bt_id, item.cc_id, item.construction_name)"
+                      @update:modelValue="
+                        saveTown(
+                          item.town_id,
+                          index,
+                          item.bt_id,
+                          item.cc_id,
+                          item.construction_name
+                        )
+                      "
                     ></v-select>
                   </td>
-                  <td colspan="2"  style="border-bottom: none !important;">
+                  <td colspan="2" style="border-bottom: none !important">
                     <label>Latitude</label>
                     <v-text-field
                       v-model="item.latitude"
                       variant="outlined"
                       density="compact"
-                      @change="saveLatitude(item.latitude, index, item.bt_id, item.cc_id, item.construction_name)"
+                      @change="
+                        saveLatitude(
+                          item.latitude,
+                          index,
+                          item.bt_id,
+                          item.cc_id,
+                          item.construction_name
+                        )
+                      "
                     ></v-text-field>
                   </td>
-                  <td colspan="2"  style="border-bottom: none !important;">
+                  <td colspan="2" style="border-bottom: none !important">
                     <label>Longitude</label>
                     <v-text-field
                       v-model="item.longitude"
                       variant="outlined"
                       density="compact"
-                      @change="saveLongitude(item.longitude, index, item.bt_id, item.cc_id, item.construction_name)"
+                      @change="
+                        saveLongitude(
+                          item.longitude,
+                          index,
+                          item.bt_id,
+                          item.cc_id,
+                          item.construction_name
+                        )
+                      "
                     ></v-text-field>
                   </td>
                 </tr>
                 <tr>
-                  <td  style="border-bottom: none !important;"></td>
-                  <td class="justify-center align-center"  style="border-bottom: none !important;">
+                  <td style="border-bottom: none !important"></td>
+                  <td class="justify-center align-center" style="border-bottom: none !important">
                     <span class="font-weight-bold">Under Construction</span>
                     <v-btn-toggle
                       style="
@@ -277,7 +313,7 @@
                       <v-btn size="27" :value="false"> No </v-btn>
                     </v-btn-toggle>
                   </td>
-                  <td colspan="2"  style="border-bottom: none !important;">
+                  <td colspan="2" style="border-bottom: none !important">
                     <v-row>
                       <v-col cols="12" md="4" class="d-flex justify-center align-center">
                         <span class="font-weight-bold align-center">Completion :</span>
@@ -302,7 +338,7 @@
                       </v-col>
                     </v-row>
                   </td>
-                  <td class="justify-center align-center" style="border-bottom: none !important;">
+                  <td class="justify-center align-center" style="border-bottom: none !important">
                     <span class="font-weight-bold">Move In</span>
                     <v-btn-toggle
                       style="
@@ -322,17 +358,24 @@
                       <v-btn size="27" :value="false"> No </v-btn>
                     </v-btn-toggle>
                   </td>
-                  <td style="border-bottom: none !important;">
+                  <td style="border-bottom: none !important">
                     <label>Year Built</label>
                     <v-text-field
                       v-model="item.year_built"
                       variant="outlined"
                       density="compact"
-                      @change="saveYearBuilt(item.construction_id, item.year_built, item.construction_category.cc_id, item.building_type.bt_id, item.construction_name)"
+                      @change="
+                        saveYearBuilt(
+                          item.construction_id,
+                          item.year_built,
+                          item.construction_category.cc_id,
+                          item.building_type.bt_id,
+                          item.construction_name
+                        )
+                      "
                     ></v-text-field>
                   </td>
-                  <td colspan="3" style="border-bottom: none !important;">
-                  </td>
+                  <td colspan="3" style="border-bottom: none !important"></td>
                 </tr>
                 <tr>
                   <td>
@@ -370,55 +413,25 @@
                   </td>
                 </tr>
               </template>
-              <tr v-if="isLoading">
-                <td :colspan="6" class="text-center">
-                  <v-progress-circular
-                    indeterminate
-                    color="indigo-accent-2"
-                  ></v-progress-circular>
-                </td>
-              </tr>
             </tbody>
           </v-table>
+          <skeleton-table v-if="isLoading" :rows="5" :columns="9" />
+          <empty-state
+            v-if="!isLoading && (!filteredItems || filteredItems.length === 0)"
+            title="No Data Found"
+            subtitle="There are no records to display."
+          />
         </v-col>
       </v-row>
     </v-sheet>
-    <v-snackbar
-      location="top"
-      color="green"
-      v-model="isSuccess"
-      :timeout="3000"
-    >
-      {{ successMessage }}
 
-      <template v-slot:actions>
-        <v-btn color="white" variant="text" @click="isSuccess = false">
-          <v-icon>mdi-close</v-icon>
-        </v-btn>
-      </template>
-    </v-snackbar>
-    <v-snackbar location="top" color="red" v-model="isError" :timeout="3000">
-      {{ errorMessage }}
-
-      <template v-slot:actions>
-        <v-btn color="white" variant="text" @click="isError = false">
-          <v-icon>mdi-close</v-icon>
-        </v-btn>
-      </template>
-    </v-snackbar>
-    <v-dialog persistent width="500" v-model="isDelete">
-      <v-card>
-        <v-card-title>Confirmation</v-card-title>
-        <v-card-text> Are you sure want to delete this construction master? </v-card-text>
-        <v-card-actions>
-          <v-spacer></v-spacer>
-          <v-btn color="error" text @click="cancelDelete">No</v-btn>
-          <v-btn color="success" text @click="deleteConstructionMaster">{{
-            isDeleteLoading ? 'Deleting...' : 'Yes'
-          }}</v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
+    <confirm-dialog
+      v-model="isDelete"
+      title="Confirmation"
+      message="Are you sure you want to delete this item? This action cannot be undone."
+      :loading="isDeleteLoading"
+      @confirm="deleteConstructionMaster"
+    />
     <v-dialog persistent width="auto" v-model="isOpenMainImage">
       <v-card width="750">
         <v-card-title class="upload-title px-6 py-4">
@@ -433,13 +446,7 @@
         </v-card-text>
         <v-card-actions class="mt-16">
           <v-spacer></v-spacer>
-          <v-btn
-            style="text-transform: none"
-            color="error"
-            text
-            @click="closeImage"
-            >Cancel</v-btn
-          >
+          <v-btn style="text-transform: none" color="error" text @click="closeImage">Cancel</v-btn>
           <v-btn
             style="background-color: #9ddcff; text-transform: none"
             color="black"
@@ -463,13 +470,7 @@
         </v-card-text>
         <v-card-actions class="mt-16">
           <v-spacer></v-spacer>
-          <v-btn
-            style="text-transform: none"
-            color="error"
-            text
-            @click="closeImage"
-            >Cancel</v-btn
-          >
+          <v-btn style="text-transform: none" color="error" text @click="closeImage">Cancel</v-btn>
           <v-btn
             style="background-color: #9ddcff; text-transform: none"
             color="black"
@@ -483,6 +484,10 @@
 </template>
 
 <script>
+import SkeletonTable from '@/components/SkeletonTable.vue';
+import EmptyState from '@/components/EmptyState.vue';
+import ConfirmDialog from '@/components/ConfirmDialog.vue';
+import { useNotificationStore } from '@/stores/notification';
 import HeaderWallMaster from '@/components/HeaderWallMaster.vue';
 import ImageUpload from '@/components/ImageUpload.vue';
 import axios from '@/util/axios';
@@ -491,6 +496,17 @@ import { setAuthHeader } from '@/util/axios';
 
 export default {
   name: 'ConstructionMaster',
+  components: {
+    ConfirmDialog,
+    EmptyState,
+    SkeletonTable,
+    ImageUpload,
+    HeaderWallMaster,
+  },
+  setup() {
+    const notification = useNotificationStore();
+    return { notification };
+  },
   data: () => ({
     // fileURL: 'https://admin1.the-gypsy.sg/img/app/',
     idConstructionCategory: null,
@@ -498,17 +514,13 @@ export default {
     isLoading: false,
     isSending: false,
     isSending2: false,
-    isError: false,
     isEdit: false,
-    isSuccess: false,
     isDelete: false,
     isDeleteLoading: false,
     locationIdToDelete: null,
     tableHeaders: [{ text: 'Gambar', value: 'image' }],
     isOpenMainImage: false,
     isOpenLongImage: false,
-    successMessage: '',
-    errorMessage: '',
     mainImageFile: [],
     longImageFile: [],
     constructionCategory: [],
@@ -525,7 +537,6 @@ export default {
       cc_id: null,
       bt_id: null,
     },
-
 
     input: {
       construction_id: 0,
@@ -581,9 +592,8 @@ export default {
         return this.items;
       }
       const searchTextLower = this.search.toLowerCase();
-      return this.items.filter(
-        (item) =>
-          item.construction_name.toLowerCase().includes(searchTextLower) 
+      return this.items.filter((item) =>
+        item.construction_name.toLowerCase().includes(searchTextLower)
       );
     },
   },
@@ -619,8 +629,7 @@ export default {
           .post(`/4walls-construction-masters/update`, payload)
           .then((response) => {
             const data = response.data;
-            this.successMessage = data.message;
-            this.isSuccess = true;
+            this.notification.success(data.message);
             this.getConstructionMasterData();
             this.input = {
               construction_id: 0,
@@ -634,14 +643,12 @@ export default {
             const message = error.response.data.construction_name
               ? 'Please fill the construction name field'
               : error.response.data.message;
-            this.errorMessage = message;
-            this.isError = true;
+            this.notification.error(message);
           })
           .finally(() => {
             this.isSending = false;
           });
-      } 
-
+      }
     },
     saveData() {
       if (this.valid) {
@@ -656,8 +663,7 @@ export default {
           .post(`/4walls-construction-masters`, payload)
           .then((response) => {
             const data = response.data;
-            this.successMessage = data.message;
-            this.isSuccess = true;
+            this.notification.success(data.message);
             this.getConstructionMasterData();
             this.input = {
               construction_id: 0,
@@ -672,8 +678,7 @@ export default {
             const message = error.response.data.construction_name
               ? error.response.data.construction_name[0]
               : 'Something Wrong!!!';
-            this.errorMessage = message;
-            this.isError = true;
+            this.notification.error(message);
           })
           .finally(() => {
             this.isSending = false;
@@ -698,19 +703,15 @@ export default {
         .delete(`/4walls-construction-masters/${this.idConstructionCategory}`)
         .then((response) => {
           const data = response.data;
-          this.successMessage = data.message;
-          this.isSuccess = true;
+          this.notification.success(data.message);
           this.getConstructionMasterData();
         })
         .catch((error) => {
           // eslint-disable-next-line
           console.log(error);
           const message =
-            error.response.data.message === ''
-              ? 'Something Wrong!!!'
-              : error.response.data.message;
-          this.errorMessage = message;
-          this.isError = true;
+            error.response.data.message === '' ? 'Something Wrong!!!' : error.response.data.message;
+          this.notification.error(message);
         })
         .finally(() => {
           this.isDeleteLoading = false;
@@ -725,10 +726,14 @@ export default {
         const data = response.data.data;
         console.log(data);
         this.items = data.map((item) => {
-          let city_id = this.resource.cities.filter(city => city.country_id === item.country_id).filter(city => city.city_id === item.city_id)[0]?.city_id;
+          let city_id = this.resource.cities
+            .filter((city) => city.country_id === item.country_id)
+            .filter((city) => city.city_id === item.city_id)[0]?.city_id;
           let town_id = null;
           if (city_id !== null) {
-            town_id = this.resource.towns.filter(town => town.city_id === city_id).filter(town => town.town_id === item.town_id)[0]?.town_id;
+            town_id = this.resource.towns
+              .filter((town) => town.city_id === city_id)
+              .filter((town) => town.town_id === item.town_id)[0]?.town_id;
           }
           return {
             construction_id: item.construction_id || 1,
@@ -750,17 +755,8 @@ export default {
             agent_id: item.agent_id || null,
             pa_id: item.agent_id || null,
             isUnderConstruction:
-                item.under_construction == 'N'
-                  ? false
-                  : item.under_construction == 'Y'
-                  ? true
-                  : null,
-            isMoveIn:
-                item.move_in == 'N'
-                  ? false
-                  : item.move_in == 'Y'
-                  ? true
-                  : null,
+              item.under_construction == 'N' ? false : item.under_construction == 'Y' ? true : null,
+            isMoveIn: item.move_in == 'N' ? false : item.move_in == 'Y' ? true : null,
             completion_month: item.completion_month || '',
             completion_year: item.completion_year || '',
           };
@@ -769,36 +765,37 @@ export default {
         // eslint-disable-next-line
         console.log(error);
         const message =
-          error.response.data.message === ''
-            ? 'Something Wrong!!!'
-            : error.response.data.message;
-        this.errorMessage = message;
-        this.isError = true;
+          error.response.data.message === '' ? 'Something Wrong!!!' : error.response.data.message;
+        this.notification.error(message);
       } finally {
         this.isLoading = false;
       }
     },
     getConstructionCategoryData() {
-      axios.get(`/4walls-construction-categories/list`).then((response) => {
-        const data = response.data.data;
-        if (data) {
-          this.constructionCategory = data;
-        }
-      })
-      .catch((error) => {
-        console.log(error);
-      });
+      axios
+        .get(`/4walls-construction-categories/list`)
+        .then((response) => {
+          const data = response.data.data;
+          if (data) {
+            this.constructionCategory = data;
+          }
+        })
+        .catch((error) => {
+          console.log(error);
+        });
     },
     getBuildingTypeData() {
-      axios.get(`/4walls-building-types/list`).then((response) => {
-        const data = response.data.data;
-        if (data) {
-          this.buildingType = data;
-        }
-      })
-      .catch((error) => {
-        console.log(error);
-      });
+      axios
+        .get(`/4walls-building-types/list`)
+        .then((response) => {
+          const data = response.data.data;
+          if (data) {
+            this.buildingType = data;
+          }
+        })
+        .catch((error) => {
+          console.log(error);
+        });
     },
     async getCountryData() {
       try {
@@ -840,40 +837,36 @@ export default {
     },
     saveAgent(agent_id, item) {
       this.isSending2 = true;
-      axios.post(`/4walls-construction-masters/update`, {
-        construction_id: item.construction_id,
-        construction_name: item.construction_name,
-        country_id: item.country_id,
-        bt_id: item.bt_id,
-        cc_id: item.cc_id,
-        agent_id: agent_id,
-      }).then((response) => {
-        const data = response.data;
-        this.successMessage = data.message;
-        this.isSuccess = true;
-        this.getConstructionMasterData();
-      }).catch((error) => {
-        // eslint-disable-next-line
-        console.log(error);
-        const message =
-          error.response.data.message === ''
-            ? 'Something Wrong!!!'
-            : error.response.data.message;
-        this.errorMessage = message;
-        this.isError = true;
-      }).finally(() => {
-        this.isSending2 = false;
-      });
+      axios
+        .post(`/4walls-construction-masters/update`, {
+          construction_id: item.construction_id,
+          construction_name: item.construction_name,
+          country_id: item.country_id,
+          bt_id: item.bt_id,
+          cc_id: item.cc_id,
+          agent_id: agent_id,
+        })
+        .then((response) => {
+          const data = response.data;
+          this.notification.success(data.message);
+          this.getConstructionMasterData();
+        })
+        .catch((error) => {
+          // eslint-disable-next-line
+          console.log(error);
+          const message =
+            error.response.data.message === '' ? 'Something Wrong!!!' : error.response.data.message;
+          this.notification.error(message);
+        })
+        .finally(() => {
+          this.isSending2 = false;
+        });
     },
     filterCity(country_id) {
-      return this.resource.cities.filter(
-        (item) => item.country_id === country_id
-      );
+      return this.resource.cities.filter((item) => item.country_id === country_id);
     },
     filterTown(city_id) {
-      return this.resource.towns.filter(
-        (item) => item.city_id === city_id
-      );
+      return this.resource.towns.filter((item) => item.city_id === city_id);
     },
     saveCountry(country_id, index, bt_id, cc_id, construction_name) {
       this.items[index].city_id = null;
@@ -885,11 +878,11 @@ export default {
         cc_id: cc_id,
         construction_name: construction_name,
       };
-      axios.post(`/4walls-construction-masters/update`, payload)
+      axios
+        .post(`/4walls-construction-masters/update`, payload)
         .then((response) => {
           const data = response.data;
-          this.successMessage = data.message;
-          this.isSuccess = true;
+          this.notification.success(data.message);
         })
         .catch((error) => {
           console.log(error);
@@ -904,11 +897,11 @@ export default {
         cc_id: cc_id,
         construction_name: construction_name,
       };
-      axios.post(`/4walls-construction-masters/update`, payload)
+      axios
+        .post(`/4walls-construction-masters/update`, payload)
         .then((response) => {
           const data = response.data;
-          this.successMessage = data.message;
-          this.isSuccess = true;
+          this.notification.success(data.message);
         })
         .catch((error) => {
           console.log(error);
@@ -922,11 +915,11 @@ export default {
         cc_id: cc_id,
         construction_name: construction_name,
       };
-      axios.post(`/4walls-construction-masters/update`, payload)
+      axios
+        .post(`/4walls-construction-masters/update`, payload)
         .then((response) => {
           const data = response.data;
-          this.successMessage = data.message;
-          this.isSuccess = true;
+          this.notification.success(data.message);
         })
         .catch((error) => {
           console.log(error);
@@ -941,11 +934,11 @@ export default {
         cc_id: cc_id,
         construction_name: construction_name,
       };
-      axios.post(`/4walls-construction-masters/update`, payload)
+      axios
+        .post(`/4walls-construction-masters/update`, payload)
         .then((response) => {
           const data = response.data;
-          this.successMessage = data.message;
-          this.isSuccess = true;
+          this.notification.success(data.message);
         })
         .catch((error) => {
           console.log(error);
@@ -960,11 +953,11 @@ export default {
         cc_id: cc_id,
         construction_name: construction_name,
       };
-      axios.post(`/4walls-construction-masters/update`, payload)
+      axios
+        .post(`/4walls-construction-masters/update`, payload)
         .then((response) => {
           const data = response.data;
-          this.successMessage = data.message;
-          this.isSuccess = true;
+          this.notification.success(data.message);
         })
         .catch((error) => {
           console.log(error);
@@ -976,43 +969,35 @@ export default {
         .get(`/4walls-construction-masters/toggle-under-construction/${id}`)
         .then((response) => {
           const data = response.data;
-          this.successMessage = data.message;
-          this.isSuccess = true;
+          this.notification.success(data.message);
           this.getConstructionMasterData();
         })
         .catch((error) => {
           // eslint-disable-next-line
           console.log(error);
           const message =
-            error.response.data.message === ''
-              ? 'Something Wrong!!!'
-              : error.response.data.message;
-          this.errorMessage = message;
-          this.isError = true;
+            error.response.data.message === '' ? 'Something Wrong!!!' : error.response.data.message;
+          this.notification.error(message);
         })
         .finally(() => {
           this.isSending2 = false;
         });
     },
-    moveInConstructionMaster(id){
+    moveInConstructionMaster(id) {
       this.isSending2 = true;
       axios
         .get(`/4walls-construction-masters/toggle-move-in/${id}`)
         .then((response) => {
           const data = response.data;
-          this.successMessage = data.message;
-          this.isSuccess = true;
+          this.notification.success(data.message);
           this.getConstructionMasterData();
         })
         .catch((error) => {
           // eslint-disable-next-line
           console.log(error);
           const message =
-            error.response.data.message === ''
-              ? 'Something Wrong!!!'
-              : error.response.data.message;
-          this.errorMessage = message;
-          this.isError = true;
+            error.response.data.message === '' ? 'Something Wrong!!!' : error.response.data.message;
+          this.notification.error(message);
         })
         .finally(() => {
           this.isSending2 = false;
@@ -1065,19 +1050,15 @@ export default {
         .post(`/4walls-construction-masters/update`, payload)
         .then((response) => {
           const data = response.data;
-          this.successMessage = data.message;
-          this.isSuccess = true;
+          this.notification.success(data.message);
           this.getConstructionMasterData();
         })
         .catch((error) => {
           // eslint-disable-next-line
           console.log(error);
           const message =
-            error.response.data.message === ''
-              ? 'Something Wrong!!!'
-              : error.response.data.message;
-          this.errorMessage = message;
-          this.isError = true;
+            error.response.data.message === '' ? 'Something Wrong!!!' : error.response.data.message;
+          this.notification.error(message);
         })
         .finally(() => {
           this.isSending = false;
@@ -1101,19 +1082,15 @@ export default {
         })
         .then((response) => {
           const data = response.data;
-          this.successMessage = data.message;
-          this.isSuccess = true;
+          this.notification.success(data.message);
           this.getConstructionMasterData();
         })
         .catch((error) => {
           // eslint-disable-next-line
           console.log(error);
           const message =
-            error.response.data.message === ''
-              ? 'Something Wrong!!!'
-              : error.response.data.message;
-          this.errorMessage = message;
-          this.isError = true;
+            error.response.data.message === '' ? 'Something Wrong!!!' : error.response.data.message;
+          this.notification.error(message);
         })
         .finally(() => {
           this.isEdit = false;
@@ -1140,19 +1117,15 @@ export default {
         )
         .then((response) => {
           const data = response.data;
-          this.successMessage = data.message;
-          this.isSuccess = true;
+          this.notification.success(data.message);
           this.getConstructionMasterData();
         })
         .catch((error) => {
           // eslint-disable-next-line
           console.log(error);
           const message =
-            error.response.data.message === ''
-              ? 'Something Wrong!!!'
-              : error.response.data.message;
-          this.errorMessage = message;
-          this.isError = true;
+            error.response.data.message === '' ? 'Something Wrong!!!' : error.response.data.message;
+          this.notification.error(message);
         })
         .finally(() => {
           this.isEdit = false;
@@ -1219,19 +1192,15 @@ export default {
         })
         .then((response) => {
           const data = response.data;
-          this.successMessage = data.message;
-          this.isSuccess = true;
+          this.notification.success(data.message);
           this.getConstructionMasterData();
         })
         .catch((error) => {
           // eslint-disable-next-line
           console.log(error);
           const message =
-            error.response.data.message === ''
-              ? 'Something Wrong!!!'
-              : error.response.data.message;
-          this.errorMessage = message;
-          this.isError = true;
+            error.response.data.message === '' ? 'Something Wrong!!!' : error.response.data.message;
+          this.notification.error(message);
         })
         .finally(() => {
           this.isEdit = false;
@@ -1258,19 +1227,15 @@ export default {
         )
         .then((response) => {
           const data = response.data;
-          this.successMessage = data.message;
-          this.isSuccess = true;
+          this.notification.success(data.message);
           this.getConstructionMasterData();
         })
         .catch((error) => {
           // eslint-disable-next-line
           console.log(error);
           const message =
-            error.response.data.message === ''
-              ? 'Something Wrong!!!'
-              : error.response.data.message;
-          this.errorMessage = message;
-          this.isError = true;
+            error.response.data.message === '' ? 'Something Wrong!!!' : error.response.data.message;
+          this.notification.error(message);
         })
         .finally(() => {
           this.isEdit = false;
@@ -1297,19 +1262,15 @@ export default {
         })
         .then((response) => {
           const data = response.data;
-          this.successMessage = data.message;
-          this.isSuccess = true;
+          this.notification.success(data.message);
           this.getConstructionMasterData();
         })
         .catch((error) => {
           // eslint-disable-next-line
           console.log(error);
           const message =
-            error.response.data.message === ''
-              ? 'Something Wrong!!!'
-              : error.response.data.message;
-          this.errorMessage = message;
-          this.isError = true;
+            error.response.data.message === '' ? 'Something Wrong!!!' : error.response.data.message;
+          this.notification.error(message);
         })
         .finally(() => {
           this.isSending2 = false;
@@ -1327,26 +1288,21 @@ export default {
         })
         .then((response) => {
           const data = response.data;
-          this.successMessage = data.message;
-          this.isSuccess = true;
+          this.notification.success(data.message);
           this.getConstructionMasterData();
         })
         .catch((error) => {
           // eslint-disable-next-line
           console.log(error);
           const message =
-            error.response.data.message === ''
-              ? 'Something Wrong!!!'
-              : error.response.data.message;
-          this.errorMessage = message;
-          this.isError = true;
+            error.response.data.message === '' ? 'Something Wrong!!!' : error.response.data.message;
+          this.notification.error(message);
         })
         .finally(() => {
           this.isSending2 = false;
         });
     },
   },
-  components: { ImageUpload, HeaderWallMaster },
 };
 </script>
 
