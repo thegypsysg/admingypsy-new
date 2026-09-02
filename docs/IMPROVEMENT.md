@@ -46,6 +46,7 @@ Ini adalah improvement yang sudah berhasil diimplementasikan:
 | ✅ | Bug `ImageUpload.vue` — preview gambar setelah klik Add diperbaiki | 3 |
 | ✅ | Migrasi Vue CLI → Vite (Build tool modern) | Opsional P4 |
 | ✅ | Rename direktori views (hapus spasi → kebab-case) | Opsional DX4 |
+| ✅ | API Response Caching Layer (`useApiWithCache.js` & `apiCache.fetch`) | Opsional P3 |
 
 ---
 
@@ -636,9 +637,9 @@ Semua `<v-img>` yang berada di dalam tabel sudah mendapat keuntungan dari `loadi
 
 ### P3. API Response Caching (Simple In-Memory Cache)
 
-**Status:** ⏳ Belum dikerjakan  
+**Status:** ✅ Selesai (2026-09-02)  
 **Dampak:** Sedang — mengurangi request berulang untuk data yang jarang berubah  
-**Estimasi:** 2–3 jam
+**Hasil:** `useApiWithCache.js` diperkuat dengan `apiCache.fetch` dan `apiCache.invalidate`. Diintegrasikan pada `HeaderDashboard`, `AdminDashboard`, `GstMaster`, `DeliveryCharges`, dan `PlatformFees`.
 
 **Masalah:** Setiap kali user membuka halaman, semua API dipanggil ulang meskipun datanya tidak berubah (misal: list aplikasi aktif, dropdown data referensi).
 
@@ -945,7 +946,7 @@ Fokus pada improvement yang langsung terasa oleh user:
 
 - [x] **P4**: Migrasi Vue CLI → Vite
 - [x] **DX4**: Rename direktori views (hapus spasi)
-- [ ] **P3**: API caching layer
+- [x] **P3**: API caching layer
 - [ ] **DX1**: TypeScript migration (gradual)
 
 ---

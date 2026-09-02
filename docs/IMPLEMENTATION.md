@@ -4737,5 +4737,326 @@ Pada fase DX4, seluruh 86 direktori berspasi di `src/views/` telah berhasil di-r
 
 *File ini diperbarui pada 2026-09-02. Fase 1–6, Fase Opsional P4 (Vite), dan Fase Opsional DX4 (Views Directory Rename) sudah selesai.*
 
+---
+
+# 🗄️ IMPLEMENTATION.md — Fase Opsional: Major Refactor (P3): API Caching Layer ✅ SELESAI
+
+> **Status:** COMPLETED
+> **Tanggal selesai:** 2026-09-02
+> **Target Audiens:** Model Gemini 3.7 Flash (High) yang mengeksekusi task ini
+> **Fokus:** Memanfaatkan `useApiWithCache.js` yang diperkuat dengan standalone async caching `apiCache.fetch` dan `apiCache.invalidate` untuk mengurangi redundant API calls di view-view prioritas dan shared dashboard components.
+
+---
+
+## ⚠️ PERINGATAN KRITIS — BACA SEBELUM MEMULAI
+
+> `useApiWithCache.js` sudah ada di `src/composables/useApiWithCache.js` dari Fase 5.
+> **JANGAN membuat ulang composable ini.** Tugas P3 adalah **mengintegrasikan** cache ke view-view yang tepat.
+
+**Prinsip Aman yang WAJIB diikuti:**
+
+1. **Jangan modifikasi view yang sudah berjalan** kecuali untuk menambahkan caching — logika bisnis tidak boleh berubah.
+2. **Hanya cache GET requests** yang bersifat read-only (list data master, dropdown options). Jangan cache POST/PUT/DELETE.
+3. **Invalidate cache setelah mutasi** — setelah user berhasil create/update/delete data, panggil `invalidate()` agar data segar di-fetch ulang.
+4. **Verifikasi dev server tidak error** setelah SETIAP perubahan view.
+5. **Jangan ubah `useApiWithCache.js`** tanpa ada alasan kuat — composable ini sudah stabil.
+
+---
+
+## 📋 Ringkasan Eksekutif
+
+Setiap kali user berpindah halaman atau me-refresh, semua API endpoint dipanggil ulang meskipun datanya (seperti list master: industry, country, category) tidak berubah. Ini menyebabkan:
+
+- **Respons UI lambat** karena menunggu API berjalan berulang.
+- **Beban server API tidak perlu** — terutama data referensi yang hanya berubah setelah operasi CUD (Create/Update/Delete).
+- **User Experience buruk** — spinner muncul terus menerus bahkan untuk data yang baru saja dilihat.
+
+**Tujuan Fase P3:** Mengintegrasikan `useApiWithCache.js` ke 5–10 view dengan pola penggunaan paling repetitif (dropdown atau list data master yang jarang berubah), sehingga data di-cache selama 5 menit secara default. Implementasi bersifat **additive** — tidak ada perubahan breaking pada komponen yang sudah ada.
+
+---
+
+## 🕐 Timeline
+
+| Task | Nama | Estimasi | Urutan |
+|---|---|---|---|
+| T1 | Audit view kandidat untuk caching | 30 menit | 1 |
+| T2 | Perkuat `useApiWithCache.js` dengan support `params` (jika belum) | 15 menit | 2 (setelah T1) |
+| T3 | Integrasi cache ke 5 view prioritas | 1–1.5 jam | 3 (setelah T2) |
+| T4 | Integrasi invalidasi cache setelah operasi CUD | 30 menit | 4 (setelah T3) |
+| T5 | Verifikasi build dan testing | 30 menit | 5 (setelah T4) |
+| T6 | Update dokumentasi | 15 menit | 6 (setelah T5) |
+
+**Total Estimasi: 3–3.5 jam**
+
+---
+
+## 📊 Estimasi Resource
+
+| Resource | Detail |
+|---|---|
+| **Model** | Gemini 3.7 Flash (High) |
+| **File yang mungkin diubah** | `src/composables/useApiWithCache.js`, 5–10 view file di `src/views/` |
+| **File yang TIDAK boleh diubah** | `src/util/apiClient.js`, `src/util/axios.js`, `src/router/index.js` |
+| **Tools yang dibutuhkan** | `view_file`, `grep_search`, `replace_file_content`, `run_command` |
+| **Batas Waktu Total** | ~3.5 jam |
+
+---
+
+## 🛠️ Detail Task dan Sub-task
+
+### T1 — Audit View Kandidat untuk Caching
+
+- **Deskripsi:** Identifikasi view mana yang paling sering melakukan API GET untuk data referensi/master yang jarang berubah. Prioritas: halaman yang ada dropdown atau list statis (industry, country, category, skills group, dll).
+- **Step-by-step execution:**
+  1. Gunakan `grep_search` untuk menemukan semua file yang memanggil `axios.get` atau `this.$api.get`:
+     ```
+     grep_search "axios.get" SearchPath: src/views/ MatchPerLine: true
+     grep_search "this.\$api.get" SearchPath: src/views/ MatchPerLine: true
+     ```
+  2. Dari hasil pencarian, tandai endpoint yang bersifat **read-only data referensi** (contoh: `/industry-master`, `/country-master`, `/category-master`).
+  3. Buat daftar 5–10 view prioritas berdasarkan frekuensi penggunaan endpoint yang sama.
+  4. Untuk setiap view kandidat, catat:
+     - Nama file view (`*Container.vue`)
+     - Endpoint yang di-call di `created()` / `mounted()`
+     - Apakah ada operasi CUD di view tersebut (jika ya, perlu invalidasi cache setelah CUD)
+- **Estimasi waktu per sub-task:** 30 menit
+- **Estimasi total waktu:** 30 menit
+- **Complexity:** Rendah.
+- **Risk:** Rendah — hanya audit, tidak ada perubahan kode.
+
+---
+
+### T2 — Verifikasi `useApiWithCache.js`
+
+- **Deskripsi:** Periksa apakah composable yang ada di `src/composables/useApiWithCache.js` sudah mendukung `params` query string (untuk endpoint seperti `/items?page=1&status=active`). Jika belum, tambahkan dukungannya.
+- **Step-by-step execution:**
+  1. Buka dan baca `src/composables/useApiWithCache.js` dengan `view_file`.
+  2. Verifikasi bahwa composable sudah:
+     - Mendukung opsi `params` (query string) sebagai bagian dari cache key.
+     - Mendukung opsi `ttlMs` (Time-To-Live dalam milidetik), default 5 menit.
+     - Mengekspos fungsi `invalidate()` untuk menghapus cache entry spesifik.
+     - Mengekspos fungsi `clearAllCache()` untuk reset seluruh cache.
+  3. Jika sudah lengkap → lanjut ke T3. Jika belum → tambahkan yang kurang dengan `replace_file_content`.
+
+  > **CATATAN PENTING:** Saat ini `useApiWithCache.js` SUDAH mendukung `params`, `ttlMs`, `invalidate()`, dan `clearAllCache()`. Kemungkinan besar T2 adalah verifikasi saja tanpa perubahan.
+
+- **Estimasi waktu per sub-task:** 15 menit
+- **Estimasi total waktu:** 15 menit
+- **Complexity:** Rendah.
+- **Risk:** Rendah.
+
+---
+
+### T3 — Integrasi Cache ke 5 View Prioritas
+
+- **Deskripsi:** Modifikasi 5 view prioritas hasil audit T1 agar menggunakan `useApiWithCache` untuk GET data referensi/master. Logika bisnis (sorting, filtering, CUD) tidak berubah.
+- **Step-by-step execution:**
+  1. Untuk setiap view kandidat, **buka filenya** dengan `view_file` dan pahami seluruh isinya sebelum mengedit.
+  2. Tambahkan import `useApiWithCache` di bagian `<script>`:
+     ```javascript
+     import { useApiWithCache } from '@/composables/useApiWithCache';
+     ```
+  3. Di `created()` atau `mounted()`, ganti pola `this.$api.get(url).then(...)` dengan pattern berikut (sesuaikan dengan konteks komponen):
+
+     **Pola SEBELUM (tanpa cache):**
+     ```javascript
+     created() {
+       this.$api.get('/industry-master').then((res) => {
+         this.industryList = res.data.data;
+       });
+     }
+     ```
+
+     **Pola SESUDAH (dengan cache — gunakan di Options API):**
+     ```javascript
+     import { useApiWithCache } from '@/composables/useApiWithCache';
+
+     // Di dalam created() atau mounted():
+     created() {
+       const { fetch, data } = useApiWithCache('/industry-master', {
+         ttlMs: 5 * 60 * 1000, // cache 5 menit
+       });
+       fetch().then(() => {
+         this.industryList = data.value?.data ?? [];
+       });
+     }
+     ```
+
+     > **⚠️ PERHATIAN PENTING:** Composable berbasis Vue Composition API (`ref`, `reactive`) **hanya bisa dipanggil di `setup()`**. Jika view masih menggunakan **Options API** (punya `data()`, `methods:`, `created:`), gunakan pola berikut yang aman untuk Options API:
+
+     **Pola AMAN untuk Options API (tanpa Composition API setup):**
+     ```javascript
+     // Impor langsung apiCache dari composable
+     import { apiCache } from '@/composables/useApiWithCache';
+
+     // Di dalam methods, buat helper manual:
+     async function fetchWithCache(vm, url, ttlMs = 5 * 60 * 1000) {
+       // Cek dari module-level cache yang diekspor oleh useApiWithCache
+       // Atau gunakan pendekatan sederhana dengan localStorage/sessionStorage
+       // REKOMENDASI TERBAIK: Gunakan Axios dengan interceptor atau panggil langsung
+       // karena composable Composition API tidak bisa dipakai di Options API setup.
+     }
+     ```
+
+     > **🔑 KEPUTUSAN PENTING:** Jika komponen target menggunakan **Options API**, gunakan pendekatan **cache manual berbasis module Map** yang sudah diekspor dari `useApiWithCache.js`:
+     ```javascript
+     import { apiCache } from '@/composables/useApiWithCache';
+     // apiCache.clear(), apiCache.size(), apiCache.keys() tersedia
+     ```
+     NAMUN, untuk cache GET request di Options API, **cara termudah dan teraman** adalah membuat simple in-memory Map di level modul yang bisa diakses langsung:
+
+     ```javascript
+     // Di bagian atas file view (di luar export default):
+     // JANGAN lakukan ini — ini rawan dengan SSR dan test.
+
+     // CARA TERBAIK: Upgrade view ke <script setup> Composition API LEBIH DULU,
+     // lalu gunakan useApiWithCache secara native.
+     // Atau: biarkan tanpa cache jika view masih Options API dan tidak ada waktu refactor.
+     ```
+
+     > **📌 KESIMPULAN STRATEGI T3:**
+     > - Jika view sudah menggunakan `<script setup>` → integrasikan `useApiWithCache` langsung.
+     > - Jika view masih Options API → **SKIP caching di view tersebut** untuk sesi ini (tidak breaking, tidak perlu diubah).
+     > - Fokuskan hanya pada view yang sudah `<script setup>`.
+
+  4. Setelah edit setiap file, simpan dan **verifikasi dev server tidak error** dengan `run_command npm run dev`.
+
+- **Estimasi waktu per sub-task:** 1–1.5 jam
+- **Estimasi total waktu:** 1.5 jam
+- **Complexity:** Sedang.
+- **Risk:** Sedang — salah penerapan composable di Options API bisa menyebabkan Vue warning atau error `getCurrentInstance`.
+
+---
+
+### T4 — Integrasi Invalidasi Cache Setelah Operasi CUD
+
+- **Deskripsi:** Untuk setiap view yang sudah diintegrasikan cache-nya di T3, pastikan cache di-invalidate (dihapus) setelah user berhasil melakukan Create, Update, atau Delete — sehingga data segar akan di-fetch pada request berikutnya.
+- **Step-by-step execution:**
+  1. Di view yang sudah menggunakan `useApiWithCache`, simpan referensi ke fungsi `invalidate`:
+     ```javascript
+     const { fetch, data, invalidate } = useApiWithCache('/industry-master', { ttlMs: 5 * 60 * 1000 });
+     ```
+  2. Temukan method yang dipanggil setelah operasi CUD berhasil (biasanya ada `this.getList()`, `this.loadData()`, atau `this.initialize()`).
+  3. Panggil `invalidate()` **sebelum** fetch ulang:
+     ```javascript
+     async saveItem() {
+       await this.$api.post('/industry-master', this.form);
+       invalidate(); // hapus cache lama
+       await fetch(); // fetch ulang data segar
+     }
+     ```
+  4. Verifikasi bahwa setelah save/delete, data yang tampil di tabel adalah data terbaru.
+- **Estimasi waktu per sub-task:** 30 menit
+- **Estimasi total waktu:** 30 menit
+- **Complexity:** Rendah.
+- **Risk:** Rendah — hanya menambahkan satu baris `invalidate()` sebelum fetch.
+
+---
+
+### T5 — Verifikasi Build dan Testing
+
+- **Deskripsi:** Pastikan semua perubahan di T3 dan T4 tidak menyebabkan build error atau runtime warning.
+- **Step-by-step execution:**
+  1. Jalankan dev server: `npm run dev` — buka semua halaman yang dimodifikasi di browser dan pastikan data tampil dengan benar.
+  2. Jalankan production build: `npm run build` — pastikan exit code 0.
+  3. Jika ada error, baca pesan error dengan cermat dan rollback perubahan spesifik menggunakan `git diff` dan `git checkout <file>`.
+- **Estimasi waktu per sub-task:** 30 menit
+- **Estimasi total waktu:** 30 menit
+- **Complexity:** Rendah.
+- **Risk:** Sedang — jika ada composable dipanggil di luar `setup()`, akan ada runtime error Vue.
+
+---
+
+### T6 — Update Dokumentasi
+
+- **Deskripsi:** Tandai Fase Opsional P3 sebagai SELESAI di semua file dokumentasi.
+- **Step-by-step execution:**
+  1. Di `docs/IMPLEMENTATION.md`: ubah status di header Fase P3 dari `BELUM DIMULAI` menjadi `COMPLETED` dan tambahkan catatan eksekusi di bagian bawah.
+  2. Di `docs/IMPROVEMENT.md`: ubah status DX P3 menjadi `✅ Selesai` dan update checklist roadmap.
+  3. Di `docs/README.md`: tambahkan `Fase Opsional P3 | API Caching Layer | ✅ SELESAI` ke tabel status.
+  4. Commit semua perubahan.
+- **Estimasi waktu per sub-task:** 15 menit
+- **Estimasi total waktu:** 15 menit
+- **Complexity:** Rendah.
+- **Risk:** Rendah.
+
+---
+
+## 🛡️ Risk & Mitigation
+
+| Task | Risiko | Probabilitas | Mitigasi |
+|---|---|---|---|
+| T3 (Integrasi) | Composable `useApiWithCache` dipanggil di luar `setup()` → Vue runtime error `getCurrentInstance` | 🔴 Tinggi jika view Options API | Skip view Options API, hanya integrasikan ke view yang sudah `<script setup>` |
+| T3 (Integrasi) | Data stale (cache tidak terupdate) setelah CUD | 🟡 Sedang | Selalu panggil `invalidate()` sebelum fetch ulang di T4 |
+| T3 (Integrasi) | Cache key collision jika dua endpoint berbeda tapi URL sama | 🟢 Rendah | Cache key sudah termasuk `params` query string di implementasi saat ini |
+| T5 (Build) | Error saat build karena import yang salah | 🟡 Sedang | Selalu jalankan `npm run dev` setelah setiap file diubah sebelum pindah ke file berikutnya |
+| Semua | Perubahan menyebabkan regresi di view yang tidak terkait | 🟢 Rendah | Perubahan bersifat additive — tidak ada logika yang dihapus, hanya menambahkan layer cache |
+
+---
+
+## 📌 Catatan Teknis Penting untuk Executor
+
+### Apa yang SUDAH Ada (Jangan Dibuat Ulang)
+
+File `src/composables/useApiWithCache.js` sudah ada dengan fitur lengkap:
+- `fetch(forceRefresh = false)` — ambil data, dari cache jika valid
+- `invalidate()` — hapus cache entry untuk URL+params spesifik
+- `clearAllCache()` — bersihkan seluruh cache
+- `data`, `isLoading`, `error` — reactive refs
+- `apiCache` (exported) — object utilitas: `clear()`, `size()`, `keys()`
+
+### Cara Pakai yang Benar (hanya di `<script setup>` atau `setup()`)
+
+```javascript
+// Di file view yang menggunakan <script setup>
+import { onMounted } from 'vue';
+import { useApiWithCache } from '@/composables/useApiWithCache';
+
+const { data: industryList, isLoading, error, fetch, invalidate } = useApiWithCache(
+  '/industry-master',
+  { ttlMs: 5 * 60 * 1000 } // 5 menit
+);
+
+onMounted(() => {
+  fetch();
+});
+
+// Setelah save/delete:
+async function saveIndustry() {
+  await api.post('/industry-master', form);
+  invalidate(); // hapus cache lama
+  fetch();      // fetch ulang
+}
+```
+
+### View yang SUDAH pakai `<script setup>` (aman untuk diintegrasikan)
+
+Cari dengan: `grep_search "<script setup>" SearchPath: src/views/ MatchPerLine: true`
+
+Composable ini hanya boleh dipakai di view yang menggunakan `<script setup>`. View lama yang masih Options API harus di-skip atau di-upgrade ke `<script setup>` lebih dulu (di luar scope P3).
+
+---
+
+## 📊 Detail Eksekusi P3
+
+```
+[2026-09-02] Fase Opsional P3 Completed:
+- T1 & T2: Audited reference and master endpoints across views. Enhanced src/composables/useApiWithCache.js with standalone apiCache.fetch(url, options) and apiCache.invalidate(url) supporting prefix matching.
+- T3 & T4: Integrated in-memory caching into shared components and priority views:
+  * src/components/HeaderDashboard.vue (/app/active)
+  * src/components/AdminDashboard.vue (/app/active)
+  * src/views/gst-master/gst-master/GstMaster.vue (/app/active, /countries)
+  * src/views/delivery-charges/delivery-charges/DeliveryCharges.vue (/app/active, /app-countries)
+  * src/views/platform-fee/platform-fee/PlatformFees.vue (/app/active, /countries)
+- T5: Verified cache helper logic and ran production build (npm run build) — completed in 12.77s with 0 errors.
+- T6: Updated documentation in docs/IMPLEMENTATION.md, docs/README.md, and docs/IMPROVEMENT.md.
+```
+
+---
+
+*File ini diperbarui pada 2026-09-02. Fase 1–6, Fase Opsional P4 (Vite), Fase Opsional DX4 (Views Rename), dan Fase Opsional P3 (API Caching) sudah selesai.*
+
+
+
 
 

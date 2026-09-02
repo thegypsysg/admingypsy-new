@@ -288,6 +288,7 @@
 import { ref, watch, onMounted, computed } from 'vue';
 import axios from '@/util/axios';
 import { setAuthHeader } from '@/util/axios';
+import { apiCache } from '@/composables/useApiWithCache';
 const token = JSON.parse(localStorage.getItem('token'));
 setAuthHeader(token);
 
@@ -359,8 +360,8 @@ const onSelect = (value) => {
 };
 
 const getAppActive = () => {
-  axios
-    .get(`/app/active`)
+  apiCache
+    .fetch(`/app/active`)
     .then((response) => {
       const data = response.data.data;
       resource.value.appsData = data
@@ -377,18 +378,18 @@ const getAppActive = () => {
       // eslint-disable-next-line
       console.log(error);
       const message =
-        error.response.data.message === ''
+        error.response?.data?.message === ''
           ? 'Something Wrong!!!'
-          : error.response.data.message;
-      this.errorMessage = message;
-      this.isError = true;
+          : error.response?.data?.message || 'Error loading apps';
+      errorMessage.value = message;
+      isError.value = true;
     });
 };
 
 const getCountries = () => {
   // axios.get(`/app-country-list/${appId.value}`).then((response) => {
-  axios
-    .get(`/countries`)
+  apiCache
+    .fetch(`/countries`)
     .then((response) => {
       const data = response.data.data;
       resource.value.countriesData = data
@@ -405,11 +406,11 @@ const getCountries = () => {
       // eslint-disable-next-line
       console.log(error);
       const message =
-        error.response.data.message === ''
+        error.response?.data?.message === ''
           ? 'Something Wrong!!!'
-          : error.response.data.message;
-      this.errorMessage = message;
-      this.isError = true;
+          : error.response?.data?.message || 'Error loading countries';
+      errorMessage.value = message;
+      isError.value = true;
     });
 };
 

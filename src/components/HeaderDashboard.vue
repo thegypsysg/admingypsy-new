@@ -77,6 +77,7 @@ import { ref, onMounted, onBeforeUnmount } from 'vue';
 import axios from '@/util/axios';
 import eventBus from '@/util/eventBus';
 import { tokenStorage } from '@/util/tokenStorage';
+import { apiCache } from '@/composables/useApiWithCache';
 
 const emit = defineEmits(['toggle-drawer']);
 
@@ -105,8 +106,8 @@ const updateImage = (dataItems) => {
 };
 
 const getAppActive = () => {
-  axios
-    .get('/app/active')
+  apiCache
+    .fetch('/app/active')
     .then((response) => {
       const data = response.data.data;
       items.value = data

@@ -30,6 +30,7 @@
 import axios from '@/util/axios';
 import { tokenStorage } from '@/util/tokenStorage';
 import { useNavigationStore } from '@/stores/navigation';
+import { apiCache } from '@/composables/useApiWithCache';
 
 export default {
   data: () => ({
@@ -71,8 +72,8 @@ export default {
   },
   methods: {
     getAppActive() {
-      axios
-        .get(`/app/active`)
+      apiCache
+        .fetch('/app/active')
         .then((response) => {
           const data = response.data.data;
           // console.log(data);

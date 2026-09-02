@@ -1,7 +1,7 @@
 # 📖 AdminGypsy — Agent Reference Guide (docs/README.md)
 
 > **Untuk:** Model AI (Gemini / Claude) yang akan bekerja di proyek ini.
-> **Update terakhir:** 2026-09-01 (Fase Opsional P4 — Vite Migration Selesai)
+> **Update terakhir:** 2026-09-02 (Fase Opsional DX4 — Views Rename Selesai; Fase Opsional P3 — API Caching didokumentasikan)
 
 ---
 
@@ -17,8 +17,9 @@
 | Fase 6 | Developer Experience       | ✅ SELESAI                     |
 | Fase Opsional P4 | Migrasi Vue CLI → Vite | ✅ SELESAI (branch `vite-migration`) |
 | Fase Opsional DX4 | Rename Direktori Views | ✅ SELESAI |
+| Fase Opsional P3 | API Caching Layer | ✅ SELESAI |
 
-Semua fase perbaikan (Fase 1–6, Fase Opsional P4, dan Fase Opsional DX4) telah berhasil diimplementasikan dan diverifikasi via production build (0 error).
+Semua fase perbaikan (Fase 1–6, Fase Opsional P4, Fase Opsional DX4, dan Fase Opsional P3) telah berhasil diimplementasikan dan diverifikasi via production build (0 error).
 
 ---
 
@@ -73,7 +74,7 @@ admingypsy-new/
 │   │   ├── useDebounce.js        ← ✅ Reusable debounce utility
 │   │   ├── useApi.js             ← ✅ Reactive API wrapper
 │   │   ├── usePagination.js      ← ✅ Server pagination composable
-│   │   ├── useApiWithCache.js    ← ✅ In-memory API cache composable
+│   │   ├── useApiWithCache.js    ← ✅ In-memory API cache composable (Fase P3 — integrasi ke views)
 │   │   ├── useSkeletonLoader.js  ← ✅ Skeleton loading state composable
 │   │   └── useImageLazy.js       ← ✅ Image lazy loading helper composable
 │   ├── router/
@@ -86,10 +87,10 @@ admingypsy-new/
 │   │   ├── axios.js        ← ✅ Backward compat wrapper → apiClient (Fase 1)
 │   │   ├── tokenStorage.js ← ✅ Abstraksi sessionStorage auth (Fase 1)
 │   │   └── eventBus.js     ← ✅ Global event bus via `mitt` (Fase 2)
-│   ├── views/              ← ⚠️ JANGAN UBAH kecuali instruksi eksplisit
+│   ├── views/              ← ⚠️ Hati-hati saat memodifikasi. Semua folder sudah kebab-case (DX4 selesai)
 │   │   ├── login/
 │   │   │   └── LoginComponent.vue ← ✅ Sudah pakai tokenStorage
-│   │   └── [35+ direktori view lain — banyak yang namanya mengandung spasi]
+│   │   └── [35+ direktori view lain — semua sudah kebab-case tanpa spasi]
 │   ├── App.vue             ← ✅ Periodic token expiry check (Fase 1)
 │   └── main.js             ← ✅ Centralized setup [$api, $fileURL, Pinia] (Fase 1 & 2)
 ├── docs/
@@ -190,6 +191,24 @@ Tersedia di semua komponen:
 ### 6. Direktori Views Menggunakan Format Kebab-Case (Tanpa Spasi)
 
 Seluruh subfolder di `src/views/` telah di-rename menjadi format kebab-case (`-`) pada **Fase Opsional DX4** (contoh: `walls-master`, `menu-management`, `app-country-city`). Jangan membuat direktori baru dengan spasi untuk menjaga kompatibilitas environment Linux dan Vite resolver.
+
+### 7. API Caching — Gunakan `useApiWithCache` HANYA di `<script setup>`
+
+Composable `useApiWithCache` tersedia di `src/composables/useApiWithCache.js` dan hanya boleh digunakan di view yang sudah menggunakan `<script setup>`. **Jangan panggil di Options API** (`created()`, `mounted()` tanpa `setup()`) karena akan menyebabkan Vue runtime error `getCurrentInstance`.
+
+```javascript
+// Contoh BENAR — di dalam <script setup>
+import { onMounted } from 'vue';
+import { useApiWithCache } from '@/composables/useApiWithCache';
+
+const { data, isLoading, fetch, invalidate } = useApiWithCache('/industry-master', {
+  ttlMs: 5 * 60 * 1000, // 5 menit
+});
+onMounted(() => fetch());
+
+// Setelah CUD — selalu invalidate sebelum re-fetch:
+// invalidate(); fetch();
+```
 
 ---
 
