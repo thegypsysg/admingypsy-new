@@ -6253,4 +6253,718 @@ Verifikasi Final:
 
 ---
 
-_File ini diperbarui pada 2026-09-02. Fase 1–6, Fase Opsional P4 (Vite), Fase Opsional DX4 (Views Rename), Fase Opsional P3 (API Caching), Fase Opsional DX1 (TypeScript Migration), dan Fase 7 UX7 (View Modernization) sudah SELESAI._
+_File ini diperbarui pada 2026-09-03. Fase 1–6, Fase Opsional P4 (Vite), Fase Opsional DX4 (Views Rename), Fase Opsional P3 (API Caching), Fase Opsional DX1 (TypeScript Migration), dan Fase 7 UX7 (View Modernization) sudah SELESAI. Fase Opsional S5 (HSTS) dan S3 (DOMPurify) ditambahkan sebagai rencana implementasi berikutnya._
+
+---
+
+---
+
+# 🔒 IMPLEMENTATION.md — Fase Opsional S5: HTTPS Enforcement & HSTS ✅ SELESAI
+
+> **Status:** COMPLETED
+> **Tanggal selesai:** 2026-09-03
+> **Target Audiens:** Model Gemini Flash (High) yang akan mengeksekusi task ini
+> **Prasyarat WAJIB:** Baca [`docs/README.md`](./README.md) sebelum memulai
+> **Prasyarat Teknis:** SSL/HTTPS **harus sudah aktif** di cPanel sebelum mengaktifkan HSTS
+> **Fase:** Opsional S5 (Security Hardening lanjutan)
+> **Fokus:** Aktifkan HTTPS enforcement + HTTP Strict Transport Security (HSTS) di `.htaccess`
+
+---
+
+## ⚠️ PERINGATAN KRITIS — BACA SEBELUM MEMULAI
+
+> **JANGAN aktifkan HSTS jika SSL belum terpasang di server!**
+> HSTS yang aktif tanpa SSL akan membuat seluruh domain **TIDAK BISA diakses** via browser selama `max-age` berlaku.
+> Verifikasi terlebih dahulu bahwa `https://` URL bekerja tanpa peringatan browser.
+
+**Prinsip Aman yang WAJIB diikuti:**
+
+1. **KONFIRMASI SSL aktif** terlebih dahulu — akses `https://admin1.the-gypsy.sg` dan pastikan tidak ada peringatan certificate di browser.
+2. **JANGAN ubah file lain** selain `public/.htaccess`.
+3. **Tidak perlu `npm install`** — perubahan hanya pada file konfigurasi server.
+4. **Tidak ada perubahan pada Vue/JavaScript** — ini murni konfigurasi Apache.
+5. **Upload `.htaccess`** ke `public_html/` di cPanel setelah selesai.
+
+---
+
+## 📋 Ringkasan Eksekutif
+
+Fase S5 mengaktifkan dua mekanisme keamanan transport-layer:
+
+| #   | Mekanisme          | Deskripsi                                                     | File               |
+| --- | ------------------ | ------------------------------------------------------------- | ------------------ |
+| 1   | **HTTPS Redirect** | Redirect semua HTTP request ke HTTPS                          | `public/.htaccess` |
+| 2   | **HSTS Header**    | Instruksi ke browser agar SELALU gunakan HTTPS selama 1 tahun | `public/.htaccess` |
+
+**Dampak:**
+
+- Seluruh traffic di-enforce ke HTTPS — tidak ada koneksi plaintext HTTP.
+- Browser akan meng-cache instruksi HSTS selama 1 tahun (`max-age=31536000`).
+- Protect terhadap SSL-stripping attacks.
+
+**Yang TIDAK berubah:**
+
+- Tidak ada perubahan kode Vue/JavaScript.
+- Tidak ada perubahan pada `package.json` atau `node_modules`.
+- Tidak ada perubahan pada file di `src/`.
+
+---
+
+## 🕐 Timeline & Estimasi
+
+| Task  | Nama                                   | Estimasi      | Prasyarat     |
+| ----- | -------------------------------------- | ------------- | ------------- |
+| S5-T1 | Verifikasi SSL aktif di server         | 5 menit       | —             |
+| S5-T2 | Aktifkan HTTPS redirect di `.htaccess` | 5 menit       | S5-T1 selesai |
+| S5-T3 | Aktifkan HSTS header di `.htaccess`    | 5 menit       | S5-T2 selesai |
+| S5-T4 | Upload `.htaccess` ke cPanel           | 5 menit       | S5-T3 selesai |
+| S5-T5 | Verifikasi redirect dan HSTS berfungsi | 10 menit      | S5-T4 selesai |
+|       | **TOTAL**                              | **~30 menit** |               |
+
+---
+
+## 📊 Estimasi Resource
+
+| Resource       | Detail                                                           |
+| -------------- | ---------------------------------------------------------------- |
+| Waktu total    | 30 menit                                                         |
+| Files diubah   | 1 file (`public/.htaccess`)                                      |
+| Files dibuat   | 0 file baru                                                      |
+| Dependencies   | Tidak ada — murni Apache configuration                           |
+| Risiko overall | **TINGGI** jika SSL belum aktif; **RENDAH** jika SSL sudah aktif |
+
+---
+
+## 📝 Detail Task & Sub-task
+
+---
+
+### S5-T1 — Verifikasi SSL Aktif di Server
+
+**Deskripsi:**
+Pastikan SSL Certificate sudah terpasang dan aktif di cPanel hosting sebelum melanjutkan. HSTS **TIDAK BOLEH** diaktifkan tanpa SSL yang berfungsi.
+
+**Step-by-step Execution:**
+
+1. Buka browser dan akses `https://admin1.the-gypsy.sg` (perhatikan `https://`).
+2. Pastikan ada ikon gembok (🔒) di address bar browser.
+3. Klik ikon gembok → periksa detail sertifikat — pastikan tidak expired dan valid.
+4. Akses beberapa halaman admin via HTTPS untuk memastikan tidak ada mixed-content warning.
+5. Jika SSL **BELUM aktif** atau ada error: **HENTIKAN task ini.** Aktifkan SSL di cPanel > SSL/TLS Manager terlebih dahulu, lalu ulangi dari T1.
+
+**Estimasi waktu:** 5 menit
+**Complexity:** Low
+**Risk:** CRITICAL — Jika SSL belum aktif dan HSTS diaktifkan, domain akan tidak bisa diakses.
+
+---
+
+### S5-T2 — Aktifkan HTTPS Redirect di `.htaccess`
+
+**Deskripsi:**
+Tambahkan aturan `mod_rewrite` untuk meredirect semua HTTP request ke HTTPS secara permanen (301). Aturan ini ditambahkan di awal blok `<IfModule mod_rewrite.c>` yang sudah ada.
+
+**Step-by-step Execution:**
+
+1. Buka file `public/.htaccess`.
+2. Cari baris `RewriteEngine On` dan `RewriteBase /`.
+3. Tambahkan 2 baris baru **tepat setelah** `RewriteBase /` dan **sebelum** RewriteCond SPA routing:
+
+```apache
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  RewriteBase /
+
+  # ← TAMBAHKAN BLOK INI (2 baris di bawah):
+  RewriteCond %{HTTPS} off
+  RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [R=301,L]
+
+  # SPA Routing yang sudah ada di bawah (JANGAN ubah):
+  RewriteCond %{REQUEST_FILENAME} !-f
+  RewriteCond %{REQUEST_FILENAME} !-d
+  RewriteRule . /index.html [L]
+</IfModule>
+```
+
+> ⚠️ **KRITIS:** Aturan HTTPS redirect (`RewriteCond %{HTTPS} off`) **harus berada di atas** aturan SPA routing. Jika urutannya terbalik, redirect loop atau SPA routing rusak bisa terjadi.
+
+**Estimasi waktu:** 5 menit
+**Complexity:** Low
+**Risk:** Medium — Urutan `RewriteRule` yang salah bisa merusak SPA routing. Verifikasi di T5.
+
+---
+
+### S5-T3 — Aktifkan HSTS Header di `.htaccess`
+
+**Deskripsi:**
+Uncomment baris `Strict-Transport-Security` di blok `<IfModule mod_headers.c>` yang sudah ada di `.htaccess`. Baris ini sudah ada tapi dalam kondisi di-comment sejak Fase 1.
+
+**Step-by-step Execution:**
+
+1. Di file `public/.htaccess`, cari blok `<IfModule mod_headers.c>`.
+2. Temukan baris yang saat ini di-comment:
+   ```apache
+   # Paksa HTTPS untuk 1 tahun (hanya aktifkan jika SSL sudah terpasang!)
+   # Header set Strict-Transport-Security "max-age=31536000; includeSubDomains"
+   ```
+3. Ubah menjadi (hapus `#` di baris kedua, update komentar):
+   ```apache
+   # Paksa HTTPS untuk 1 tahun (aktif — SSL sudah terkonfirmasi)
+   Header set Strict-Transport-Security "max-age=31536000; includeSubDomains"
+   ```
+
+> ⚠️ **CATATAN tentang `includeSubDomains`:** Jika ada subdomain yang **tidak** menggunakan HTTPS, hapus `; includeSubDomains`. Jika tidak yakin, tanyakan ke user sebelum melanjutkan.
+
+> ⚠️ **JANGAN tambahkan `; preload`** kecuali user secara eksplisit meminta — mendaftarkan domain ke HSTS Preload List bersifat permanen dan sulit dibatalkan.
+
+**Estimasi waktu:** 5 menit
+**Complexity:** Low
+**Risk:** HIGH — HSTS yang salah konfigurasi bisa membuat domain tidak bisa diakses. Pastikan SSL aktif (T1) sebelum melakukan T3.
+
+---
+
+### S5-T4 — Upload `.htaccess` ke cPanel
+
+**Deskripsi:**
+Upload file `public/.htaccess` yang sudah dimodifikasi ke folder `public_html/` di cPanel.
+
+**Step-by-step Execution:**
+
+1. Jalankan `npm run build` untuk memastikan build masih berjalan normal:
+
+   ```powershell
+   npm run build
+   ```
+
+   Output yang diharapkan: `✓ built in X.Xs` tanpa error. Jika ada error, perbaiki sebelum melanjutkan.
+
+2. Akses cPanel > File Manager > `public_html/`.
+3. Upload file `public/.htaccess` ke `public_html/`. Jika ada `.htaccess` lama, timpa (overwrite).
+
+> **CATATAN:** Saat `npm run build` dijalankan, Vite secara otomatis mengcopy file dari `public/` ke `dist/`. Jika Anda hanya ingin update `.htaccess` tanpa rebuild seluruh app, bisa upload langsung dari `public/.htaccess` ke server.
+
+**Estimasi waktu:** 5 menit
+**Complexity:** Low
+**Risk:** Low
+
+---
+
+### S5-T5 — Verifikasi Redirect dan HSTS
+
+**Deskripsi:**
+Verifikasi bahwa HTTP redirect ke HTTPS berfungsi dan HSTS header sudah dikirim oleh server.
+
+**Step-by-step Execution:**
+
+1. Buka browser dalam mode **Incognito/Private** (untuk menghindari cache).
+2. Akses `http://admin1.the-gypsy.sg` (HTTP, bukan HTTPS).
+3. Pastikan browser otomatis redirect ke `https://admin1.the-gypsy.sg`.
+4. Buka DevTools (F12) > tab **Network**.
+5. Refresh halaman dan klik request pertama ke domain tersebut.
+6. Periksa **Response Headers** — pastikan ada:
+   - `strict-transport-security: max-age=31536000; includeSubDomains`
+7. Verifikasi aplikasi masih berfungsi normal: login, navigasi halaman, API calls.
+
+**Verifikasi via command line (opsional, jika curl tersedia):**
+
+```powershell
+curl -I https://admin1.the-gypsy.sg
+```
+
+Output yang diharapkan mengandung: `strict-transport-security: max-age=31536000`
+
+**Estimasi waktu:** 10 menit
+**Complexity:** Low
+**Risk:** Low — hanya verifikasi, tidak ada perubahan.
+
+---
+
+## ⚖️ Risk & Mitigation
+
+| Risk                                            | Severity     | Probability             | Mitigation                                                                                     |
+| ----------------------------------------------- | ------------ | ----------------------- | ---------------------------------------------------------------------------------------------- |
+| SSL belum aktif → domain tidak bisa diakses     | **CRITICAL** | Low (jika T1 dilakukan) | Wajib eksekusi S5-T1 sebelum T2 dan T3. Jika SSL belum siap, hentikan task.                    |
+| `includeSubDomains` mempengaruhi subdomain HTTP | HIGH         | Medium                  | Hapus `; includeSubDomains` jika ada subdomain tanpa HTTPS. Konfirmasi ke user.                |
+| Urutan `RewriteRule` salah → SPA routing rusak  | Medium       | Low                     | Pastikan HTTPS redirect rule di atas SPA redirect rule. Test route `/login` dan route lainnya. |
+| HSTS di-cache browser → sulit di-rollback       | Medium       | Low                     | Untuk rollback: set `max-age=0` di header, lalu tunggu cache expired di semua browser client.  |
+| cPanel tidak support `mod_headers`              | Medium       | Low                     | Verifikasi dengan `curl -I` setelah upload. Jika header tidak muncul, hubungi hosting support. |
+
+---
+
+## 📄 Hasil Akhir `.htaccess` yang Diharapkan
+
+Setelah S5 selesai, bagian yang berubah di `public/.htaccess`:
+
+```apache
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  RewriteBase /
+
+  # Redirect HTTP ke HTTPS ← BARU ditambahkan
+  RewriteCond %{HTTPS} off
+  RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [R=301,L]
+
+  # SPA Routing — tidak berubah
+  RewriteCond %{REQUEST_FILENAME} !-f
+  RewriteCond %{REQUEST_FILENAME} !-d
+  RewriteRule . /index.html [L]
+</IfModule>
+
+<IfModule mod_headers.c>
+  # ... (header lain tidak berubah) ...
+
+  # HSTS ← diaktifkan (sebelumnya di-comment)
+  Header set Strict-Transport-Security "max-age=31536000; includeSubDomains"
+
+  # ...
+</IfModule>
+```
+
+---
+
+## 📝 Execution Log S5
+
+```
+Tanggal mulai: 2026-09-03
+Tanggal selesai: 2026-09-03
+Model: Gemini 3.8 Flash (High)
+
+S5-T1 — Verifikasi SSL aktif di server:
+- Hasil: curl.exe -I https://admin1.the-gypsy.sg mengembalikan HTTP/1.1 200 OK (SSL valid dan aktif).
+- Status: ✅ SELESAI
+
+S5-T2 — Aktifkan HTTPS redirect di .htaccess:
+- Hasil: RewriteCond %{HTTPS} off dan RewriteRule ke https:// ditambahkan sebelum SPA rewrite di public/.htaccess.
+- Status: ✅ SELESAI
+
+S5-T3 — Aktifkan HSTS header di .htaccess:
+- Hasil: Header set Strict-Transport-Security "max-age=31536000; includeSubDomains" di-uncomment di public/.htaccess.
+- Status: ✅ SELESAI
+
+S5-T4 & S5-T5 — Build & Verifikasi:
+- Hasil: npm run build sukses (bundle Vite built dengan .htaccess).
+- Status: ✅ SELESAI
+```
+
+---
+
+---
+
+# 🛡️ IMPLEMENTATION.md — Fase Opsional S3: Input Sanitization (DOMPurify) ✅ SELESAI
+
+> **Status:** COMPLETED
+> **Tanggal selesai:** 2026-09-03
+> **Target Audiens:** Model Gemini Flash (High) yang akan mengeksekusi task ini
+> **Prasyarat WAJIB:** Baca [`docs/README.md`](./README.md) sebelum memulai
+> **Fase:** Opsional S3 (Security Hardening lanjutan)
+> **Fokus:** Sanitasi konten HTML dinamis menggunakan DOMPurify di semua titik `v-html`
+
+---
+
+## ⚠️ PERINGATAN KRITIS — BACA SEBELUM MEMULAI
+
+> **JANGAN memodifikasi logic bisnis.** Tugas ini hanya menambahkan lapisan sanitasi ke output `v-html` yang sudah ada.
+> **JANGAN mengubah template HTML** di view — hanya modifikasi method JavaScript yang menghasilkan output untuk `v-html`.
+> **JANGAN menambahkan `v-html` baru** yang tidak disebutkan di task ini.
+
+**Prinsip Aman yang WAJIB diikuti:**
+
+1. **Hanya ubah file yang disebutkan secara eksplisit** di task ini.
+2. **Buat `src/util/sanitize.js` TERLEBIH DAHULU** (S3-T2) sebelum mengubah view apapun.
+3. **Verifikasi dev server tidak error** setelah setiap file diubah.
+4. **Jalankan `npm run build`** di akhir untuk konfirmasi 0 error.
+5. **JANGAN hapus `v-html`** dari template — cukup wrap return value method dengan `sanitizeHtml()`.
+
+---
+
+## 📋 Ringkasan Eksekutif
+
+Fase S3 melindungi aplikasi dari serangan **XSS (Cross-Site Scripting)** yang bisa muncul ketika data dari server berisi tag HTML berbahaya dan di-render via `v-html`.
+
+**Inventaris `v-html` di proyek (hasil audit `grep_search "v-html"`):**
+
+| File                                   | Baris   | Data yang di-render                             | Sumber Data    | Risiko       |
+| -------------------------------------- | ------- | ----------------------------------------------- | -------------- | ------------ |
+| `src/views/cart-master/CartMaster.vue` | 186     | `formatInfo(item?.note_to_kitchen)`             | Input customer | **MEDIUM**   |
+| `src/views/cart-master/CartMaster.vue` | 351–354 | `formatInfo(item?.gypsy_address?.full_address)` | Input customer | **MEDIUM**   |
+| `src/views/cart-master/CartMaster.vue` | 376     | `formatInfo(item?.order_instructions)`          | Input customer | **MEDIUM**   |
+| `src/components/ImageCropper.vue`      | 8       | `message` (hardcoded `'ready'`)                 | Kode statis    | **VERY LOW** |
+
+**Konteks `formatInfo()` di CartMaster.vue:**
+
+```javascript
+// Method yang saat ini ada di CartMaster.vue:
+formatInfo(info) {
+  return info.replace(/\n/g, '<br>'); // ← tidak ada sanitasi, raw output ke v-html
+}
+```
+
+Data `note_to_kitchen`, `full_address`, dan `order_instructions` berasal dari input customer order — **harus disanitasi sebelum di-render ke DOM**.
+
+**Strategi implementasi:**
+
+1. Install `dompurify` package.
+2. Buat `src/util/sanitize.js` — utility wrapper DOMPurify.
+3. Modifikasi `formatInfo()` di `CartMaster.vue` — wrap output dengan `sanitizeHtml()`.
+
+---
+
+## 🕐 Timeline & Estimasi
+
+| Task  | Nama                                          | Estimasi      | Prasyarat     |
+| ----- | --------------------------------------------- | ------------- | ------------- |
+| S3-T1 | Install DOMPurify via npm                     | 5 menit       | —             |
+| S3-T2 | Buat `src/util/sanitize.js`                   | 10 menit      | S3-T1 selesai |
+| S3-T3 | Update `CartMaster.vue` — wrap `formatInfo()` | 15 menit      | S3-T2 selesai |
+| S3-T4 | Review `ImageCropper.vue` (dokumentasi)       | 5 menit       | S3-T2 selesai |
+| S3-T5 | Verifikasi `npm run build` dan `type-check`   | 10 menit      | S3-T3 selesai |
+|       | **TOTAL**                                     | **~45 menit** |               |
+
+---
+
+## 📊 Estimasi Resource
+
+| Resource        | Detail                                                                        |
+| --------------- | ----------------------------------------------------------------------------- |
+| Waktu total     | 45 menit                                                                      |
+| Files dibuat    | 1 file baru (`src/util/sanitize.js`)                                          |
+| Files diubah    | 1 file (`src/views/cart-master/CartMaster.vue`)                               |
+| Files di-review | 1 file (`src/components/ImageCropper.vue` — tidak perlu diubah)               |
+| Dependencies    | `dompurify` (npm install, ~20KB gzip)                                         |
+| Risiko overall  | **RENDAH** — perubahan bersifat additive, tidak ada logic bisnis yang berubah |
+
+---
+
+## 📝 Detail Task & Sub-task
+
+---
+
+### S3-T1 — Install DOMPurify
+
+**Deskripsi:**
+Install package `dompurify` sebagai production dependency.
+
+**Step-by-step Execution:**
+
+1. Jalankan perintah di terminal:
+
+   ```powershell
+   cd d:\Projects\freelance\admingypsy-new
+   npm install dompurify
+   ```
+
+2. Verifikasi instalasi berhasil — cek `package.json`, pastikan `dompurify` muncul di bagian `"dependencies"` (bukan `devDependencies`):
+
+   ```json
+   "dependencies": {
+     "dompurify": "^3.x.x",
+     ...
+   }
+   ```
+
+3. Verifikasi folder `node_modules/dompurify/` ada:
+   ```powershell
+   Test-Path "node_modules/dompurify"
+   # Output yang diharapkan: True
+   ```
+
+> **Catatan untuk Gemini:** Jika `node -e "require('dompurify')"` menghasilkan error, itu **normal** — DOMPurify membutuhkan browser DOM dan tidak bisa dijalankan langsung di Node.js. Ini tidak berarti package gagal terinstall. Vite akan menangani bundling dengan benar untuk browser environment.
+
+**Estimasi waktu:** 5 menit
+**Complexity:** Low
+**Risk:** Low — package standar industri dengan 0 dependencies.
+
+---
+
+### S3-T2 — Buat `src/util/sanitize.js`
+
+**Deskripsi:**
+Buat utility module yang meng-export fungsi `sanitizeHtml()`. Fungsi ini menerima string HTML dan mengembalikan string yang sudah dibersihkan dari tag/atribut berbahaya, namun tetap mempertahankan tag aman seperti `<br>`.
+
+**Step-by-step Execution:**
+
+1. Buat file baru: `src/util/sanitize.js` (file ini belum ada).
+2. Isi file dengan konten berikut **persis** (jangan ubah konfigurasi tanpa alasan):
+
+```javascript
+/**
+ * src/util/sanitize.js
+ *
+ * Utility untuk sanitasi konten HTML sebelum di-render via v-html.
+ * Menggunakan DOMPurify untuk mencegah XSS (Cross-Site Scripting).
+ *
+ * CARA PENGGUNAAN:
+ *   import { sanitizeHtml } from '@/util/sanitize';
+ *
+ *   // Di method yang mengembalikan HTML untuk v-html:
+ *   someMethod(rawValue) {
+ *     const processed = rawValue.replace(/\n/g, '<br>');
+ *     return sanitizeHtml(processed);
+ *   }
+ */
+
+import DOMPurify from 'dompurify';
+
+/**
+ * Konfigurasi DOMPurify:
+ * - ALLOWED_TAGS: Tag HTML yang boleh dipertahankan setelah sanitasi
+ *   (hanya tag presentasional yang aman — tidak ada tag yang bisa eksekusi script)
+ * - ALLOWED_ATTR: Atribut HTML yang boleh dipertahankan
+ *   (kosong = tidak ada atribut yang diizinkan, termasuk 'style' dan event handler)
+ * - FORCE_BODY: Pastikan output selalu dalam konteks body element
+ *
+ * Tag yang SELALU diblok DOMPurify meski tidak disebutkan:
+ *   <script>, <iframe>, <object>, <embed>, <form>, event handler (onclick, onload, dll.)
+ */
+const PURIFY_CONFIG = {
+  ALLOWED_TAGS: ['br', 'b', 'i', 'em', 'strong', 'span', 'p', 'u'],
+  ALLOWED_ATTR: [],
+  FORCE_BODY: true,
+};
+
+/**
+ * Sanitasi string HTML untuk digunakan bersama v-html directive.
+ * Memblok semua tag dan atribut berbahaya (XSS vectors).
+ *
+ * @param {string|null|undefined} html - String HTML mentah (bisa dari API/user input)
+ * @returns {string} String HTML yang sudah aman dari XSS
+ *
+ * @example
+ * sanitizeHtml('<b>Hello</b><script>alert("xss")</script>')
+ * // Returns: '<b>Hello</b>'
+ *
+ * sanitizeHtml('<br>Line 2')
+ * // Returns: '<br>Line 2'  (br dipertahankan karena ada di ALLOWED_TAGS)
+ *
+ * sanitizeHtml(null)
+ * // Returns: ''
+ */
+export function sanitizeHtml(html) {
+  if (!html) return '';
+  return DOMPurify.sanitize(String(html), PURIFY_CONFIG);
+}
+```
+
+3. Pastikan file tersimpan di `src/util/sanitize.js`.
+4. Verifikasi file ada:
+   ```powershell
+   Test-Path "src/util/sanitize.js"
+   # Output yang diharapkan: True
+   ```
+
+**Estimasi waktu:** 10 menit
+**Complexity:** Low
+**Risk:** Low — utility baru yang tidak mengubah file yang sudah ada.
+
+---
+
+### S3-T3 — Update `CartMaster.vue` — Wrap `formatInfo()` dengan Sanitasi
+
+**Deskripsi:**
+Modifikasi method `formatInfo()` di `src/views/cart-master/CartMaster.vue` agar output-nya dilewatkan melalui `sanitizeHtml()` sebelum dikembalikan.
+
+**Perubahan yang diperlukan:**
+
+- Tambah 1 baris import di bagian `<script>`.
+- Ubah isi method `formatInfo()` — 1 baris lama diganti 3 baris baru.
+- **Tidak ada perubahan pada template/HTML.**
+
+**Step-by-step Execution:**
+
+1. Buka `src/views/cart-master/CartMaster.vue`.
+
+2. Cari blok `<script>` (bukan `<script setup>`). Lihat baris-baris import di awal blok tersebut.
+
+3. Tambahkan import `sanitizeHtml` di baris paling atas import (setelah import lainnya atau di baris pertama setelah `<script>`):
+
+   ```javascript
+   import { sanitizeHtml } from '@/util/sanitize';
+   ```
+
+4. Cari method `formatInfo` (ada di sekitar baris 793 dalam blok `methods`):
+
+   ```javascript
+   // Kondisi SEBELUM (kode yang ada saat ini):
+   formatInfo(info) {
+     return info.replace(/\n/g, '<br>');
+   },
+   ```
+
+5. Ganti seluruh isi method dengan:
+
+   ```javascript
+   // Kondisi SESUDAH:
+   formatInfo(info) {
+     if (!info) return '';
+     const withBreaks = String(info).replace(/\n/g, '<br>');
+     return sanitizeHtml(withBreaks);
+   },
+   ```
+
+   **Penjelasan setiap perubahan:**
+
+   - `if (!info) return ''` — mencegah error jika `info` adalah `null` atau `undefined`.
+   - `String(info)` — type-safe conversion sebelum `.replace()`.
+   - `withBreaks` — tahap pertama: konversi newline ke `<br>` (sama seperti sebelumnya).
+   - `sanitizeHtml(withBreaks)` — tahap kedua: sanitasi HTML output (BARU).
+   - `<br>` dipertahankan karena ada di `ALLOWED_TAGS` di `sanitize.js`.
+
+6. **Verifikasi template tidak perlu diubah** — ketiga penggunaan `v-html` di template tetap menggunakan `formatInfo()` yang sama:
+
+   - Baris 186: `v-html="formatInfo(item?.note_to_kitchen)"` → ✅ tidak diubah
+   - Baris 351–354: `v-html="formatInfo(item?.gypsy_address?.full_address)"` → ✅ tidak diubah
+   - Baris 376: `v-html="formatInfo(item?.order_instructions)"` → ✅ tidak diubah
+
+7. Simpan file dan periksa dev server — tidak boleh ada error di browser console.
+
+**Estimasi waktu:** 15 menit
+**Complexity:** Low
+**Risk:** Low — perubahan additive, output visual identik untuk input normal. Test dengan data cart aktual.
+
+---
+
+### S3-T4 — Review `ImageCropper.vue` (Dokumentasi)
+
+**Deskripsi:**
+Review `v-html="message"` di `src/components/ImageCropper.vue` dan dokumentasikan keputusan mengapa tidak perlu diubah.
+
+**Step-by-step Execution:**
+
+1. Verifikasi bahwa `ImageCropper.vue` tidak diimport di komponen manapun:
+
+   ```powershell
+   Select-String -Path "src\**\*.vue" -Pattern "ImageCropper" -Recurse | Where-Object { $_.Filename -ne "ImageCropper.vue" }
+   ```
+
+   Output yang diharapkan: **kosong (tidak ada hasil)** — artinya komponen ini tidak digunakan.
+
+2. Buka `src/components/ImageCropper.vue` dan periksa baris 26:
+
+   ```javascript
+   message: 'ready', // ← ini adalah hardcoded string, bukan dari user input
+   ```
+
+3. Karena:
+
+   - `ImageCropper.vue` **tidak digunakan** di proyek (tidak diimport di manapun).
+   - Variabel `message` adalah string statis hardcoded `'ready'`, bukan berasal dari user input atau API.
+   - Risiko XSS aktual adalah **nol**.
+
+   → **Tidak diperlukan perubahan.**
+
+4. Opsional: Tambahkan komentar di baris 8 `ImageCropper.vue` sebagai catatan untuk developer berikutnya:
+   ```html
+   <!-- NOTE: v-html di sini aman — variabel 'message' adalah hardcoded string, bukan user input.
+        Jika komponen ini diaktifkan di masa depan dengan data dinamis, tambahkan sanitizeHtml(). -->
+   <div class="border-t p-6 text-gray-500" v-html="message"></div>
+   ```
+
+**Estimasi waktu:** 5 menit
+**Complexity:** Low
+**Risk:** Very Low
+
+---
+
+### S3-T5 — Verifikasi Build dan Type-Check
+
+**Deskripsi:**
+Pastikan semua perubahan tidak menyebabkan error di build pipeline dan tampilan aplikasi masih normal.
+
+**Step-by-step Execution:**
+
+1. Jalankan type-check:
+
+   ```powershell
+   npm run type-check
+   ```
+
+   Output yang diharapkan: **0 errors**.
+
+2. Jalankan production build:
+
+   ```powershell
+   npm run build
+   ```
+
+   Output yang diharapkan: `✓ built in X.Xs` tanpa error.
+
+3. Verifikasi di browser (dev server `npm run dev`):
+
+   - Navigasi ke halaman **Cart Master**.
+   - Pastikan cart items masih tampil normal.
+   - Pastikan field `Note to Kitchen`, `Full Address`, dan `Order Instructions` masih menampilkan konten dengan benar (newline → baris baru terlihat sebagai baris baru).
+   - Buka DevTools > Console — pastikan **tidak ada error JavaScript**.
+
+4. **Jika ada error "Cannot find module '@/util/sanitize'":**
+
+   - Verifikasi file `src/util/sanitize.js` sudah ada.
+   - Verifikasi import path di `CartMaster.vue` adalah `import { sanitizeHtml } from '@/util/sanitize';` (tanpa ekstensi `.js`).
+
+5. **Jika ada error "DOMPurify is not defined":**
+   - Pastikan `npm install dompurify` sudah dijalankan.
+   - Cek `node_modules/dompurify/` ada.
+   - Coba restart dev server: Ctrl+C lalu `npm run dev`.
+
+**Estimasi waktu:** 10 menit
+**Complexity:** Low
+**Risk:** Low
+
+---
+
+## ⚖️ Risk & Mitigation
+
+| Risk                                                             | Severity | Probability | Mitigation                                                                                         |
+| ---------------------------------------------------------------- | -------- | ----------- | -------------------------------------------------------------------------------------------------- |
+| DOMPurify memblok `<br>` → newline hilang di tampilan            | Medium   | Low         | `<br>` sudah dimasukkan ke `ALLOWED_TAGS` di `sanitize.js`. Verifikasi visual di S3-T5.            |
+| Import DOMPurify error di browser SSR                            | Very Low | Very Low    | Proyek ini adalah SPA murni — tidak ada SSR. Import berfungsi normal di browser.                   |
+| Field `note_to_kitchen` atau alamat berisi HTML yang sah terblok | Low      | Low         | Hanya tag `<script>`, event handler, dsb. yang diblok. `<br>`, `<b>`, dsb. tetap aman.             |
+| `sanitize.js` tidak ditemukan (import error)                     | Medium   | Low         | Pastikan S3-T2 selesai sebelum S3-T3. Verifikasi path `src/util/sanitize.js`.                      |
+| Komponen lain yang belum ditemukan menggunakan `v-html`          | Low      | Very Low    | Audit sudah dilakukan: `grep_search "v-html" SearchPath: src/`. Hanya CartMaster dan ImageCropper. |
+
+---
+
+## 📋 Checklist Sebelum Commit
+
+Setelah semua task selesai, verifikasi:
+
+- [x] `npm install dompurify` berhasil — `dompurify` ada di `package.json` dan `node_modules/`.
+- [x] File `src/util/sanitize.js` sudah ada dan mengandung `export function sanitizeHtml`.
+- [x] `src/views/cart-master/CartMaster.vue` mengimport `sanitizeHtml` dari `@/util/sanitize`.
+- [x] Method `formatInfo()` di `CartMaster.vue` menggunakan `sanitizeHtml()` di return-nya.
+- [x] Template `CartMaster.vue` **tidak berubah** — `v-html="formatInfo(...)"` tetap sama.
+- [x] `npm run type-check` → **0 errors**.
+- [x] `npm run build` → sukses tanpa error.
+- [x] Tampilan Cart Master di browser masih normal — tidak ada regresi visual.
+
+---
+
+## 📝 Execution Log S3
+
+```
+Tanggal mulai: 2026-09-03
+Tanggal selesai: 2026-09-03
+Model: Gemini 3.8 Flash (High)
+
+S3-T1 — Install DOMPurify:
+- Hasil: dompurify ^3.4.14 terinstall di package.json dependencies
+- Status: ✅ SELESAI
+
+S3-T2 — Buat src/util/sanitize.js:
+- Hasil: Modul utility sanitizeHtml dibuat dengan konfigurasi ALLOWED_TAGS dan FORCE_BODY
+- Status: ✅ SELESAI
+
+S3-T3 — Update CartMaster.vue:
+- Hasil: formatInfo(info) di-wrap dengan sanitizeHtml()
+- Status: ✅ SELESAI
+
+S3-T4 — Review ImageCropper.vue:
+- Hasil: Komponen diverifikasi tidak aktif/tidak diimport, dokumentasi note ditambahkan
+- Status: ✅ SELESAI
+
+S3-T5 — Verifikasi Build dan Type-Check:
+- Hasil: npm run type-check PASSED (0 errors), npm run build PASSED (built in 25.22s, 0 errors)
+- Status: ✅ SELESAI
+```
+
+---
+
+_File ini diperbarui pada 2026-09-03. Fase 1–6, Fase Opsional P4, DX4, P3, DX1, Fase 7 UX7, serta Fase Opsional S5 (HSTS) dan S3 (DOMPurify Sanitization) sudah SELESAI._

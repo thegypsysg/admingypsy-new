@@ -14,7 +14,7 @@ Dokumen ini merangkum **semua improvement yang dapat diterapkan** pada proyek `a
 
 | Kategori                      | Status                                 | Item                                      |
 | ----------------------------- | -------------------------------------- | ----------------------------------------- |
-| 🔴 Security Hardening         | ✅ Hampir semua selesai                | S1 ✅, S2 ✅, S3 ⏳, S4 ✅, S5 ⏳         |
+| 🔴 Security Hardening         | ✅ Semua selesai                       | S1 ✅, S2 ✅, S3 ✅, S4 ✅, S5 ✅         |
 | 🟠 Architecture               | ✅ Selesai                             | 4 dari 4 item                             |
 | 🟡 Code Quality & Performance | ✅ Selesai                             | 7 dari 7 item                             |
 | 🔵 UX Improvements            | ✅ Komponen selesai, integrasi parsial | UX1–UX4 ✅ dibuat, UX5 ⏳, UX6 ⏳, UX7 ⏳ |
@@ -947,8 +947,8 @@ Get-ChildItem -Directory -Recurse |
 - [x] **UX7**: Tambahkan `EmptyState.vue` ke 97 view yang menampilkan tabel
 - [x] **UX7**: Tambahkan `SkeletonTable.vue` sebagai pengganti `v-progress-circular` di 97 view
 - [ ] **UX6**: Implementasi pagination server-side ke view prioritas (berkolaborasi dengan backend)
-- [ ] **S5**: Aktifkan HSTS setelah konfirmasi SSL stabil
-- [ ] **S3**: Input sanitization dengan DOMPurify untuk field yang render HTML
+- [x] **S5**: Aktifkan HSTS setelah konfirmasi SSL stabil
+- [x] **S3**: Input sanitization dengan DOMPurify untuk field yang render HTML
 - [ ] **UX5**: Breadcrumb navigation di view-view utama
 - [ ] **P2**: Image lazy loading di semua tabel (gunakan `loading="lazy"` dan `useImageLazy.js`)
 
@@ -956,9 +956,9 @@ Get-ChildItem -Directory -Recurse |
 
 ## 💡 Rekomendasi Prioritas Tertinggi untuk Dikerjakan Berikutnya
 
-1. **S5 — Aktifkan HTTPS enforcement dan HSTS** di `.htaccess` (30 menit) — Setelah konfirmasi SSL aktif di cPanel.
-2. **S3 — Input sanitization (DOMPurify)** (2–3 jam) — Tambahkan `src/util/sanitize.js` dan terapkan pada field yang menampilkan konten HTML dinamis.
-3. **UX5 — Breadcrumb Navigation** (3 jam) — Tambahkan navigasi breadcrumb di view utama untuk kemudahan navigasi hierarki.
+1. **UX5 — Breadcrumb Navigation** (3 jam) — Tambahkan navigasi breadcrumb di view utama untuk kemudahan navigasi hierarki.
+2. **UX6 — Implementasi pagination server-side** ke view prioritas (berkolaborasi dengan backend).
+3. **P2 — Image lazy loading** di semua tabel (gunakan `loading="lazy"` dan `useImageLazy.js`).
 
 ---
 

@@ -9,6 +9,10 @@
   RewriteEngine On
   RewriteBase /
 
+  # Redirect HTTP ke HTTPS
+  RewriteCond %{HTTPS} off
+  RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [R=301,L]
+
   # Jangan rewrite jika file atau direktori sudah ada
   RewriteCond %{REQUEST_FILENAME} !-f
   RewriteCond %{REQUEST_FILENAME} !-d
@@ -38,8 +42,8 @@
   # Batasi akses API hardware / browser sensitif
   Header set Permissions-Policy "camera=(), microphone=(), geolocation=(), payment=()"
 
-  # Paksa HTTPS untuk 1 tahun (hanya aktifkan jika SSL sudah terpasang!)
-  # Header set Strict-Transport-Security "max-age=31536000; includeSubDomains"
+  # Paksa HTTPS untuk 1 tahun (aktif — SSL sudah terkonfirmasi)
+  Header set Strict-Transport-Security "max-age=31536000; includeSubDomains"
 
   # Hapus header yang mengekspos info server
   Header unset X-Powered-By

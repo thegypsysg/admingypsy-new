@@ -1,27 +1,29 @@
 # 📖 AdminGypsy — Agent Reference Guide (docs/README.md)
 
 > **Untuk:** Model AI (Gemini / Claude) yang akan bekerja di proyek ini.
-> **Update terakhir:** 2026-09-02 (Fase 7 UX7 — View Modernization terdokumentasikan; semua fase sebelumnya selesai)
+> **Update terakhir:** 2026-09-03 (Fase Opsional S5 & S3 ditambahkan sebagai rencana berikutnya; Fase 7 UX7 & semua fase sebelumnya sudah selesai)
 
 ---
 
 ## 🗺️ Status Proyek Saat Ini
 
-| Fase              | Nama                           | Status                         |
-| ----------------- | ------------------------------ | ------------------------------ |
-| Fase 1            | Security Hardening             | ✅ SELESAI (commit `39ce7f1d`) |
-| Fase 2            | Architecture Upgrade           | ✅ SELESAI                     |
-| Fase 3            | Code Quality & Performance     | ✅ SELESAI                     |
-| Fase 4            | UX & Security Polish           | ✅ SELESAI                     |
-| Fase 5            | Performance Optimization       | ✅ SELESAI                     |
-| Fase 6            | Developer Experience           | ✅ SELESAI                     |
-| Fase Opsional P4  | Migrasi Vue CLI → Vite         | ✅ SELESAI                     |
-| Fase Opsional DX4 | Rename Direktori Views         | ✅ SELESAI                     |
-| Fase Opsional P3  | API Caching Layer              | ✅ SELESAI                     |
-| Fase Opsional DX1 | TypeScript Migration (Gradual) | ✅ SELESAI                     |
-| **Fase 7 UX7**    | **View Modernization**         | **✅ SELESAI**                 |
+| Fase                 | Nama                               | Status                         |
+| -------------------- | ---------------------------------- | ------------------------------ |
+| Fase 1               | Security Hardening                 | ✅ SELESAI (commit `39ce7f1d`) |
+| Fase 2               | Architecture Upgrade               | ✅ SELESAI                     |
+| Fase 3               | Code Quality & Performance         | ✅ SELESAI                     |
+| Fase 4               | UX & Security Polish               | ✅ SELESAI                     |
+| Fase 5               | Performance Optimization           | ✅ SELESAI                     |
+| Fase 6               | Developer Experience               | ✅ SELESAI                     |
+| Fase Opsional P4     | Migrasi Vue CLI → Vite             | ✅ SELESAI                     |
+| Fase Opsional DX4    | Rename Direktori Views             | ✅ SELESAI                     |
+| Fase Opsional P3     | API Caching Layer                  | ✅ SELESAI                     |
+| Fase Opsional DX1    | TypeScript Migration (Gradual)     | ✅ SELESAI                     |
+| Fase 7 UX7           | View Modernization                 | ✅ SELESAI                     |
+| **Fase Opsional S5** | **HTTPS Enforcement & HSTS**       | **✅ SELESAI**                 |
+| **Fase Opsional S3** | **Input Sanitization (DOMPurify)** | **✅ SELESAI**                 |
 
-Semua fase perbaikan (Fase 1–6, Fase Opsional P4, DX4, P3, DX1, dan Fase 7 UX7) telah berhasil diimplementasikan dan diverifikasi via `npm run type-check` (0 error) dan `npm run build` (0 error).
+Semua fase perbaikan (Fase 1–6, Fase Opsional P4, DX4, P3, DX1, Fase 7 UX7, serta Fase Opsional S5 dan S3) telah berhasil diimplementasikan dan diverifikasi via `npm run type-check` (0 error) dan `npm run build` (0 error).
 
 ---
 
@@ -38,9 +40,9 @@ Semua fase perbaikan (Fase 1–6, Fase Opsional P4, DX4, P3, DX1, dan Fase 7 UX7
 - **Auth Storage:** `sessionStorage` via `src/util/tokenStorage.js`
 - **Hosting:** cPanel shared hosting — `npm run build` menghasilkan `dist/` yang diupload ke server
 
-**Branch aktif:** `vite-migration` (atau `refactor` — cek dengan `git branch`)
+**Branch aktif:** `refactor` (hasil migrasi Vite sudah di-merge; cek dengan `git branch`)
 
-**Dev server:** `npm run dev` (atau `npm run serve`) → http://localhost:8080
+**Dev server:** `npm run dev` → http://localhost:5173 (port default Vite)
 
 ---
 
@@ -48,9 +50,11 @@ Semua fase perbaikan (Fase 1–6, Fase Opsional P4, DX4, P3, DX1, dan Fase 7 UX7
 
 1. **Jangan ubah file di `src/views/`** kecuali ada instruksi eksplisit di IMPLEMENTATION.md
 2. **Jangan uninstall package** tanpa memverifikasi bahwa package tersebut tidak digunakan (gunakan `grep_search`)
-3. **Verifikasi `npm run build` tidak error** setelah SETIAP batch 10 view yang dimodifikasi
+3. **Verifikasi `npm run build` tidak error** setelah setiap batch perubahan
 4. **Baca file lengkap sebelum mengedit** — jangan asumsi isi file berdasarkan namanya
-5. **Jangan modifikasi logic bisnis** — di Fase 7 UX7, hanya ganti UI boilerplate (v-snackbar, v-dialog, v-progress-circular)
+5. **Jangan modifikasi logic bisnis** — hanya ubah konfigurasi, utility, atau boilerplate UI
+6. **Untuk Fase S5:** KONFIRMASI SSL aktif di server sebelum mengaktifkan HSTS — salah langkah bisa membuat domain tidak bisa diakses
+7. **Untuk Fase S3:** Buat `src/util/sanitize.js` TERLEBIH DAHULU sebelum mengubah view apapun
 
 ---
 
@@ -410,10 +414,34 @@ Semua variabel Vite **wajib diawali** `VITE_` agar bisa dibaca via `import.meta.
 
 ---
 
+## 🚀 Fase Berikutnya yang Harus Dikerjakan
+
+Jika kamu (model AI) diminta untuk melanjutkan proyek ini, fase berikutnya yang tersedia adalah:
+
+### 1. Fase Opsional S5 — HTTPS Enforcement & HSTS (30 menit)
+
+- **File yang diubah:** hanya `public/.htaccess`
+- **Tidak ada `npm install`** — murni konfigurasi Apache
+- **Prasyarat WAJIB:** Konfirmasi SSL sudah aktif di `https://admin1.the-gypsy.sg` (cek ikon gembok di browser)
+- **Instruksi lengkap:** Cari section `# 🔒 IMPLEMENTATION.md — Fase Opsional S5` di `docs/IMPLEMENTATION.md`
+- **Urutan task:** S5-T1 → S5-T2 → S5-T3 → S5-T4 → S5-T5
+
+### 2. Fase Opsional S3 — Input Sanitization DOMPurify (45 menit)
+
+- **Files yang dibuat:** `src/util/sanitize.js` (BARU)
+- **Files yang diubah:** `src/views/cart-master/CartMaster.vue` (hanya method `formatInfo()`)
+- **`npm install` diperlukan:** `npm install dompurify`
+- **Instruksi lengkap:** Cari section `# 🛡️ IMPLEMENTATION.md — Fase Opsional S3` di `docs/IMPLEMENTATION.md`
+- **Urutan task:** S3-T1 → S3-T2 → S3-T3 → S3-T4 → S3-T5
+
+> **Rekomendasi urutan:** Kerjakan S3 terlebih dahulu (murni kode, tidak bergantung pada kondisi server), lalu S5 setelah SSL dikonfirmasi aktif.
+
+---
+
 ## 📚 Referensi Dokumen
 
-| Dokumen                                         | Tujuan                                                                 |
-| ----------------------------------------------- | ---------------------------------------------------------------------- |
-| [`ANALYSIS.md`](../ANALYSIS.md)                 | Audit lengkap codebase — sumber kebenaran untuk semua keputusan        |
-| [`docs/IMPLEMENTATION.md`](./IMPLEMENTATION.md) | Rencana implementasi per fase dengan step-by-step execution            |
-| [`docs/IMPROVEMENT.md`](./IMPROVEMENT.md)       | Daftar semua improvement yang bisa diterapkan (roadmap jangka panjang) |
+| Dokumen                                         | Tujuan                                                                         |
+| ----------------------------------------------- | ------------------------------------------------------------------------------ |
+| [`ANALYSIS.md`](../ANALYSIS.md)                 | Audit lengkap codebase — sumber kebenaran untuk semua keputusan                |
+| [`docs/IMPLEMENTATION.md`](./IMPLEMENTATION.md) | Rencana implementasi per fase dengan step-by-step execution (termasuk S5 & S3) |
+| [`docs/IMPROVEMENT.md`](./IMPROVEMENT.md)       | Daftar semua improvement yang bisa diterapkan (roadmap jangka panjang)         |

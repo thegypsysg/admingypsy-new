@@ -430,12 +430,6 @@
                           </tr>
                         </tbody>
                       </v-table>
-                      <skeleton-table v-if="isLoading" :rows="5" :columns="18" />
-                      <empty-state
-                        v-if="!isLoading && (!cities || cities.length === 0)"
-                        title="No Data Found"
-                        subtitle="There are no records to display."
-                      />
                     </div>
                   </td>
                 </tr>
@@ -697,7 +691,14 @@
               </template>
             </tbody>
           </v-table>
+          <skeleton-table v-if="isLoading" :rows="5" :columns="9" />
+          <empty-state
+            v-if="!isLoading && (!items || items.length === 0)"
+            title="No Data Found"
+            subtitle="There are no records to display."
+          />
           <v-pagination
+            v-if="!isLoading && items && items.length > 0"
             v-model="currentPage"
             :length="totalPages"
             @update:modelValue="getItemsData"

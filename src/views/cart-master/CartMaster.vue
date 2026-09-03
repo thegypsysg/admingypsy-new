@@ -73,9 +73,7 @@
       </v-row> -->
       <v-row align="center" justify="space-between">
         <v-col cols="8">
-          <span>
-            Showing {{ startItem }} - {{ endItem }} from {{ totalItems }} item
-          </span>
+          <span> Showing {{ startItem }} - {{ endItem }} from {{ totalItems }} item </span>
         </v-col>
         <v-col cols="4" class="text-right">
           <v-select
@@ -123,13 +121,9 @@
                   </td> -->
                   <td class="d-flex align-center">
                     <span>{{ item?.total_items }}</span
-                    ><span class="text-blue-lighten-1 font-weight-bold ml-3"
-                      >View</span
-                    >
+                    ><span class="text-blue-lighten-1 font-weight-bold ml-3">View</span>
                   </td>
-                  <td>
-                    <span v-if="item?.amount">S$</span> {{ item?.amount }}
-                  </td>
+                  <td><span v-if="item?.amount">S$</span> {{ item?.amount }}</td>
                   <td>
                     <span v-if="item?.platform_fee">S$</span>
                     {{ item?.service_fee }}
@@ -142,9 +136,7 @@
                     <span v-if="item?.platform_fee">S$</span>
                     {{ item?.platform_fee }}
                   </td>
-                  <td>
-                    <span v-if="item?.gst">S$</span> {{ item?.gst || '-' }}
-                  </td>
+                  <td><span v-if="item?.gst">S$</span> {{ item?.gst || '-' }}</td>
                   <td>
                     <span v-if="item?.final_amount">S$</span>
                     {{ item?.final_amount }}
@@ -196,12 +188,8 @@
                   <td style="border: none !important"></td>
                   <td style="border: none !important" colspan="10">
                     <div class="d-flex">
-                      <p class="text-body-2 font-weight-bold w-50">
-                        Total Distance & Extra Kms
-                      </p>
-                      <p class="text-body-2 font-weight-bold w-50">
-                        Delivery Charges
-                      </p>
+                      <p class="text-body-2 font-weight-bold w-50">Total Distance & Extra Kms</p>
+                      <p class="text-body-2 font-weight-bold w-50">Delivery Charges</p>
                     </div>
                   </td>
                 </tr>
@@ -324,9 +312,7 @@
                 <tr>
                   <td style="border: none !important"></td>
                   <td style="border: none !important" colspan="10">
-                    <p class="text-body-2 font-weight-bold">
-                      Deliver Where and to who
-                    </p>
+                    <p class="text-body-2 font-weight-bold">Deliver Where and to who</p>
                   </td>
                 </tr>
 
@@ -348,27 +334,17 @@
                           <td class="">
                             <p
                               v-if="item?.gypsy_address?.full_address"
-                              v-html="
-                                formatInfo(item?.gypsy_address?.full_address)
-                              "
+                              v-html="formatInfo(item?.gypsy_address?.full_address)"
                             />
                           </td>
                           <td class="">
-                            {{
-                              item?.gypsy_address?.street_master?.street_name
-                            }}
+                            {{ item?.gypsy_address?.street_master?.street_name }}
                           </td>
                           <td class="">
-                            {{
-                              item?.gypsy_address?.address_master?.town
-                                ?.town_name
-                            }}
+                            {{ item?.gypsy_address?.address_master?.town?.town_name }}
                           </td>
                           <td class="">
-                            {{
-                              item?.gypsy_address?.address_master?.city
-                                ?.city_name
-                            }}
+                            {{ item?.gypsy_address?.address_master?.city?.city_name }}
                           </td>
                           <td class="">
                             <p
@@ -424,9 +400,7 @@
                 <tr>
                   <td style="border: none !important"></td>
                   <td style="border: none !important" colspan="10">
-                    <p class="text-body-2 font-weight-bold">
-                      Order & Payment Details
-                    </p>
+                    <p class="text-body-2 font-weight-bold">Order & Payment Details</p>
                   </td>
                 </tr>
 
@@ -439,15 +413,9 @@
                           <!-- <th style="border: none !important" class="text-left">
                             What's App
                           </th> -->
-                          <th style="border: none !important" class="text-left">
-                            Order Status
-                          </th>
-                          <th style="border: none !important" class="text-left">
-                            Payment Status
-                          </th>
-                          <th style="border: none !important" class="text-left">
-                            Paid By
-                          </th>
+                          <th style="border: none !important" class="text-left">Order Status</th>
+                          <th style="border: none !important" class="text-left">Payment Status</th>
+                          <th style="border: none !important" class="text-left">Paid By</th>
                           <th style="border: none !important" class="text-left">
                             Payment Verified
                           </th>
@@ -479,11 +447,7 @@
                               v-model="item.order_status"
                               :items="orderStatuses"
                               :disabled="item.payment_verified"
-                              :class="
-                                item.payment_verified
-                                  ? 'text-blue-darken-2'
-                                  : undefined
-                              "
+                              :class="item.payment_verified ? 'text-blue-darken-2' : undefined"
                               item-title="label"
                               item-value="value"
                               hide-details
@@ -498,11 +462,7 @@
                               v-model="item.payment_status"
                               :items="paymentStatuses"
                               :disabled="item.payment_verified"
-                              :class="
-                                item.payment_verified
-                                  ? 'text-blue-darken-2'
-                                  : undefined
-                              "
+                              :class="item.payment_verified ? 'text-blue-darken-2' : undefined"
                               item-title="label"
                               item-value="value"
                               hide-details
@@ -528,16 +488,10 @@
                               class="text-caption"
                               density="compact"
                               v-model="item.paymentVerified"
-                              :class="
-                                item.payment_verified
-                                  ? 'text-blue-darken-2'
-                                  : undefined
-                              "
+                              :class="item.payment_verified ? 'text-blue-darken-2' : undefined"
                               :items="users"
                               :disabled="item.payment_verified"
-                              @update:modelValue="
-                                handleUpdatePaymentVerified(item)
-                              "
+                              @update:modelValue="handleUpdatePaymentVerified(item)"
                               item-title="label"
                               item-value="value"
                               hide-details
@@ -577,25 +531,16 @@
                             {{ getItemDescription(del) }}
                             {{ getItemQuantityDescription(del) }}
                           </td>
-                          <td
-                            style="border-bottom: none !important"
-                            class="text-no-wrap"
-                          >
+                          <td style="border-bottom: none !important" class="text-no-wrap">
                             <span v-if="del?.rate">S$</span> {{ del?.rate }}
                           </td>
                           <td style="border-bottom: none !important">
                             {{ del?.qty }}
                           </td>
-                          <td
-                            style="border-bottom: none !important"
-                            class="text-no-wrap"
-                          >
+                          <td style="border-bottom: none !important" class="text-no-wrap">
                             <span v-if="del?.amount">S$</span> {{ del?.amount }}
                           </td>
-                          <td
-                            style="border-bottom: none !important"
-                            class="d-flex align-center"
-                          >
+                          <td style="border-bottom: none !important" class="d-flex align-center">
                             <v-btn-toggle
                               style="
                                 font-size: 10px !important;
@@ -609,19 +554,11 @@
                               rounded="5"
                               @click="orderRequest(del)"
                             >
-                              <v-btn
-                                size="27"
-                                :disabled="del.isOrderReq"
-                                :value="true"
-                              >
+                              <v-btn size="27" :disabled="del.isOrderReq" :value="true">
                                 Yes
                               </v-btn>
 
-                              <v-btn
-                                size="27"
-                                :disabled="del.isOrderReq"
-                                :value="false"
-                              >
+                              <v-btn size="27" :disabled="del.isOrderReq" :value="false">
                                 No
                               </v-btn>
                             </v-btn-toggle>
@@ -652,10 +589,7 @@
               </template>
               <tr v-if="isLoading">
                 <td :colspan="11" class="text-center">
-                  <v-progress-circular
-                    indeterminate
-                    color="indigo-accent-2"
-                  ></v-progress-circular>
+                  <v-progress-circular indeterminate color="indigo-accent-2"></v-progress-circular>
                 </td>
               </tr>
             </tbody>
@@ -668,12 +602,7 @@
         </v-col>
       </v-row>
     </v-sheet>
-    <v-snackbar
-      location="top"
-      color="green"
-      v-model="isSuccess"
-      :timeout="3000"
-    >
+    <v-snackbar location="top" color="green" v-model="isSuccess" :timeout="3000">
       {{ successMessage }}
 
       <template v-slot:actions>
@@ -693,9 +622,7 @@
     </v-snackbar>
     <v-dialog persistent width="500" v-model="orderReq">
       <v-card>
-        <v-card-text>
-          Do you wish to place an order request for this item. ?
-        </v-card-text>
+        <v-card-text> Do you wish to place an order request for this item. ? </v-card-text>
         <v-card-actions>
           <v-spacer></v-spacer>
           <v-btn color="error" text @click="cancelOrderRequest">No</v-btn>
@@ -705,9 +632,7 @@
     </v-dialog>
     <v-dialog persistent width="500" v-model="cancelReq">
       <v-card>
-        <v-card-text>
-          Do you wish to cancel this Order Fulfillment . ?
-        </v-card-text>
+        <v-card-text> Do you wish to cancel this Order Fulfillment . ? </v-card-text>
         <v-card-actions>
           <v-spacer></v-spacer>
           <v-btn color="error" text @click="cancelCancelRequest">No</v-btn>
@@ -720,9 +645,7 @@
         <v-card-text> Have you Received the Payment . ? </v-card-text>
         <v-card-actions>
           <v-spacer></v-spacer>
-          <v-btn color="error" text @click="closeUpdatePaymentVerified"
-            >No</v-btn
-          >
+          <v-btn color="error" text @click="closeUpdatePaymentVerified">No</v-btn>
           <v-btn color="success" text @click="updatePaymentVerified">Yes</v-btn>
         </v-card-actions>
       </v-card>
@@ -731,6 +654,7 @@
 </template>
 
 <script>
+import { sanitizeHtml } from '@/util/sanitize';
 import axios from '@/util/axios';
 import { setAuthHeader } from '@/util/axios';
 // import app from '@/util/eventBus';
@@ -791,7 +715,9 @@ export default {
   },
   methods: {
     formatInfo(info) {
-      return info.replace(/\n/g, '<br>');
+      if (!info) return '';
+      const withBreaks = String(info).replace(/\n/g, '<br>');
+      return sanitizeHtml(withBreaks);
     },
     getItemDescription(del) {
       if (del?.menu_rate_price) {
@@ -840,8 +766,7 @@ export default {
           this.items = data.data.map((item) => {
             return {
               ...item,
-              paymentVerified:
-                item?.payment_verified == null ? '' : item.payment_verified,
+              paymentVerified: item?.payment_verified == null ? '' : item.payment_verified,
               cartDetails: item.cart_details.map((del) => {
                 return {
                   ...del,
@@ -861,9 +786,7 @@ export default {
           // eslint-disable-next-line
           console.log(error);
           const message =
-            error.response.data.message === ''
-              ? 'Something Wrong!!!'
-              : error.response.data.message;
+            error.response.data.message === '' ? 'Something Wrong!!!' : error.response.data.message;
           this.errorMessage = message;
           this.isError = true;
         })
@@ -879,10 +802,7 @@ export default {
           const data = response.data.data;
           // console.log(data);
           this.orderStatuses = data
-            .filter(
-              (d) =>
-                d.order_status_value != 'PP' && d.order_status_value != 'DP',
-            )
+            .filter((d) => d.order_status_value != 'PP' && d.order_status_value != 'DP')
             .map((item) => {
               return {
                 value: item.order_status_value || '',
@@ -894,9 +814,7 @@ export default {
           // eslint-disable-next-line
           console.log(error);
           const message =
-            error.response.data.message === ''
-              ? 'Something Wrong!!!'
-              : error.response.data.message;
+            error.response.data.message === '' ? 'Something Wrong!!!' : error.response.data.message;
           this.errorMessage = message;
           this.isError = true;
         })
@@ -922,9 +840,7 @@ export default {
           // eslint-disable-next-line
           console.log(error);
           const message =
-            error.response.data.message === ''
-              ? 'Something Wrong!!!'
-              : error.response.data.message;
+            error.response.data.message === '' ? 'Something Wrong!!!' : error.response.data.message;
           this.errorMessage = message;
           this.isError = true;
         })
@@ -952,9 +868,7 @@ export default {
           // eslint-disable-next-line
           console.log(error);
           const message =
-            error.response.data.message === ''
-              ? 'Something Wrong!!!'
-              : error.response.data.message;
+            error.response.data.message === '' ? 'Something Wrong!!!' : error.response.data.message;
           this.errorMessage = message;
           this.isError = true;
         })
@@ -982,9 +896,7 @@ export default {
           // eslint-disable-next-line
           console.log(error);
           const message =
-            error.response.data.message === ''
-              ? 'Something Wrong!!!'
-              : error.response.data.message;
+            error.response.data.message === '' ? 'Something Wrong!!!' : error.response.data.message;
           this.errorMessage = message;
           this.isError = true;
         })
@@ -1023,9 +935,7 @@ export default {
           // eslint-disable-next-line
           console.log(error);
           const message =
-            error.response.data.message === ''
-              ? 'Something Wrong!!!'
-              : error.response.data.message;
+            error.response.data.message === '' ? 'Something Wrong!!!' : error.response.data.message;
           this.errorMessage = message;
           this.isError = true;
         });
@@ -1046,9 +956,7 @@ export default {
           // eslint-disable-next-line
           console.log(error);
           const message =
-            error.response.data.message === ''
-              ? 'Something Wrong!!!'
-              : error.response.data.message;
+            error.response.data.message === '' ? 'Something Wrong!!!' : error.response.data.message;
           this.errorMessage = message;
           this.isError = true;
         });
@@ -1067,9 +975,7 @@ export default {
           // eslint-disable-next-line
           console.log(error);
           const message =
-            error.response.data.message === ''
-              ? 'Something Wrong!!!'
-              : error.response.data.message;
+            error.response.data.message === '' ? 'Something Wrong!!!' : error.response.data.message;
           this.errorMessage = message;
           this.isError = true;
         })
@@ -1118,18 +1024,14 @@ export default {
           // eslint-disable-next-line
           console.log(error);
           const message =
-            error.response.data.error === ''
-              ? 'Something Wrong!!!'
-              : error.response.data.error;
+            error.response.data.error === '' ? 'Something Wrong!!!' : error.response.data.error;
           this.errorMessage = message;
           this.isError = true;
         });
     },
     deleteOrderRequest() {
       axios
-        .delete(
-          `/order-fullfilment/${this.cancelRequestData?.order_fullfilment?.of_id}`,
-        )
+        .delete(`/order-fullfilment/${this.cancelRequestData?.order_fullfilment?.of_id}`)
         .then((response) => {
           const data = response.data;
           this.successMessage = data.message;
@@ -1141,9 +1043,7 @@ export default {
           // eslint-disable-next-line
           console.log(error);
           const message =
-            error.response.data.error === ''
-              ? 'Something Wrong!!!'
-              : error.response.data.error;
+            error.response.data.error === '' ? 'Something Wrong!!!' : error.response.data.error;
           this.errorMessage = message;
           this.isError = true;
         });

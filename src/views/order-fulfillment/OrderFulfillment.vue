@@ -184,12 +184,6 @@
                         </tr>
                       </tbody>
                     </v-table>
-                    <skeleton-table v-if="isLoading" :rows="5" :columns="5" />
-                    <empty-state
-                      v-if="!isLoading && (!orderFulfillment || orderFulfillment.length === 0)"
-                      title="No Data Found"
-                      subtitle="There are no records to display."
-                    />
                   </td>
                 </tr>
 
@@ -223,6 +217,12 @@
               </template>
             </tbody>
           </v-table>
+          <skeleton-table v-if="isLoading" :rows="5" :columns="5" />
+          <empty-state
+            v-if="!isLoading && (!items || items.length === 0)"
+            title="No Data Found"
+            subtitle="There are no records to display."
+          />
         </v-col>
       </v-row>
     </v-sheet>

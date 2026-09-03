@@ -5,6 +5,8 @@
         <img :src="user.avatar" @click="showCropper = true" class="avatar" />
       </div>
     </div>
+    <!-- NOTE: v-html di sini aman — variabel 'message' adalah hardcoded string 'ready', bukan user input.
+         Jika komponen ini diaktifkan di masa depan dengan data dinamis, tambahkan sanitizeHtml(). -->
     <div class="border-t p-6 text-gray-500" v-html="message"></div>
     <avatar-cropper
       @changed="handleUpload"
