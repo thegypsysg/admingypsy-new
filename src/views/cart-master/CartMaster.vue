@@ -2,6 +2,12 @@
 <!-- eslint-disable vue/no-deprecated-v-bind-sync -->
 <template>
   <v-container>
+    <app-breadcrumb
+      :items="[
+        { title: 'Dashboard', to: '/' },
+        { title: 'Cart Master', to: null },
+      ]"
+    />
     <!-- <h1>Cart Master</h1> -->
     <div class="d-flex ml-4 mb-4" style="gap: 40px">
       <router-link

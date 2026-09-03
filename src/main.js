@@ -15,6 +15,7 @@ import { loadFonts } from './plugins/webfontloader';
 
 import VueDatePicker from '@vuepic/vue-datepicker';
 import '@vuepic/vue-datepicker/dist/main.css';
+import AppBreadcrumb from './components/AppBreadcrumb.vue';
 
 loadFonts();
 
@@ -38,4 +39,5 @@ window.addEventListener('unhandledrejection', (event) => {
 });
 
 app.component('VueDatePicker', VueDatePicker);
+app.component('AppBreadcrumb', AppBreadcrumb);
 app.use(router).use(pinia).use(vuetify).mount('#app');

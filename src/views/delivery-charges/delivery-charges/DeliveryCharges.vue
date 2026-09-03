@@ -1,5 +1,11 @@
 <template>
   <v-container>
+    <app-breadcrumb
+      :items="[
+        { title: 'Dashboard', to: '/' },
+        { title: 'Delivery Charges', to: null },
+      ]"
+    />
     <div class="d-flex align-center ml-4 mb-4" style="gap: 30px">
       <router-link class="text-decoration-none text-black" to="/delivery-charges">
         <h1>Delivery Charges</h1>

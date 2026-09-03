@@ -2,6 +2,12 @@
 <!-- eslint-disable vue/no-deprecated-v-bind-sync -->
 <template>
   <v-container>
+    <app-breadcrumb
+      :items="[
+        { title: 'Dashboard', to: '/' },
+        { title: 'Address Master', to: null },
+      ]"
+    />
     <div class="d-flex align-center ml-4 mb-4" style="gap: 30px">
       <router-link class="text-decoration-none text-black" to="/address-master">
         <h1>Address Master</h1>

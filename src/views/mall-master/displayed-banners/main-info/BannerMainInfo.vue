@@ -92,6 +92,8 @@
             <div class="img-container py-4 px-8">
               <v-img
                 class="img-content"
+                loading="lazy"
+                lazy-src="data:image/svg+xml,%3Csvg xmlns%3D%22http%3A//www.w3.org/2000/svg%22 width%3D%221%22 height%3D%221%22%3E%3C/svg%3E"
                 @click="openImage(itemData)"
                 style="cursor: pointer"
                 :src="

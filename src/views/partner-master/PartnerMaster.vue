@@ -2,6 +2,12 @@
 <!-- eslint-disable vue/no-deprecated-v-bind-sync -->
 <template>
   <v-container>
+    <app-breadcrumb
+      :items="[
+        { title: 'Dashboard', to: '/' },
+        { title: 'Partner Master', to: null },
+      ]"
+    />
     <v-form v-model="valid" @submit.prevent>
       <v-container>
         <v-row>
@@ -131,6 +137,8 @@
                       <v-img
                         class="image-upload-item"
                         height="40"
+                        loading="lazy"
+                        lazy-src="data:image/svg+xml,%3Csvg xmlns%3D%22http%3A//www.w3.org/2000/svg%22 width%3D%221%22 height%3D%221%22%3E%3C/svg%3E"
                         @click="openLogo(item)"
                         style="cursor: pointer"
                         :src="
@@ -147,6 +155,8 @@
                       <v-img
                         class="image-upload-item"
                         height="40"
+                        loading="lazy"
+                        lazy-src="data:image/svg+xml,%3Csvg xmlns%3D%22http%3A//www.w3.org/2000/svg%22 width%3D%221%22 height%3D%221%22%3E%3C/svg%3E"
                         @click="openImage(item)"
                         style="cursor: pointer"
                         :src="

@@ -1,6 +1,12 @@
 <!-- eslint-disable vue/no-deprecated-v-bind-sync -->
 <template>
   <v-container>
+    <app-breadcrumb
+      :items="[
+        { title: 'Dashboard', to: '/' },
+        { title: 'Rate Types', to: null },
+      ]"
+    />
     <HeaderWallMaster />
     <v-form v-model="valid" @submit.prevent>
       <v-container>

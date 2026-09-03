@@ -246,6 +246,8 @@
                             ? $fileURL + item.image
                             : 'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png'
                         "
+                        loading="lazy"
+                        lazy-src="data:image/svg+xml,%3Csvg xmlns%3D%22http%3A//www.w3.org/2000/svg%22 width%3D%221%22 height%3D%221%22%3E%3C/svg%3E"
                         ><template #placeholder> <div class="skeleton" /> </template
                       ></v-img>
                     </div>
@@ -361,7 +363,12 @@
                                   <div class="d-flex align-center w-100">
                                     <div class="w-25 py-1">
                                       <div>
-                                        <v-img height="40" :src="item?.raw?.image">
+                                        <v-img
+                                          height="40"
+                                          :src="item?.raw?.image"
+                                          loading="lazy"
+                                          lazy-src="data:image/svg+xml,%3Csvg xmlns%3D%22http%3A//www.w3.org/2000/svg%22 width%3D%221%22 height%3D%221%22%3E%3C/svg%3E"
+                                        >
                                           <template #placeholder>
                                             <div class="skeleton" />
                                           </template>

@@ -113,6 +113,8 @@
                             ? $fileURL + item.main_image
                             : 'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png'
                         "
+                        loading="lazy"
+                        lazy-src="data:image/svg+xml,%3Csvg xmlns%3D%22http%3A//www.w3.org/2000/svg%22 width%3D%221%22 height%3D%221%22%3E%3C/svg%3E"
                       >
                         <template #placeholder> <div class="skeleton" /> </template
                       ></v-img>
@@ -130,6 +132,8 @@
                             ? $fileURL + item.long_image
                             : 'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png'
                         "
+                        loading="lazy"
+                        lazy-src="data:image/svg+xml,%3Csvg xmlns%3D%22http%3A//www.w3.org/2000/svg%22 width%3D%221%22 height%3D%221%22%3E%3C/svg%3E"
                       >
                         <template #placeholder> <div class="skeleton" /> </template
                       ></v-img>
@@ -147,6 +151,8 @@
                             ? $fileURL + item.icon_image
                             : 'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png'
                         "
+                        loading="lazy"
+                        lazy-src="data:image/svg+xml,%3Csvg xmlns%3D%22http%3A//www.w3.org/2000/svg%22 width%3D%221%22 height%3D%221%22%3E%3C/svg%3E"
                       >
                         <template #placeholder> <div class="skeleton" /> </template
                       ></v-img>

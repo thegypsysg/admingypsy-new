@@ -1,5 +1,11 @@
 <template>
   <v-container>
+    <app-breadcrumb
+      :items="[
+        { title: 'Dashboard', to: '/' },
+        { title: 'Inquiry Master', to: null },
+      ]"
+    />
     <h1>Inquiry Master</h1>
     <v-sheet class="py-6 px-4 mt-6" border rounded width="100%">
       <v-row>

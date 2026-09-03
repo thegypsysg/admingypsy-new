@@ -1,6 +1,12 @@
 <!-- eslint-disable vue/no-deprecated-v-bind-sync -->
 <template>
   <v-container>
+    <app-breadcrumb
+      :items="[
+        { title: 'Dashboard', to: '/' },
+        { title: 'Price List Master', to: null },
+      ]"
+    />
     <div class="d-flex align-center">
       <span
         style="cursor: pointer"
@@ -81,7 +87,13 @@
                     <div
                       style="height: 34px; width: 100%; object-fit: cover; object-position: center"
                     >
-                      <v-img height="34" cover :src="$fileURL + item?.raw?.image">
+                      <v-img
+                        height="34"
+                        cover
+                        loading="lazy"
+                        lazy-src="data:image/svg+xml,%3Csvg xmlns%3D%22http%3A//www.w3.org/2000/svg%22 width%3D%221%22 height%3D%221%22%3E%3C/svg%3E"
+                        :src="$fileURL + item?.raw?.image"
+                      >
                         <template #placeholder>
                           <div class="skeleton" />
                         </template>
@@ -107,7 +119,13 @@
                           object-position: center;
                         "
                       >
-                        <v-img height="40" cover :src="$fileURL + item?.raw?.image">
+                        <v-img
+                          height="40"
+                          cover
+                          loading="lazy"
+                          lazy-src="data:image/svg+xml,%3Csvg xmlns%3D%22http%3A//www.w3.org/2000/svg%22 width%3D%221%22 height%3D%221%22%3E%3C/svg%3E"
+                          :src="$fileURL + item?.raw?.image"
+                        >
                           <template #placeholder>
                             <div class="skeleton" />
                           </template>
@@ -241,6 +259,8 @@
                       <v-img
                         class="image-upload-item"
                         height="40"
+                        loading="lazy"
+                        lazy-src="data:image/svg+xml,%3Csvg xmlns%3D%22http%3A//www.w3.org/2000/svg%22 width%3D%221%22 height%3D%221%22%3E%3C/svg%3E"
                         @click="openImage(item)"
                         style="cursor: pointer"
                         :src="

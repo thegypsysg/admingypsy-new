@@ -1,6 +1,12 @@
 <!-- eslint-disable vue/no-deprecated-v-bind-sync -->
 <template>
   <v-container>
+    <app-breadcrumb
+      :items="[
+        { title: 'Dashboard', to: '/' },
+        { title: 'Invite Users', to: null },
+      ]"
+    />
     <h1>The Gypsy Registration</h1>
     <v-form v-model="valid" @submit.prevent>
       <v-container>
