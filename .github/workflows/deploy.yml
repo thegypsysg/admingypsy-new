@@ -1,0 +1,37 @@
+name: Deploy to cPanel
+
+on:
+  push:
+    branches:
+      - refactor # Sesuaikan dengan branch yang ingin di-deploy otomatis. Saat ini aktif di branch 'refactor'
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20' # Sesuaikan dengan versi Node.js yang Anda gunakan
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build project
+        run: npm run build
+
+      - name: Deploy to cPanel via SCP
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.CPANEL_HOST }}
+          username: ${{ secrets.CPANEL_USERNAME }}
+          password: ${{ secrets.CPANEL_PASSWORD }}
+          port: ${{ secrets.CPANEL_PORT }}
+          source: "dist/*"
+          target: "/home/thegypsysg/public_html/admin.the-gypsy.sg"
+          strip_components: 1
