@@ -593,13 +593,14 @@
                   </td>
                 </tr>
               </template>
-              <tr v-if="isLoading">
-                <td :colspan="11" class="text-center">
-                  <v-progress-circular indeterminate color="indigo-accent-2"></v-progress-circular>
-                </td>
-              </tr>
             </tbody>
           </v-table>
+          <skeleton-table v-if="isLoading" :rows="5" :columns="11" />
+          <empty-state
+            v-if="!isLoading && (!items || items.length === 0)"
+            title="No Data Found"
+            subtitle="There are no records to display."
+          />
           <v-pagination
             v-model="currentPage"
             :length="totalPages"
@@ -660,6 +661,8 @@
 </template>
 
 <script>
+import SkeletonTable from '@/components/SkeletonTable.vue';
+import EmptyState from '@/components/EmptyState.vue';
 import { sanitizeHtml } from '@/util/sanitize';
 import axios from '@/util/axios';
 import { setAuthHeader } from '@/util/axios';
@@ -667,6 +670,10 @@ import { setAuthHeader } from '@/util/axios';
 
 export default {
   name: 'CartMaster',
+  components: {
+    SkeletonTable,
+    EmptyState,
+  },
   data: () => ({
     // fileURL: 'https://admin1.the-gypsy.sg/img/app/',
     valid: false,

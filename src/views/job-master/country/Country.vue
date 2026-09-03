@@ -17,8 +17,7 @@
           itemData?.client || ''
         }}</span
         ><span>{{ itemData?.id || '' }}</span
-        ><span>{{ itemData?.id || '' }}</span> -
-        <span>{{ itemData?.position || '' }}</span> -
+        ><span>{{ itemData?.id || '' }}</span> - <span>{{ itemData?.position || '' }}</span> -
         <span>{{ itemData?.country || '' }}</span>
       </h3>
       <h4 class="ml-4 mt-4">
@@ -47,11 +46,7 @@
           </v-col>
           <v-col class="mt-8" cols="12" md="2">
             <v-btn
-              :prepend-icon="
-                isEdit
-                  ? 'mdi-account-multiple-check'
-                  : 'mdi-account-multiple-plus'
-              "
+              :prepend-icon="isEdit ? 'mdi-account-multiple-check' : 'mdi-account-multiple-plus'"
               color="indigo-accent-2"
               style="text-transform: none"
               type="submit"
@@ -118,44 +113,36 @@
                   </td>
                   <td>
                     <div class="d-flex">
+                      <v-btn color="green" variant="text" @click="editPrimaryCountry(item)" icon>
+                        <v-icon>mdi-pencil-outline</v-icon>
+                        <v-tooltip location="top" activator="parent">Edit</v-tooltip>
+                      </v-btn>
                       <v-btn
-                            color="green"
-                            variant="text" @click="editPrimaryCountry(item)"
-                            icon
-                          >
-  <v-icon>mdi-pencil-outline</v-icon>  <v-tooltip location="top" activator="parent">Edit</v-tooltip>
-</v-btn>
-                      <v-btn
-                            color="red" variant="text"
-                            :disabled="isDeleteLoading"
-                            @click="openDeleteConfirm(item.id)"
-                            icon
-                          >
-  <v-icon>mdi-trash-can-outline</v-icon>  <v-tooltip location="top" activator="parent">Delete</v-tooltip>
-</v-btn>
+                        color="red"
+                        variant="text"
+                        :disabled="isDeleteLoading"
+                        @click="openDeleteConfirm(item.id)"
+                        icon
+                      >
+                        <v-icon>mdi-trash-can-outline</v-icon>
+                        <v-tooltip location="top" activator="parent">Delete</v-tooltip>
+                      </v-btn>
                     </div>
                   </td>
                 </tr>
               </template>
-              <tr v-if="isLoading">
-                <td :colspan="6" class="text-center">
-                  <v-progress-circular
-                    indeterminate
-                    color="indigo-accent-2"
-                  ></v-progress-circular>
-                </td>
-              </tr>
             </tbody>
           </v-table>
+          <skeleton-table v-if="isLoading" :rows="5" :columns="6" />
+          <empty-state
+            v-if="!isLoading && (!filteredItems || filteredItems.length === 0)"
+            title="No Data Found"
+            subtitle="There are no records to display."
+          />
         </v-col>
       </v-row>
     </v-sheet>
-    <v-snackbar
-      location="top"
-      color="green"
-      v-model="isSuccess"
-      :timeout="3000"
-    >
+    <v-snackbar location="top" color="green" v-model="isSuccess" :timeout="3000">
       {{ successMessage }}
 
       <template v-slot:actions>
@@ -176,9 +163,7 @@
     <v-dialog persistent width="500" v-model="isDelete">
       <v-card>
         <v-card-title>Confirmation</v-card-title>
-        <v-card-text>
-          Are you sure want to delete this job master country?
-        </v-card-text>
+        <v-card-text> Are you sure want to delete this job master country? </v-card-text>
         <v-card-actions>
           <v-spacer></v-spacer>
           <v-btn color="error" text @click="cancelDelete">No</v-btn>
@@ -190,12 +175,18 @@
 </template>
 
 <script>
+import SkeletonTable from '@/components/SkeletonTable.vue';
+import EmptyState from '@/components/EmptyState.vue';
 import axios from '@/util/axios';
 import { setAuthHeader } from '@/util/axios';
 // import app from '@/util/eventBus';
 
 export default {
   name: 'CountryVue',
+  components: {
+    SkeletonTable,
+    EmptyState,
+  },
   data: () => ({
     // fileURL: 'https://admin1.the-gypsy.sg/img/app/',
     idJobCountry: null,
@@ -280,29 +271,12 @@ export default {
                 subIndustry: item.partner.sub_industry.sub_industry_name || '',
                 skills_id: item.skills_id || 1,
                 country: item.partner.country.country_name || '',
-                status:
-                  item.status == 'P'
-                    ? 'Pending'
-                    : item.status == 'C'
-                    ? 'Completed'
-                    : '',
+                status: item.status == 'P' ? 'Pending' : item.status == 'C' ? 'Completed' : '',
                 postedOn: item.job_dated || '',
-                isActive:
-                  item.active == 'N' ? false : item.active == 'Y' ? true : null,
-                isFeatured:
-                  item.favorite == 'N'
-                    ? false
-                    : item.favorite == 'Y'
-                    ? true
-                    : null,
-                isPlatinum:
-                  item.favorite == 'N'
-                    ? false
-                    : item.favorite == 'Y'
-                    ? true
-                    : null,
-                isLive:
-                  item.live == 'N' ? false : item.live == 'Y' ? true : null,
+                isActive: item.active == 'N' ? false : item.active == 'Y' ? true : null,
+                isFeatured: item.favorite == 'N' ? false : item.favorite == 'Y' ? true : null,
+                isPlatinum: item.favorite == 'N' ? false : item.favorite == 'Y' ? true : null,
+                isLive: item.live == 'N' ? false : item.live == 'Y' ? true : null,
                 app: item.skill.skill_group.app.app_name || '',
                 skillsGroup: item.skill.skill_group.group_name || '',
                 skills: item.skill.skills_name || '',
@@ -313,9 +287,7 @@ export default {
           // eslint-disable-next-line
           console.log(error);
           const message =
-            error.response.data.message === ''
-              ? 'Something Wrong!!!'
-              : error.response.data.message;
+            error.response.data.message === '' ? 'Something Wrong!!!' : error.response.data.message;
           this.errorMessage = message;
           this.isError = true;
         })
@@ -373,9 +345,7 @@ export default {
             // eslint-disable-next-line
             console.log(error);
             const message =
-              error.response.data.error === ''
-                ? 'Something Wrong!!!'
-                : error.response.data.error;
+              error.response.data.error === '' ? 'Something Wrong!!!' : error.response.data.error;
             this.errorMessage = message;
             this.isError = true;
           })
@@ -408,9 +378,7 @@ export default {
             // eslint-disable-next-line
             console.log(error);
             const message =
-              error.response.data.error === ''
-                ? 'Something Wrong!!!'
-                : error.response.data.error;
+              error.response.data.error === '' ? 'Something Wrong!!!' : error.response.data.error;
             this.errorMessage = message;
             this.isError = true;
           })
@@ -445,9 +413,7 @@ export default {
           // eslint-disable-next-line
           console.log(error);
           const message =
-            error.response.data.message === ''
-              ? 'Something Wrong!!!'
-              : error.response.data.message;
+            error.response.data.message === '' ? 'Something Wrong!!!' : error.response.data.message;
           this.errorMessage = message;
           this.isError = true;
         })
@@ -484,9 +450,7 @@ export default {
           // eslint-disable-next-line
           console.log(error);
           const message =
-            error.response.data.message === ''
-              ? 'Something Wrong!!!'
-              : error.response.data.message;
+            error.response.data.message === '' ? 'Something Wrong!!!' : error.response.data.message;
           this.errorMessage = message;
           this.isError = true;
         })
@@ -510,9 +474,7 @@ export default {
           // eslint-disable-next-line
           console.log(error);
           const message =
-            error.response.data.message === ''
-              ? 'Something Wrong!!!'
-              : error.response.data.message;
+            error.response.data.message === '' ? 'Something Wrong!!!' : error.response.data.message;
           this.errorMessage = message;
           this.isError = true;
         });
